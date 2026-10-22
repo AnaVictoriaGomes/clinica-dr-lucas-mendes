@@ -220,7 +220,7 @@ button.x{border-radius:6px;padding:2px 7px;transition:background .15s}button.x:h
 const FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas'],['m1','Mensagens 1'],['m2','Mensagens 2'],['m3','Mensagens 3'],['m4','Mensagens 4'],['m5','Mensagens 5'],['m6','Mensagens 6'],['cagend','Consultas agendadas'],['tcap','Total atual']];
 const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-26":[100,2,473,346,0,0,0,20,3,326,33,3,9,13,6,2,5],"2026-10-03":[52,2,513,33,375,0,0,25,6,350,31,0,14,7,4,0,11],"2026-10-10":[111,18,412,291,0,0,0,20,6,341,20,13,7,28,0,0,8]};
 const ORIG={novo:'Novo lead',c2:'2º contato (FU 2)',c3:'3º contato (FU 3)',c4:'4º contato (FU 4)',c5:'5º contato (FU 5)',sem:'Sem retorno no follow-up'};
-const STAT={agendada:'Agendada',realizada:'Realizada',cancelada:'Cancelada',reagendada:'Reagendada'};
+const STAT={agendada:'Agendada',realizada:'Realizada',cancelado:'Cancelado',reagendada:'Reagendada'};
 const REG={'':'—',sim:'Sim, reagendado',contato:'Em contato',nao:'Não conseguiu'};
 let db=null,weeks={},appts={},cur='dash',cfg={},selWeek='',pFrom='',pTo='',pAuto=true,pSel='all',aFilt={week:'',from:'',to:'',origin:'',status:''};
 const BASE=FIELDS.map(f=>f[1]),ORIG0={...ORIG};
@@ -244,7 +244,7 @@ async function enviarParaSheetDB(payload){
   const response = await fetch(SHEETDB_URL, {
     method:'POST',
     headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body: JSON.stringify([payload])
+    body: JSON.stringify(payload)
   });
 
   const text = await response.text();
@@ -252,21 +252,77 @@ async function enviarParaSheetDB(payload){
   return true;
 }
 
-let sheetSyncTimer = null;
 let sheetSyncInProgress = false;
 
 async function queueSheet(){
   if(sheetSyncInProgress) return;
+  const rows = [];
   sheetSyncInProgress = true;
+
   try{
-    const payload = {
-      source: 'painel-kommo',
-      updated_at: new Date().toISOString(),
-      weeks: Object.entries(weeks).sort(([a],[b]) => a.localeCompare(b)).map(([id,data]) => ({id, ...data})),
-      appts: Object.entries(appts).sort(([a],[b]) => a.localeCompare(b)).map(([id,data]) => ({id, ...data})),
-      config: cfg
-    };
-    const ok = await enviarParaSheetDB(payload);
+    Object.entries(weeks).sort(([a],[b]) => a.localeCompare(b)).forEach(([id,data]) => {
+      rows.push({
+        source: 'painel-kommo',
+        updated_at: new Date().toISOString(),
+        data_semana: id,
+        novos: Number(data.novos || 0),
+        antigas: Number(data.antigas || 0),
+        ativas: Number(data.ativas || 0),
+        fu2: Number(data.fu2 || 0),
+        fu3: Number(data.fu3 || 0),
+        fu4: Number(data.fu4 || 0),
+        fu5: Number(data.fu5 || 0),
+        resp: Number(data.resp || 0),
+        m1: Number(data.m1 || 0),
+        m2: Number(data.m2 || 0),
+        m3: Number(data.m3 || 0),
+        m4: Number(data.m4 || 0),
+        m5: Number(data.m5 || 0),
+        m6: Number(data.m6 || 0),
+        cagend: Number(data.cagend || 0),
+        tcap: Number(data.tcap || 0),
+        paciente: '',
+        origem: '',
+        agendada_em: '',
+        data_consulta: '',
+        status: '',
+        reagendado: '',
+        observacao: ''
+      });
+    });
+
+    Object.entries(appts).sort(([a],[b]) => a.localeCompare(b)).forEach(([id,data]) => {
+      rows.push({
+        source: 'painel-kommo',
+        updated_at: new Date().toISOString(),
+        data_semana: '',
+        novos: '',
+        antigas: '',
+        ativas: '',
+        fu2: '',
+        fu3: '',
+        fu4: '',
+        fu5: '',
+        resp: '',
+        m1: '',
+        m2: '',
+        m3: '',
+        m4: '',
+        m5: '',
+        m6: '',
+        cagend: '',
+        tcap: '',
+        paciente: String(data.paciente || data.nome || ''),
+        origem: String(data.origem || ''),
+        agendada_em: String(data.agendada_em || data.agendada || ''),
+        data_consulta: String(data.data_consulta || data.consulta || ''),
+        status: String((data.status || 'agendada')).toLowerCase(),
+        reagendado: String(data.reagendado || ''),
+        observacao: String(data.observacao || '')
+      });
+    });
+
+    const ok = await enviarParaSheetDB(rows);
     if(ok) toast('Dados Salvos com Sucesso!');
   } catch(e){
     console.error('Erro no envio para SheetDB:', e);
