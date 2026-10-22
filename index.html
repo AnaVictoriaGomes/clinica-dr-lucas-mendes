@@ -6,33 +6,44 @@
   <title>Painel KOMMO – Follow-up e Agenda</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:#f4f6f3;
+      --bg:#edf3f1;
+      --bg-strong:#e1ece8;
       --card:#ffffff;
-      --ink:#16302c;
-      --mut:#5f7571;
-      --line:#dbe3df;
-      --g:#1f7a6d;
-      --a:#d99a1c;
-      --b:#3d6fa8;
-      --r:#c2455a;
-      --k:#9aa8a4;
-      --p:#7a5aa6;
-      --shadow:0 1px 2px rgba(16,40,36,.05), 0 6px 20px -10px rgba(16,40,36,.12);
-      color-scheme: light;
-      box-sizing: border-box;
+      --card-alt:#f7faf9;
+      --ink:#122a2b;
+      --mut:#5b726d;
+      --line:#dfe9e4;
+      --primary:#0f766e;
+      --primary-strong:#0b625c;
+      --primary-soft:#dcf8f3;
+      --gold:#d89b20;
+      --gold-soft:#fff4d8;
+      --blue:#2c5e9a;
+      --blue-soft:#edf4ff;
+      --purple:#6f5ab3;
+      --purple-soft:#f1ebff;
+      --red:#d84f62;
+      --red-soft:#ffe8ee;
+      --success:#1a8a5a;
+      --success-soft:#ebfbf1;
+      --warning:#c78112;
+      --warning-soft:#fff4d8;
+      --shadow:0 12px 30px rgba(16, 35, 32, 0.08), 0 2px 10px rgba(16, 35, 32, 0.04);
+      --radius:18px;
+      color-scheme:light;
+      box-sizing:border-box;
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-padding-top: env(safe-area-inset-top, 0px); }
-
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
     body {
       margin:0;
-      background:var(--bg);
+      background:linear-gradient(180deg, #edf3f1 0%, #edf5f3 100%);
       color:var(--ink);
-      font:15px/1.45 "Figtree", system-ui, sans-serif;
+      font:15px/1.5 "Figtree", system-ui, sans-serif;
       overflow-x:hidden;
     }
     body.locked { overflow:hidden; }
@@ -45,319 +56,528 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      background:radial-gradient(circle at top, #f4faf8 0%, #eaf0ee 40%, #dfeae7 100%);
-      z-index:1000;
+      background:radial-gradient(circle at top, #f5faf8 0%, #e8f0ee 38%, #dfeae6 100%);
+      z-index:2000;
     }
     body:not(.locked) .lock-screen { display:none; }
 
     .lock-card {
-      width:min(92vw, 380px);
-      background: rgba(255,255,255,.92);
-      border:1px solid rgba(22,48,44,.08);
-      border-radius:20px;
-      padding:28px 22px 22px;
-      box-shadow:0 20px 60px rgba(15,41,36,.18);
+      width:min(92vw, 400px);
+      background:rgba(255,255,255,0.97);
+      border:1px solid rgba(17,43,43,0.08);
+      border-radius:26px;
+      padding:30px 24px 22px;
+      box-shadow:0 32px 80px rgba(14, 36, 32, 0.15);
+      text-align:center;
     }
-    .lock-icon { font-size:42px; margin-bottom:10px; }
+    .lock-icon { font-size:46px; margin-bottom:8px; }
     .lock-card h2 {
       margin:0 0 14px;
-      font-size:26px;
+      font-size:28px;
+      letter-spacing:-0.04em;
       color:var(--ink);
-      letter-spacing:-.03em;
     }
     .lock-card label {
       display:block;
       text-align:left;
-      font-size:12px;
-      font-weight:700;
-      color:var(--mut);
-      margin-bottom:8px;
-      letter-spacing:.04em;
+      font-size:11px;
+      font-weight:800;
       text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--mut);
+      margin:12px 0 8px;
     }
     .lock-card input {
       width:100%;
-      min-height:48px;
+      min-height:52px;
       border:1px solid var(--line);
-      border-radius:12px;
+      border-radius:14px;
+      padding:12px 14px;
       background:#fff;
       color:var(--ink);
       font:inherit;
-      padding:12px 14px;
-      margin-bottom:12px;
     }
     .lock-card input:focus {
       outline:none;
-      border-color:var(--g);
-      box-shadow:0 0 0 3px rgba(31,122,109,.18);
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(15,118,110,0.12);
     }
     .lock-card button {
       width:100%;
-      min-height:46px;
+      min-height:50px;
       border:none;
-      border-radius:12px;
-      background:linear-gradient(135deg, var(--g), #2d8f7d);
+      border-radius:14px;
+      background:linear-gradient(135deg, var(--primary), var(--primary-strong));
       color:#fff;
       font:inherit;
-      font-weight:700;
+      font-weight:800;
       cursor:pointer;
-      box-shadow:0 10px 18px rgba(31,122,109,.22);
+      margin-top:10px;
+      box-shadow:0 16px 30px rgba(15,118,110,0.22);
     }
-    .lock-card button:hover { filter:brightness(1.04); }
+    .lock-card button:hover { filter:brightness(1.03); }
     #lockMessage {
-      min-height:22px;
-      margin:10px 0 0;
-      font-size:14px;
+      min-height:18px;
+      margin:12px 0 0;
+      color:var(--red);
       font-weight:700;
-      color:var(--r);
+      font-size:14px;
     }
 
     header {
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      padding:12px max(22px, calc((100% - 1180px)/2));
-      max-width:none;
-      margin:0;
       position:sticky;
       top:0;
-      z-index:20;
+      z-index:50;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:16px max(22px, calc((100% - 1200px)/2));
       background:rgba(255,255,255,.82);
-      backdrop-filter:blur(8px);
+      backdrop-filter:blur(12px);
       border-bottom:1px solid var(--line);
     }
-    h1 { font-size:20px; margin:0; }
-    h2 { font-size:16px; margin:0 0 12px; }
-    .note { color:var(--mut); font-size:13px; line-height:1.45; }
-    #st { margin-top:2px; }
+    .brand { display:flex; flex-direction:column; gap:2px; }
+    .brand h1 {
+      margin:0;
+      font-size:20px;
+      letter-spacing:-0.04em;
+    }
+    #st {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:2px;
+      font-size:12px;
+      font-weight:700;
+      color:var(--mut);
+    }
     #st::before {
       content:"";
-      display:inline-block;
-      width:7px;
-      height:7px;
+      width:8px;
+      height:8px;
       border-radius:50%;
-      background:var(--g);
-      margin-right:6px;
-      vertical-align:1px;
+      background:var(--success);
+      display:inline-block;
+      box-shadow:0 0 0 5px rgba(26,138,90,0.08);
     }
 
     nav {
       display:flex;
-      gap:4px;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:6px;
+      padding:5px;
       background:var(--bg);
       border:1px solid var(--line);
-      border-radius:10px;
-      padding:4px;
-      flex-wrap:wrap;
+      border-radius:12px;
     }
     nav button {
-      border:0;
-      background:none;
+      border:none;
+      background:transparent;
       color:var(--mut);
       font:inherit;
-      font-weight:600;
-      padding:7px 14px;
-      border-radius:8px;
+      font-weight:700;
+      padding:9px 14px;
+      border-radius:10px;
       cursor:pointer;
+      transition:all .2s ease;
     }
     nav button.on {
-      background:var(--g);
+      background:linear-gradient(135deg, var(--primary), #0d9186);
       color:#fff;
-      box-shadow:0 1px 3px rgba(0,0,0,.2);
+      box-shadow:0 8px 20px rgba(16,120,110,0.18);
     }
 
     main {
-      max-width:1180px;
-      margin:auto;
-      padding:14px 22px 40px;
+      max-width:1200px;
+      margin:0 auto;
+      padding:22px max(22px, calc((100% - 1200px)/2)) 40px;
     }
     .tab-panel { display:none; }
     .tab-panel.active { display:block; }
 
-    .grid { display:grid; gap:14px; }
-    .kpis { grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin-bottom:14px; }
-    .charts { grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
     .card {
       background:var(--card);
       border:1px solid var(--line);
-      border-radius:14px;
+      border-radius:var(--radius);
       padding:18px;
-      min-width:0;
       box-shadow:var(--shadow);
+      min-width:0;
+    }
+    .card-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .card-header h2,
+    .card-header h3 {
+      margin:0;
+      font-size:16px;
+      letter-spacing:-0.03em;
+    }
+    .eyebrow {
+      display:inline-block;
+      margin:0 0 8px;
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      color:var(--mut);
+    }
+    .hero {
+      margin-bottom:18px;
+    }
+    .hero-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .hero-head h2 {
+      margin:0;
+      font-size:28px;
+      letter-spacing:-0.05em;
+    }
+    .status-pill {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--card-alt);
+      font-size:12px;
+      font-weight:700;
+      color:var(--mut);
+    }
+    .status-pill::before {
+      content:"";
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--warning);
+      display:inline-block;
+    }
+    .status-pill.good::before { background:var(--success); }
+    .status-pill.error::before { background:var(--red); }
+    .status-pill.none::before { background:var(--warning); }
+
+    .kpi-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      gap:14px;
     }
     .kpi {
       position:relative;
       overflow:hidden;
-      padding:16px 16px 14px 19px;
-      border-left:4px solid var(--g);
-      border-radius:12px;
+      padding:16px 16px 14px 18px;
+      border-radius:16px;
       background:var(--card);
       border:1px solid var(--line);
       box-shadow:var(--shadow);
+      border-left-width:4px;
+      border-left-style:solid;
     }
-    .kpi:nth-child(2) { border-left-color: var(--b); }
-    .kpi:nth-child(3) { border-left-color: var(--a); }
-    .kpi:nth-child(4) { border-left-color: var(--p); }
-    .kpi span {
+    .kpi:nth-child(1) { border-left-color:var(--primary); }
+    .kpi:nth-child(2) { border-left-color:var(--blue); }
+    .kpi:nth-child(3) { border-left-color:var(--gold); }
+    .kpi:nth-child(4) { border-left-color:var(--purple); }
+    .kpi-label {
       display:block;
-      font-size:11.5px;
-      font-weight:700;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:0.08em;
       text-transform:uppercase;
-      letter-spacing:.05em;
       color:var(--mut);
     }
-    .kpi b {
+    .kpi-value {
       display:block;
+      margin-top:10px;
       font-size:30px;
       line-height:1.1;
-      margin-top:6px;
-      letter-spacing:-.02em;
+      font-weight:800;
+      letter-spacing:-0.05em;
+      color:var(--ink);
     }
-    .kpi small {
+    .kpi-meta {
       display:block;
-      line-height:1.35;
-      margin-top:4px;
-      color:var(--mut);
+      margin-top:6px;
       font-size:12px;
+      color:var(--mut);
     }
 
-    .ins {
-      background:rgba(217,154,28,.09);
-      border:1px solid rgba(217,154,28,.34);
-      border-left:4px solid var(--a);
-      border-radius:12px;
-      padding:12px 16px;
-      margin-bottom:14px;
-      font-size:14px;
+    .insight {
+      margin-top:18px;
+      padding:14px 16px;
+      background:linear-gradient(135deg, var(--gold-soft), #fffdf4);
+      border:1px solid rgba(216,155,32,0.35);
+      border-left:4px solid var(--gold);
+      border-radius:16px;
+      color:var(--ink);
     }
-    .ins p { margin:3px 0; }
+    .insight strong { font-weight:800; }
 
+    .summary-table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    .summary-table td, .summary-table th {
+      padding:10px 8px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+    }
+    .summary-table th {
+      color:var(--mut);
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+    }
+    .summary-table tr:last-child td { border-bottom:none; }
+    .summary-table tr:hover td { background:rgba(15,118,110,0.03); }
+
+    .section-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:18px;
+      margin-top:18px;
+    }
     .chart-wrap {
-      background:var(--card);
+      background:linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
       border:1px solid var(--line);
-      border-radius:12px;
-      padding:12px;
+      border-radius:16px;
+      padding:14px;
+      min-height:330px;
     }
     .chart-legend {
       display:flex;
       flex-wrap:wrap;
-      gap:10px 14px;
+      gap:12px 16px;
+      margin:12px 0 16px;
       font-size:12px;
       color:var(--mut);
-      margin-bottom:10px;
+      font-weight:700;
     }
     .legend-dot {
       display:inline-block;
       width:10px;
       height:10px;
-      border-radius:2px;
+      border-radius:3px;
       margin-right:6px;
       vertical-align:-1px;
     }
-    svg { width:100%; height:auto; display:block; }
+    svg { display:block; width:100%; height:auto; }
     svg text { fill:var(--mut); font-size:10.5px; font-family:inherit; }
 
-    .wrap { overflow-x:auto; }
-    table {
-      border-collapse:collapse;
-      width:100%;
-      font-size:13px;
+    .field,
+    .filter-box,
+    .inline-input,
+    .mini-btn,
+    .primary-btn,
+    .ghost-btn,
+    .field input,
+    .field select,
+    .field textarea {
+      font:inherit;
+      color:var(--ink);
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:10px;
+      min-height:40px;
+      padding:8px 10px;
+      transition:border-color .15s ease, box-shadow .15s ease;
     }
-    th, td {
-      padding:9px 8px;
-      border-bottom:1px solid var(--line);
-      text-align:left;
-      white-space:nowrap;
-    }
-    th {
-      color:var(--mut);
-      font-size:11.5px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-      background:var(--bg);
-      position:sticky;
-      top:0;
-    }
-    tr:hover td { background:rgba(31,122,109,.05); }
-
-    .f {
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
-      gap:10px;
-    }
-    .f label {
+    .field {
       display:flex;
       flex-direction:column;
-      gap:3px;
+      gap:6px;
       font-size:12px;
       color:var(--mut);
-      font-weight:600;
+      font-weight:700;
+    }
+    .field input,
+    .field select,
+    .field textarea,
+    .filter-box,
+    .inline-input {
+      width:100%;
+      min-height:42px;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus,
+    .filter-box:focus,
+    .inline-input:focus {
+      outline:none;
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(15,118,110,0.12);
+    }
+    .field textarea { min-height:96px; resize:vertical; }
+
+    .form-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+      gap:12px;
     }
     .row {
       display:flex;
       flex-wrap:wrap;
-      gap:8px;
+      gap:10px;
+      align-items:center;
+      margin-top:16px;
+    }
+    .toolbar {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
       align-items:end;
-      margin-top:12px;
+      margin:0 0 12px;
     }
-
-    input, select, textarea, button.b {
-      font:inherit;
-      color:var(--ink);
-      background:var(--bg);
-      border:1px solid var(--line);
-      border-radius:9px;
-      padding:7px 9px;
-      min-height:36px;
-      transition:border-color .15s, box-shadow .15s, background .15s, filter .15s;
-    }
-    input, select, textarea { background:var(--card); }
-    input:hover, select:hover, textarea:hover { border-color:var(--k); }
-    input:focus, select:focus, textarea:focus {
-      outline:none;
-      border-color:var(--g);
-      box-shadow:0 0 0 3px rgba(31,122,109,.22);
-    }
-    button.b {
+    .primary-btn,
+    .ghost-btn,
+    .mini-btn {
+      border-radius:10px;
       cursor:pointer;
-      background:var(--g);
-      color:#fff;
-      border-color:var(--g);
-      font-weight:700;
-      padding:8px 15px;
-      box-shadow:0 1px 2px rgba(0,0,0,.12);
+      font-weight:800;
     }
-    button.b:hover { filter:brightness(1.07); }
-    button.b.s {
+    .primary-btn {
+      background:linear-gradient(135deg, var(--primary), var(--primary-strong));
+      border-color:var(--primary);
+      color:#fff;
+      box-shadow:0 10px 20px rgba(15,118,110,0.2);
+      min-height:42px;
+      padding-inline:16px;
+    }
+    .ghost-btn {
       background:transparent;
       color:var(--ink);
       border-color:var(--line);
-      box-shadow:none;
+      min-height:40px;
+      padding-inline:14px;
     }
-    button.b.s:hover { background:var(--bg); filter:none; border-color:var(--k); }
-    button.x {
-      border:0;
-      background:none;
-      color:var(--r);
-      cursor:pointer;
-      font-size:16px;
-      border-radius:6px;
-      padding:2px 7px;
+    .ghost-btn:hover,
+    .mini-btn:hover,
+    .primary-btn:hover { filter:brightness(1.02); }
+    .mini-btn {
+      background:var(--card-alt);
+      border-color:var(--line);
+      color:var(--ink);
+      min-height:34px;
+      padding:6px 10px;
+      font-size:12px;
     }
-    button.x:hover { background:rgba(194,69,90,.12); }
-    .hide { display:none !important; }
+    .del-btn {
+      color:var(--red);
+      border-color:rgba(217,77,99,0.2);
+      background:var(--red-soft);
+    }
 
+    .table-wrap {
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:var(--card);
+    }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+      font-size:13px;
+    }
+    th, td {
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      white-space:nowrap;
+      vertical-align:middle;
+    }
+    th {
+      background:var(--card-alt);
+      color:var(--mut);
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:rgba(15,118,110,0.025); }
+    .empty-state {
+      padding:22px 14px;
+      color:var(--mut);
+      font-size:14px;
+      background:var(--card-alt);
+      border:1px dashed var(--line);
+      border-radius:12px;
+      text-align:center;
+    }
+
+    .sync-box {
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      padding:14px 0 0;
+    }
+    .sync-item {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      background:var(--card-alt);
+      border:1px solid var(--line);
+      border-radius:12px;
+    }
+    .sync-status {
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      background:#fff;
+      border:1px solid var(--line);
+    }
+    .sync-status::before {
+      content:"";
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      display:inline-block;
+      background:var(--warning);
+    }
+    .sync-status.good::before { background:var(--success); }
+    .sync-status.error::before { background:var(--red); }
+    .sync-status.none::before { background:var(--warning); }
+    .sync-status.good { color:var(--success); }
+    .sync-status.error { color:var(--red); }
+    .sync-status.none { color:var(--warning); }
+
+    .config-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:12px;
+    }
+    .note {
+      font-size:13px;
+      color:var(--mut);
+      line-height:1.45;
+    }
     #msg {
       position:fixed;
       right:20px;
       bottom:20px;
-      left:auto;
-      transform:none;
-      z-index:99999;
-      background:rgba(22,48,44,.96);
+      z-index:9999;
+      background:rgba(17,42,43,0.96);
       color:#fff;
       padding:10px 16px;
       border-radius:10px;
@@ -366,16 +586,19 @@
       box-shadow:0 12px 28px rgba(0,0,0,.22);
       opacity:0;
       pointer-events:none;
-      transition:opacity .2s ease, transform .2s ease;
+      transition:opacity .2s ease;
     }
-    #msg.on { opacity:1; transform:translateY(0); }
+    #msg.on { opacity:1; }
 
-    @media (max-width:640px){
-      header { padding:10px 14px; }
-      main { padding:14px 14px 32px; }
+    @media (max-width:720px) {
+      header {
+        padding:14px 14px 16px;
+      }
+      main { padding:18px 14px 36px; }
       .card { padding:14px; }
-      .kpi b { font-size:26px; }
-      .charts { grid-template-columns:1fr; }
+      .hero-head h2 { font-size:24px; }
+      .kpi-value { font-size:26px; }
+      .table-wrap { margin-top:8px; }
     }
   </style>
 </head>
@@ -395,89 +618,34 @@
 
   <div id="appShell" class="app-shell">
     <header>
-      <div>
+      <div class="brand">
         <h1 id="ttl">Painel KOMMO</h1>
-        <div class="note" id="st">Carregando…</div>
+        <div id="st">Sistema ativo</div>
       </div>
       <nav id="nav">
-        <button type="button" data-t="dash" class="on">Painel</button>
-        <button type="button" data-t="sem">Lançar semana</button>
-        <button type="button" data-t="cons">Consultas</button>
-        <button type="button" data-t="cfg">Configuração</button>
+        <button type="button" data-tab="dash" class="on">Painel</button>
+        <button type="button" data-tab="sem">Lançar semana</button>
+        <button type="button" data-tab="cons">Consultas</button>
+        <button type="button" data-tab="cfg">Configuração</button>
       </nav>
     </header>
 
     <main>
       <section id="dash" class="tab-panel active"></section>
-
-      <section id="sem" class="tab-panel">
-        <div class="card">
-          <h2>Lançamento semanal</h2>
-          <p class="note">Escolha a data da semana. Se a semana já existir, os valores são carregados para edição. Os campos marcados com * são obrigatórios.</p>
-          <div class="row" style="margin:0 0 12px;">
-            <label class="note">Data da semana<br><input type="date" id="wd"></label>
-            <button class="b s" id="cp" type="button">Copiar valores da semana anterior</button>
-          </div>
-          <div class="f" id="wf"></div>
-          <div class="row">
-            <button class="b" id="ws" type="button">Salvar semana</button>
-            <button class="b s" id="wdel" type="button">Excluir esta semana</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h2>Importar da planilha</h2>
-          <p class="note">Cole as linhas de dados da planilha sem o cabeçalho, da coluna Data até Consultas realizadas.</p>
-          <textarea id="paste" rows="4" style="width:100%" placeholder="23/09/2026	321	64	380 …"></textarea>
-          <div class="row">
-            <button class="b" id="imp" type="button">Importar</button>
-          </div>
-        </div>
-
-        <div class="card wrap" style="margin-top:14px;">
-          <h2>Semanas lançadas</h2>
-          <div id="wl"></div>
-        </div>
-      </section>
-
-      <section id="cons" class="tab-panel">
-        <div class="card">
-          <h2>Registrar consulta agendada</h2>
-          <div class="f">
-            <label>Paciente<input id="cp_n" placeholder="Nome ou iniciais"></label>
-            <label>Veio de<select id="cp_o"></select></label>
-            <label>Agendada em<input type="date" id="cp_s"></label>
-            <label>Data da consulta<input type="date" id="cp_c"></label>
-          </div>
-          <div class="row"><button class="b" id="cp_add" type="button">Adicionar consulta</button></div>
-        </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h2>Colar dados do paciente</h2>
-          <p class="note">Alternativa rápida: cole os dados e eles são preenchidos automaticamente e salvos como consultas.</p>
-          <textarea id="cp_paste" rows="4" style="width:100%" placeholder="Maria / Instagram / 21/10/2026 / 24/10/2026"></textarea>
-          <div class="row"><button class="b" id="cp_imp" type="button">Importar</button></div>
-        </div>
-
-        <div class="card wrap" style="margin-top:14px;">
-          <h2>Consultas registradas</h2>
-          <p class="note">Mude o status quando a consulta acontecer, for cancelada ou reagendada.</p>
-          <div id="al"></div>
-        </div>
-      </section>
-
+      <section id="sem" class="tab-panel"></section>
+      <section id="cons" class="tab-panel"></section>
       <section id="cfg" class="tab-panel"></section>
     </main>
-
-    <div id="msg"></div>
   </div>
+
+  <div id="msg"></div>
 
   <script>
     (function () {
-      const STORAGE_KEY = 'kommo_dashboard_data';
+      const STORAGE_KEY = 'kommo_dashboard_data_v2';
+      const ACCESS_PASSWORD = 'Lucas830';
       const SHEETDB_WEEK_URL = 'https://sheetdb.io/api/v1/hd148z3uhn04n';
       const SHEETDB_CONSULTA_URL = 'https://sheetdb.io/api/v1/antynpy96prfl';
-      const ACCESS_PASSWORD = 'Lucas830';
       const FIELDS = [
         ['novos','Novos leads'],
         ['antigas','Conversas antigas retomadas'],
@@ -497,67 +665,104 @@
         ['tcap','Total atual']
       ];
 
-      const ORIG = {
-        novo:'Novo lead',
-        c2:'2º contato (FU 2)',
-        c3:'3º contato (FU 3)',
-        c4:'4º contato (FU 4)',
-        c5:'5º contato (FU 5)',
-        sem:'Sem retorno no follow-up'
-      };
-
-      const lockForm = document.getElementById('lockForm');
-      const accessPasswordInput = document.getElementById('accessPassword');
-      const lockMessage = document.getElementById('lockMessage');
-      const lockScreen = document.getElementById('lockScreen');
-      const appShell = document.getElementById('appShell');
-
-      function unlockSite(){
-        document.body.classList.remove('locked');
-        lockScreen.style.display = 'none';
-        appShell.style.display = 'block';
-        accessPasswordInput.value = '';
-        lockMessage.textContent = '';
-      }
-
-      if (lockForm && accessPasswordInput && lockMessage && lockScreen && appShell) {
-        lockForm.addEventListener('submit', function(event){
-          event.preventDefault();
-          const password = accessPasswordInput.value.trim();
-          if (password === ACCESS_PASSWORD) {
-            unlockSite();
-            return;
-          }
-          lockMessage.textContent = 'Senha Incorreta';
-          accessPasswordInput.value = '';
-          accessPasswordInput.focus();
-        });
-      }
-
       const state = {
         weeks: {},
         appts: [],
-        cfg: { title: 'Painel KOMMO', password: ACCESS_PASSWORD }
+        cfg: { title: 'Painel KOMMO', password: ACCESS_PASSWORD, filterLimit: 30 },
+        sync: { weeks: 'none', appointments: 'none' }
       };
 
       function safeNumber(value) {
-        const n = Number(value);
+        if (value === null || value === undefined || value === '') return 0;
+        const text = String(value).trim();
+        if (!text) return 0;
+        const normalized = text
+          .replace(/\s+/g, '')
+          .replace(/\./g, '')
+          .replace(/,/g, '.')
+          .replace(/[^0-9.\-]/g, '');
+        if (!normalized) return 0;
+        const n = Number(normalized);
         return Number.isFinite(n) ? n : 0;
+      }
+
+      function parseDateValue(rawValue) {
+        if (rawValue === null || rawValue === undefined) return null;
+        const value = String(rawValue).trim();
+        if (!value) return null;
+
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          const date = new Date(value + 'T00:00:00');
+          return Number.isNaN(date.getTime()) ? null : value;
+        }
+
+        if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(value)) {
+          const match = value.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+          if (!match) return null;
+          let [, day, month, year] = match;
+          day = Number(day);
+          month = Number(month);
+          year = Number(year);
+          if (year < 100) year += 2000;
+          const date = new Date(year, month - 1, day);
+          if (Number.isNaN(date.getTime())) return null;
+          return date.toISOString().slice(0, 10);
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return null;
+        return date.toISOString().slice(0, 10);
+      }
+
+      function formatDateBR(value) {
+        const iso = parseDateValue(value);
+        if (!iso) return '—';
+        const date = new Date(iso + 'T00:00:00');
+        if (Number.isNaN(date.getTime())) return '—';
+        return date.toLocaleDateString('pt-BR');
+      }
+
+      function formatNumber(value, digits = 0) {
+        const number = Number(value) || 0;
+        return new Intl.NumberFormat('pt-BR', {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits
+        }).format(number);
+      }
+
+      function normalizeWeekRecord(record) {
+        const out = {};
+        FIELDS.forEach(([key]) => {
+          out[key] = safeNumber(record && record[key]);
+        });
+        return out;
+      }
+
+      function normalizeWeeksMap(rawWeeks) {
+        const entries = {};
+        if (!rawWeeks || typeof rawWeeks !== 'object') return entries;
+        Object.keys(rawWeeks).forEach(key => {
+          const iso = parseDateValue(key);
+          if (!iso) return;
+          entries[iso] = normalizeWeekRecord(rawWeeks[key]);
+        });
+        return entries;
       }
 
       function loadData() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) {
-            return { weeks: {}, appts: [] };
-          }
+          if (!raw) return { weeks: {}, appts: [], cfg: { ...state.cfg }, sync: { ...state.sync } };
           const parsed = JSON.parse(raw);
           return {
-            weeks: parsed && parsed.weeks ? parsed.weeks : {},
-            appts: Array.isArray(parsed && parsed.appts) ? parsed.appts : []
+            weeks: normalizeWeeksMap(parsed && parsed.weeks ? parsed.weeks : {}),
+            appts: Array.isArray(parsed && parsed.appts) ? parsed.appts : [],
+            cfg: parsed && parsed.cfg ? { ...state.cfg, ...parsed.cfg } : { ...state.cfg },
+            sync: parsed && parsed.sync ? { ...state.sync, ...parsed.sync } : { ...state.sync }
           };
-        } catch {
-          return { weeks: {}, appts: [] };
+        } catch (error) {
+          console.error('Erro ao ler localStorage:', error);
+          return { weeks: {}, appts: [], cfg: { ...state.cfg }, sync: { ...state.sync } };
         }
       }
 
@@ -565,7 +770,8 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           weeks: state.weeks,
           appts: state.appts,
-          cfg: state.cfg
+          cfg: state.cfg,
+          sync: state.sync
         }));
       }
 
@@ -578,29 +784,16 @@
         toast.timer = setTimeout(() => el.classList.remove('on'), 2200);
       }
 
-      function formatDateBR(dateStr) {
-        if (!dateStr) return '—';
-        const d = new Date(dateStr + 'T00:00:00');
-        if (Number.isNaN(d.getTime())) return dateStr;
-        return d.toLocaleDateString('pt-BR');
-      }
-
       function getAllWeeksSorted() {
         return Object.keys(state.weeks).sort();
       }
 
-      function getLastWeek() {
-        const weeks = getAllWeeksSorted();
-        if (!weeks.length) return null;
-        return state.weeks[weeks[weeks.length - 1]];
-      }
-
       function buildWeekFields() {
-        const container = document.getElementById('wf');
-        if (!container) return;
-        container.innerHTML = FIELDS.filter(([key]) => key !== 'cagend').map(([key, label]) => `
-          <label>
-            ${label}
+        const wrapper = document.getElementById('wf');
+        if (!wrapper) return;
+        wrapper.innerHTML = FIELDS.map(([key, label]) => `
+          <label class="field">
+            <span>${label}</span>
             <input type="number" min="0" step="1" id="w_${key}" value="0">
           </label>
         `).join('');
@@ -623,69 +816,129 @@
         return result;
       }
 
+      function loadWeekIntoForm(date) {
+        const data = state.weeks[date];
+        if (!data) return;
+        const wd = document.getElementById('wd');
+        if (wd) wd.value = date;
+        populateWeekFields(data);
+      }
+
+      function applyTitle() {
+        const title = state.cfg.title || 'Painel KOMMO';
+        const ttl = document.getElementById('ttl');
+        if (ttl) ttl.textContent = title;
+      }
+
       function renderDashboard() {
         const dash = document.getElementById('dash');
         if (!dash) return;
 
-        const orderedWeeks = getAllWeeksSorted();
-        if (!orderedWeeks.length) {
+        const allWeeks = getAllWeeksSorted();
+        if (!allWeeks.length) {
           dash.innerHTML = `
             <div class="card">
-              <h2>Ainda não há dados</h2>
-              <p class="note">Vá em “Lançar semana” para registrar a primeira semana.</p>
+              <p class="eyebrow">Painel</p>
+              <h2 style="margin:0;">Ainda não há dados</h2>
+              <p class="note" style="margin-top:8px;">Vá em “Lançar semana” para registrar a primeira semana.</p>
             </div>
           `;
           return;
         }
 
-        const last = state.weeks[orderedWeeks[orderedWeeks.length - 1]];
+        const last = state.weeks[allWeeks[allWeeks.length - 1]] || {};
         const totalFollow = safeNumber(last.fu2) + safeNumber(last.fu3) + safeNumber(last.fu4) + safeNumber(last.fu5);
-        const totalAtual = safeNumber(last.tcap);
         const totalAtivas = safeNumber(last.ativas);
         const totalRespostas = safeNumber(last.resp);
+        const totalAgendadas = safeNumber(last.cagend);
+        const totalAtual = safeNumber(last.tcap);
+
+        const summaryRows = [
+          ['Ativas', formatNumber(totalAtivas)],
+          ['Follow-up', formatNumber(totalFollow)],
+          ['Respostas', formatNumber(totalRespostas)],
+          ['Consultas agendadas', formatNumber(totalAgendadas)],
+          ['Total atual', 'R$ ' + formatNumber(totalAtual, 2)]
+        ];
 
         dash.innerHTML = `
-          <div class="grid kpis">
-            <div class="kpi">
-              <span>Conversas ativas</span>
-              <b>${totalAtivas.toLocaleString('pt-BR')}</b>
+          <div class="hero">
+            <div class="hero-head">
+              <div>
+                <p class="eyebrow">Resumo do período</p>
+                <h2>${state.cfg.title || 'Painel KOMMO'}</h2>
+              </div>
+              <div class="status-pill ${state.sync.weeks === 'good' ? 'good' : state.sync.weeks === 'error' ? 'error' : 'none'}">
+                SheetDB: ${state.sync.weeks === 'good' ? 'Sucesso' : state.sync.weeks === 'error' ? 'Erro' : 'Não sincronizado'}
+              </div>
             </div>
-            <div class="kpi">
-              <span>Mensagens follow-up</span>
-              <b>${totalFollow}</b>
-              <small>acumulado</small>
+
+            <div class="kpi-grid">
+              <div class="kpi">
+                <span class="kpi-label">Conversas ativas</span>
+                <span class="kpi-value">${formatNumber(totalAtivas)}</span>
+                <span class="kpi-meta">Total do período</span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-label">Follow-up</span>
+                <span class="kpi-value">${formatNumber(totalFollow)}</span>
+                <span class="kpi-meta">Mensagens acumuladas</span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-label">Respostas</span>
+                <span class="kpi-value">${formatNumber(totalRespostas)}</span>
+                <span class="kpi-meta">Resposta do público</span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-label">Faturamento</span>
+                <span class="kpi-value">R$ ${formatNumber(totalAtual, 2)}</span>
+                <span class="kpi-meta">Valor atual</span>
+              </div>
             </div>
-            <div class="kpi">
-              <span>Respostas</span>
-              <b>${totalRespostas.toLocaleString('pt-BR')}</b>
-            </div>
-            <div class="kpi">
-              <span>Faturamento</span>
-              <b>R$ ${totalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
+
+            <div class="insight">
+              <strong>Senha:</strong> Lucas830 · painel protegido por login e com persistência local ativa.
             </div>
           </div>
 
-          <div class="ins">
-            <p>Senha: <b>Lucas830</b> (para liberar o painel).</p>
-          </div>
-
-          <div class="card chart-wrap">
-            <h2>Desempenho por semana</h2>
-            <div class="chart-legend">
-              <span><i class="legend-dot" style="background:var(--g)"></i> Consultas</span>
-              <span><i class="legend-dot" style="background:var(--b)"></i> Follow-up</span>
-              <span><i class="legend-dot" style="background:var(--a)"></i> Agendamentos</span>
+          <div class="section-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3>Resumo</h3>
+              </div>
+              <table class="summary-table">
+                <tbody>
+                  ${summaryRows.map(([label, value]) => `
+                    <tr>
+                      <th>${label}</th>
+                      <td>${value}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
             </div>
-            <svg id="mainChart" viewBox="0 0 960 260" aria-label="Gráfico de desempenho por semana"></svg>
+
+            <div class="card chart-wrap">
+              <div class="card-header">
+                <h3>Gráfico por semana</h3>
+              </div>
+              <div class="chart-legend">
+                <span><i class="legend-dot" style="background:var(--primary)"></i> Ativas</span>
+                <span><i class="legend-dot" style="background:var(--blue)"></i> Follow-up</span>
+                <span><i class="legend-dot" style="background:var(--gold)"></i> Respostas</span>
+              </div>
+              <svg id="mainChart" viewBox="0 0 960 260" aria-label="Gráfico de desempenho por semana"></svg>
+            </div>
           </div>
         `;
 
-        drawChart();
+        drawWeeklyChart();
       }
 
-      function drawChart() {
+      function drawWeeklyChart() {
         const svg = document.getElementById('mainChart');
         if (!svg) return;
+
         const weeks = getAllWeeksSorted();
         if (!weeks.length) {
           svg.innerHTML = '';
@@ -694,19 +947,21 @@
 
         const width = 960;
         const height = 260;
-        const padding = { top: 20, right: 20, bottom: 30, left: 40 };
+        const padding = { top: 20, right: 20, bottom: 34, left: 46 };
         const plotWidth = width - padding.left - padding.right;
         const plotHeight = height - padding.top - padding.bottom;
+
         const values = weeks.map(date => {
-          const w = state.weeks[date];
+          const item = state.weeks[date] || {};
           return [
-            safeNumber(w.cagend),
-            safeNumber(w.fu2) + safeNumber(w.fu3) + safeNumber(w.fu4) + safeNumber(w.fu5),
-            safeNumber(w.ativas)
+            safeNumber(item.ativas),
+            safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5),
+            safeNumber(item.resp)
           ];
         });
+
         const maxValue = Math.max(...values.flat(), 10);
-        const gap = 18;
+        const gap = 24;
         const barWidth = (plotWidth - gap * (weeks.length - 1)) / (weeks.length * 3);
 
         const grid = Array.from({ length: 5 }, (_, index) => {
@@ -714,30 +969,30 @@
           const value = Math.round(maxValue - (maxValue / 4) * index);
           return `
             <g>
-              <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,.12)" stroke-dasharray="4 6"></line>
-              <text x="4" y="${y + 4}" fill="var(--mut)">${value}</text>
+              <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(17,43,43,.10)" stroke-dasharray="5 7"></line>
+              <text x="6" y="${y + 4}">${value}</text>
             </g>
           `;
         }).join('');
 
         const bars = weeks.map((date, index) => {
-          const w = state.weeks[date];
-          const consult = safeNumber(w.cagend);
-          const follow = safeNumber(w.fu2) + safeNumber(w.fu3) + safeNumber(w.fu4) + safeNumber(w.fu5);
-          const ativas = safeNumber(w.ativas);
+          const item = state.weeks[date] || {};
+          const ativas = safeNumber(item.ativas);
+          const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
+          const resp = safeNumber(item.resp);
           const startX = padding.left + (index * barWidth * 3) + index * gap;
 
-          const consultH = (consult / maxValue) * plotHeight;
-          const followH = (follow / maxValue) * plotHeight;
-          const activeH = (ativas / maxValue) * plotHeight;
+          const hAtivas = (ativas / maxValue) * plotHeight;
+          const hFollow = (follow / maxValue) * plotHeight;
+          const hResp = (resp / maxValue) * plotHeight;
           const label = new Date(date + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 
           return `
             <g>
-              <rect x="${startX}" y="${padding.top + plotHeight - consultH}" width="${barWidth * 0.85}" height="${consultH}" fill="var(--g)" rx="4"></rect>
-              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - followH}" width="${barWidth * 0.85}" height="${followH}" fill="var(--b)" rx="4"></rect>
-              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - activeH}" width="${barWidth * 0.85}" height="${activeH}" fill="var(--a)" rx="4"></rect>
-              <text x="${startX + barWidth}" y="${height - 8}" text-anchor="middle">${label}</text>
+              <rect x="${startX}" y="${padding.top + plotHeight - hAtivas}" width="${barWidth * 0.82}" height="${hAtivas}" fill="var(--primary)" rx="5"></rect>
+              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - hFollow}" width="${barWidth * 0.82}" height="${hFollow}" fill="var(--blue)" rx="5"></rect>
+              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - hResp}" width="${barWidth * 0.82}" height="${hResp}" fill="var(--gold)" rx="5"></rect>
+              <text x="${startX + barWidth}" y="${height - 10}" text-anchor="middle">${label}</text>
             </g>
           `;
         }).join('');
@@ -745,368 +1000,710 @@
         svg.innerHTML = `${grid}${bars}`;
       }
 
-      function renderWeekList() {
-        const el = document.getElementById('wl');
-        if (!el) return;
+      function getFilteredWeeks() {
+        const search = document.getElementById('weekFilterSearch')?.value.trim().toLowerCase() || '';
+        const start = document.getElementById('weekStartFilter')?.value || '';
+        const end = document.getElementById('weekEndFilter')?.value || '';
 
-        const dates = getAllWeeksSorted().reverse();
-        if (!dates.length) {
-          el.innerHTML = '<p class="note">Nenhuma semana salva.</p>';
-          return;
-        }
-
-        el.innerHTML = dates.map(date => {
-          const item = state.weeks[date];
-          const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
-          return `
-            <div class="week-item" style="background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:10px;">
-              <strong>${date}</strong><br>
-              <small>${safeNumber(item.ativas).toLocaleString('pt-BR')} ativas · ${follow} follow-up</small>
-              <div class="row">
-                <button class="b s" data-load-week="${date}" type="button">Carregar</button>
-                <button class="b s" data-delete-week="${date}" type="button">Excluir</button>
-              </div>
-            </div>
-          `;
-        }).join('');
+        return getAllWeeksSorted().filter(date => {
+          const item = state.weeks[date] || {};
+          const matchSearch = !search || date.includes(search) || Object.keys(item).some(key => String(item[key]).toLowerCase().includes(search));
+          const matchStart = !start || date >= start;
+          const matchEnd = !end || date <= end;
+          return matchSearch && matchStart && matchEnd;
+        });
       }
 
-      function renderAppointments() {
-        const el = document.getElementById('al');
-        if (!el) return;
+      function renderWeekTab() {
+        const sem = document.getElementById('sem');
+        if (!sem) return;
 
-        if (!state.appts.length) {
-          el.innerHTML = '<p class="note">Nenhuma consulta registrada.</p>';
-          return;
-        }
-
-        el.innerHTML = state.appts.map((item, idx) => `
-          <div class="week-item" style="background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:10px;">
-            <strong>${item.paciente || 'Paciente'}</strong><br>
-            <small>${item.origem || '—'} · ${formatDateBR(item.data_consulta)} · ${item.status || 'agendada'}</small>
-            <div class="row">
-              <select data-status-id="${idx}" aria-label="Status da consulta">
-                <option value="agendada" ${item.status === 'agendada' ? 'selected' : ''}>Agendada</option>
-                <option value="realizada" ${item.status === 'realizada' ? 'selected' : ''}>Realizada</option>
-                <option value="cancelado" ${item.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
-              </select>
-              <button class="b s" data-delete-appt="${idx}" type="button">Excluir</button>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      function renderConfig() {
-        const el = document.getElementById('cfg');
-        if (!el) return;
-        el.innerHTML = `
+        sem.innerHTML = `
           <div class="card">
-            <h2>Configuração</h2>
-            <div class="f">
-              <label>
-                Título do painel
-                <input id="cfgTitle" type="text" value="${state.cfg.title || 'Painel KOMMO'}">
+            <p class="eyebrow">Lançamento semanal</p>
+            <div class="toolbar">
+              <label class="field" style="min-width:180px; margin:0;">
+                <span>Data da semana</span>
+                <input type="date" id="wd">
               </label>
-              <label>
-                Senha principal
-                <input id="cfgPass" type="text" value="${state.cfg.password || ACCESS_PASSWORD}">
+              <button class="ghost-btn" type="button" id="cp">Copiar valores da semana anterior</button>
+            </div>
+            <div class="form-grid" id="wf" style="margin-top:14px;"></div>
+            <div class="row">
+              <button class="primary-btn" type="button" id="ws">Salvar semana</button>
+              <button class="ghost-btn" type="button" id="wdel">Excluir esta semana</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <p class="eyebrow">Importar por texto</p>
+            <p class="note">Cole linhas com data e valores da planilha. Aceita DD/MM/YYYY, YYYY-MM-DD e separação por tabulação ou espaços.</p>
+            <textarea id="paste" rows="5" style="width:100%; margin-top:10px;" placeholder="2026-09-23    120    42    180    25    ..."></textarea>
+            <div class="row">
+              <button class="primary-btn" type="button" id="imp">Importar</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <div class="card-header">
+              <h2>Semanas lançadas</h2>
+            </div>
+            <div class="toolbar">
+              <input id="weekFilterSearch" class="filter-box" type="search" placeholder="Buscar por semana ou valor" style="min-width:220px; flex:1;">
+              <input id="weekStartFilter" class="filter-box" type="date" style="min-width:150px;">
+              <input id="weekEndFilter" class="filter-box" type="date" style="min-width:150px;">
+            </div>
+            <div id="weekTableWrap" class="table-wrap"></div>
+          </div>
+        `;
+
+        buildWeekFields();
+
+        const allWeeks = getAllWeeksSorted();
+        if (allWeeks.length) {
+          const lastDate = allWeeks[allWeeks.length - 1];
+          const wd = document.getElementById('wd');
+          if (wd) wd.value = lastDate;
+          loadWeekIntoForm(lastDate);
+        }
+
+        const weekTableWrap = document.getElementById('weekTableWrap');
+        if (weekTableWrap) {
+          const filtered = getFilteredWeeks();
+          if (!filtered.length) {
+            weekTableWrap.innerHTML = '<div class="empty-state">Nenhuma semana encontrada com os filtros atuais.</div>';
+          } else {
+            weekTableWrap.innerHTML = `
+              <table>
+                <thead>
+                  <tr>
+                    <th>Semana</th>
+                    <th>Ativas</th>
+                    <th>Follow-up</th>
+                    <th>Respostas</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${filtered.slice().reverse().map(date => {
+                    const item = state.weeks[date] || {};
+                    const followUp = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
+                    return `
+                      <tr>
+                        <td>${formatDateBR(date)}</td>
+                        <td>${formatNumber(safeNumber(item.ativas))}</td>
+                        <td>${formatNumber(followUp)}</td>
+                        <td>${formatNumber(safeNumber(item.resp))}</td>
+                        <td>
+                          <div class="row" style="margin-top:0;">
+                            <button class="mini-btn" type="button" data-load-week="${date}">Editar</button>
+                            <button class="mini-btn del-btn" type="button" data-delete-week="${date}">Excluir</button>
+                          </div>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            `;
+          }
+        }
+
+        document.getElementById('cp')?.addEventListener('click', copyPreviousWeek);
+        document.getElementById('ws')?.addEventListener('click', saveWeek);
+        document.getElementById('wdel')?.addEventListener('click', deleteCurrentWeek);
+        document.getElementById('imp')?.addEventListener('click', importFromPaste);
+        document.getElementById('weekFilterSearch')?.addEventListener('input', renderWeekTab);
+        document.getElementById('weekStartFilter')?.addEventListener('input', renderWeekTab);
+        document.getElementById('weekEndFilter')?.addEventListener('input', renderWeekTab);
+      }
+
+      function renderConsultsTab() {
+        const cons = document.getElementById('cons');
+        if (!cons) return;
+
+        const origins = ['Instagram', 'WhatsApp', 'Facebook', 'Indicação', 'Google', 'Site', 'Outros'];
+
+        cons.innerHTML = `
+          <div class="card">
+            <p class="eyebrow">Registrar consulta agendada</p>
+            <div class="form-grid">
+              <label class="field">
+                <span>Paciente</span>
+                <input id="cp_n" placeholder="Nome ou iniciais">
+              </label>
+              <label class="field">
+                <span>Origem</span>
+                <select id="cp_o">
+                  ${origins.map(origin => `<option value="${origin}">${origin}</option>`).join('')}
+                </select>
+              </label>
+              <label class="field">
+                <span>Agendada em</span>
+                <input id="cp_s" type="date">
+              </label>
+              <label class="field">
+                <span>Data da consulta</span>
+                <input id="cp_c" type="date">
               </label>
             </div>
             <div class="row">
-              <button class="b" id="saveCfg" type="button">Salvar configuração</button>
+              <button class="primary-btn" type="button" id="cp_add">Adicionar consulta</button>
             </div>
           </div>
+
+          <div class="card" style="margin-top:18px;">
+            <p class="eyebrow">Importação por texto</p>
+            <p class="note">Formato sugerido: nome / origem / 21/10/2026 / 24/10/2026</p>
+            <textarea id="cp_paste" rows="4" style="width:100%; margin-top:10px;" placeholder="Maria / Instagram / 21/10/2026 / 24/10/2026"></textarea>
+            <div class="row">
+              <button class="primary-btn" type="button" id="cp_imp">Importar</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <div class="card-header">
+              <h2>Consultas registradas</h2>
+            </div>
+            <div class="toolbar">
+              <input id="apptSearch" class="filter-box" type="search" placeholder="Buscar paciente, origem ou status" style="min-width:230px; flex:1;">
+              <select id="apptOriginFilter" class="filter-box" style="min-width:160px;">
+                <option value="">Todas as origens</option>
+                ${origins.map(origin => `<option value="${origin}">${origin}</option>`).join('')}
+              </select>
+              <input id="apptScheduledFilter" class="filter-box" type="date" style="min-width:150px;">
+              <input id="apptConsultationFilter" class="filter-box" type="date" style="min-width:150px;">
+              <select id="apptStatusFilter" class="filter-box" style="min-width:150px;">
+                <option value="">Todos os status</option>
+                <option value="agendada">Agendada</option>
+                <option value="realizada">Realizada</option>
+                <option value="cancelado">Cancelado</option>
+                <option value="reagendada">Reagendada</option>
+              </select>
+            </div>
+            <div id="apptTableWrap" class="table-wrap"></div>
+          </div>
+        `;
+
+        const scheduled = document.getElementById('cp_s');
+        if (scheduled && !scheduled.value) scheduled.value = new Date().toISOString().slice(0, 10);
+
+        renderAppointmentsTable();
+
+        document.getElementById('cp_add')?.addEventListener('click', addAppointment);
+        document.getElementById('cp_imp')?.addEventListener('click', importAppointments);
+        document.getElementById('apptSearch')?.addEventListener('input', renderAppointmentsTable);
+        document.getElementById('apptOriginFilter')?.addEventListener('change', renderAppointmentsTable);
+        document.getElementById('apptScheduledFilter')?.addEventListener('input', renderAppointmentsTable);
+        document.getElementById('apptConsultationFilter')?.addEventListener('input', renderAppointmentsTable);
+        document.getElementById('apptStatusFilter')?.addEventListener('change', renderAppointmentsTable);
+      }
+
+      function getFilteredAppointments() {
+        const search = document.getElementById('apptSearch')?.value.trim().toLowerCase() || '';
+        const origin = document.getElementById('apptOriginFilter')?.value || '';
+        const scheduled = document.getElementById('apptScheduledFilter')?.value || '';
+        const consultation = document.getElementById('apptConsultationFilter')?.value || '';
+        const status = document.getElementById('apptStatusFilter')?.value || '';
+
+        return state.appts.filter(item => {
+          const pessoa = (item.paciente || '').toLowerCase();
+          const origem = (item.origem || '').toLowerCase();
+          const statusText = (item.status || '').toLowerCase();
+          const scheduledIso = parseDateValue(item.agendada_em);
+          const consultationIso = parseDateValue(item.data_consulta);
+
+          const textMatch = !search || pessoa.includes(search) || origem.includes(search) || statusText.includes(search);
+          const originMatch = !origin || (item.origem || '') === origin;
+          const scheduledMatch = !scheduled || scheduledIso === scheduled;
+          const consultationMatch = !consultation || consultationIso === consultation;
+          const statusMatch = !status || statusText === status;
+
+          return textMatch && originMatch && scheduledMatch && consultationMatch && statusMatch;
+        });
+      }
+
+      function renderAppointmentsTable() {
+        const wrap = document.getElementById('apptTableWrap');
+        if (!wrap) return;
+
+        const filtered = getFilteredAppointments();
+        if (!filtered.length) {
+          wrap.innerHTML = '<div class="empty-state">Nenhuma consulta encontrada.</div>';
+          return;
+        }
+
+        wrap.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Origem</th>
+                <th>Agendada em</th>
+                <th>Data da consulta</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(item => {
+                const index = state.appts.findIndex(entry => entry === item);
+                return `
+                  <tr>
+                    <td>${item.paciente || '—'}</td>
+                    <td>${item.origem || '—'}</td>
+                    <td>${formatDateBR(item.agendada_em)}</td>
+                    <td>${formatDateBR(item.data_consulta)}</td>
+                    <td>
+                      <select data-status-id="${index}" class="filter-box" style="min-width:130px;">
+                        <option value="agendada" ${item.status === 'agendada' ? 'selected' : ''}>Agendada</option>
+                        <option value="realizada" ${item.status === 'realizada' ? 'selected' : ''}>Realizada</option>
+                        <option value="cancelado" ${item.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                        <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
+                      </select>
+                    </td>
+                    <td>
+                      <button class="mini-btn del-btn" type="button" data-delete-appt="${index}">Excluir</button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
         `;
       }
 
-      function renderAll() {
-        renderDashboard();
-        renderWeekList();
-        renderAppointments();
-        renderConfig();
+      function renderConfig() {
+        const cfg = document.getElementById('cfg');
+        if (!cfg) return;
+
+        cfg.innerHTML = `
+          <div class="card">
+            <p class="eyebrow">Configuração</p>
+            <div class="config-grid">
+              <label class="field">
+                <span>Nome do painel</span>
+                <input id="cfgTitle" type="text" value="${state.cfg.title || 'Painel KOMMO'}">
+              </label>
+              <label class="field">
+                <span>Senha</span>
+                <input id="cfgPass" type="text" value="${state.cfg.password || ACCESS_PASSWORD}">
+              </label>
+              <label class="field">
+                <span>Limite de filtro</span>
+                <input id="cfgLimit" type="number" min="1" step="1" value="${state.cfg.filterLimit || 30}">
+              </label>
+            </div>
+            <div class="row">
+              <button class="primary-btn" type="button" id="saveCfg">Salvar configuração</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <div class="card-header">
+              <h2>Status da sincronização</h2>
+            </div>
+            <div class="sync-box">
+              <div class="sync-item">
+                <div>
+                  <strong>Semanas</strong>
+                  <div class="note">Sincronização do painel semanal</div>
+                </div>
+                <div id="syncWeeks" class="sync-status ${state.sync.weeks === 'good' ? 'good' : state.sync.weeks === 'error' ? 'error' : 'none'}">
+                  ${state.sync.weeks === 'good' ? 'Sucesso' : state.sync.weeks === 'error' ? 'Erro' : 'Não sincronizado'}
+                </div>
+              </div>
+              <div class="sync-item">
+                <div>
+                  <strong>Consultas</strong>
+                  <div class="note">Sincronização das consultas</div>
+                </div>
+                <div id="syncAppointments" class="sync-status ${state.sync.appointments === 'good' ? 'good' : state.sync.appointments === 'error' ? 'error' : 'none'}">
+                  ${state.sync.appointments === 'good' ? 'Sucesso' : state.sync.appointments === 'error' ? 'Erro' : 'Não sincronizado'}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <button class="primary-btn" type="button" id="retrySync">Nova tentativa de sincronização</button>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('saveCfg')?.addEventListener('click', saveConfig);
+        document.getElementById('retrySync')?.addEventListener('click', retrySync);
       }
 
-      function loadState() {
-        const loaded = loadData();
-        state.weeks = loaded.weeks || {};
-        state.appts = loaded.appts || [];
-        state.cfg = loaded.cfg && Object.keys(loaded.cfg).length ? loaded.cfg : { title: 'Painel KOMMO', password: ACCESS_PASSWORD };
-      }
+      function saveConfig() {
+        const nextTitle = document.getElementById('cfgTitle')?.value.trim() || 'Painel KOMMO';
+        const nextPass = document.getElementById('cfgPass')?.value.trim() || ACCESS_PASSWORD;
+        const nextLimit = Number(document.getElementById('cfgLimit')?.value || 30);
 
-      function buildPayloadWeek(date, data) {
-        return {
-          source:'painel-kommo',
-          updated_at:new Date().toISOString(),
-          data_semana:date,
-          novos:safeNumber(data.novos),
-          antigas:safeNumber(data.antigas),
-          ativas:safeNumber(data.ativas),
-          fu2:safeNumber(data.fu2),
-          fu3:safeNumber(data.fu3),
-          fu4:safeNumber(data.fu4),
-          fu5:safeNumber(data.fu5),
-          resp:safeNumber(data.resp),
-          m1:safeNumber(data.m1),
-          m2:safeNumber(data.m2),
-          m3:safeNumber(data.m3),
-          m4:safeNumber(data.m4),
-          m5:safeNumber(data.m5),
-          m6:safeNumber(data.m6),
-          cagend:safeNumber(data.cagend),
-          tcap:safeNumber(data.tcap)
-        };
-      }
-
-      function buildPayloadConsulta(item) {
-        return {
-          source:'painel-kommo',
-          updated_at:new Date().toISOString(),
-          paciente:String(item.paciente || ''),
-          origem:String(item.origem || ''),
-          agendada_em:String(item.agendada_em || ''),
-          data_consulta:String(item.data_consulta || ''),
-          status:String(item.status || 'agendada'),
-          reagendado:String(item.reagendado || ''),
-          observacao:String(item.observacao || '')
-        };
-      }
-
-      async function postJSON(url, payload) {
-        const response = await fetch(url, {
-          method:'POST',
-          headers:{'Content-Type':'application/json','Accept':'application/json'},
-          body: JSON.stringify(Array.isArray(payload) ? payload : [payload])
-        });
-        const text = await response.text();
-        if (!response.ok) throw new Error(text || 'Erro ao enviar para o SheetDB');
-        return text;
-      }
-
-      function loadWeekIntoForm(date) {
-        const data = state.weeks[date];
-        if (!data) return;
-        document.getElementById('wd').value = date;
-        populateWeekFields(data);
+        state.cfg.title = nextTitle;
+        state.cfg.password = nextPass;
+        state.cfg.filterLimit = Number.isFinite(nextLimit) && nextLimit > 0 ? nextLimit : 30;
+        saveData();
+        applyTitle();
+        renderAll();
+        toast('Configuração salva.');
       }
 
       function saveWeek() {
-        const date = document.getElementById('wd').value;
-        if (!date) {
-          toast('Escolha a data da semana');
+        const dateField = document.getElementById('wd');
+        const rawDate = dateField ? dateField.value : '';
+        const normalizedDate = parseDateValue(rawDate);
+
+        if (!normalizedDate) {
+          toast('Data inválida. Corrija a data da semana.');
           return;
         }
 
         const payload = readWeekForm();
-        state.weeks[date] = payload;
+        state.weeks[normalizedDate] = payload;
         saveData();
         renderAll();
-
-        postJSON(SHEETDB_WEEK_URL, buildPayloadWeek(date, payload)).then(() => {
-          toast('Dados salvos com sucesso!');
-        }).catch((err) => {
-          console.error(err);
-          toast('Erro no SheetDB. Dados salvos localmente.');
-        });
+        syncWeeksToSheetDB(normalizedDate, payload);
+        toast('Semana salva com sucesso.');
       }
 
-      function deleteWeek(date) {
-        if (!date) return;
-        delete state.weeks[date];
+      function copyPreviousWeek() {
+        const dates = getAllWeeksSorted();
+        if (!dates.length) {
+          toast('Nenhuma semana anterior para copiar.');
+          return;
+        }
+
+        const prevDate = dates[dates.length - 1];
+        const source = state.weeks[prevDate];
+        if (!source) {
+          toast('Semana anterior inválida.');
+          return;
+        }
+
+        const currentDate = document.getElementById('wd')?.value || prevDate;
+        const normalized = parseDateValue(currentDate) || prevDate;
+        const wd = document.getElementById('wd');
+        if (wd) wd.value = normalized;
+        populateWeekFields(source);
+        toast('Valores copiados da semana anterior.');
+      }
+
+      function deleteCurrentWeek() {
+        const value = document.getElementById('wd')?.value || '';
+        const iso = parseDateValue(value);
+        if (!iso) {
+          toast('Selecione uma semana válida para excluir.');
+          return;
+        }
+        delete state.weeks[iso];
         saveData();
         renderAll();
-        toast('Semana removida');
+        toast('Semana removida.');
+      }
+
+      function importFromPaste() {
+        const text = document.getElementById('paste')?.value.trim();
+        if (!text) {
+          toast('Cole os dados da planilha para importar.');
+          return;
+        }
+
+        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
+        let imported = 0;
+
+        lines.forEach(line => {
+          const cells = line.split(/\t|\s{2,}|\s*;\s*/).map(item => item.trim()).filter(Boolean);
+          if (!cells.length) return;
+          const [first, ...rest] = cells;
+          const date = parseDateValue(first);
+          if (!date) return;
+          const entry = { data_semana: date };
+          FIELDS.forEach(([key], index) => {
+            entry[key] = safeNumber(rest[index] || 0);
+          });
+          state.weeks[date] = normalizeWeekRecord(entry);
+          imported += 1;
+        });
+
+        if (!imported) {
+          toast('Nenhuma linha válida foi encontrada.');
+          return;
+        }
+
+        saveData();
+        renderAll();
+        document.getElementById('paste').value = '';
+        toast('Dados importados com sucesso.');
       }
 
       function addAppointment() {
-        const name = document.getElementById('cp_n').value.trim();
-        const origin = document.getElementById('cp_o').value;
-        const scheduled = document.getElementById('cp_s').value;
-        const consultation = document.getElementById('cp_c').value;
+        const nome = document.getElementById('cp_n')?.value.trim();
+        const origem = document.getElementById('cp_o')?.value || 'Instagram';
+        const marcada = document.getElementById('cp_s')?.value || '';
+        const consulta = document.getElementById('cp_c')?.value || '';
 
-        if (!name || !consultation) {
+        if (!nome || !consulta) {
           toast('Preencha paciente e data da consulta.');
           return;
         }
 
         const item = {
-          paciente: name,
-          origem: origin,
-          agendada_em: scheduled,
-          data_consulta: consultation,
-          status: 'agendada',
-          reagendado: '',
-          observacao: ''
+          paciente: nome,
+          origem,
+          agendada_em: parseDateValue(marcada) || marcada,
+          data_consulta: parseDateValue(consulta) || consulta,
+          status: 'agendada'
         };
 
         state.appts.push(item);
         saveData();
-        renderAll();
+        renderConsultsTab();
+        renderDashboard();
 
         document.getElementById('cp_n').value = '';
-        document.getElementById('cp_s').value = new Date().toISOString().slice(0,10);
+        document.getElementById('cp_o').value = 'Instagram';
+        document.getElementById('cp_s').value = new Date().toISOString().slice(0, 10);
         document.getElementById('cp_c').value = '';
 
-        postJSON(SHEETDB_CONSULTA_URL, buildPayloadConsulta(item)).then(() => {
-          toast('Consulta salva com sucesso!');
-        }).catch((err) => {
-          console.error(err);
-          toast('Consulta salva localmente, mas falhou no SheetDB.');
-        });
+        syncAppointmentsToSheetDB(item);
+        toast('Consulta adicionada com sucesso.');
       }
 
-      function deleteAppt(index) {
-        if (index === undefined || !state.appts[index]) return;
-        state.appts.splice(index, 1);
-        saveData();
-        renderAll();
-        toast('Consulta removida');
-      }
-
-      function importFromPaste() {
-        const text = document.getElementById('paste').value.trim();
+      function importAppointments() {
+        const text = document.getElementById('cp_paste')?.value.trim();
         if (!text) {
-          toast('Cole os dados da planilha');
-          return;
-        }
-
-        const rows = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
-        const imported = [];
-
-        rows.forEach(line => {
-          const cells = line.split(/\t|\s{2,}/).map(v => v.trim());
-          const [date, ...values] = cells;
-          if (!date || values.length === 0) return;
-          const entry = { data_semana: date };
-          FIELDS.forEach(([key], idx) => {
-            entry[key] = safeNumber(values[idx] || 0);
-          });
-          imported.push(entry);
-        });
-
-        if (!imported.length) {
-          toast('Nenhuma linha válida para importar.');
-          return;
-        }
-
-        imported.forEach(item => {
-          state.weeks[item.data_semana] = Object.fromEntries(FIELDS.map(([k]) => [k, item[k]]));
-        });
-        saveData();
-        renderAll();
-        document.getElementById('paste').value = '';
-        toast('Dados importados com sucesso!');
-      }
-
-      function importConsultationPaste() {
-        const text = document.getElementById('cp_paste').value.trim();
-        if (!text) {
-          toast('Cole os dados do paciente');
+          toast('Cole os dados do paciente para importar.');
           return;
         }
 
         const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
+        let imported = 0;
+
         lines.forEach(line => {
-          const parts = line.split(/\s*\/\s*|\t+/).map(v => v.trim()).filter(Boolean);
-          if (!parts.length) return;
-          const [patient, origin = 'novo', scheduled = new Date().toISOString().slice(0,10), consultation = new Date().toISOString().slice(0,10)] = parts;
-          state.appts.push({
-            paciente: patient,
-            origem: origin,
-            agendada_em: scheduled,
-            data_consulta: consultation,
-            status: 'agendada',
-            reagendado: '',
-            observacao: ''
+          const parts = line.split(/\s*\/\s*|\s*;\s*|\t+/).map(part => part.trim()).filter(Boolean);
+          if (parts.length < 4) return;
+          const [paciente, origem, agendada, consulta] = parts;
+          const item = {
+            paciente: paciente || 'Paciente',
+            origem: origem || 'Instagram',
+            agendada_em: parseDateValue(agendada) || agendada,
+            data_consulta: parseDateValue(consulta) || consulta,
+            status: 'agendada'
+          };
+          state.appts.push(item);
+          imported += 1;
+        });
+
+        if (!imported) {
+          toast('Nenhum registro válido foi encontrado.');
+          return;
+        }
+
+        saveData();
+        renderConsultsTab();
+        document.getElementById('cp_paste').value = '';
+        toast('Consultas importadas com sucesso.');
+      }
+
+      function updateAppointmentStatus(index, status) {
+        if (index < 0 || !state.appts[index]) return;
+        state.appts[index].status = status;
+        saveData();
+        renderAppointmentsTable();
+      }
+
+      function deleteAppointment(index) {
+        if (index === undefined || index < 0 || !state.appts[index]) return;
+        state.appts.splice(index, 1);
+        saveData();
+        renderConsultsTab();
+        toast('Consulta removida.');
+      }
+
+      async function postJSON(url, payload) {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(Array.isArray(payload) ? payload : [payload])
+        });
+
+        const text = await response.text();
+        if (!response.ok) throw new Error(text || 'Erro ao sincronizar com SheetDB');
+        return text;
+      }
+
+      function syncWeeksToSheetDB(date, payload) {
+        const dataObject = {
+          source: 'painel-kommo',
+          updated_at: new Date().toISOString(),
+          data_semana: date,
+          novos: safeNumber(payload.novos),
+          antigas: safeNumber(payload.antigas),
+          ativas: safeNumber(payload.ativas),
+          fu2: safeNumber(payload.fu2),
+          fu3: safeNumber(payload.fu3),
+          fu4: safeNumber(payload.fu4),
+          fu5: safeNumber(payload.fu5),
+          resp: safeNumber(payload.resp),
+          m1: safeNumber(payload.m1),
+          m2: safeNumber(payload.m2),
+          m3: safeNumber(payload.m3),
+          m4: safeNumber(payload.m4),
+          m5: safeNumber(payload.m5),
+          m6: safeNumber(payload.m6),
+          cagend: safeNumber(payload.cagend),
+          tcap: safeNumber(payload.tcap)
+        };
+
+        postJSON(SHEETDB_WEEK_URL, dataObject)
+          .then(() => {
+            state.sync.weeks = 'good';
+            saveData();
+            renderConfig();
+          })
+          .catch((error) => {
+            console.error('SheetDB weeks error:', error);
+            state.sync.weeks = 'error';
+            saveData();
+            renderConfig();
+            toast('Erro na sincronização de semanas.');
+          });
+      }
+
+      function syncAppointmentsToSheetDB(item) {
+        const payload = {
+          source: 'painel-kommo',
+          updated_at: new Date().toISOString(),
+          paciente: String(item.paciente || ''),
+          origem: String(item.origem || ''),
+          agendada_em: String(item.agendada_em || ''),
+          data_consulta: String(item.data_consulta || ''),
+          status: String(item.status || 'agendada')
+        };
+
+        postJSON(SHEETDB_CONSULTA_URL, payload)
+          .then(() => {
+            state.sync.appointments = 'good';
+            saveData();
+            renderConfig();
+          })
+          .catch((error) => {
+            console.error('SheetDB appointments error:', error);
+            state.sync.appointments = 'error';
+            saveData();
+            renderConfig();
+            toast('Erro na sincronização de consultas.');
+          });
+      }
+
+      function retrySync() {
+        const allWeeks = getAllWeeksSorted();
+        allWeeks.forEach(date => {
+          const payload = state.weeks[date];
+          if (payload) syncWeeksToSheetDB(date, payload);
+        });
+
+        state.appts.forEach(item => syncAppointmentsToSheetDB(item));
+
+        if (!allWeeks.length && !state.appts.length) {
+          state.sync.weeks = 'none';
+          state.sync.appointments = 'none';
+          saveData();
+          renderConfig();
+          toast('Nada para sincronizar no momento.');
+          return;
+        }
+
+        toast('Tentativa de sincronização iniciada.');
+      }
+
+      function bindGlobalEvents() {
+        const navButtons = document.querySelectorAll('[data-tab]');
+        navButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const target = button.dataset.tab;
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById(target)?.classList.add('active');
+            document.querySelectorAll('[data-tab]').forEach(btn => btn.classList.toggle('on', btn === button));
           });
         });
 
-        saveData();
-        renderAll();
-        document.getElementById('cp_paste').value = '';
-        toast('Consultas importadas');
+        document.addEventListener('click', (event) => {
+          const loadWeekBtn = event.target.closest('[data-load-week]');
+          if (loadWeekBtn) {
+            const date = loadWeekBtn.dataset.loadWeek;
+            loadWeekIntoForm(date);
+            toast('Semana carregada para edição.');
+            return;
+          }
+
+          const deleteWeekBtn = event.target.closest('[data-delete-week]');
+          if (deleteWeekBtn) {
+            const date = deleteWeekBtn.dataset.deleteWeek;
+            delete state.weeks[date];
+            saveData();
+            renderAll();
+            toast('Semana removida.');
+            return;
+          }
+
+          const deleteApptBtn = event.target.closest('[data-delete-appt]');
+          if (deleteApptBtn) {
+            deleteAppointment(Number(deleteApptBtn.dataset.deleteAppt));
+          }
+        });
+
+        document.addEventListener('change', (event) => {
+          const statusSelect = event.target.closest('[data-status-id]');
+          if (statusSelect) {
+            const idx = Number(statusSelect.dataset.statusId);
+            updateAppointmentStatus(idx, statusSelect.value);
+          }
+        });
       }
 
-      function copyPreviousWeek() {
-        const dates = getAllWeeksSorted();
-        if (dates.length < 2) {
-          toast('Não há semana anterior para copiar.');
-          return;
+      function initializeLock() {
+        const lockForm = document.getElementById('lockForm');
+        const accessPasswordInput = document.getElementById('accessPassword');
+        const lockMessage = document.getElementById('lockMessage');
+        const lockScreen = document.getElementById('lockScreen');
+        const appShell = document.getElementById('appShell');
+
+        if (lockForm && accessPasswordInput && lockMessage && lockScreen && appShell) {
+          lockForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const password = accessPasswordInput.value.trim();
+            if (password === (state.cfg.password || ACCESS_PASSWORD)) {
+              document.body.classList.remove('locked');
+              lockScreen.style.display = 'none';
+              appShell.style.display = 'block';
+              accessPasswordInput.value = '';
+              lockMessage.textContent = '';
+              return;
+            }
+            lockMessage.textContent = 'Senha Incorreta';
+            accessPasswordInput.value = '';
+            accessPasswordInput.focus();
+          });
         }
-        const previous = state.weeks[dates[dates.length - 2]];
-        populateWeekFields(previous);
-        toast('Valores copiados da semana anterior');
       }
 
-      function saveCfg() {
-        const title = document.getElementById('cfgTitle').value.trim() || 'Painel KOMMO';
-        const password = document.getElementById('cfgPass').value.trim() || ACCESS_PASSWORD;
-        state.cfg = { title, password };
-        document.getElementById('ttl').textContent = title;
-        saveData();
-        toast('Configuração salva');
-      }
-
-      function bindEvents() {
-        document.getElementById('ws')?.addEventListener('click', saveWeek);
-        document.getElementById('wdel')?.addEventListener('click', () => {
-          const date = document.getElementById('wd').value;
-          deleteWeek(date);
-        });
-        document.getElementById('cp')?.addEventListener('click', copyPreviousWeek);
-        document.getElementById('imp')?.addEventListener('click', importFromPaste);
-        document.getElementById('cp_add')?.addEventListener('click', addAppointment);
-        document.getElementById('cp_imp')?.addEventListener('click', importConsultationPaste);
-
-        document.getElementById('nav')?.addEventListener('click', (event) => {
-          const btn = event.target.closest('button[data-t]');
-          if (!btn) return;
-          const tab = btn.getAttribute('data-t');
-          document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === tab));
-          document.querySelectorAll('#nav button').forEach(node => node.classList.toggle('on', node === btn));
-        });
-
-        document.getElementById('wl')?.addEventListener('click', (event) => {
-          const btn = event.target.closest('[data-load-week]');
-          if (btn) return loadWeekIntoForm(btn.getAttribute('data-load-week'));
-          const del = event.target.closest('[data-delete-week]');
-          if (del) deleteWeek(del.getAttribute('data-delete-week'));
-        });
-
-        document.getElementById('al')?.addEventListener('change', (event) => {
-          const select = event.target.closest('[data-status-id]');
-          if (!select) return;
-          const idx = Number(select.getAttribute('data-status-id'));
-          if (!state.appts[idx]) return;
-          state.appts[idx].status = select.value;
-          saveData();
-          renderAppointments();
-        });
-
-        document.getElementById('al')?.addEventListener('click', (event) => {
-          const btn = event.target.closest('[data-delete-appt]');
-          if (!btn) return;
-          deleteAppt(Number(btn.getAttribute('data-delete-appt')));
-        });
-
-        document.getElementById('saveCfg')?.addEventListener('click', saveCfg);
-
-        document.getElementById('cp_o').innerHTML = Object.entries(ORIG).map(([key, value]) => `<option value="${key}">${value}</option>`).join('');
+      function renderAll() {
+        applyTitle();
+        renderDashboard();
+        renderWeekTab();
+        renderConsultsTab();
+        renderConfig();
       }
 
       function init() {
-        loadState();
-        document.getElementById('ttl').textContent = state.cfg.title || 'Painel KOMMO';
-        buildWeekFields();
-        populateWeekFields(getLastWeek() || {});
-        const wd = document.getElementById('wd');
-        if (wd && !wd.value) {
-          wd.value = new Date().toISOString().slice(0, 10);
-        }
-        if (document.getElementById('cp_s') && !document.getElementById('cp_s').value) {
-          document.getElementById('cp_s').value = new Date().toISOString().slice(0,10);
-        }
-        bindEvents();
+        const loaded = loadData();
+        state.weeks = loaded.weeks || {};
+        state.appts = Array.isArray(loaded.appts) ? loaded.appts : [];
+        state.cfg = loaded.cfg && Object.keys(loaded.cfg).length ? loaded.cfg : { ...state.cfg };
+        state.sync = loaded.sync || { ...state.sync };
+
+        initializeLock();
+        bindGlobalEvents();
         renderAll();
       }
 
