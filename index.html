@@ -231,125 +231,113 @@ const fdf=iso=>iso?iso.split('-').reverse().join('/'):'—';
 const pct=(a,b)=>b?(a/b*100):0;
 const pf=v=>v.toFixed(1).replace('.',',')+'%';
 const today=()=>new Date().toISOString().slice(0,10);
-const SHEETDB_URL='https://api.sheetdb.io/api/v1/SEU_ID_DA_SHEET';
+
+const SHEETDB_URL_DADOS_SEMANA = 'https://sheetdb.io/api/v1/hd148z3uhn04n';
+const SHEETDB_URL_CONSULTAS = 'https://sheetdb.io/api/v1/antynpy96prfl';
 
 function toast(t){const m=$('#msg');if(!m)return;m.textContent=t;m.classList.add('on');clearTimeout(toast.timer);toast.timer=setTimeout(()=>m.classList.remove('on'),2200)}
 
-async function enviarParaSheetDB(payload){
-  if(!SHEETDB_URL || SHEETDB_URL.includes('SEU_ID_DA_SHEET')){
-    console.warn('SheetDB não configurado. O painel continua funcionando localmente.');
-    return false;
-  }
+function weekRowFromData(id,data){
+  return {
+    source:'painel-kommo',
+    updated_at:new Date().toISOString(),
+    data_semana:id,
+    novos:Number(data.novos||0),
+    antigas:Number(data.antigas||0),
+    ativas:Number(data.ativas||0),
+    fu2:Number(data.fu2||0),
+    fu3:Number(data.fu3||0),
+    fu4:Number(data.fu4||0),
+    fu5:Number(data.fu5||0),
+    resp:Number(data.resp||0),
+    m1:Number(data.m1||0),
+    m2:Number(data.m2||0),
+    m3:Number(data.m3||0),
+    m4:Number(data.m4||0),
+    m5:Number(data.m5||0),
+    m6:Number(data.m6||0),
+    cagend:Number(data.cagend||0),
+    tcap:Number(data.tcap||0)
+  };
+}
 
-  const response = await fetch(SHEETDB_URL, {
+function consultaRowFromData(data){
+  return {
+    source:'painel-kommo',
+    updated_at:new Date().toISOString(),
+    paciente:String(data.paciente || data.nome || ''),
+    origem:String(data.origem || ''),
+    agendada_em:String(data.agendada_em || data.agendada || ''),
+    data_consulta:String(data.data_consulta || data.consulta || ''),
+    status:String((data.status || 'agendada')).toLowerCase(),
+    reagendado:String(data.reagendado || ''),
+    observacao:String(data.observacao || '')
+  };
+}
+
+async function salvarDadosSemanaNoSheetDB(semanaData){
+  if(!semanaData || !semanaData.data_semana) return false;
+  const response = await fetch(SHEETDB_URL_DADOS_SEMANA, {
     method:'POST',
     headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body: JSON.stringify(payload)
+    body: JSON.stringify([semanaData])
   });
-
   const text = await response.text();
-  if(!response.ok) throw new Error(text || 'Erro ao enviar para o SheetDB');
+  if(!response.ok) throw new Error(text || 'Erro ao salvar semana no SheetDB');
   return true;
 }
 
-let sheetSyncInProgress = false;
-
-async function queueSheet(){
-  if(sheetSyncInProgress) return;
-  const rows = [];
-  sheetSyncInProgress = true;
-
-  try{
-    Object.entries(weeks).sort(([a],[b]) => a.localeCompare(b)).forEach(([id,data]) => {
-      rows.push({
-        source: 'painel-kommo',
-        updated_at: new Date().toISOString(),
-        data_semana: id,
-        novos: Number(data.novos || 0),
-        antigas: Number(data.antigas || 0),
-        ativas: Number(data.ativas || 0),
-        fu2: Number(data.fu2 || 0),
-        fu3: Number(data.fu3 || 0),
-        fu4: Number(data.fu4 || 0),
-        fu5: Number(data.fu5 || 0),
-        resp: Number(data.resp || 0),
-        m1: Number(data.m1 || 0),
-        m2: Number(data.m2 || 0),
-        m3: Number(data.m3 || 0),
-        m4: Number(data.m4 || 0),
-        m5: Number(data.m5 || 0),
-        m6: Number(data.m6 || 0),
-        cagend: Number(data.cagend || 0),
-        tcap: Number(data.tcap || 0),
-        paciente: '',
-        origem: '',
-        agendada_em: '',
-        data_consulta: '',
-        status: '',
-        reagendado: '',
-        observacao: ''
-      });
-    });
-
-    Object.entries(appts).sort(([a],[b]) => a.localeCompare(b)).forEach(([id,data]) => {
-      rows.push({
-        source: 'painel-kommo',
-        updated_at: new Date().toISOString(),
-        data_semana: '',
-        novos: '',
-        antigas: '',
-        ativas: '',
-        fu2: '',
-        fu3: '',
-        fu4: '',
-        fu5: '',
-        resp: '',
-        m1: '',
-        m2: '',
-        m3: '',
-        m4: '',
-        m5: '',
-        m6: '',
-        cagend: '',
-        tcap: '',
-        paciente: String(data.paciente || data.nome || ''),
-        origem: String(data.origem || ''),
-        agendada_em: String(data.agendada_em || data.agendada || ''),
-        data_consulta: String(data.data_consulta || data.consulta || ''),
-        status: String((data.status || 'agendada')).toLowerCase(),
-        reagendado: String(data.reagendado || ''),
-        observacao: String(data.observacao || '')
-      });
-    });
-
-    const ok = await enviarParaSheetDB(rows);
-    if(ok) toast('Dados Salvos com Sucesso!');
-  } catch(e){
-    console.error('Erro no envio para SheetDB:', e);
-    toast('Erro ao salvar os dados.');
-  } finally {
-    sheetSyncInProgress = false;
-  }
+async function salvarConsultaNoSheetDB(consultaData){
+  if(!consultaData || !consultaData.paciente) return false;
+  const response = await fetch(SHEETDB_URL_CONSULTAS, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify([consultaData])
+  });
+  const text = await response.text();
+  if(!response.ok) throw new Error(text || 'Erro ao salvar consulta no SheetDB');
+  return true;
 }
 
 async function saveDoc(path,data){
   const [col,id]=path.split('/');const store=col==='weeks'?weeks:appts;
-  store[id]=data;render();
-  queueSheet();
-  if(db){try{await db.doc(path).set(data)}catch(e){toast('Não foi possível salvar ('+(e.code||'erro')+')')}}
+  store[id]=data;
+  render();
+
+  try {
+    if(col === 'weeks'){
+      const semanaRow = weekRowFromData(id, data);
+      await salvarDadosSemanaNoSheetDB(semanaRow);
+      toast('Dados Salvos com Sucesso!');
+    }
+
+    if(col === 'appts'){
+      const consultaRow = consultaRowFromData(data);
+      await salvarConsultaNoSheetDB(consultaRow);
+      toast('Dados Salvos com Sucesso!');
+    }
+  } catch (e) {
+    console.error('Erro no envio para SheetDB:', e);
+    toast('Erro ao salvar os dados.');
+  }
+
+  if(db){
+    try{await db.doc(path).set(data)}catch(e){toast('Não foi possível salvar ('+(e.code||'erro')+')')}
+  }
 }
+
 async function delDoc(path){
   const [col,id]=path.split('/');delete (col==='weeks'?weeks:appts)[id];render();
-  queueSheet();
   if(db){try{await db.doc(path).delete()}catch(e){toast('Não foi possível excluir')}}
 }
+
 async function init(){
   try{db=await window.claude.use('db')}catch(e){db=null}
   if(!db){$('#st').textContent='Não foi possível salvar neste navegador.';render();return}
   $('#st').textContent='Dados salvos neste navegador';
   try{const u=await window.claude.use('user');if(u&&!u.canEdit()){['sem','cfg'].forEach(t=>{const b=document.querySelector('#nav [data-t="'+t+'"]');if(b)b.classList.add('hide')})}}catch(e){}
   const sub=(c,store)=>db.collection(c).onSnapshot(s=>{Object.keys(store).forEach(k=>delete store[k]);s.docs.forEach(d=>{store[d.id]=d.data()});render()},()=>{$('#st').textContent='Sem conexão com o armazenamento local.'});
-  sub('weeks',weeks);sub('appts',appts);setTimeout(()=>queueSheet(),2500);
+  sub('weeks',weeks);sub('appts',appts);
   db.collection('config').onSnapshot(s=>{const d=s.docs.find(x=>x.id==='main');cfg=d?d.data():{};applyCfg();render()},()=>{});
 }
 
