@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Painel KOMMO – Follow-up e Agenda</title>
+  <title>Painel KOMMO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
@@ -29,30 +29,29 @@
     html { scroll-padding-top: env(safe-area-inset-top, 0px); }
 
     body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
       font: 15px/1.45 "Figtree", system-ui, sans-serif;
       overflow-x: hidden;
     }
-
     body.locked { overflow: hidden; }
-    .app-shell { display: none; }
-    body:not(.locked) .app-shell { display: block; }
 
+    .app-shell { display:none; }
+    body:not(.locked) .app-shell { display:block; }
     .lock-screen {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       background: radial-gradient(circle at top, #f4faf8 0%, #eaf0ee 40%, #dfeae7 100%);
       z-index: 1000;
     }
-    body:not(.locked) .lock-screen { display: none; }
+    body:not(.locked) .lock-screen { display:none; }
 
     .lock-card {
-      width: min(92vw, 380px);
+      width:min(92vw, 390px);
       background: rgba(255,255,255,0.94);
       border: 1px solid rgba(22,48,44,0.08);
       border-radius: 20px;
@@ -61,411 +60,345 @@
       text-align: center;
     }
 
-    .lock-icon { font-size: 42px; margin-bottom: 10px; }
+    .lock-icon { font-size:42px; margin-bottom:10px; }
     .lock-card h2 {
       margin: 0 0 14px;
       font-size: 26px;
       letter-spacing: -0.03em;
       color: var(--ink);
     }
-
     .lock-card label {
-      display: block;
-      text-align: left;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--mut);
-      margin-bottom: 8px;
-      letter-spacing: 0.04em;
+      display:block;
+      text-align:left;
+      font-size:12px;
+      font-weight:700;
+      color:var(--mut);
+      margin-bottom:8px;
+      letter-spacing:.04em;
       text-transform: uppercase;
     }
-
     .lock-card input {
-      width: 100%;
-      min-height: 48px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fff;
-      color: var(--ink);
-      font: inherit;
-      padding: 12px 14px;
-      margin-bottom: 12px;
+      width:100%;
+      min-height:48px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      color:var(--ink);
+      font:inherit;
+      padding:12px 14px;
+      margin-bottom:12px;
     }
-
     .lock-card input:focus {
-      outline: none;
-      border-color: var(--g);
-      box-shadow: 0 0 0 3px rgba(31,122,109,0.18);
+      outline:none;
+      border-color:var(--g);
+      box-shadow:0 0 0 3px rgba(31,122,109,.18);
     }
-
     .lock-card button {
-      width: 100%;
-      min-height: 46px;
-      border: none;
-      border-radius: 12px;
+      width:100%;
+      min-height:46px;
+      border:none;
+      border-radius:12px;
       background: linear-gradient(135deg, #1f7a6d, #2d8f7d);
-      color: #fff;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 18px rgba(31,122,109,0.22);
+      color:#fff;
+      font:inherit;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(31,122,109,.22);
     }
-
     .lock-card button:hover { filter: brightness(1.04); }
-
     #lockMessage {
-      min-height: 22px;
-      margin: 10px 0 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--r);
+      min-height:22px;
+      margin:10px 0 0;
+      font-size:14px;
+      font-weight:600;
+      color:var(--r);
     }
 
     header {
-      position: sticky;
-      top: 0;
-      z-index: 9;
-      max-width: none;
-      margin: 0;
-      padding: 12px max(22px, calc((100% - 1180px) / 2));
+      position:sticky;
+      top:0;
+      z-index:9;
       background: rgba(255,255,255,0.96);
-      border-bottom: 1px solid var(--line);
+      border-bottom:1px solid var(--line);
       backdrop-filter: blur(10px);
+      padding: 12px max(22px, calc((100% - 1180px)/2));
     }
-
     .header-inner {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      max-width: 1180px;
-      margin: 0 auto;
+      max-width:1180px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
     }
-
-    h1 {
-      font-size: 19px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      margin: 0;
-    }
-
+    h1 { margin:0; font-size:19px; font-weight:700; letter-spacing:-0.01em; }
     #st {
-      font-size: 12px;
-      margin-top: 1px;
-      color: var(--mut);
+      font-size:12px;
+      color:var(--mut);
+      margin-top: 2px;
     }
-
     #st::before {
-      content: "";
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--g);
-      margin-right: 6px;
-      vertical-align: 1px;
+      content:"";
+      display:inline-block;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:var(--g);
+      margin-right:6px;
+      vertical-align:1px;
     }
 
     nav {
-      display: flex;
-      gap: 4px;
-      background: var(--bg);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 4px;
-      flex-wrap: wrap;
+      display:flex;
+      gap:4px;
+      background:var(--bg);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:4px;
+      flex-wrap:wrap;
     }
-
     nav button {
-      border: 0;
-      background: transparent;
-      color: var(--mut);
-      font: inherit;
-      font-weight: 500;
-      padding: 7px 14px;
-      border-radius: 7px;
-      cursor: pointer;
-      transition: background 0.15s ease, color 0.15s ease;
+      border:0;
+      background:transparent;
+      color:var(--mut);
+      font:inherit;
+      font-weight:600;
+      padding:7px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      transition: background .15s ease, color .15s ease;
     }
-
     nav button.on {
-      background: var(--g);
-      color: #fff;
+      background:var(--g);
+      color:#fff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
-
-    nav button:hover:not(.on) {
-      background: var(--line);
-      color: var(--ink);
-    }
+    nav button:hover:not(.on) { background: var(--line); color: var(--ink); }
 
     main {
       max-width: 1180px;
       margin: auto;
       padding: 20px 22px 40px;
     }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
 
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    .grid {
-      display: grid;
-      gap: 14px;
-    }
-
-    .kpis {
-      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
-      margin-bottom: 14px;
-    }
-
+    .grid { display:grid; gap:14px; }
+    .kpis { grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); margin-bottom:14px; }
     .kpi {
-      position: relative;
-      overflow: hidden;
-      padding: 16px 16px 14px 19px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-left: 4px solid var(--g);
-      border-radius: 12px;
+      position:relative;
+      overflow:hidden;
+      padding:16px 16px 14px 19px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-left:4px solid var(--g);
+      border-radius:12px;
       box-shadow: var(--shadow);
-      min-width: 0;
+      min-width:0;
     }
-
     .kpi:nth-child(2) { border-left-color: var(--b); }
     .kpi:nth-child(3) { border-left-color: var(--a); }
     .kpi:nth-child(4) { border-left-color: var(--p); }
-
     .kpi span {
-      display: block;
-      font-size: 11.5px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--mut);
+      display:block;
+      font-size:11.5px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--mut);
     }
-
     .kpi b {
-      display: block;
-      font-size: 30px;
-      line-height: 1.1;
-      margin-top: 6px;
-      letter-spacing: -0.02em;
+      display:block;
+      font-size:30px;
+      line-height:1.1;
+      margin-top:6px;
+      letter-spacing:-0.02em;
     }
-
     .kpi small {
-      display: block;
-      color: var(--mut);
-      font-size: 12px;
-      margin-top: 4px;
-      line-height: 1.35;
+      display:block;
+      color:var(--mut);
+      font-size:12px;
+      margin-top:4px;
+      line-height:1.35;
     }
 
     h2 {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: -0.005em;
+      font-size:15px;
+      font-weight:600;
+      letter-spacing:-0.005em;
       margin: 0 0 12px;
     }
-
     .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      min-width: 0;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      min-width:0;
     }
-
     .ins {
-      border-radius: 12px;
+      border-radius:12px;
       background: color-mix(in srgb, var(--a) 9%, var(--card));
       border: 1px solid color-mix(in srgb, var(--a) 30%, var(--line));
-      padding: 12px 16px;
-      margin-bottom: 14px;
-      font-size: 14px;
+      padding:12px 16px;
+      margin-bottom:14px;
+      font-size:14px;
     }
-
-    .ins p { margin: 3px 0; }
+    .ins p { margin:3px 0; }
+    .note { color: var(--mut); font-size:13px; line-height:1.45; }
 
     .lg {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 12px;
-      font-size: 12px;
-      color: var(--mut);
-      margin-bottom: 8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px 12px;
+      font-size:12px;
+      color:var(--mut);
+      margin-bottom:8px;
     }
-
     .lg i {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
-      margin-right: 5px;
-      vertical-align: middle;
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:2px;
+      margin-right:5px;
+      vertical-align:middle;
     }
 
     svg {
-      width: 100%;
-      height: auto;
-      display: block;
+      width:100%;
+      height:auto;
+      display:block;
     }
-
-    svg text {
-      fill: var(--mut);
-      font-size: 10.5px;
-      font-family: inherit;
-    }
-
-    .wrap { overflow-x: auto; }
+    svg text { fill:var(--mut); font-size:10.5px; font-family:inherit; }
+    .wrap { overflow-x:auto; }
     table {
       border-collapse: collapse;
-      width: 100%;
-      font-size: 13px;
+      width:100%;
+      font-size:13px;
     }
-
     th, td {
-      padding: 9px 8px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      white-space: nowrap;
+      padding:9px 8px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      white-space:nowrap;
     }
-
     th {
       color: var(--mut);
-      font-size: 11.5px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      font-size:11.5px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
       background: var(--bg);
-      position: sticky;
-      top: 0;
+      position:sticky;
+      top:0;
     }
-
-    tr:hover td {
-      background: color-mix(in srgb, var(--g) 6%, transparent);
-    }
+    tr:hover td { background: color-mix(in srgb, var(--g) 6%, transparent); }
 
     .f {
-      display: grid;
+      display:grid;
       grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 10px;
+      gap:10px;
     }
-
     .f label {
-      display: flex;
-      flex-direction: column;
-      font-size: 12px;
-      color: var(--mut);
-      gap: 3px;
+      display:flex;
+      flex-direction:column;
+      font-size:12px;
+      color:var(--mut);
+      gap:3px;
     }
-
     input, select, textarea, button.b {
       font: inherit;
       color: var(--ink);
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 9px;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      transition: border-color .15s ease, box-shadow .15s ease;
     }
-
     input, select, textarea {
       min-height: 36px;
       padding: 7px 9px;
     }
-
     textarea {
       min-height: 88px;
       resize: vertical;
     }
-
-    input[type="number"] { width: 100%; }
-
-    input:hover, select:hover, textarea:hover {
-      border-color: var(--k);
-    }
-
+    input[type="number"] { width:100%; }
+    input:hover, select:hover, textarea:hover { border-color: var(--k); }
     input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--g);
+      outline:none;
+      border-color:var(--g);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--g) 22%, transparent);
     }
-
     button.b {
-      cursor: pointer;
-      background: var(--g);
-      color: #fff;
-      border-color: var(--g);
-      font-weight: 500;
-      padding: 8px 15px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+      cursor:pointer;
+      background:var(--g);
+      color:#fff;
+      border-color:var(--g);
+      font-weight:500;
+      padding:8px 15px;
+      box-shadow:0 1px 2px rgba(0,0,0,0.12);
     }
-
     button.b.s {
-      background: none;
-      color: var(--ink);
-      border-color: var(--line);
+      background:none;
+      color:var(--ink);
+      border-color:var(--line);
+      box-shadow:none;
     }
-
     button.x {
-      border: 0;
-      background: none;
-      color: var(--r);
-      cursor: pointer;
-      font-size: 16px;
+      border:0;
+      background:none;
+      color:var(--r);
+      cursor:pointer;
+      font-size:16px;
     }
-
     .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: end;
-      margin-top: 12px;
+      display:flex;
+      align-items:end;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
     }
-
     .tag {
-      padding: 2px 8px;
-      border-radius: 99px;
-      font-size: 12px;
-      background: var(--line);
-      color: var(--ink);
+      padding:2px 8px;
+      border-radius:99px;
+      font-size:12px;
+      background:var(--line);
+      color:var(--ink);
     }
-
-    .note { color: var(--mut); font-size: 13px; }
-    .hide { display: none; }
-
+    .hide { display:none !important; }
     #msg {
       position: fixed;
-      right: 20px;
-      bottom: 20px;
-      left: auto;
-      transform: none;
-      z-index: 99999;
+      right:20px;
+      bottom:20px;
+      left:auto;
+      transform:none;
+      z-index:99999;
       background: rgba(22,48,44,0.96);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: 0 20px 30px rgba(14, 35, 31, 0.25);
-      opacity: 0;
-      transition: opacity 0.2s ease; pointer-events: none;
+      color:#fff;
+      padding:10px 16px;
+      border-radius:10px;
+      font-size:13px;
+      font-weight:600;
+      box-shadow:0 20px 30px rgba(14,35,31,0.25);
+      opacity:0;
+      transition:opacity .2s ease;
+      pointer-events:none;
     }
-
-    #msg.on { opacity: 1; }
+    #msg.on { opacity:1; }
 
     @media (max-width: 640px) {
-      header { padding-left: 14px; padding-right: 14px; }
-      main { padding-left: 14px; padding-right: 14px; }
-      .card { padding: 14px; }
-      th, td { white-space: normal; }
+      header { padding-left:14px; padding-right:14px; }
+      main { padding-left:14px; padding-right:14px; }
+      .card { padding:14px; }
+      th, td { white-space:normal; }
     }
   </style>
 </head>
 <body class="locked">
   <div class="lock-screen">
     <div class="lock-card">
-      <div class="lock-icon">🔒</div>
+      <div class="lock-icon" aria-hidden="true">🔒</div>
       <h2>Área protegida</h2>
       <label for="pass">Senha</label>
       <input id="pass" type="password" placeholder="Digite a senha" autocomplete="off">
@@ -484,7 +417,8 @@
         <nav aria-label="Navegação">
           <button class="tab-btn on" type="button" data-tab="resumo">Resumo</button>
           <button class="tab-btn" type="button" data-tab="registro">Registro</button>
-          <button class="tab-btn" type="button" data-tab="semanas">Semanas</button>
+          <button class="tab-btn" type="button" data-tab="consultas">Consultas</button>
+          <button class="tab-btn" type="button" data-tab="configuracoes">Configuração</button>
         </nav>
       </div>
     </header>
@@ -509,59 +443,79 @@
             <svg id="chart" viewBox="0 0 960 260" role="img" aria-label="Gráfico de desempenho por semana"></svg>
           </div>
         </div>
+
+        <div class="card" style="margin-top:14px;">
+          <h2>Filtros</h2>
+          <div class="f">
+            <label>
+              Data inicial
+              <input id="filterFrom" type="date">
+            </label>
+            <label>
+              Data final
+              <input id="filterTo" type="date">
+            </label>
+            <label>
+              Origem
+              <select id="filterOrigin">
+                <option value="">Todas</option>
+                <option value="novo">Novo lead</option>
+                <option value="Instagram">Instagram</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Google">Google</option>
+                <option value="Indicação">Indicação</option>
+                <option value="Facebook">Facebook</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="filterStatus">
+                <option value="">Todos</option>
+                <option value="agendada">Agendada</option>
+                <option value="realizada">Realizada</option>
+                <option value="cancelado">Cancelado</option>
+                <option value="reagendada">Reagendada</option>
+              </select>
+            </label>
+          </div>
+          <div class="row">
+            <button class="b" id="applyFiltersBtn" type="button">Aplicar filtros</button>
+            <button class="b s" id="clearFiltersBtn" type="button">Limpar filtros</button>
+          </div>
+        </div>
       </section>
 
       <section id="registro" class="tab-panel">
         <div class="card">
           <h2 id="formTitle">Registrar semana</h2>
+          <div class="row" style="margin:0 0 12px;">
+            <label>
+              Semana
+              <input id="weekDate" type="date">
+            </label>
+            <button class="b s" id="copyPreviousWeekBtn" type="button">Copiar semana anterior</button>
+          </div>
+
           <form id="weekForm">
-            <div class="f">
-              <label>
-                Semana
-                <input id="weekDate" name="weekDate" type="date" required>
-              </label>
-
-              <label>
-                Consultas
-                <input id="consultas" name="consultas" type="number" min="0" value="0" required>
-              </label>
-
-              <label>
-                Follow-up
-                <input id="followups" name="followups" type="number" min="0" value="0" required>
-              </label>
-
-              <label>
-                Agendamentos
-                <input id="agendamentos" name="agendamentos" type="number" min="0" value="0" required>
-              </label>
-
-              <label>
-                Concluídas
-                <input id="concluidas" name="concluidas" type="number" min="0" value="0" required>
-              </label>
-
-              <label>
-                Não compareceu
-                <input id="naoCompareceu" name="naoCompareceu" type="number" min="0" value="0" required>
-              </label>
-
-              <label>
-                Valor (R$)
-                <input id="valor" name="valor" type="number" min="0" step="0.01" value="0">
-              </label>
-            </div>
-
+            <div class="f" id="weekFields"></div>
             <div class="row">
               <button class="b" type="submit">Salvar semana</button>
               <button id="cancelEdit" class="b s hide" type="button">Cancelar edição</button>
+              <button id="deleteWeekBtn" class="b s" type="button">Excluir semana</button>
             </div>
           </form>
         </div>
-      </section>
 
-      <section id="semanas" class="tab-panel">
-        <div class="card">
+        <div class="card" style="margin-top:14px;">
+          <h2>Importar da planilha</h2>
+          <p class="note">Cole as linhas da planilha no formato: data, novos, antigas, ativas, fu2, fu3, fu4, fu5, respostas, mensagens 1 a 6, consult. agendadas e total atual.</p>
+          <textarea id="pasteWeeks" rows="4" placeholder="2026-10-05	18	24	..."></textarea>
+          <div class="row">
+            <button class="b" id="importWeeksBtn" type="button">Importar</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;">
           <h2>Semanas registradas</h2>
           <div class="wrap">
             <table>
@@ -582,58 +536,221 @@
           </div>
         </div>
       </section>
+
+      <section id="consultas" class="tab-panel">
+        <div class="card">
+          <h2>Registrar consulta</h2>
+          <form id="consultationForm">
+            <div class="f">
+              <label>
+                Paciente
+                <input id="patientName" name="patientName" placeholder="Nome ou iniciais">
+              </label>
+              <label>
+                Veio de
+                <select id="sourceSelect" name="sourceSelect">
+                  <option value="novo">Novo lead</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Google">Google</option>
+                  <option value="Indicação">Indicação</option>
+                  <option value="Facebook">Facebook</option>
+                </select>
+              </label>
+              <label>
+                Agendada em
+                <input id="scheduledDate" name="scheduledDate" type="date">
+              </label>
+              <label>
+                Data da consulta
+                <input id="consultationDate" name="consultationDate" type="date">
+              </label>
+              <label>
+                Status
+                <select id="appointmentStatus" name="appointmentStatus">
+                  <option value="agendada">Agendada</option>
+                  <option value="realizada">Realizada</option>
+                  <option value="cancelado">Cancelado</option>
+                  <option value="reagendada">Reagendada</option>
+                </select>
+              </label>
+            </div>
+            <div class="row">
+              <button class="b" type="submit">Salvar consulta</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card" style="margin-top:14px;">
+          <h2>Importar consultas em lote</h2>
+          <p class="note">Formato: paciente / origem / data agendada / data consulta / status</p>
+          <textarea id="pasteConsultas" rows="4" placeholder="Maria / Instagram / 2026-10-20 / 2026-10-24 / agendada"></textarea>
+          <div class="row">
+            <button class="b" id="importConsultasBtn" type="button">Importar</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;">
+          <h2>Consultas registradas</h2>
+          <div class="wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Paciente</th>
+                  <th>Origem</th>
+                  <th>Agendada</th>
+                  <th>Consulta</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="appointmentsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="configuracoes" class="tab-panel">
+        <div class="card">
+          <h2>Configuração</h2>
+          <div class="f">
+            <label>
+              Título do painel
+              <input id="panelTitleInput" type="text" value="Painel KOMMO">
+            </label>
+            <label>
+              Senha principal
+              <input id="mainPasswordInput" type="text" value="Lucas830">
+            </label>
+          </div>
+          <div class="row">
+            <button class="b" id="saveConfigBtn" type="button">Salvar configuração</button>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
   <div id="msg" role="status" aria-live="polite"></div>
 
   <script>
-    const LOCK_KEY = 'kommo-dashboard-unlock';
-    const STORAGE_KEY = 'kommo-dashboard-weeks-v1';
+    const STORAGE_KEY = 'kommo_dashboard_data_v2';
+    const LOCK_KEY = 'kommo_dashboard_lock_v2';
+    const VALID_PASSWORDS = ['Lucas830', '1234'];
+    const SHEETDB_WEEK_URL = 'https://sheetdb.io/api/v1/hd148z3uhn04n?sheet=dados_semana';
+    const SHEETDB_CONSULTA_URL = 'https://sheetdb.io/api/v1/antynpy96prfl?sheet=consultas';
 
-    const defaultWeeks = [
-      { id: crypto.randomUUID(), week: '2026-10-05', consultas: 18, followups: 24, agendamentos: 9, concluidas: 12, naoCompareceu: 2, valor: 4200 },
-      { id: crypto.randomUUID(), week: '2026-10-12', consultas: 21, followups: 28, agendamentos: 11, concluidas: 15, naoCompareceu: 3, valor: 5800 },
-      { id: crypto.randomUUID(), week: '2026-10-19', consultas: 24, followups: 32, agendamentos: 14, concluidas: 18, naoCompareceu: 2, valor: 6900 }
+    const FIELD_DEFS = [
+      { key:'novos', label:'Novos leads' },
+      { key:'antigas', label:'Conversas antigas retomadas' },
+      { key:'ativas', label:'Total de conversas ativas' },
+      { key:'fu2', label:'Follow-up 2' },
+      { key:'fu3', label:'Follow-up 3' },
+      { key:'fu4', label:'Follow-up 4' },
+      { key:'fu5', label:'Follow-up 5' },
+      { key:'resp', label:'Respostas' },
+      { key:'m1', label:'Mensagens 1' },
+      { key:'m2', label:'Mensagens 2' },
+      { key:'m3', label:'Mensagens 3' },
+      { key:'m4', label:'Mensagens 4' },
+      { key:'m5', label:'Mensagens 5' },
+      { key:'m6', label:'Mensagens 6' },
+      { key:'cagend', label:'Consultas agendadas' },
+      { key:'tcap', label:'Total atual' },
+      { key:'consultas', label:'Consultas' },
+      { key:'followups', label:'Follow-up' },
+      { key:'agendamentos', label:'Agendamentos' },
+      { key:'concluidas', label:'Concluídas' },
+      { key:'naoCompareceu', label:'Não compareceu' },
+      { key:'valor', label:'Valor (R$)' }
     ];
 
+    const WEEK_DEFAULTS = [
+      { id: crypto.randomUUID(), week:'2026-10-05', consultas:18, followups:24, agendamentos:9, concluidas:12, naoCompareceu:2, valor:4200 },
+      { id: crypto.randomUUID(), week:'2026-10-12', consultas:21, followups:28, agendamentos:11, concluidas:15, naoCompareceu:3, valor:5800 },
+      { id: crypto.randomUUID(), week:'2026-10-19', consultas:24, followups:32, agendamentos:14, concluidas:18, naoCompareceu:2, valor:6900 }
+    ];
+
+    const state = {
+      weeks: loadWeeks(),
+      appointments: loadAppointments(),
+      filters: { from:'', to:'', origin:'', status:'' },
+      editingId: null,
+      config: loadConfig()
+    };
+
     const form = document.getElementById('weekForm');
-    const formTitle = document.getElementById('formTitle');
-    const weeksTableBody = document.getElementById('weeksTableBody');
     const kpisBox = document.getElementById('kpis');
     const periodSummary = document.getElementById('periodSummary');
     const chart = document.getElementById('chart');
     const lockMessage = document.getElementById('lockMessage');
     const passInput = document.getElementById('pass');
-    const cancelEdit = document.getElementById('cancelEdit');
     const msg = document.getElementById('msg');
+    const weeksTableBody = document.getElementById('weeksTableBody');
+    const appointmentsTableBody = document.getElementById('appointmentsTableBody');
 
-    let state = {
-      weeks: loadWeeks(),
-      editingId: null,
-      activeTab: 'resumo'
-    };
+    function loadConfig() {
+      try {
+        const raw = localStorage.getItem('kommo_dashboard_config_v2');
+        if (!raw) return { title:'Painel KOMMO', mainPassword:'Lucas830' };
+        return JSON.parse(raw);
+      } catch {
+        return { title:'Painel KOMMO', mainPassword:'Lucas830' };
+      }
+    }
+
+    function saveConfig() {
+      localStorage.setItem('kommo_dashboard_config_v2', JSON.stringify(state.config));
+      document.querySelector('h1').textContent = state.config.title || 'Painel KOMMO';
+      document.getElementById('panelTitleInput').value = state.config.title || 'Painel KOMMO';
+      document.getElementById('mainPasswordInput').value = state.config.mainPassword || 'Lucas830';
+    }
 
     function loadWeeks() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return defaultWeeks;
+        if (!raw) return WEEK_DEFAULTS;
         const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) && parsed.length ? parsed : defaultWeeks;
-      } catch (error) {
-        return defaultWeeks;
+        const weeks = parsed && Array.isArray(parsed.weeks) ? parsed.weeks : WEEK_DEFAULTS;
+        return weeks.length ? weeks : WEEK_DEFAULTS;
+      } catch {
+        return WEEK_DEFAULTS;
       }
     }
 
-    function saveWeeks() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.weeks));
+    function loadAppointments() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed.appointments) ? parsed.appointments : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ weeks: state.weeks, appointments: state.appointments }));
     }
 
     function showMessage(text) {
       msg.textContent = text;
       msg.classList.add('on');
       clearTimeout(showMessage.timer);
-      showMessage.timer = setTimeout(() => msg.classList.remove('on'), 2000);
+      showMessage.timer = setTimeout(() => msg.classList.remove('on'), 2200);
+    }
+
+    function toDateValue(dateString) {
+      if (!dateString) return null;
+      const date = new Date(dateString + 'T00:00:00');
+      if (Number.isNaN(date.getTime())) return null;
+      return date;
+    }
+
+    function formatDate(dateString) {
+      const date = toDateValue(dateString);
+      if (!date) return '—';
+      return date.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
     }
 
     function getMetricSummary() {
@@ -645,7 +762,7 @@
         acc.naoCompareceu += Number(item.naoCompareceu || 0);
         acc.valor += Number(item.valor || 0);
         return acc;
-      }, { consultas: 0, followups: 0, agendamentos: 0, concluidas: 0, naoCompareceu: 0, valor: 0 });
+      }, { consultas:0, followups:0, agendamentos:0, concluidas:0, naoCompareceu:0, valor:0 });
 
       const totalSemanas = state.weeks.length || 1;
       const mediaConsultas = Math.round(sum.consultas / totalSemanas);
@@ -658,17 +775,16 @@
       })();
 
       const taxaPresenca = sum.consultas ? ((sum.consultas - sum.naoCompareceu) / sum.consultas) * 100 : 0;
-
       return { sum, mediaConsultas, crescimento, taxaPresenca };
     }
 
     function renderKpis() {
       const { sum, mediaConsultas, crescimento, taxaPresenca } = getMetricSummary();
       const items = [
-        { label: 'Consultas', value: sum.consultas, small: `${mediaConsultas} por semana em média` },
-        { label: 'Follow-up', value: sum.followups, small: `${((sum.followups / Math.max(sum.consultas, 1)) * 100).toFixed(0)}% do total de consultas` },
-        { label: 'Agendamentos', value: sum.agendamentos, small: `${crescimento >= 0 ? '+' : ''}${crescimento.toFixed(0)}% vs. início` },
-        { label: 'Receita', value: `R$ ${sum.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, small: `${taxaPresenca.toFixed(0)}% de presença` }
+        { label:'Consultas', value: sum.consultas, small: `${mediaConsultas} por semana em média` },
+        { label:'Follow-up', value: sum.followups, small: `${((sum.followups / Math.max(sum.consultas,1)) * 100).toFixed(0)}% do total de consultas` },
+        { label:'Agendamentos', value: sum.agendamentos, small: `${crescimento >= 0 ? '+' : ''}${crescimento.toFixed(0)}% vs. início` },
+        { label:'Receita', value: `R$ ${sum.valor.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })}`, small: `${taxaPresenca.toFixed(0)}% de presença` }
       ];
 
       kpisBox.innerHTML = items.map(item => `
@@ -679,7 +795,7 @@
         </div>
       `).join('');
 
-      const summaryText = `${sum.consultas} consultas, ${sum.followups} follow-ups, ${sum.agendamentos} agendamentos e ${sum.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} em receita. Presença média: ${taxaPresenca.toFixed(0)}%.`;
+      const summaryText = `${sum.consultas} consultas, ${sum.followups} follow-ups, ${sum.agendamentos} agendamentos e ${sum.valor.toLocaleString('pt-BR', { style:'currency', currency:'BRL' })} em receita no período.`;
       periodSummary.textContent = summaryText;
     }
 
@@ -691,7 +807,7 @@
 
       const width = 960;
       const height = 260;
-      const padding = { top: 24, right: 20, bottom: 30, left: 38 };
+      const padding = { top:24, right:20, bottom:30, left:38 };
       const plotWidth = width - padding.left - padding.right;
       const plotHeight = height - padding.top - padding.bottom;
       const maxValue = Math.max(...state.weeks.flatMap(item => [Number(item.consultas || 0), Number(item.followups || 0), Number(item.agendamentos || 0)]), 10);
@@ -702,7 +818,7 @@
         const consultHeight = (Number(week.consultas || 0) / maxValue) * plotHeight;
         const followHeight = (Number(week.followups || 0) / maxValue) * plotHeight;
         const agendaHeight = (Number(week.agendamentos || 0) / maxValue) * plotHeight;
-        const label = new Date(week.week + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const label = new Date(week.week + 'T00:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
 
         return `
           <g>
@@ -714,7 +830,7 @@
         `;
       }).join('');
 
-      const gridLines = Array.from({ length: 5 }, (_, i) => {
+      const gridLines = Array.from({ length:5 }, (_, i) => {
         const y = padding.top + (plotHeight / 4) * i;
         const value = Math.round(maxValue - (maxValue / 4) * i);
         return `
@@ -728,134 +844,405 @@
       chart.innerHTML = `${gridLines}<g>${bars}</g>`;
     }
 
+    function buildWeekFields() {
+      const container = document.getElementById('weekFields');
+      if (!container) return;
+      container.innerHTML = FIELD_DEFS.filter(({ key }) => !['consultas','followups','agendamentos','concluidas','naoCompareceu','valor'].includes(key)).map(({ key, label }) => `
+        <label>
+          ${label}
+          <input name="${key}" type="number" min="0" value="0">
+        </label>
+      `).join('');
+    }
+
+    function fillWeekForm(data = {}) {
+      const inputs = document.querySelectorAll('#weekFields input');
+      inputs.forEach(input => {
+        const key = input.name;
+        input.value = Number(data[key] || 0);
+      });
+    }
+
+    function readWeekForm() {
+      const formData = {};
+      const inputs = document.querySelectorAll('#weekFields input');
+      inputs.forEach(input => {
+        const key = input.name;
+        formData[key] = Number(input.value || 0);
+      });
+      return formData;
+    }
+
+    function getVisibleWeeks() {
+      let list = [...state.weeks].sort((a, b) => new Date(b.week) - new Date(a.week));
+      const from = document.getElementById('filterFrom')?.value;
+      const to = document.getElementById('filterTo')?.value;
+      if (from) list = list.filter(item => item.week >= from);
+      if (to) list = list.filter(item => item.week <= to);
+      return list;
+    }
+
     function renderWeeksTable() {
-      if (!state.weeks.length) {
-        weeksTableBody.innerHTML = '<tr><td colspan="8">Nenhuma semana cadastrada.</td></tr>';
-        return;
-      }
+      const rows = getVisibleWeeks().map((week) => `
+        <tr>
+          <td>${formatDate(week.week)}</td>
+          <td>${Number(week.consultas || 0)}</td>
+          <td>${Number(week.followups || 0)}</td>
+          <td>${Number(week.agendamentos || 0)}</td>
+          <td>${Number(week.concluidas || 0)}</td>
+          <td>${Number(week.naoCompareceu || 0)}</td>
+          <td>${Number(week.valor || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' })}</td>
+          <td>
+            <button class="b s" type="button" data-action="edit" data-id="${week.id}">Editar</button>
+            <button class="x" type="button" data-action="delete" data-id="${week.id}" aria-label="Excluir semana">×</button>
+          </td>
+        </tr>
+      `).join('');
+      weeksTableBody.innerHTML = rows || '<tr><td colspan="8">Nenhuma semana encontrada.</td></tr>';
+    }
 
-      const rows = state.weeks
-        .slice()
-        .sort((a, b) => new Date(b.week) - new Date(a.week))
-        .map((week) => `
-          <tr>
-            <td>${new Date(week.week + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
-            <td>${Number(week.consultas || 0)}</td>
-            <td>${Number(week.followups || 0)}</td>
-            <td>${Number(week.agendamentos || 0)}</td>
-            <td>${Number(week.concluidas || 0)}</td>
-            <td>${Number(week.naoCompareceu || 0)}</td>
-            <td>${Number(week.valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-            <td>
-              <button class="b s" type="button" data-action="edit" data-id="${week.id}">Editar</button>
-              <button class="x" type="button" data-action="delete" data-id="${week.id}" aria-label="Excluir semana">×</button>
-            </td>
-          </tr>
-        `)
-        .join('');
+    function getVisibleAppointments() {
+      let list = [...state.appointments];
+      const from = document.getElementById('filterFrom')?.value;
+      const to = document.getElementById('filterTo')?.value;
+      const origin = document.getElementById('filterOrigin')?.value || '';
+      const status = document.getElementById('filterStatus')?.value || '';
 
-      weeksTableBody.innerHTML = rows;
+      if (from) list = list.filter(item => (item.consultationDate || item.data_consulta || '') >= from);
+      if (to) list = list.filter(item => (item.consultationDate || item.data_consulta || '') <= to);
+      if (origin) list = list.filter(item => String(item.origem || item.source || '').toLowerCase() === origin.toLowerCase());
+      if (status) list = list.filter(item => String(item.status || '').toLowerCase() === status.toLowerCase());
+      return list;
+    }
+
+    function renderAppointmentsTable() {
+      const rows = getVisibleAppointments().map((item) => `
+        <tr>
+          <td>${String(item.paciente || item.name || '—')}</td>
+          <td>${String(item.origem || item.source || '—')}</td>
+          <td>${formatDate(item.agendada_em || item.scheduledDate || '')}</td>
+          <td>${formatDate(item.data_consulta || item.consultationDate || '')}</td>
+          <td>${String(item.status || 'agendada')}</td>
+          <td>
+            <button class="b s" type="button" data-action="delete-appointment" data-id="${item.id || item._id || Math.random().toString(36).slice(2)}">Excluir</button>
+          </td>
+        </tr>
+      `).join('');
+      appointmentsTableBody.innerHTML = rows || '<tr><td colspan="6">Nenhuma consulta encontrada.</td></tr>';
     }
 
     function setActiveTab(tabName) {
-      state.activeTab = tabName;
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('on', btn.dataset.tab === tabName));
       document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === tabName));
     }
 
-    function fillForm(item) {
-      document.getElementById('weekDate').value = item.week;
-      document.getElementById('consultas').value = item.consultas || 0;
-      document.getElementById('followups').value = item.followups || 0;
-      document.getElementById('agendamentos').value = item.agendamentos || 0;
-      document.getElementById('concluidas').value = item.concluidas || 0;
-      document.getElementById('naoCompareceu').value = item.naoCompareceu || 0;
-      document.getElementById('valor').value = item.valor || 0;
-      formTitle.textContent = 'Editar semana';
-      cancelEdit.classList.remove('hide');
-    }
-
     function resetForm() {
       form.reset();
-      document.getElementById('consultas').value = 0;
-      document.getElementById('followups').value = 0;
-      document.getElementById('agendamentos').value = 0;
-      document.getElementById('concluidas').value = 0;
-      document.getElementById('naoCompareceu').value = 0;
-      document.getElementById('valor').value = 0;
+      document.getElementById('weekDate').value = '';
+      fillWeekForm({});
       state.editingId = null;
-      formTitle.textContent = 'Registrar semana';
-      cancelEdit.classList.add('hide');
+      document.getElementById('formTitle').textContent = 'Registrar semana';
+      document.getElementById('cancelEdit').classList.add('hide');
     }
 
-    function handleSubmit(event) {
-      event.preventDefault();
-      const formData = new FormData(form);
-      const entry = {
-        week: formData.get('weekDate'),
-        consultas: Number(formData.get('consultas') || 0),
-        followups: Number(formData.get('followups') || 0),
-        agendamentos: Number(formData.get('agendamentos') || 0),
-        concluidas: Number(formData.get('concluidas') || 0),
-        naoCompareceu: Number(formData.get('naoCompareceu') || 0),
-        valor: Number(formData.get('valor') || 0)
-      };
+    function syncWeekToSheet(row) {
+      return fetch(SHEETDB_WEEK_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+        body: JSON.stringify([row])
+      }).then(async (response) => {
+        const text = await response.text();
+        if (!response.ok) throw new Error(text || 'Erro ao sincronizar semana');
+        return text;
+      });
+    }
 
-      if (!entry.week) {
+    function syncAppointmentToSheet(row) {
+      return fetch(SHEETDB_CONSULTA_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
+        body: JSON.stringify([row])
+      }).then(async (response) => {
+        const text = await response.text();
+        if (!response.ok) throw new Error(text || 'Erro ao sincronizar consulta');
+        return text;
+      });
+    }
+
+    function serializeWeekEntry(id, week, values) {
+      return {
+        source:'painel-kommo',
+        updated_at:new Date().toISOString(),
+        id,
+        week,
+        consultas: Number(values.consultas || 0),
+        followups: Number(values.followups || 0),
+        agendamentos: Number(values.agendamentos || 0),
+        concluidas: Number(values.concluidas || 0),
+        naoCompareceu: Number(values.naoCompareceu || 0),
+        valor: Number(values.valor || 0),
+        ...values
+      };
+    }
+
+    function serializeAppointment(item) {
+      return {
+        source:'painel-kommo',
+        updated_at:new Date().toISOString(),
+        paciente: String(item.paciente || item.name || ''),
+        origem: String(item.origem || item.source || 'novo'),
+        agendada_em: String(item.agendada_em || item.scheduledDate || ''),
+        data_consulta: String(item.data_consulta || item.consultationDate || ''),
+        status: String(item.status || 'agendada')
+      };
+    }
+
+    function handleWeekSubmit(event) {
+      event.preventDefault();
+      const week = document.getElementById('weekDate').value;
+      if (!week) {
         showMessage('Selecione a semana antes de salvar.');
         return;
       }
 
+      const values = {
+        consultas: Number(document.getElementById('consultas')?.value || 0),
+        followups: Number(document.getElementById('followups')?.value || 0),
+        agendamentos: Number(document.getElementById('agendamentos')?.value || 0),
+        concluidas: Number(document.getElementById('concluidas')?.value || 0),
+        naoCompareceu: Number(document.getElementById('naoCompareceu')?.value || 0),
+        valor: Number(document.getElementById('valor')?.value || 0)
+      };
+
+      const payload = { id: state.editingId || crypto.randomUUID(), week, ...values };
+
       if (state.editingId) {
-        state.weeks = state.weeks.map(item => item.id === state.editingId ? { ...item, ...entry } : item);
-        showMessage('Semana atualizada com sucesso.');
+        state.weeks = state.weeks.map(item => item.id === state.editingId ? payload : item);
       } else {
-        state.weeks.push({ id: crypto.randomUUID(), ...entry });
-        showMessage('Semana salva com sucesso.');
+        state.weeks.push(payload);
       }
 
-      saveWeeks();
+      saveData();
       renderAll();
-      setActiveTab('resumo');
       resetForm();
+      showMessage('Semana salva com sucesso.');
+
+      const row = serializeWeekEntry(payload.id, week, values);
+      syncWeekToSheet(row).catch(error => {
+        console.error('SheetDB week sync failed', error);
+        showMessage('Dados salvos localmente; falha na sincronização do SheetDB.');
+      });
     }
 
-    function handleTableClick(event) {
-      const button = event.target.closest('button[data-action]');
-      if (!button) return;
+    function handleConsultationSubmit(event) {
+      event.preventDefault();
+      const patient = document.getElementById('patientName').value.trim();
+      const source = document.getElementById('sourceSelect').value;
+      const scheduled = document.getElementById('scheduledDate').value;
+      const consultationDate = document.getElementById('consultationDate').value;
+      const status = document.getElementById('appointmentStatus').value;
 
-      const { action, id } = button.dataset;
-      const item = state.weeks.find(entry => entry.id === id);
-      if (!item) return;
-
-      if (action === 'edit') {
-        state.editingId = id;
-        fillForm(item);
-        setActiveTab('registro');
+      if (!patient || !consultationDate) {
+        showMessage('Preencha paciente e data da consulta.');
+        return;
       }
 
-      if (action === 'delete') {
-        const confirmed = window.confirm('Deseja excluir esta semana?');
-        if (!confirmed) return;
-        state.weeks = state.weeks.filter(entry => entry.id !== id);
-        saveWeeks();
-        renderAll();
-        if (state.editingId === id) resetForm();
-        showMessage('Semana removida.');
-      }
+      const item = {
+        id: crypto.randomUUID(),
+        paciente: patient,
+        origem: source,
+        agendada_em: scheduled,
+        data_consulta: consultationDate,
+        status: status,
+        source: source,
+        scheduledDate: scheduled,
+        consultationDate: consultationDate,
+        name: patient
+      };
+
+      state.appointments.push(item);
+      saveData();
+      renderAll();
+      document.getElementById('consultationForm').reset();
+      showMessage('Consulta salva com sucesso.');
+
+      syncAppointmentToSheet(serializeAppointment(item)).catch(error => {
+        console.error('SheetDB appointment sync failed', error);
+        showMessage('Consulta salva localmente; falha na sincronização do SheetDB.');
+      });
     }
 
     function renderAll() {
       renderKpis();
       renderChart();
       renderWeeksTable();
+      renderAppointmentsTable();
+    }
+
+    function handleWeeksTableClick(event) {
+      const btn = event.target.closest('button[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      if (action === 'edit') {
+        const item = state.weeks.find(entry => entry.id === id);
+        if (!item) return;
+        state.editingId = id;
+        document.getElementById('weekDate').value = item.week;
+        document.getElementById('formTitle').textContent = 'Editar semana';
+        document.getElementById('cancelEdit').classList.remove('hide');
+        fillWeekForm({
+          consultas: item.consultas || 0,
+          followups: item.followups || 0,
+          agendamentos: item.agendamentos || 0,
+          concluidas: item.concluidas || 0,
+          naoCompareceu: item.naoCompareceu || 0,
+          valor: item.valor || 0,
+          ...item
+        });
+        setActiveTab('registro');
+      }
+      if (action === 'delete') {
+        const confirmed = window.confirm('Deseja excluir esta semana?');
+        if (!confirmed) return;
+        state.weeks = state.weeks.filter(entry => entry.id !== id);
+        saveData();
+        renderAll();
+        if (state.editingId === id) resetForm();
+        showMessage('Semana removida.');
+      }
+    }
+
+    function handleAppointmentsTableClick(event) {
+      const btn = event.target.closest('button[data-action]');
+      if (!btn) return;
+      if (btn.dataset.action !== 'delete-appointment') return;
+      const id = btn.dataset.id;
+      state.appointments = state.appointments.filter(item => (item.id || item._id || '') !== id);
+      saveData();
+      renderAll();
+      showMessage('Consulta removida.');
+    }
+
+    function applyFilters() {
+      renderAll();
+    }
+
+    function clearFilters() {
+      document.getElementById('filterFrom').value = '';
+      document.getElementById('filterTo').value = '';
+      document.getElementById('filterOrigin').value = '';
+      document.getElementById('filterStatus').value = '';
+      renderAll();
+    }
+
+    function importWeeksFromPaste() {
+      const text = document.getElementById('pasteWeeks').value.trim();
+      if (!text) {
+        showMessage('Cole os dados da planilha antes de importar.');
+        return;
+      }
+
+      const rows = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
+      rows.forEach(line => {
+        const cells = line.split(/\t|\s{2,}/).map(cell => cell.trim()).filter(Boolean);
+        const [week, ...values] = cells;
+        if (!week) return;
+
+        const entry = {
+          id: crypto.randomUUID(),
+          week,
+          consultas: Number(values[0] || 0),
+          followups: Number(values[1] || 0),
+          agendamentos: Number(values[2] || 0),
+          concluidas: Number(values[3] || 0),
+          naoCompareceu: Number(values[4] || 0),
+          valor: Number(values[5] || 0)
+        };
+
+        const existingIndex = state.weeks.findIndex(item => item.week === week);
+        if (existingIndex >= 0) {
+          state.weeks[existingIndex] = { ...state.weeks[existingIndex], ...entry };
+        } else {
+          state.weeks.push(entry);
+        }
+      });
+
+      saveData();
+      renderAll();
+      document.getElementById('pasteWeeks').value = '';
+      showMessage('Importação concluída.');
+    }
+
+    function importAppointmentsFromPaste() {
+      const text = document.getElementById('pasteConsultas').value.trim();
+      if (!text) {
+        showMessage('Cole dados das consultas antes de importar.');
+        return;
+      }
+
+      const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
+      lines.forEach(line => {
+        const parts = line.split(/\s*\/\s*|\t+/).map(item => item.trim()).filter(Boolean);
+        if (parts.length < 4) return;
+        const [paciente, origem, agendada, consulta, status = 'agendada'] = parts;
+        state.appointments.push({
+          id: crypto.randomUUID(),
+          paciente,
+          origem,
+          source: origem,
+          agendada_em: agendada,
+          scheduledDate: agendada,
+          data_consulta: consulta,
+          consultationDate: consulta,
+          status,
+          name: paciente
+        });
+      });
+
+      saveData();
+      renderAll();
+      document.getElementById('pasteConsultas').value = '';
+      showMessage('Consultas importadas.');
+    }
+
+    function copyPreviousWeek() {
+      const sorted = [...state.weeks].sort((a, b) => new Date(b.week) - new Date(a.week));
+      const previous = sorted[1];
+      if (!previous) {
+        showMessage('Não há semana anterior para copiar.');
+        return;
+      }
+
+      const week = document.getElementById('weekDate').value;
+      if (!week) {
+        showMessage('Selecione a semana para receber os dados.');
+        return;
+      }
+
+      fillWeekForm({
+        consultas: previous.consultas || 0,
+        followups: previous.followups || 0,
+        agendamentos: previous.agendamentos || 0,
+        concluidas: previous.concluidas || 0,
+        naoCompareceu: previous.naoCompareceu || 0,
+        valor: previous.valor || 0
+      });
+      showMessage('Valores copiados da semana anterior.');
+    }
+
+    function saveConfig() {
+      state.config.title = document.getElementById('panelTitleInput').value.trim() || 'Painel KOMMO';
+      state.config.mainPassword = document.getElementById('mainPasswordInput').value.trim() || 'Lucas830';
+      localStorage.setItem('kommo_dashboard_config_v2', JSON.stringify(state.config));
+      document.querySelector('h1').textContent = state.config.title;
+      showMessage('Configuração salva.');
     }
 
     function unlockApp() {
       const entered = passInput.value.trim();
-      const expected = '1234';
-
-      if (entered === expected) {
+      const isValid = VALID_PASSWORDS.includes(entered) || entered === state.config.mainPassword;
+      if (isValid) {
         localStorage.setItem(LOCK_KEY, 'unlocked');
         document.body.classList.remove('locked');
         lockMessage.textContent = '';
@@ -874,14 +1261,45 @@
       button.addEventListener('click', () => setActiveTab(button.dataset.tab));
     });
 
-    cancelEdit.addEventListener('click', resetForm);
-    form.addEventListener('submit', handleSubmit);
-    weeksTableBody.addEventListener('click', handleTableClick);
+    form.addEventListener('submit', handleWeekSubmit);
+    document.getElementById('cancelEdit').addEventListener('click', () => { resetForm(); setActiveTab('registro'); });
+    document.getElementById('deleteWeekBtn').addEventListener('click', () => {
+      const date = document.getElementById('weekDate').value;
+      if (!date) {
+        showMessage('Selecione uma semana para excluir.');
+        return;
+      }
+      const confirmed = window.confirm('Deseja excluir a semana selecionada?');
+      if (!confirmed) return;
+      const id = state.editingId || state.weeks.find(item => item.week === date)?.id;
+      if (!id) return;
+      state.weeks = state.weeks.filter(item => item.id !== id);
+      saveData();
+      renderAll();
+      resetForm();
+      showMessage('Semana excluída.');
+    });
+
+    document.getElementById('copyPreviousWeekBtn').addEventListener('click', copyPreviousWeek);
+    document.getElementById('importWeeksBtn').addEventListener('click', importWeeksFromPaste);
+    document.getElementById('importConsultasBtn').addEventListener('click', importAppointmentsFromPaste);
+    document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+    document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+    document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
+    document.getElementById('consultationForm').addEventListener('submit', handleConsultationSubmit);
+    weeksTableBody.addEventListener('click', handleWeeksTableClick);
+    appointmentsTableBody.addEventListener('click', handleAppointmentsTableClick);
 
     if (localStorage.getItem(LOCK_KEY) === 'unlocked') {
       document.body.classList.remove('locked');
     }
 
+    document.querySelector('h1').textContent = state.config.title || 'Painel KOMMO';
+    document.getElementById('panelTitleInput').value = state.config.title || 'Painel KOMMO';
+    document.getElementById('mainPasswordInput').value = state.config.mainPassword || 'Lucas830';
+
+    buildWeekFields();
+    fillWeekForm({});
     renderAll();
     resetForm();
     setActiveTab('resumo');
