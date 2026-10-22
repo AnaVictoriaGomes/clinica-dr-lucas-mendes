@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Painel KOMMO</title>
+  <title>Painel KOMMO – Follow-up e Agenda</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
       --r:#c2455a;
       --k:#9aa8a4;
       --p:#7a5aa6;
-      --shadow: 0 12px 32px rgba(14, 35, 31, 0.08);
+      --shadow:0 1px 2px rgba(16,40,36,.05), 0 6px 20px -10px rgba(16,40,36,.12);
       color-scheme: light;
       box-sizing: border-box;
     }
@@ -32,40 +32,38 @@
       margin:0;
       background:var(--bg);
       color:var(--ink);
-      font: 15px/1.45 "Figtree", system-ui, sans-serif;
-      overflow-x: hidden;
+      font:15px/1.45 "Figtree", system-ui, sans-serif;
+      overflow-x:hidden;
     }
-    body.locked { overflow: hidden; }
-
+    body.locked { overflow:hidden; }
     .app-shell { display:none; }
     body:not(.locked) .app-shell { display:block; }
+
     .lock-screen {
       position:fixed;
       inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
-      background: radial-gradient(circle at top, #f4faf8 0%, #eaf0ee 40%, #dfeae7 100%);
-      z-index: 1000;
+      background:radial-gradient(circle at top, #f4faf8 0%, #eaf0ee 40%, #dfeae7 100%);
+      z-index:1000;
     }
     body:not(.locked) .lock-screen { display:none; }
 
     .lock-card {
-      width:min(92vw, 390px);
-      background: rgba(255,255,255,0.94);
-      border: 1px solid rgba(22,48,44,0.08);
-      border-radius: 20px;
-      padding: 28px 22px 22px;
-      box-shadow: 0 20px 60px rgba(15,41,36,0.18);
-      text-align: center;
+      width:min(92vw, 380px);
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(22,48,44,.08);
+      border-radius:20px;
+      padding:28px 22px 22px;
+      box-shadow:0 20px 60px rgba(15,41,36,.18);
     }
-
     .lock-icon { font-size:42px; margin-bottom:10px; }
     .lock-card h2 {
-      margin: 0 0 14px;
-      font-size: 26px;
-      letter-spacing: -0.03em;
-      color: var(--ink);
+      margin:0 0 14px;
+      font-size:26px;
+      color:var(--ink);
+      letter-spacing:-.03em;
     }
     .lock-card label {
       display:block;
@@ -75,7 +73,7 @@
       color:var(--mut);
       margin-bottom:8px;
       letter-spacing:.04em;
-      text-transform: uppercase;
+      text-transform:uppercase;
     }
     .lock-card input {
       width:100%;
@@ -98,46 +96,42 @@
       min-height:46px;
       border:none;
       border-radius:12px;
-      background: linear-gradient(135deg, #1f7a6d, #2d8f7d);
+      background:linear-gradient(135deg, var(--g), #2d8f7d);
       color:#fff;
       font:inherit;
       font-weight:700;
       cursor:pointer;
-      box-shadow:0 8px 18px rgba(31,122,109,.22);
+      box-shadow:0 10px 18px rgba(31,122,109,.22);
     }
-    .lock-card button:hover { filter: brightness(1.04); }
+    .lock-card button:hover { filter:brightness(1.04); }
     #lockMessage {
       min-height:22px;
       margin:10px 0 0;
       font-size:14px;
-      font-weight:600;
+      font-weight:700;
       color:var(--r);
     }
 
     header {
-      position:sticky;
-      top:0;
-      z-index:9;
-      background: rgba(255,255,255,0.96);
-      border-bottom:1px solid var(--line);
-      backdrop-filter: blur(10px);
-      padding: 12px max(22px, calc((100% - 1180px)/2));
-    }
-    .header-inner {
-      max-width:1180px;
-      margin:0 auto;
       display:flex;
+      flex-wrap:wrap;
+      gap:12px;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
+      padding:12px max(22px, calc((100% - 1180px)/2));
+      max-width:none;
+      margin:0;
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(255,255,255,.82);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--line);
     }
-    h1 { margin:0; font-size:19px; font-weight:700; letter-spacing:-0.01em; }
-    #st {
-      font-size:12px;
-      color:var(--mut);
-      margin-top: 2px;
-    }
+    h1 { font-size:20px; margin:0; }
+    h2 { font-size:16px; margin:0 0 12px; }
+    .note { color:var(--mut); font-size:13px; line-height:1.45; }
+    #st { margin-top:2px; }
     #st::before {
       content:"";
       display:inline-block;
@@ -160,42 +154,48 @@
     }
     nav button {
       border:0;
-      background:transparent;
+      background:none;
       color:var(--mut);
       font:inherit;
       font-weight:600;
       padding:7px 14px;
       border-radius:8px;
       cursor:pointer;
-      transition: background .15s ease, color .15s ease;
     }
     nav button.on {
       background:var(--g);
       color:#fff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      box-shadow:0 1px 3px rgba(0,0,0,.2);
     }
-    nav button:hover:not(.on) { background: var(--line); color: var(--ink); }
 
     main {
-      max-width: 1180px;
-      margin: auto;
-      padding: 20px 22px 40px;
+      max-width:1180px;
+      margin:auto;
+      padding:14px 22px 40px;
     }
     .tab-panel { display:none; }
     .tab-panel.active { display:block; }
 
     .grid { display:grid; gap:14px; }
-    .kpis { grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); margin-bottom:14px; }
+    .kpis { grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin-bottom:14px; }
+    .charts { grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+    .card {
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px;
+      min-width:0;
+      box-shadow:var(--shadow);
+    }
     .kpi {
       position:relative;
       overflow:hidden;
       padding:16px 16px 14px 19px;
-      background:var(--card);
-      border:1px solid var(--line);
       border-left:4px solid var(--g);
       border-radius:12px;
-      box-shadow: var(--shadow);
-      min-width:0;
+      background:var(--card);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
     }
     .kpi:nth-child(2) { border-left-color: var(--b); }
     .kpi:nth-child(3) { border-left-color: var(--a); }
@@ -203,9 +203,9 @@
     .kpi span {
       display:block;
       font-size:11.5px;
-      font-weight:600;
+      font-weight:700;
       text-transform:uppercase;
-      letter-spacing:0.05em;
+      letter-spacing:.05em;
       color:var(--mut);
     }
     .kpi b {
@@ -213,67 +213,55 @@
       font-size:30px;
       line-height:1.1;
       margin-top:6px;
-      letter-spacing:-0.02em;
+      letter-spacing:-.02em;
     }
     .kpi small {
       display:block;
+      line-height:1.35;
+      margin-top:4px;
       color:var(--mut);
       font-size:12px;
-      margin-top:4px;
-      line-height:1.35;
     }
 
-    h2 {
-      font-size:15px;
-      font-weight:600;
-      letter-spacing:-0.005em;
-      margin: 0 0 12px;
-    }
-    .card {
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:18px;
-      box-shadow:var(--shadow);
-      min-width:0;
-    }
     .ins {
+      background:rgba(217,154,28,.09);
+      border:1px solid rgba(217,154,28,.34);
+      border-left:4px solid var(--a);
       border-radius:12px;
-      background: color-mix(in srgb, var(--a) 9%, var(--card));
-      border: 1px solid color-mix(in srgb, var(--a) 30%, var(--line));
       padding:12px 16px;
       margin-bottom:14px;
       font-size:14px;
     }
     .ins p { margin:3px 0; }
-    .note { color: var(--mut); font-size:13px; line-height:1.45; }
 
-    .lg {
+    .chart-wrap {
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+    }
+    .chart-legend {
       display:flex;
       flex-wrap:wrap;
-      gap:4px 12px;
+      gap:10px 14px;
       font-size:12px;
       color:var(--mut);
-      margin-bottom:8px;
+      margin-bottom:10px;
     }
-    .lg i {
+    .legend-dot {
       display:inline-block;
       width:10px;
       height:10px;
       border-radius:2px;
-      margin-right:5px;
-      vertical-align:middle;
+      margin-right:6px;
+      vertical-align:-1px;
     }
-
-    svg {
-      width:100%;
-      height:auto;
-      display:block;
-    }
+    svg { width:100%; height:auto; display:block; }
     svg text { fill:var(--mut); font-size:10.5px; font-family:inherit; }
+
     .wrap { overflow-x:auto; }
     table {
-      border-collapse: collapse;
+      border-collapse:collapse;
       width:100%;
       font-size:13px;
     }
@@ -284,1025 +272,846 @@
       white-space:nowrap;
     }
     th {
-      color: var(--mut);
+      color:var(--mut);
       font-size:11.5px;
-      font-weight:600;
+      font-weight:700;
       text-transform:uppercase;
-      letter-spacing:0.04em;
-      background: var(--bg);
+      letter-spacing:.04em;
+      background:var(--bg);
       position:sticky;
       top:0;
     }
-    tr:hover td { background: color-mix(in srgb, var(--g) 6%, transparent); }
+    tr:hover td { background:rgba(31,122,109,.05); }
 
     .f {
       display:grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
       gap:10px;
     }
     .f label {
       display:flex;
       flex-direction:column;
+      gap:3px;
       font-size:12px;
       color:var(--mut);
-      gap:3px;
+      font-weight:600;
     }
+    .row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:end;
+      margin-top:12px;
+    }
+
     input, select, textarea, button.b {
-      font: inherit;
-      color: var(--ink);
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      transition: border-color .15s ease, box-shadow .15s ease;
+      font:inherit;
+      color:var(--ink);
+      background:var(--bg);
+      border:1px solid var(--line);
+      border-radius:9px;
+      padding:7px 9px;
+      min-height:36px;
+      transition:border-color .15s, box-shadow .15s, background .15s, filter .15s;
     }
-    input, select, textarea {
-      min-height: 36px;
-      padding: 7px 9px;
-    }
-    textarea {
-      min-height: 88px;
-      resize: vertical;
-    }
-    input[type="number"] { width:100%; }
-    input:hover, select:hover, textarea:hover { border-color: var(--k); }
+    input, select, textarea { background:var(--card); }
+    input:hover, select:hover, textarea:hover { border-color:var(--k); }
     input:focus, select:focus, textarea:focus {
       outline:none;
       border-color:var(--g);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--g) 22%, transparent);
+      box-shadow:0 0 0 3px rgba(31,122,109,.22);
     }
     button.b {
       cursor:pointer;
       background:var(--g);
       color:#fff;
       border-color:var(--g);
-      font-weight:500;
+      font-weight:700;
       padding:8px 15px;
-      box-shadow:0 1px 2px rgba(0,0,0,0.12);
+      box-shadow:0 1px 2px rgba(0,0,0,.12);
     }
+    button.b:hover { filter:brightness(1.07); }
     button.b.s {
-      background:none;
+      background:transparent;
       color:var(--ink);
       border-color:var(--line);
       box-shadow:none;
     }
+    button.b.s:hover { background:var(--bg); filter:none; border-color:var(--k); }
     button.x {
       border:0;
       background:none;
       color:var(--r);
       cursor:pointer;
       font-size:16px;
+      border-radius:6px;
+      padding:2px 7px;
     }
-    .row {
-      display:flex;
-      align-items:end;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:12px;
-    }
-    .tag {
-      padding:2px 8px;
-      border-radius:99px;
-      font-size:12px;
-      background:var(--line);
-      color:var(--ink);
-    }
+    button.x:hover { background:rgba(194,69,90,.12); }
     .hide { display:none !important; }
+
     #msg {
-      position: fixed;
+      position:fixed;
       right:20px;
       bottom:20px;
       left:auto;
       transform:none;
       z-index:99999;
-      background: rgba(22,48,44,0.96);
+      background:rgba(22,48,44,.96);
       color:#fff;
       padding:10px 16px;
       border-radius:10px;
       font-size:13px;
-      font-weight:600;
-      box-shadow:0 20px 30px rgba(14,35,31,0.25);
+      font-weight:700;
+      box-shadow:0 12px 28px rgba(0,0,0,.22);
       opacity:0;
-      transition:opacity .2s ease;
       pointer-events:none;
+      transition:opacity .2s ease, transform .2s ease;
     }
-    #msg.on { opacity:1; }
+    #msg.on { opacity:1; transform:translateY(0); }
 
-    @media (max-width: 640px) {
-      header { padding-left:14px; padding-right:14px; }
-      main { padding-left:14px; padding-right:14px; }
+    @media (max-width:640px){
+      header { padding:10px 14px; }
+      main { padding:14px 14px 32px; }
       .card { padding:14px; }
-      th, td { white-space:normal; }
+      .kpi b { font-size:26px; }
+      .charts { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body class="locked">
-  <div class="lock-screen">
+  <div id="lockScreen" class="lock-screen" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
     <div class="lock-card">
       <div class="lock-icon" aria-hidden="true">🔒</div>
-      <h2>Área protegida</h2>
-      <label for="pass">Senha</label>
-      <input id="pass" type="password" placeholder="Digite a senha" autocomplete="off">
-      <button id="unlockBtn" type="button">Entrar</button>
-      <div id="lockMessage"></div>
+      <h2 id="lockTitle">Senha de Acesso</h2>
+      <form id="lockForm" novalidate>
+        <label for="accessPassword">Senha</label>
+        <input id="accessPassword" type="password" placeholder="Digite a senha" autocomplete="off" aria-label="Senha de Acesso">
+        <button type="submit">Entrar</button>
+        <p id="lockMessage" aria-live="polite"></p>
+      </form>
     </div>
   </div>
 
-  <div class="app-shell">
+  <div id="appShell" class="app-shell">
     <header>
-      <div class="header-inner">
-        <div>
-          <h1>Painel KOMMO</h1>
-          <div id="st">Status do painel em tempo real</div>
-        </div>
-        <nav aria-label="Navegação">
-          <button class="tab-btn on" type="button" data-tab="resumo">Resumo</button>
-          <button class="tab-btn" type="button" data-tab="registro">Registro</button>
-          <button class="tab-btn" type="button" data-tab="consultas">Consultas</button>
-          <button class="tab-btn" type="button" data-tab="configuracoes">Configuração</button>
-        </nav>
+      <div>
+        <h1 id="ttl">Painel KOMMO</h1>
+        <div class="note" id="st">Carregando…</div>
       </div>
+      <nav id="nav">
+        <button type="button" data-t="dash" class="on">Painel</button>
+        <button type="button" data-t="sem">Lançar semana</button>
+        <button type="button" data-t="cons">Consultas</button>
+        <button type="button" data-t="cfg">Configuração</button>
+      </nav>
     </header>
 
     <main>
-      <section id="resumo" class="tab-panel active">
-        <div class="grid kpis" id="kpis"></div>
+      <section id="dash" class="tab-panel active"></section>
 
-        <div class="ins">
-          <p><strong>Resumo do período</strong></p>
-          <p id="periodSummary">Carregando dados...</p>
-        </div>
-
+      <section id="sem" class="tab-panel">
         <div class="card">
-          <h2>Desempenho por semana</h2>
-          <div class="lg">
-            <span><i style="background:var(--g)"></i> Consultas</span>
-            <span><i style="background:var(--b)"></i> Follow-up</span>
-            <span><i style="background:var(--a)"></i> Agendamentos</span>
-          </div>
-          <div class="wrap">
-            <svg id="chart" viewBox="0 0 960 260" role="img" aria-label="Gráfico de desempenho por semana"></svg>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h2>Filtros</h2>
-          <div class="f">
-            <label>
-              Data inicial
-              <input id="filterFrom" type="date">
-            </label>
-            <label>
-              Data final
-              <input id="filterTo" type="date">
-            </label>
-            <label>
-              Origem
-              <select id="filterOrigin">
-                <option value="">Todas</option>
-                <option value="novo">Novo lead</option>
-                <option value="Instagram">Instagram</option>
-                <option value="WhatsApp">WhatsApp</option>
-                <option value="Google">Google</option>
-                <option value="Indicação">Indicação</option>
-                <option value="Facebook">Facebook</option>
-              </select>
-            </label>
-            <label>
-              Status
-              <select id="filterStatus">
-                <option value="">Todos</option>
-                <option value="agendada">Agendada</option>
-                <option value="realizada">Realizada</option>
-                <option value="cancelado">Cancelado</option>
-                <option value="reagendada">Reagendada</option>
-              </select>
-            </label>
-          </div>
-          <div class="row">
-            <button class="b" id="applyFiltersBtn" type="button">Aplicar filtros</button>
-            <button class="b s" id="clearFiltersBtn" type="button">Limpar filtros</button>
-          </div>
-        </div>
-      </section>
-
-      <section id="registro" class="tab-panel">
-        <div class="card">
-          <h2 id="formTitle">Registrar semana</h2>
+          <h2>Lançamento semanal</h2>
+          <p class="note">Escolha a data da semana. Se a semana já existir, os valores são carregados para edição. Os campos marcados com * são obrigatórios.</p>
           <div class="row" style="margin:0 0 12px;">
-            <label>
-              Semana
-              <input id="weekDate" type="date">
-            </label>
-            <button class="b s" id="copyPreviousWeekBtn" type="button">Copiar semana anterior</button>
+            <label class="note">Data da semana<br><input type="date" id="wd"></label>
+            <button class="b s" id="cp" type="button">Copiar valores da semana anterior</button>
           </div>
-
-          <form id="weekForm">
-            <div class="f" id="weekFields"></div>
-            <div class="row">
-              <button class="b" type="submit">Salvar semana</button>
-              <button id="cancelEdit" class="b s hide" type="button">Cancelar edição</button>
-              <button id="deleteWeekBtn" class="b s" type="button">Excluir semana</button>
-            </div>
-          </form>
+          <div class="f" id="wf"></div>
+          <div class="row">
+            <button class="b" id="ws" type="button">Salvar semana</button>
+            <button class="b s" id="wdel" type="button">Excluir esta semana</button>
+          </div>
         </div>
 
         <div class="card" style="margin-top:14px;">
           <h2>Importar da planilha</h2>
-          <p class="note">Cole as linhas da planilha no formato: data, novos, antigas, ativas, fu2, fu3, fu4, fu5, respostas, mensagens 1 a 6, consult. agendadas e total atual.</p>
-          <textarea id="pasteWeeks" rows="4" placeholder="2026-10-05	18	24	..."></textarea>
+          <p class="note">Cole as linhas de dados da planilha sem o cabeçalho, da coluna Data até Consultas realizadas.</p>
+          <textarea id="paste" rows="4" style="width:100%" placeholder="23/09/2026	321	64	380 …"></textarea>
           <div class="row">
-            <button class="b" id="importWeeksBtn" type="button">Importar</button>
+            <button class="b" id="imp" type="button">Importar</button>
           </div>
         </div>
 
-        <div class="card" style="margin-top:14px;">
-          <h2>Semanas registradas</h2>
-          <div class="wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Semana</th>
-                  <th>Consultas</th>
-                  <th>Follow-up</th>
-                  <th>Agend.</th>
-                  <th>Concluídas</th>
-                  <th>Não comp.</th>
-                  <th>Valor</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="weeksTableBody"></tbody>
-            </table>
-          </div>
+        <div class="card wrap" style="margin-top:14px;">
+          <h2>Semanas lançadas</h2>
+          <div id="wl"></div>
         </div>
       </section>
 
-      <section id="consultas" class="tab-panel">
+      <section id="cons" class="tab-panel">
         <div class="card">
-          <h2>Registrar consulta</h2>
-          <form id="consultationForm">
+          <h2>Registrar consulta agendada</h2>
+          <div class="f">
+            <label>Paciente<input id="cp_n" placeholder="Nome ou iniciais"></label>
+            <label>Veio de<select id="cp_o"></select></label>
+            <label>Agendada em<input type="date" id="cp_s"></label>
+            <label>Data da consulta<input type="date" id="cp_c"></label>
+          </div>
+          <div class="row"><button class="b" id="cp_add" type="button">Adicionar consulta</button></div>
+        </div>
+
+        <div class="card" style="margin-top:14px;">
+          <h2>Colar dados do paciente</h2>
+          <p class="note">Alternativa rápida: cole os dados e eles são preenchidos automaticamente e salvos como consultas.</p>
+          <textarea id="cp_paste" rows="4" style="width:100%" placeholder="Maria / Instagram / 21/10/2026 / 24/10/2026"></textarea>
+          <div class="row"><button class="b" id="cp_imp" type="button">Importar</button></div>
+        </div>
+
+        <div class="card wrap" style="margin-top:14px;">
+          <h2>Consultas registradas</h2>
+          <p class="note">Mude o status quando a consulta acontecer, for cancelada ou reagendada.</p>
+          <div id="al"></div>
+        </div>
+      </section>
+
+      <section id="cfg" class="tab-panel"></section>
+    </main>
+
+    <div id="msg"></div>
+  </div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = 'kommo_dashboard_data';
+      const SHEETDB_WEEK_URL = 'https://sheetdb.io/api/v1/hd148z3uhn04n';
+      const SHEETDB_CONSULTA_URL = 'https://sheetdb.io/api/v1/antynpy96prfl';
+      const ACCESS_PASSWORD = 'Lucas830';
+      const FIELDS = [
+        ['novos','Novos leads'],
+        ['antigas','Conversas antigas retomadas'],
+        ['ativas','Total de conversas ativas'],
+        ['fu2','Follow-up 2'],
+        ['fu3','Follow-up 3'],
+        ['fu4','Follow-up 4'],
+        ['fu5','Follow-up 5'],
+        ['resp','Respostas'],
+        ['m1','Mensagens 1'],
+        ['m2','Mensagens 2'],
+        ['m3','Mensagens 3'],
+        ['m4','Mensagens 4'],
+        ['m5','Mensagens 5'],
+        ['m6','Mensagens 6'],
+        ['cagend','Consultas agendadas'],
+        ['tcap','Total atual']
+      ];
+
+      const ORIG = {
+        novo:'Novo lead',
+        c2:'2º contato (FU 2)',
+        c3:'3º contato (FU 3)',
+        c4:'4º contato (FU 4)',
+        c5:'5º contato (FU 5)',
+        sem:'Sem retorno no follow-up'
+      };
+
+      const lockForm = document.getElementById('lockForm');
+      const accessPasswordInput = document.getElementById('accessPassword');
+      const lockMessage = document.getElementById('lockMessage');
+      const lockScreen = document.getElementById('lockScreen');
+      const appShell = document.getElementById('appShell');
+
+      function unlockSite(){
+        document.body.classList.remove('locked');
+        lockScreen.style.display = 'none';
+        appShell.style.display = 'block';
+        accessPasswordInput.value = '';
+        lockMessage.textContent = '';
+      }
+
+      if (lockForm && accessPasswordInput && lockMessage && lockScreen && appShell) {
+        lockForm.addEventListener('submit', function(event){
+          event.preventDefault();
+          const password = accessPasswordInput.value.trim();
+          if (password === ACCESS_PASSWORD) {
+            unlockSite();
+            return;
+          }
+          lockMessage.textContent = 'Senha Incorreta';
+          accessPasswordInput.value = '';
+          accessPasswordInput.focus();
+        });
+      }
+
+      const state = {
+        weeks: {},
+        appts: [],
+        cfg: { title: 'Painel KOMMO', password: ACCESS_PASSWORD }
+      };
+
+      function safeNumber(value) {
+        const n = Number(value);
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            return { weeks: {}, appts: [] };
+          }
+          const parsed = JSON.parse(raw);
+          return {
+            weeks: parsed && parsed.weeks ? parsed.weeks : {},
+            appts: Array.isArray(parsed && parsed.appts) ? parsed.appts : []
+          };
+        } catch {
+          return { weeks: {}, appts: [] };
+        }
+      }
+
+      function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          weeks: state.weeks,
+          appts: state.appts,
+          cfg: state.cfg
+        }));
+      }
+
+      function toast(message) {
+        const el = document.getElementById('msg');
+        if (!el) return;
+        el.textContent = message;
+        el.classList.add('on');
+        clearTimeout(toast.timer);
+        toast.timer = setTimeout(() => el.classList.remove('on'), 2200);
+      }
+
+      function formatDateBR(dateStr) {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr + 'T00:00:00');
+        if (Number.isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString('pt-BR');
+      }
+
+      function getAllWeeksSorted() {
+        return Object.keys(state.weeks).sort();
+      }
+
+      function getLastWeek() {
+        const weeks = getAllWeeksSorted();
+        if (!weeks.length) return null;
+        return state.weeks[weeks[weeks.length - 1]];
+      }
+
+      function buildWeekFields() {
+        const container = document.getElementById('wf');
+        if (!container) return;
+        container.innerHTML = FIELDS.filter(([key]) => key !== 'cagend').map(([key, label]) => `
+          <label>
+            ${label}
+            <input type="number" min="0" step="1" id="w_${key}" value="0">
+          </label>
+        `).join('');
+      }
+
+      function populateWeekFields(data = {}) {
+        FIELDS.forEach(([key]) => {
+          const field = document.getElementById('w_' + key);
+          if (!field) return;
+          field.value = data && data[key] !== undefined ? Number(data[key] || 0) : 0;
+        });
+      }
+
+      function readWeekForm() {
+        const result = {};
+        FIELDS.forEach(([key]) => {
+          const field = document.getElementById('w_' + key);
+          result[key] = field ? safeNumber(field.value) : 0;
+        });
+        return result;
+      }
+
+      function renderDashboard() {
+        const dash = document.getElementById('dash');
+        if (!dash) return;
+
+        const orderedWeeks = getAllWeeksSorted();
+        if (!orderedWeeks.length) {
+          dash.innerHTML = `
+            <div class="card">
+              <h2>Ainda não há dados</h2>
+              <p class="note">Vá em “Lançar semana” para registrar a primeira semana.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const last = state.weeks[orderedWeeks[orderedWeeks.length - 1]];
+        const totalFollow = safeNumber(last.fu2) + safeNumber(last.fu3) + safeNumber(last.fu4) + safeNumber(last.fu5);
+        const totalAtual = safeNumber(last.tcap);
+        const totalAtivas = safeNumber(last.ativas);
+        const totalRespostas = safeNumber(last.resp);
+
+        dash.innerHTML = `
+          <div class="grid kpis">
+            <div class="kpi">
+              <span>Conversas ativas</span>
+              <b>${totalAtivas.toLocaleString('pt-BR')}</b>
+            </div>
+            <div class="kpi">
+              <span>Mensagens follow-up</span>
+              <b>${totalFollow}</b>
+              <small>acumulado</small>
+            </div>
+            <div class="kpi">
+              <span>Respostas</span>
+              <b>${totalRespostas.toLocaleString('pt-BR')}</b>
+            </div>
+            <div class="kpi">
+              <span>Faturamento</span>
+              <b>R$ ${totalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
+            </div>
+          </div>
+
+          <div class="ins">
+            <p>Senha: <b>Lucas830</b> (para liberar o painel).</p>
+          </div>
+
+          <div class="card chart-wrap">
+            <h2>Desempenho por semana</h2>
+            <div class="chart-legend">
+              <span><i class="legend-dot" style="background:var(--g)"></i> Consultas</span>
+              <span><i class="legend-dot" style="background:var(--b)"></i> Follow-up</span>
+              <span><i class="legend-dot" style="background:var(--a)"></i> Agendamentos</span>
+            </div>
+            <svg id="mainChart" viewBox="0 0 960 260" aria-label="Gráfico de desempenho por semana"></svg>
+          </div>
+        `;
+
+        drawChart();
+      }
+
+      function drawChart() {
+        const svg = document.getElementById('mainChart');
+        if (!svg) return;
+        const weeks = getAllWeeksSorted();
+        if (!weeks.length) {
+          svg.innerHTML = '';
+          return;
+        }
+
+        const width = 960;
+        const height = 260;
+        const padding = { top: 20, right: 20, bottom: 30, left: 40 };
+        const plotWidth = width - padding.left - padding.right;
+        const plotHeight = height - padding.top - padding.bottom;
+        const values = weeks.map(date => {
+          const w = state.weeks[date];
+          return [
+            safeNumber(w.cagend),
+            safeNumber(w.fu2) + safeNumber(w.fu3) + safeNumber(w.fu4) + safeNumber(w.fu5),
+            safeNumber(w.ativas)
+          ];
+        });
+        const maxValue = Math.max(...values.flat(), 10);
+        const gap = 18;
+        const barWidth = (plotWidth - gap * (weeks.length - 1)) / (weeks.length * 3);
+
+        const grid = Array.from({ length: 5 }, (_, index) => {
+          const y = padding.top + (plotHeight / 4) * index;
+          const value = Math.round(maxValue - (maxValue / 4) * index);
+          return `
+            <g>
+              <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,.12)" stroke-dasharray="4 6"></line>
+              <text x="4" y="${y + 4}" fill="var(--mut)">${value}</text>
+            </g>
+          `;
+        }).join('');
+
+        const bars = weeks.map((date, index) => {
+          const w = state.weeks[date];
+          const consult = safeNumber(w.cagend);
+          const follow = safeNumber(w.fu2) + safeNumber(w.fu3) + safeNumber(w.fu4) + safeNumber(w.fu5);
+          const ativas = safeNumber(w.ativas);
+          const startX = padding.left + (index * barWidth * 3) + index * gap;
+
+          const consultH = (consult / maxValue) * plotHeight;
+          const followH = (follow / maxValue) * plotHeight;
+          const activeH = (ativas / maxValue) * plotHeight;
+          const label = new Date(date + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+          return `
+            <g>
+              <rect x="${startX}" y="${padding.top + plotHeight - consultH}" width="${barWidth * 0.85}" height="${consultH}" fill="var(--g)" rx="4"></rect>
+              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - followH}" width="${barWidth * 0.85}" height="${followH}" fill="var(--b)" rx="4"></rect>
+              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - activeH}" width="${barWidth * 0.85}" height="${activeH}" fill="var(--a)" rx="4"></rect>
+              <text x="${startX + barWidth}" y="${height - 8}" text-anchor="middle">${label}</text>
+            </g>
+          `;
+        }).join('');
+
+        svg.innerHTML = `${grid}${bars}`;
+      }
+
+      function renderWeekList() {
+        const el = document.getElementById('wl');
+        if (!el) return;
+
+        const dates = getAllWeeksSorted().reverse();
+        if (!dates.length) {
+          el.innerHTML = '<p class="note">Nenhuma semana salva.</p>';
+          return;
+        }
+
+        el.innerHTML = dates.map(date => {
+          const item = state.weeks[date];
+          const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
+          return `
+            <div class="week-item" style="background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:10px;">
+              <strong>${date}</strong><br>
+              <small>${safeNumber(item.ativas).toLocaleString('pt-BR')} ativas · ${follow} follow-up</small>
+              <div class="row">
+                <button class="b s" data-load-week="${date}" type="button">Carregar</button>
+                <button class="b s" data-delete-week="${date}" type="button">Excluir</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderAppointments() {
+        const el = document.getElementById('al');
+        if (!el) return;
+
+        if (!state.appts.length) {
+          el.innerHTML = '<p class="note">Nenhuma consulta registrada.</p>';
+          return;
+        }
+
+        el.innerHTML = state.appts.map((item, idx) => `
+          <div class="week-item" style="background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:10px;">
+            <strong>${item.paciente || 'Paciente'}</strong><br>
+            <small>${item.origem || '—'} · ${formatDateBR(item.data_consulta)} · ${item.status || 'agendada'}</small>
+            <div class="row">
+              <select data-status-id="${idx}" aria-label="Status da consulta">
+                <option value="agendada" ${item.status === 'agendada' ? 'selected' : ''}>Agendada</option>
+                <option value="realizada" ${item.status === 'realizada' ? 'selected' : ''}>Realizada</option>
+                <option value="cancelado" ${item.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
+              </select>
+              <button class="b s" data-delete-appt="${idx}" type="button">Excluir</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function renderConfig() {
+        const el = document.getElementById('cfg');
+        if (!el) return;
+        el.innerHTML = `
+          <div class="card">
+            <h2>Configuração</h2>
             <div class="f">
               <label>
-                Paciente
-                <input id="patientName" name="patientName" placeholder="Nome ou iniciais">
+                Título do painel
+                <input id="cfgTitle" type="text" value="${state.cfg.title || 'Painel KOMMO'}">
               </label>
               <label>
-                Veio de
-                <select id="sourceSelect" name="sourceSelect">
-                  <option value="novo">Novo lead</option>
-                  <option value="Instagram">Instagram</option>
-                  <option value="WhatsApp">WhatsApp</option>
-                  <option value="Google">Google</option>
-                  <option value="Indicação">Indicação</option>
-                  <option value="Facebook">Facebook</option>
-                </select>
-              </label>
-              <label>
-                Agendada em
-                <input id="scheduledDate" name="scheduledDate" type="date">
-              </label>
-              <label>
-                Data da consulta
-                <input id="consultationDate" name="consultationDate" type="date">
-              </label>
-              <label>
-                Status
-                <select id="appointmentStatus" name="appointmentStatus">
-                  <option value="agendada">Agendada</option>
-                  <option value="realizada">Realizada</option>
-                  <option value="cancelado">Cancelado</option>
-                  <option value="reagendada">Reagendada</option>
-                </select>
+                Senha principal
+                <input id="cfgPass" type="text" value="${state.cfg.password || ACCESS_PASSWORD}">
               </label>
             </div>
             <div class="row">
-              <button class="b" type="submit">Salvar consulta</button>
+              <button class="b" id="saveCfg" type="button">Salvar configuração</button>
             </div>
-          </form>
-        </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h2>Importar consultas em lote</h2>
-          <p class="note">Formato: paciente / origem / data agendada / data consulta / status</p>
-          <textarea id="pasteConsultas" rows="4" placeholder="Maria / Instagram / 2026-10-20 / 2026-10-24 / agendada"></textarea>
-          <div class="row">
-            <button class="b" id="importConsultasBtn" type="button">Importar</button>
           </div>
-        </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h2>Consultas registradas</h2>
-          <div class="wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Paciente</th>
-                  <th>Origem</th>
-                  <th>Agendada</th>
-                  <th>Consulta</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="appointmentsTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section id="configuracoes" class="tab-panel">
-        <div class="card">
-          <h2>Configuração</h2>
-          <div class="f">
-            <label>
-              Título do painel
-              <input id="panelTitleInput" type="text" value="Painel KOMMO">
-            </label>
-            <label>
-              Senha principal
-              <input id="mainPasswordInput" type="text" value="Lucas830">
-            </label>
-          </div>
-          <div class="row">
-            <button class="b" id="saveConfigBtn" type="button">Salvar configuração</button>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div id="msg" role="status" aria-live="polite"></div>
-
-  <script>
-    const STORAGE_KEY = 'kommo_dashboard_data_v2';
-    const LOCK_KEY = 'kommo_dashboard_lock_v2';
-    const VALID_PASSWORDS = ['Lucas830', '1234'];
-    const SHEETDB_WEEK_URL = 'https://sheetdb.io/api/v1/hd148z3uhn04n?sheet=dados_semana';
-    const SHEETDB_CONSULTA_URL = 'https://sheetdb.io/api/v1/antynpy96prfl?sheet=consultas';
-
-    const FIELD_DEFS = [
-      { key:'novos', label:'Novos leads' },
-      { key:'antigas', label:'Conversas antigas retomadas' },
-      { key:'ativas', label:'Total de conversas ativas' },
-      { key:'fu2', label:'Follow-up 2' },
-      { key:'fu3', label:'Follow-up 3' },
-      { key:'fu4', label:'Follow-up 4' },
-      { key:'fu5', label:'Follow-up 5' },
-      { key:'resp', label:'Respostas' },
-      { key:'m1', label:'Mensagens 1' },
-      { key:'m2', label:'Mensagens 2' },
-      { key:'m3', label:'Mensagens 3' },
-      { key:'m4', label:'Mensagens 4' },
-      { key:'m5', label:'Mensagens 5' },
-      { key:'m6', label:'Mensagens 6' },
-      { key:'cagend', label:'Consultas agendadas' },
-      { key:'tcap', label:'Total atual' },
-      { key:'consultas', label:'Consultas' },
-      { key:'followups', label:'Follow-up' },
-      { key:'agendamentos', label:'Agendamentos' },
-      { key:'concluidas', label:'Concluídas' },
-      { key:'naoCompareceu', label:'Não compareceu' },
-      { key:'valor', label:'Valor (R$)' }
-    ];
-
-    const WEEK_DEFAULTS = [
-      { id: crypto.randomUUID(), week:'2026-10-05', consultas:18, followups:24, agendamentos:9, concluidas:12, naoCompareceu:2, valor:4200 },
-      { id: crypto.randomUUID(), week:'2026-10-12', consultas:21, followups:28, agendamentos:11, concluidas:15, naoCompareceu:3, valor:5800 },
-      { id: crypto.randomUUID(), week:'2026-10-19', consultas:24, followups:32, agendamentos:14, concluidas:18, naoCompareceu:2, valor:6900 }
-    ];
-
-    const state = {
-      weeks: loadWeeks(),
-      appointments: loadAppointments(),
-      filters: { from:'', to:'', origin:'', status:'' },
-      editingId: null,
-      config: loadConfig()
-    };
-
-    const form = document.getElementById('weekForm');
-    const kpisBox = document.getElementById('kpis');
-    const periodSummary = document.getElementById('periodSummary');
-    const chart = document.getElementById('chart');
-    const lockMessage = document.getElementById('lockMessage');
-    const passInput = document.getElementById('pass');
-    const msg = document.getElementById('msg');
-    const weeksTableBody = document.getElementById('weeksTableBody');
-    const appointmentsTableBody = document.getElementById('appointmentsTableBody');
-
-    function loadConfig() {
-      try {
-        const raw = localStorage.getItem('kommo_dashboard_config_v2');
-        if (!raw) return { title:'Painel KOMMO', mainPassword:'Lucas830' };
-        return JSON.parse(raw);
-      } catch {
-        return { title:'Painel KOMMO', mainPassword:'Lucas830' };
-      }
-    }
-
-    function saveConfig() {
-      localStorage.setItem('kommo_dashboard_config_v2', JSON.stringify(state.config));
-      document.querySelector('h1').textContent = state.config.title || 'Painel KOMMO';
-      document.getElementById('panelTitleInput').value = state.config.title || 'Painel KOMMO';
-      document.getElementById('mainPasswordInput').value = state.config.mainPassword || 'Lucas830';
-    }
-
-    function loadWeeks() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return WEEK_DEFAULTS;
-        const parsed = JSON.parse(raw);
-        const weeks = parsed && Array.isArray(parsed.weeks) ? parsed.weeks : WEEK_DEFAULTS;
-        return weeks.length ? weeks : WEEK_DEFAULTS;
-      } catch {
-        return WEEK_DEFAULTS;
-      }
-    }
-
-    function loadAppointments() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed.appointments) ? parsed.appointments : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ weeks: state.weeks, appointments: state.appointments }));
-    }
-
-    function showMessage(text) {
-      msg.textContent = text;
-      msg.classList.add('on');
-      clearTimeout(showMessage.timer);
-      showMessage.timer = setTimeout(() => msg.classList.remove('on'), 2200);
-    }
-
-    function toDateValue(dateString) {
-      if (!dateString) return null;
-      const date = new Date(dateString + 'T00:00:00');
-      if (Number.isNaN(date.getTime())) return null;
-      return date;
-    }
-
-    function formatDate(dateString) {
-      const date = toDateValue(dateString);
-      if (!date) return '—';
-      return date.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
-    }
-
-    function getMetricSummary() {
-      const sum = state.weeks.reduce((acc, item) => {
-        acc.consultas += Number(item.consultas || 0);
-        acc.followups += Number(item.followups || 0);
-        acc.agendamentos += Number(item.agendamentos || 0);
-        acc.concluidas += Number(item.concluidas || 0);
-        acc.naoCompareceu += Number(item.naoCompareceu || 0);
-        acc.valor += Number(item.valor || 0);
-        return acc;
-      }, { consultas:0, followups:0, agendamentos:0, concluidas:0, naoCompareceu:0, valor:0 });
-
-      const totalSemanas = state.weeks.length || 1;
-      const mediaConsultas = Math.round(sum.consultas / totalSemanas);
-      const crescimento = (() => {
-        if (state.weeks.length < 2) return 0;
-        const first = state.weeks[0];
-        const last = state.weeks[state.weeks.length - 1];
-        const base = Number(first.consultas || 0) || 1;
-        return ((Number(last.consultas || 0) - Number(first.consultas || 0)) / base) * 100;
-      })();
-
-      const taxaPresenca = sum.consultas ? ((sum.consultas - sum.naoCompareceu) / sum.consultas) * 100 : 0;
-      return { sum, mediaConsultas, crescimento, taxaPresenca };
-    }
-
-    function renderKpis() {
-      const { sum, mediaConsultas, crescimento, taxaPresenca } = getMetricSummary();
-      const items = [
-        { label:'Consultas', value: sum.consultas, small: `${mediaConsultas} por semana em média` },
-        { label:'Follow-up', value: sum.followups, small: `${((sum.followups / Math.max(sum.consultas,1)) * 100).toFixed(0)}% do total de consultas` },
-        { label:'Agendamentos', value: sum.agendamentos, small: `${crescimento >= 0 ? '+' : ''}${crescimento.toFixed(0)}% vs. início` },
-        { label:'Receita', value: `R$ ${sum.valor.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })}`, small: `${taxaPresenca.toFixed(0)}% de presença` }
-      ];
-
-      kpisBox.innerHTML = items.map(item => `
-        <div class="kpi">
-          <span>${item.label}</span>
-          <b>${item.value}</b>
-          <small>${item.small}</small>
-        </div>
-      `).join('');
-
-      const summaryText = `${sum.consultas} consultas, ${sum.followups} follow-ups, ${sum.agendamentos} agendamentos e ${sum.valor.toLocaleString('pt-BR', { style:'currency', currency:'BRL' })} em receita no período.`;
-      periodSummary.textContent = summaryText;
-    }
-
-    function renderChart() {
-      if (!state.weeks.length) {
-        chart.innerHTML = '';
-        return;
-      }
-
-      const width = 960;
-      const height = 260;
-      const padding = { top:24, right:20, bottom:30, left:38 };
-      const plotWidth = width - padding.left - padding.right;
-      const plotHeight = height - padding.top - padding.bottom;
-      const maxValue = Math.max(...state.weeks.flatMap(item => [Number(item.consultas || 0), Number(item.followups || 0), Number(item.agendamentos || 0)]), 10);
-      const barWidth = plotWidth / (state.weeks.length * 3 + 1);
-
-      const bars = state.weeks.map((week, index) => {
-        const x0 = padding.left + index * (barWidth * 3) + 12;
-        const consultHeight = (Number(week.consultas || 0) / maxValue) * plotHeight;
-        const followHeight = (Number(week.followups || 0) / maxValue) * plotHeight;
-        const agendaHeight = (Number(week.agendamentos || 0) / maxValue) * plotHeight;
-        const label = new Date(week.week + 'T00:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
-
-        return `
-          <g>
-            <rect x="${x0}" y="${padding.top + plotHeight - consultHeight}" width="${barWidth * 0.8}" height="${consultHeight}" fill="var(--g)" rx="5"></rect>
-            <rect x="${x0 + barWidth}" y="${padding.top + plotHeight - followHeight}" width="${barWidth * 0.8}" height="${followHeight}" fill="var(--b)" rx="5"></rect>
-            <rect x="${x0 + barWidth * 2}" y="${padding.top + plotHeight - agendaHeight}" width="${barWidth * 0.8}" height="${agendaHeight}" fill="var(--a)" rx="5"></rect>
-            <text x="${x0 + barWidth}" y="${height - 8}" text-anchor="middle">${label}</text>
-          </g>
         `;
-      }).join('');
-
-      const gridLines = Array.from({ length:5 }, (_, i) => {
-        const y = padding.top + (plotHeight / 4) * i;
-        const value = Math.round(maxValue - (maxValue / 4) * i);
-        return `
-          <g>
-            <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,0.12)" stroke-dasharray="4 6"></line>
-            <text x="2" y="${y + 4}" fill="var(--mut)">${value}</text>
-          </g>
-        `;
-      }).join('');
-
-      chart.innerHTML = `${gridLines}<g>${bars}</g>`;
-    }
-
-    function buildWeekFields() {
-      const container = document.getElementById('weekFields');
-      if (!container) return;
-      container.innerHTML = FIELD_DEFS.filter(({ key }) => !['consultas','followups','agendamentos','concluidas','naoCompareceu','valor'].includes(key)).map(({ key, label }) => `
-        <label>
-          ${label}
-          <input name="${key}" type="number" min="0" value="0">
-        </label>
-      `).join('');
-    }
-
-    function fillWeekForm(data = {}) {
-      const inputs = document.querySelectorAll('#weekFields input');
-      inputs.forEach(input => {
-        const key = input.name;
-        input.value = Number(data[key] || 0);
-      });
-    }
-
-    function readWeekForm() {
-      const formData = {};
-      const inputs = document.querySelectorAll('#weekFields input');
-      inputs.forEach(input => {
-        const key = input.name;
-        formData[key] = Number(input.value || 0);
-      });
-      return formData;
-    }
-
-    function getVisibleWeeks() {
-      let list = [...state.weeks].sort((a, b) => new Date(b.week) - new Date(a.week));
-      const from = document.getElementById('filterFrom')?.value;
-      const to = document.getElementById('filterTo')?.value;
-      if (from) list = list.filter(item => item.week >= from);
-      if (to) list = list.filter(item => item.week <= to);
-      return list;
-    }
-
-    function renderWeeksTable() {
-      const rows = getVisibleWeeks().map((week) => `
-        <tr>
-          <td>${formatDate(week.week)}</td>
-          <td>${Number(week.consultas || 0)}</td>
-          <td>${Number(week.followups || 0)}</td>
-          <td>${Number(week.agendamentos || 0)}</td>
-          <td>${Number(week.concluidas || 0)}</td>
-          <td>${Number(week.naoCompareceu || 0)}</td>
-          <td>${Number(week.valor || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' })}</td>
-          <td>
-            <button class="b s" type="button" data-action="edit" data-id="${week.id}">Editar</button>
-            <button class="x" type="button" data-action="delete" data-id="${week.id}" aria-label="Excluir semana">×</button>
-          </td>
-        </tr>
-      `).join('');
-      weeksTableBody.innerHTML = rows || '<tr><td colspan="8">Nenhuma semana encontrada.</td></tr>';
-    }
-
-    function getVisibleAppointments() {
-      let list = [...state.appointments];
-      const from = document.getElementById('filterFrom')?.value;
-      const to = document.getElementById('filterTo')?.value;
-      const origin = document.getElementById('filterOrigin')?.value || '';
-      const status = document.getElementById('filterStatus')?.value || '';
-
-      if (from) list = list.filter(item => (item.consultationDate || item.data_consulta || '') >= from);
-      if (to) list = list.filter(item => (item.consultationDate || item.data_consulta || '') <= to);
-      if (origin) list = list.filter(item => String(item.origem || item.source || '').toLowerCase() === origin.toLowerCase());
-      if (status) list = list.filter(item => String(item.status || '').toLowerCase() === status.toLowerCase());
-      return list;
-    }
-
-    function renderAppointmentsTable() {
-      const rows = getVisibleAppointments().map((item) => `
-        <tr>
-          <td>${String(item.paciente || item.name || '—')}</td>
-          <td>${String(item.origem || item.source || '—')}</td>
-          <td>${formatDate(item.agendada_em || item.scheduledDate || '')}</td>
-          <td>${formatDate(item.data_consulta || item.consultationDate || '')}</td>
-          <td>${String(item.status || 'agendada')}</td>
-          <td>
-            <button class="b s" type="button" data-action="delete-appointment" data-id="${item.id || item._id || Math.random().toString(36).slice(2)}">Excluir</button>
-          </td>
-        </tr>
-      `).join('');
-      appointmentsTableBody.innerHTML = rows || '<tr><td colspan="6">Nenhuma consulta encontrada.</td></tr>';
-    }
-
-    function setActiveTab(tabName) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('on', btn.dataset.tab === tabName));
-      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === tabName));
-    }
-
-    function resetForm() {
-      form.reset();
-      document.getElementById('weekDate').value = '';
-      fillWeekForm({});
-      state.editingId = null;
-      document.getElementById('formTitle').textContent = 'Registrar semana';
-      document.getElementById('cancelEdit').classList.add('hide');
-    }
-
-    function syncWeekToSheet(row) {
-      return fetch(SHEETDB_WEEK_URL, {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
-        body: JSON.stringify([row])
-      }).then(async (response) => {
-        const text = await response.text();
-        if (!response.ok) throw new Error(text || 'Erro ao sincronizar semana');
-        return text;
-      });
-    }
-
-    function syncAppointmentToSheet(row) {
-      return fetch(SHEETDB_CONSULTA_URL, {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
-        body: JSON.stringify([row])
-      }).then(async (response) => {
-        const text = await response.text();
-        if (!response.ok) throw new Error(text || 'Erro ao sincronizar consulta');
-        return text;
-      });
-    }
-
-    function serializeWeekEntry(id, week, values) {
-      return {
-        source:'painel-kommo',
-        updated_at:new Date().toISOString(),
-        id,
-        week,
-        consultas: Number(values.consultas || 0),
-        followups: Number(values.followups || 0),
-        agendamentos: Number(values.agendamentos || 0),
-        concluidas: Number(values.concluidas || 0),
-        naoCompareceu: Number(values.naoCompareceu || 0),
-        valor: Number(values.valor || 0),
-        ...values
-      };
-    }
-
-    function serializeAppointment(item) {
-      return {
-        source:'painel-kommo',
-        updated_at:new Date().toISOString(),
-        paciente: String(item.paciente || item.name || ''),
-        origem: String(item.origem || item.source || 'novo'),
-        agendada_em: String(item.agendada_em || item.scheduledDate || ''),
-        data_consulta: String(item.data_consulta || item.consultationDate || ''),
-        status: String(item.status || 'agendada')
-      };
-    }
-
-    function handleWeekSubmit(event) {
-      event.preventDefault();
-      const week = document.getElementById('weekDate').value;
-      if (!week) {
-        showMessage('Selecione a semana antes de salvar.');
-        return;
       }
 
-      const values = {
-        consultas: Number(document.getElementById('consultas')?.value || 0),
-        followups: Number(document.getElementById('followups')?.value || 0),
-        agendamentos: Number(document.getElementById('agendamentos')?.value || 0),
-        concluidas: Number(document.getElementById('concluidas')?.value || 0),
-        naoCompareceu: Number(document.getElementById('naoCompareceu')?.value || 0),
-        valor: Number(document.getElementById('valor')?.value || 0)
-      };
-
-      const payload = { id: state.editingId || crypto.randomUUID(), week, ...values };
-
-      if (state.editingId) {
-        state.weeks = state.weeks.map(item => item.id === state.editingId ? payload : item);
-      } else {
-        state.weeks.push(payload);
+      function renderAll() {
+        renderDashboard();
+        renderWeekList();
+        renderAppointments();
+        renderConfig();
       }
 
-      saveData();
-      renderAll();
-      resetForm();
-      showMessage('Semana salva com sucesso.');
-
-      const row = serializeWeekEntry(payload.id, week, values);
-      syncWeekToSheet(row).catch(error => {
-        console.error('SheetDB week sync failed', error);
-        showMessage('Dados salvos localmente; falha na sincronização do SheetDB.');
-      });
-    }
-
-    function handleConsultationSubmit(event) {
-      event.preventDefault();
-      const patient = document.getElementById('patientName').value.trim();
-      const source = document.getElementById('sourceSelect').value;
-      const scheduled = document.getElementById('scheduledDate').value;
-      const consultationDate = document.getElementById('consultationDate').value;
-      const status = document.getElementById('appointmentStatus').value;
-
-      if (!patient || !consultationDate) {
-        showMessage('Preencha paciente e data da consulta.');
-        return;
+      function loadState() {
+        const loaded = loadData();
+        state.weeks = loaded.weeks || {};
+        state.appts = loaded.appts || [];
+        state.cfg = loaded.cfg && Object.keys(loaded.cfg).length ? loaded.cfg : { title: 'Painel KOMMO', password: ACCESS_PASSWORD };
       }
 
-      const item = {
-        id: crypto.randomUUID(),
-        paciente: patient,
-        origem: source,
-        agendada_em: scheduled,
-        data_consulta: consultationDate,
-        status: status,
-        source: source,
-        scheduledDate: scheduled,
-        consultationDate: consultationDate,
-        name: patient
-      };
+      function buildPayloadWeek(date, data) {
+        return {
+          source:'painel-kommo',
+          updated_at:new Date().toISOString(),
+          data_semana:date,
+          novos:safeNumber(data.novos),
+          antigas:safeNumber(data.antigas),
+          ativas:safeNumber(data.ativas),
+          fu2:safeNumber(data.fu2),
+          fu3:safeNumber(data.fu3),
+          fu4:safeNumber(data.fu4),
+          fu5:safeNumber(data.fu5),
+          resp:safeNumber(data.resp),
+          m1:safeNumber(data.m1),
+          m2:safeNumber(data.m2),
+          m3:safeNumber(data.m3),
+          m4:safeNumber(data.m4),
+          m5:safeNumber(data.m5),
+          m6:safeNumber(data.m6),
+          cagend:safeNumber(data.cagend),
+          tcap:safeNumber(data.tcap)
+        };
+      }
 
-      state.appointments.push(item);
-      saveData();
-      renderAll();
-      document.getElementById('consultationForm').reset();
-      showMessage('Consulta salva com sucesso.');
+      function buildPayloadConsulta(item) {
+        return {
+          source:'painel-kommo',
+          updated_at:new Date().toISOString(),
+          paciente:String(item.paciente || ''),
+          origem:String(item.origem || ''),
+          agendada_em:String(item.agendada_em || ''),
+          data_consulta:String(item.data_consulta || ''),
+          status:String(item.status || 'agendada'),
+          reagendado:String(item.reagendado || ''),
+          observacao:String(item.observacao || '')
+        };
+      }
 
-      syncAppointmentToSheet(serializeAppointment(item)).catch(error => {
-        console.error('SheetDB appointment sync failed', error);
-        showMessage('Consulta salva localmente; falha na sincronização do SheetDB.');
-      });
-    }
-
-    function renderAll() {
-      renderKpis();
-      renderChart();
-      renderWeeksTable();
-      renderAppointmentsTable();
-    }
-
-    function handleWeeksTableClick(event) {
-      const btn = event.target.closest('button[data-action]');
-      if (!btn) return;
-      const action = btn.dataset.action;
-      const id = btn.dataset.id;
-      if (action === 'edit') {
-        const item = state.weeks.find(entry => entry.id === id);
-        if (!item) return;
-        state.editingId = id;
-        document.getElementById('weekDate').value = item.week;
-        document.getElementById('formTitle').textContent = 'Editar semana';
-        document.getElementById('cancelEdit').classList.remove('hide');
-        fillWeekForm({
-          consultas: item.consultas || 0,
-          followups: item.followups || 0,
-          agendamentos: item.agendamentos || 0,
-          concluidas: item.concluidas || 0,
-          naoCompareceu: item.naoCompareceu || 0,
-          valor: item.valor || 0,
-          ...item
+      async function postJSON(url, payload) {
+        const response = await fetch(url, {
+          method:'POST',
+          headers:{'Content-Type':'application/json','Accept':'application/json'},
+          body: JSON.stringify(Array.isArray(payload) ? payload : [payload])
         });
-        setActiveTab('registro');
+        const text = await response.text();
+        if (!response.ok) throw new Error(text || 'Erro ao enviar para o SheetDB');
+        return text;
       }
-      if (action === 'delete') {
-        const confirmed = window.confirm('Deseja excluir esta semana?');
-        if (!confirmed) return;
-        state.weeks = state.weeks.filter(entry => entry.id !== id);
+
+      function loadWeekIntoForm(date) {
+        const data = state.weeks[date];
+        if (!data) return;
+        document.getElementById('wd').value = date;
+        populateWeekFields(data);
+      }
+
+      function saveWeek() {
+        const date = document.getElementById('wd').value;
+        if (!date) {
+          toast('Escolha a data da semana');
+          return;
+        }
+
+        const payload = readWeekForm();
+        state.weeks[date] = payload;
         saveData();
         renderAll();
-        if (state.editingId === id) resetForm();
-        showMessage('Semana removida.');
-      }
-    }
 
-    function handleAppointmentsTableClick(event) {
-      const btn = event.target.closest('button[data-action]');
-      if (!btn) return;
-      if (btn.dataset.action !== 'delete-appointment') return;
-      const id = btn.dataset.id;
-      state.appointments = state.appointments.filter(item => (item.id || item._id || '') !== id);
-      saveData();
-      renderAll();
-      showMessage('Consulta removida.');
-    }
-
-    function applyFilters() {
-      renderAll();
-    }
-
-    function clearFilters() {
-      document.getElementById('filterFrom').value = '';
-      document.getElementById('filterTo').value = '';
-      document.getElementById('filterOrigin').value = '';
-      document.getElementById('filterStatus').value = '';
-      renderAll();
-    }
-
-    function importWeeksFromPaste() {
-      const text = document.getElementById('pasteWeeks').value.trim();
-      if (!text) {
-        showMessage('Cole os dados da planilha antes de importar.');
-        return;
+        postJSON(SHEETDB_WEEK_URL, buildPayloadWeek(date, payload)).then(() => {
+          toast('Dados salvos com sucesso!');
+        }).catch((err) => {
+          console.error(err);
+          toast('Erro no SheetDB. Dados salvos localmente.');
+        });
       }
 
-      const rows = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
-      rows.forEach(line => {
-        const cells = line.split(/\t|\s{2,}/).map(cell => cell.trim()).filter(Boolean);
-        const [week, ...values] = cells;
-        if (!week) return;
+      function deleteWeek(date) {
+        if (!date) return;
+        delete state.weeks[date];
+        saveData();
+        renderAll();
+        toast('Semana removida');
+      }
 
-        const entry = {
-          id: crypto.randomUUID(),
-          week,
-          consultas: Number(values[0] || 0),
-          followups: Number(values[1] || 0),
-          agendamentos: Number(values[2] || 0),
-          concluidas: Number(values[3] || 0),
-          naoCompareceu: Number(values[4] || 0),
-          valor: Number(values[5] || 0)
+      function addAppointment() {
+        const name = document.getElementById('cp_n').value.trim();
+        const origin = document.getElementById('cp_o').value;
+        const scheduled = document.getElementById('cp_s').value;
+        const consultation = document.getElementById('cp_c').value;
+
+        if (!name || !consultation) {
+          toast('Preencha paciente e data da consulta.');
+          return;
+        }
+
+        const item = {
+          paciente: name,
+          origem: origin,
+          agendada_em: scheduled,
+          data_consulta: consultation,
+          status: 'agendada',
+          reagendado: '',
+          observacao: ''
         };
 
-        const existingIndex = state.weeks.findIndex(item => item.week === week);
-        if (existingIndex >= 0) {
-          state.weeks[existingIndex] = { ...state.weeks[existingIndex], ...entry };
-        } else {
-          state.weeks.push(entry);
-        }
-      });
+        state.appts.push(item);
+        saveData();
+        renderAll();
 
-      saveData();
-      renderAll();
-      document.getElementById('pasteWeeks').value = '';
-      showMessage('Importação concluída.');
-    }
+        document.getElementById('cp_n').value = '';
+        document.getElementById('cp_s').value = new Date().toISOString().slice(0,10);
+        document.getElementById('cp_c').value = '';
 
-    function importAppointmentsFromPaste() {
-      const text = document.getElementById('pasteConsultas').value.trim();
-      if (!text) {
-        showMessage('Cole dados das consultas antes de importar.');
-        return;
-      }
-
-      const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
-      lines.forEach(line => {
-        const parts = line.split(/\s*\/\s*|\t+/).map(item => item.trim()).filter(Boolean);
-        if (parts.length < 4) return;
-        const [paciente, origem, agendada, consulta, status = 'agendada'] = parts;
-        state.appointments.push({
-          id: crypto.randomUUID(),
-          paciente,
-          origem,
-          source: origem,
-          agendada_em: agendada,
-          scheduledDate: agendada,
-          data_consulta: consulta,
-          consultationDate: consulta,
-          status,
-          name: paciente
+        postJSON(SHEETDB_CONSULTA_URL, buildPayloadConsulta(item)).then(() => {
+          toast('Consulta salva com sucesso!');
+        }).catch((err) => {
+          console.error(err);
+          toast('Consulta salva localmente, mas falhou no SheetDB.');
         });
-      });
-
-      saveData();
-      renderAll();
-      document.getElementById('pasteConsultas').value = '';
-      showMessage('Consultas importadas.');
-    }
-
-    function copyPreviousWeek() {
-      const sorted = [...state.weeks].sort((a, b) => new Date(b.week) - new Date(a.week));
-      const previous = sorted[1];
-      if (!previous) {
-        showMessage('Não há semana anterior para copiar.');
-        return;
       }
 
-      const week = document.getElementById('weekDate').value;
-      if (!week) {
-        showMessage('Selecione a semana para receber os dados.');
-        return;
+      function deleteAppt(index) {
+        if (index === undefined || !state.appts[index]) return;
+        state.appts.splice(index, 1);
+        saveData();
+        renderAll();
+        toast('Consulta removida');
       }
 
-      fillWeekForm({
-        consultas: previous.consultas || 0,
-        followups: previous.followups || 0,
-        agendamentos: previous.agendamentos || 0,
-        concluidas: previous.concluidas || 0,
-        naoCompareceu: previous.naoCompareceu || 0,
-        valor: previous.valor || 0
-      });
-      showMessage('Valores copiados da semana anterior.');
-    }
+      function importFromPaste() {
+        const text = document.getElementById('paste').value.trim();
+        if (!text) {
+          toast('Cole os dados da planilha');
+          return;
+        }
 
-    function saveConfig() {
-      state.config.title = document.getElementById('panelTitleInput').value.trim() || 'Painel KOMMO';
-      state.config.mainPassword = document.getElementById('mainPasswordInput').value.trim() || 'Lucas830';
-      localStorage.setItem('kommo_dashboard_config_v2', JSON.stringify(state.config));
-      document.querySelector('h1').textContent = state.config.title;
-      showMessage('Configuração salva.');
-    }
+        const rows = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
+        const imported = [];
 
-    function unlockApp() {
-      const entered = passInput.value.trim();
-      const isValid = VALID_PASSWORDS.includes(entered) || entered === state.config.mainPassword;
-      if (isValid) {
-        localStorage.setItem(LOCK_KEY, 'unlocked');
-        document.body.classList.remove('locked');
-        lockMessage.textContent = '';
-        passInput.value = '';
-      } else {
-        lockMessage.textContent = 'Senha incorreta. Tente novamente.';
+        rows.forEach(line => {
+          const cells = line.split(/\t|\s{2,}/).map(v => v.trim());
+          const [date, ...values] = cells;
+          if (!date || values.length === 0) return;
+          const entry = { data_semana: date };
+          FIELDS.forEach(([key], idx) => {
+            entry[key] = safeNumber(values[idx] || 0);
+          });
+          imported.push(entry);
+        });
+
+        if (!imported.length) {
+          toast('Nenhuma linha válida para importar.');
+          return;
+        }
+
+        imported.forEach(item => {
+          state.weeks[item.data_semana] = Object.fromEntries(FIELDS.map(([k]) => [k, item[k]]));
+        });
+        saveData();
+        renderAll();
+        document.getElementById('paste').value = '';
+        toast('Dados importados com sucesso!');
       }
-    }
 
-    document.getElementById('unlockBtn').addEventListener('click', unlockApp);
-    passInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') unlockApp();
-    });
+      function importConsultationPaste() {
+        const text = document.getElementById('cp_paste').value.trim();
+        if (!text) {
+          toast('Cole os dados do paciente');
+          return;
+        }
 
-    document.querySelectorAll('.tab-btn').forEach(button => {
-      button.addEventListener('click', () => setActiveTab(button.dataset.tab));
-    });
+        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
+        lines.forEach(line => {
+          const parts = line.split(/\s*\/\s*|\t+/).map(v => v.trim()).filter(Boolean);
+          if (!parts.length) return;
+          const [patient, origin = 'novo', scheduled = new Date().toISOString().slice(0,10), consultation = new Date().toISOString().slice(0,10)] = parts;
+          state.appts.push({
+            paciente: patient,
+            origem: origin,
+            agendada_em: scheduled,
+            data_consulta: consultation,
+            status: 'agendada',
+            reagendado: '',
+            observacao: ''
+          });
+        });
 
-    form.addEventListener('submit', handleWeekSubmit);
-    document.getElementById('cancelEdit').addEventListener('click', () => { resetForm(); setActiveTab('registro'); });
-    document.getElementById('deleteWeekBtn').addEventListener('click', () => {
-      const date = document.getElementById('weekDate').value;
-      if (!date) {
-        showMessage('Selecione uma semana para excluir.');
-        return;
+        saveData();
+        renderAll();
+        document.getElementById('cp_paste').value = '';
+        toast('Consultas importadas');
       }
-      const confirmed = window.confirm('Deseja excluir a semana selecionada?');
-      if (!confirmed) return;
-      const id = state.editingId || state.weeks.find(item => item.week === date)?.id;
-      if (!id) return;
-      state.weeks = state.weeks.filter(item => item.id !== id);
-      saveData();
-      renderAll();
-      resetForm();
-      showMessage('Semana excluída.');
-    });
 
-    document.getElementById('copyPreviousWeekBtn').addEventListener('click', copyPreviousWeek);
-    document.getElementById('importWeeksBtn').addEventListener('click', importWeeksFromPaste);
-    document.getElementById('importConsultasBtn').addEventListener('click', importAppointmentsFromPaste);
-    document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
-    document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
-    document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
-    document.getElementById('consultationForm').addEventListener('submit', handleConsultationSubmit);
-    weeksTableBody.addEventListener('click', handleWeeksTableClick);
-    appointmentsTableBody.addEventListener('click', handleAppointmentsTableClick);
+      function copyPreviousWeek() {
+        const dates = getAllWeeksSorted();
+        if (dates.length < 2) {
+          toast('Não há semana anterior para copiar.');
+          return;
+        }
+        const previous = state.weeks[dates[dates.length - 2]];
+        populateWeekFields(previous);
+        toast('Valores copiados da semana anterior');
+      }
 
-    if (localStorage.getItem(LOCK_KEY) === 'unlocked') {
-      document.body.classList.remove('locked');
-    }
+      function saveCfg() {
+        const title = document.getElementById('cfgTitle').value.trim() || 'Painel KOMMO';
+        const password = document.getElementById('cfgPass').value.trim() || ACCESS_PASSWORD;
+        state.cfg = { title, password };
+        document.getElementById('ttl').textContent = title;
+        saveData();
+        toast('Configuração salva');
+      }
 
-    document.querySelector('h1').textContent = state.config.title || 'Painel KOMMO';
-    document.getElementById('panelTitleInput').value = state.config.title || 'Painel KOMMO';
-    document.getElementById('mainPasswordInput').value = state.config.mainPassword || 'Lucas830';
+      function bindEvents() {
+        document.getElementById('ws')?.addEventListener('click', saveWeek);
+        document.getElementById('wdel')?.addEventListener('click', () => {
+          const date = document.getElementById('wd').value;
+          deleteWeek(date);
+        });
+        document.getElementById('cp')?.addEventListener('click', copyPreviousWeek);
+        document.getElementById('imp')?.addEventListener('click', importFromPaste);
+        document.getElementById('cp_add')?.addEventListener('click', addAppointment);
+        document.getElementById('cp_imp')?.addEventListener('click', importConsultationPaste);
 
-    buildWeekFields();
-    fillWeekForm({});
-    renderAll();
-    resetForm();
-    setActiveTab('resumo');
+        document.getElementById('nav')?.addEventListener('click', (event) => {
+          const btn = event.target.closest('button[data-t]');
+          if (!btn) return;
+          const tab = btn.getAttribute('data-t');
+          document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === tab));
+          document.querySelectorAll('#nav button').forEach(node => node.classList.toggle('on', node === btn));
+        });
+
+        document.getElementById('wl')?.addEventListener('click', (event) => {
+          const btn = event.target.closest('[data-load-week]');
+          if (btn) return loadWeekIntoForm(btn.getAttribute('data-load-week'));
+          const del = event.target.closest('[data-delete-week]');
+          if (del) deleteWeek(del.getAttribute('data-delete-week'));
+        });
+
+        document.getElementById('al')?.addEventListener('change', (event) => {
+          const select = event.target.closest('[data-status-id]');
+          if (!select) return;
+          const idx = Number(select.getAttribute('data-status-id'));
+          if (!state.appts[idx]) return;
+          state.appts[idx].status = select.value;
+          saveData();
+          renderAppointments();
+        });
+
+        document.getElementById('al')?.addEventListener('click', (event) => {
+          const btn = event.target.closest('[data-delete-appt]');
+          if (!btn) return;
+          deleteAppt(Number(btn.getAttribute('data-delete-appt')));
+        });
+
+        document.getElementById('saveCfg')?.addEventListener('click', saveCfg);
+
+        document.getElementById('cp_o').innerHTML = Object.entries(ORIG).map(([key, value]) => `<option value="${key}">${value}</option>`).join('');
+      }
+
+      function init() {
+        loadState();
+        document.getElementById('ttl').textContent = state.cfg.title || 'Painel KOMMO';
+        buildWeekFields();
+        populateWeekFields(getLastWeek() || {});
+        const wd = document.getElementById('wd');
+        if (wd && !wd.value) {
+          wd.value = new Date().toISOString().slice(0, 10);
+        }
+        if (document.getElementById('cp_s') && !document.getElementById('cp_s').value) {
+          document.getElementById('cp_s').value = new Date().toISOString().slice(0,10);
+        }
+        bindEvents();
+        renderAll();
+      }
+
+      init();
+    })();
   </script>
 </body>
 </html>
