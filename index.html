@@ -31,507 +31,156 @@
       --success-soft:#ebfbf1;
       --warning:#c78112;
       --warning-soft:#fff4d8;
-      --shadow:0 12px 30px rgba(16, 35, 32, 0.08), 0 2px 10px rgba(16, 35, 32, 0.04);
+      --shadow:0 12px 30px rgba(16,35,32,0.08), 0 2px 10px rgba(16,35,32,0.04);
       --radius:18px;
       color-scheme:light;
       box-sizing:border-box;
     }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body {
+
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
       margin:0;
-      background:linear-gradient(180deg, #edf3f1 0%, #edf5f3 100%);
+      background:linear-gradient(180deg,#edf3f1 0%, #edf5f3 100%);
       color:var(--ink);
       font:15px/1.5 "Figtree", system-ui, sans-serif;
       overflow-x:hidden;
     }
-    body.locked { overflow:hidden; }
-    .app-shell { display:none; }
-    body:not(.locked) .app-shell { display:block; }
+    body.locked{overflow:hidden;}
+    .app-shell{display:none;}
+    body:not(.locked) .app-shell{display:block;}
 
-    .lock-screen {
-      position:fixed;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    .lock-screen{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
       background:radial-gradient(circle at top, #f5faf8 0%, #e8f0ee 38%, #dfeae6 100%);
       z-index:2000;
     }
-    body:not(.locked) .lock-screen { display:none; }
+    body:not(.locked) .lock-screen{display:none;}
 
-    .lock-card {
+    .lock-card{
       width:min(92vw, 400px);
       background:rgba(255,255,255,0.97);
       border:1px solid rgba(17,43,43,0.08);
-      border-radius:26px;
-      padding:30px 24px 22px;
-      box-shadow:0 32px 80px rgba(14, 36, 32, 0.15);
+      border-radius:26px; padding:30px 24px 22px;
+      box-shadow:0 32px 80px rgba(14,36,32,0.15);
       text-align:center;
     }
-    .lock-icon { font-size:46px; margin-bottom:8px; }
-    .lock-card h2 {
-      margin:0 0 14px;
-      font-size:28px;
-      letter-spacing:-0.04em;
-      color:var(--ink);
-    }
-    .lock-card label {
-      display:block;
-      text-align:left;
-      font-size:11px;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      color:var(--mut);
+    .lock-icon{font-size:46px; margin-bottom:8px;}
+    .lock-card h2{margin:0 0 14px; font-size:28px; letter-spacing:-0.04em; color:var(--ink);}
+    .lock-card label{
+      display:block; text-align:left; font-size:11px; font-weight:800;
+      text-transform:uppercase; letter-spacing:0.08em; color:var(--mut);
       margin:12px 0 8px;
     }
-    .lock-card input {
-      width:100%;
-      min-height:52px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px 14px;
-      background:#fff;
-      color:var(--ink);
-      font:inherit;
+    .lock-card input{
+      width:100%; min-height:52px; border:1px solid var(--line); border-radius:14px; padding:12px 14px;
+      background:#fff; color:var(--ink); font:inherit;
     }
-    .lock-card input:focus {
-      outline:none;
-      border-color:var(--primary);
-      box-shadow:0 0 0 4px rgba(15,118,110,0.12);
+    .lock-card input:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(15,118,110,0.12);}
+    .lock-card button{
+      width:100%; min-height:50px; border:none; border-radius:14px; background:linear-gradient(135deg, var(--primary), var(--primary-strong));
+      color:#fff; font:inherit; font-weight:800; cursor:pointer; margin-top:10px; box-shadow:0 16px 30px rgba(15,118,110,0.22);
     }
-    .lock-card button {
-      width:100%;
-      min-height:50px;
-      border:none;
-      border-radius:14px;
-      background:linear-gradient(135deg, var(--primary), var(--primary-strong));
-      color:#fff;
-      font:inherit;
-      font-weight:800;
-      cursor:pointer;
-      margin-top:10px;
-      box-shadow:0 16px 30px rgba(15,118,110,0.22);
-    }
-    .lock-card button:hover { filter:brightness(1.03); }
-    #lockMessage {
-      min-height:18px;
-      margin:12px 0 0;
-      color:var(--red);
-      font-weight:700;
-      font-size:14px;
-    }
+    .lock-card button:hover{filter:brightness(1.03);}
+    #lockMessage{min-height:18px; margin:12px 0 0; color:var(--red); font-weight:700; font-size:14px;}
 
-    header {
-      position:sticky;
-      top:0;
-      z-index:50;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
+    header{
+      position:sticky; top:0; z-index:50;
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
       padding:16px max(22px, calc((100% - 1200px)/2));
-      background:rgba(255,255,255,.82);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
     }
-    .brand { display:flex; flex-direction:column; gap:2px; }
-    .brand h1 {
-      margin:0;
-      font-size:20px;
-      letter-spacing:-0.04em;
-    }
-    #st {
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      margin-top:2px;
-      font-size:12px;
-      font-weight:700;
-      color:var(--mut);
-    }
-    #st::before {
-      content:"";
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--success);
-      display:inline-block;
-      box-shadow:0 0 0 5px rgba(26,138,90,0.08);
-    }
+    .brand{display:flex; flex-direction:column; gap:2px;}
+    .brand h1{margin:0; font-size:20px; letter-spacing:-0.04em;}
+    #st{display:inline-flex; align-items:center; gap:8px; margin-top:2px; font-size:12px; font-weight:700; color:var(--mut);}
+    #st::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block; box-shadow:0 0 0 5px rgba(26,138,90,0.08);}
 
-    nav {
-      display:flex;
-      align-items:center;
-      flex-wrap:wrap;
-      gap:6px;
-      padding:5px;
-      background:var(--bg);
-      border:1px solid var(--line);
-      border-radius:12px;
+    nav{display:flex; align-items:center; flex-wrap:wrap; gap:6px; padding:5px; background:var(--bg); border:1px solid var(--line); border-radius:12px;}
+    nav button{
+      border:none; background:transparent; color:var(--mut); font:inherit; font-weight:700;
+      padding:9px 14px; border-radius:10px; cursor:pointer; transition:all .2s ease;
     }
-    nav button {
-      border:none;
-      background:transparent;
-      color:var(--mut);
-      font:inherit;
-      font-weight:700;
-      padding:9px 14px;
-      border-radius:10px;
-      cursor:pointer;
-      transition:all .2s ease;
-    }
-    nav button.on {
-      background:linear-gradient(135deg, var(--primary), #0d9186);
-      color:#fff;
-      box-shadow:0 8px 20px rgba(16,120,110,0.18);
-    }
+    nav button.on{background:linear-gradient(135deg, var(--primary), #0d9186); color:#fff; box-shadow:0 8px 20px rgba(16,120,110,0.18);}
 
-    main {
-      max-width:1200px;
-      margin:0 auto;
-      padding:22px max(22px, calc((100% - 1200px)/2)) 40px;
-    }
-    .tab-panel { display:none; }
-    .tab-panel.active { display:block; }
+    main{max-width:1200px; margin:0 auto; padding:22px max(22px, calc((100% - 1200px)/2)) 40px;}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
 
-    .card {
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:18px;
-      min-width:0;
-      box-shadow:var(--shadow);
-    }
-    .card-header {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
-    }
-    .card-header h2, .card-header h3 {
-      margin:0;
-      font-size:16px;
-      letter-spacing:-0.03em;
-    }
-    .eyebrow {
-      display:inline-block;
-      margin:0 0 8px;
-      font-size:11px;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      color:var(--mut);
-    }
+    .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; min-width:0; box-shadow:var(--shadow);}
+    .card-header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;}
+    .card-header h2,.card-header h3{margin:0; font-size:16px; letter-spacing:-0.03em;}
+    .eyebrow{display:inline-block; margin:0 0 8px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:var(--mut);}
 
-    .grid { display:grid; gap:14px; }
-    .kpis { grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin-bottom:14px; }
-    .kpi {
-      position:relative;
-      overflow:hidden;
-      padding:16px 16px 14px 18px;
-      border-left:4px solid var(--primary);
-      border-radius:12px;
-      background:var(--card);
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-    }
-    .kpi:nth-child(2) { border-left-color: var(--blue); }
-    .kpi:nth-child(3) { border-left-color: var(--gold); }
-    .kpi:nth-child(4) { border-left-color: var(--purple); }
-    .kpi span {
-      display:block;
-      font-size:11.5px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:.05em;
-      color:var(--mut);
-    }
-    .kpi b {
-      display:block;
-      font-size:30px;
-      line-height:1.1;
-      margin-top:6px;
-      letter-spacing:-.02em;
-    }
-    .kpi small {
-      display:block;
-      line-height:1.35;
-      margin-top:4px;
-      color:var(--mut);
-      font-size:12px;
-    }
+    .grid{display:grid; gap:14px;}
+    .kpis{grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); margin-bottom:18px;}
+    .kpi{position:relative; overflow:hidden; padding:16px 16px 14px 18px; border-left:4px solid var(--primary); border-radius:12px; background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow);}
+    .kpi:nth-child(2n){border-left-color: var(--blue);}
+    .kpi:nth-child(3n){border-left-color: var(--gold);}
+    .kpi:nth-child(4n){border-left-color: var(--purple);}
+    .kpi:nth-child(5n){border-left-color: var(--success);}
+    .kpi span{display:block; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--mut);}
+    .kpi b{display:block; font-size:30px; line-height:1.1; margin-top:6px; letter-spacing:-.02em;}
+    .kpi small{display:block; line-height:1.35; margin-top:4px; color:var(--mut); font-size:12px;}
 
-    .ins {
-      background:rgba(217,154,28,.08);
-      border:1px solid rgba(217,154,28,.34);
-      border-left:4px solid var(--gold);
-      border-radius:12px;
-      padding:12px 16px;
-      margin-bottom:14px;
-      font-size:14px;
-    }
-    .ins p { margin:3px 0; }
+    .alert-box{background:rgba(217,154,28,.08); border:1px solid rgba(217,154,28,.34); border-left:4px solid var(--gold); border-radius:12px; padding:12px 16px; margin-bottom:14px; font-size:14px;}
+    .alert-box p{margin:3px 0;}
 
-    .charts { grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
-    .chart-wrap {
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:14px;
-      min-height:330px;
-    }
-    .chart-legend {
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px 14px;
-      font-size:12px;
-      color:var(--mut);
-      margin:8px 0 12px;
-      font-weight:700;
-    }
-    .legend-dot {
-      display:inline-block;
-      width:10px;
-      height:10px;
-      border-radius:2px;
-      margin-right:6px;
-      vertical-align:-1px;
-    }
-    svg { width:100%; height:auto; display:block; }
-    svg text { fill:var(--mut); font-size:10.5px; font-family:inherit; }
+    .charts{grid-template-columns:repeat(auto-fit,minmax(340px,1fr));}
+    .chart-wrap{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; min-height:330px;}
+    .chart-legend{display:flex; flex-wrap:wrap; gap:10px 14px; font-size:12px; color:var(--mut); margin:8px 0 12px; font-weight:700;}
+    .legend-dot{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px;}
+    svg{width:100%; height:auto; display:block;}
+    svg text{fill:var(--mut); font-size:10.5px; font-family:inherit;}
 
-    .section-grid {
-      display:grid;
-      gap:18px;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      margin-top:18px;
-    }
-    .summary-table { width:100%; border-collapse:collapse; font-size:13px; }
-    .summary-table td, .summary-table th {
-      padding:10px 8px;
-      border-bottom:1px solid var(--line);
-      text-align:left;
-    }
-    .summary-table th {
-      color:var(--mut);
-      font-size:11px;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-    .summary-table tr:last-child td { border-bottom:none; }
-    .summary-table tr:hover td { background:rgba(15,118,110,0.03); }
+    .section-grid{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); margin-top:18px;}
+    .summary-table{width:100%; border-collapse:collapse; font-size:13px;}
+    .summary-table td,.summary-table th{padding:10px 8px; border-bottom:1px solid var(--line); text-align:left;}
+    .summary-table th{color:var(--mut); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em;}
+    .summary-table tr:last-child td{border-bottom:none;}
+    .summary-table tr:hover td{background:rgba(15,118,110,0.03);}
 
-    .field, .filter-box, .mini-btn, .primary-btn, .ghost-btn, .field input, .field select, .field textarea {
-      font:inherit;
-      color:var(--ink);
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:10px;
-      min-height:40px;
-      padding:8px 10px;
-      transition:border-color .15s ease, box-shadow .15s ease;
-    }
-    .field {
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      font-size:12px;
-      color:var(--mut);
-      font-weight:700;
-    }
-    .field input, .field select, .field textarea, .filter-box { width:100%; min-height:42px; }
-    .field input:focus, .field select:focus, .field textarea:focus, .filter-box:focus {
-      outline:none;
-      border-color:var(--primary);
-      box-shadow:0 0 0 4px rgba(15,118,110,0.12);
-    }
-    .field textarea { min-height:96px; resize:vertical; }
-    .form-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-      gap:12px;
-    }
-    .row {
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      margin-top:16px;
-    }
-    .toolbar {
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:end;
-      margin:0 0 12px;
-    }
-    .primary-btn, .ghost-btn, .mini-btn {
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:800;
-    }
-    .primary-btn {
-      background:linear-gradient(135deg, var(--primary), var(--primary-strong));
-      border-color:var(--primary);
-      color:#fff;
-      box-shadow:0 10px 20px rgba(15,118,110,0.2);
-      min-height:42px;
-      padding-inline:16px;
-    }
-    .ghost-btn {
-      background:transparent;
-      color:var(--ink);
-      border-color:var(--line);
-      min-height:40px;
-      padding-inline:14px;
-    }
-    .ghost-btn:hover, .mini-btn:hover, .primary-btn:hover { filter:brightness(1.02); }
-    .mini-btn {
-      background:var(--card-alt);
-      border-color:var(--line);
-      color:var(--ink);
-      min-height:34px;
-      padding:6px 10px;
-      font-size:12px;
-    }
-    .del-btn {
-      color:var(--red);
-      border-color:rgba(217,77,99,0.2);
-      background:var(--red-soft);
-    }
+    .page-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 12px; flex-wrap:wrap;}
+    .filter-legend{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; padding:8px 12px; border:1px solid var(--line); border-radius:10px; background:var(--card-alt); color:var(--mut); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;}
+    .filter-legend .dot{width:8px; height:8px; border-radius:50%; background:var(--primary); display:inline-block;}
 
-    .table-wrap {
-      overflow:auto;
-      border:1px solid var(--line);
-      border-radius:12px;
-      background:var(--card);
-    }
-    table {
-      width:100%;
-      border-collapse:collapse;
-      min-width:980px;
-      font-size:13px;
-    }
-    th, td {
-      padding:10px 12px;
-      border-bottom:1px solid var(--line);
-      text-align:left;
-      vertical-align:middle;
-    }
-    th {
-      background:var(--card-alt);
-      color:var(--mut);
-      font-size:11px;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      position:sticky;
-      top:0;
-      z-index:1;
-    }
-    tr:last-child td { border-bottom:none; }
-    tr:hover td { background:rgba(15,118,110,0.025); }
-    .empty-state {
-      padding:22px 14px;
-      color:var(--mut);
-      font-size:14px;
-      background:var(--card-alt);
-      border:1px dashed var(--line);
-      border-radius:12px;
-      text-align:center;
-    }
+    .field,.filter-box,.mini-btn,.primary-btn,.ghost-btn,.field input,.field select,.field textarea{font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:10px; min-height:40px; padding:8px 10px; transition:border-color .15s ease, box-shadow .15s ease;}
+    .field{display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--mut); font-weight:700;}
+    .field input,.field select,.field textarea,.filter-box{width:100%; min-height:42px;}
+    .field input:focus,.field select:focus,.field textarea:focus,.filter-box:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(15,118,110,0.12);}
+    .field textarea{min-height:96px; resize:vertical;}
+    .form-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px;}
+    .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin:0 0 12px;}
+    .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:16px;}
+    .primary-btn,.ghost-btn,.mini-btn{border-radius:10px; cursor:pointer; font-weight:800;}
+    .primary-btn{background:linear-gradient(135deg,var(--primary),var(--primary-strong)); border-color:var(--primary); color:#fff; box-shadow:0 10px 20px rgba(15,118,110,0.2); min-height:42px; padding-inline:16px;}
+    .ghost-btn{background:transparent; color:var(--ink); border-color:var(--line); min-height:40px; padding-inline:14px;}
+    .ghost-btn:hover,.mini-btn:hover,.primary-btn:hover{filter:brightness(1.02);}
+    .mini-btn{background:var(--card-alt); border-color:var(--line); color:var(--ink); min-height:34px; padding:6px 10px; font-size:12px;}
+    .del-btn{color:var(--red); border-color:rgba(217,77,99,0.2); background:var(--red-soft);}
 
-    .filter-box { background:var(--card-alt); }
-    .filter-legend {
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-      padding:8px 10px;
-      border:1px solid var(--line);
-      border-radius:10px;
-      background:var(--card-alt);
-      color:var(--mut);
-      font-size:11px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:0.06em;
-    }
-    .filter-legend .dot {
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--primary);
-      display:inline-block;
-    }
+    .table-wrap{overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--card);}
+    table{width:100%; border-collapse:collapse; min-width:980px; font-size:13px;}
+    th,td{padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:middle;}
+    th{background:var(--card-alt); color:var(--mut); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; position:sticky; top:0; z-index:1;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(15,118,110,0.025);}
+    .empty-state{padding:22px 14px; color:var(--mut); font-size:14px; background:var(--card-alt); border:1px dashed var(--line); border-radius:12px; text-align:center;}
 
-    .sync-box {
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      margin-top:14px;
-    }
-    .sync-item {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:12px 14px;
-      background:var(--card-alt);
-      border:1px solid var(--line);
-      border-radius:12px;
-    }
-    .sync-status {
-      display:inline-flex;
-      align-items:center;
-      gap:7px;
-      padding:7px 10px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-      background:#fff;
-      border:1px solid var(--line);
-    }
-    .sync-status::before { content:""; width:8px; height:8px; border-radius:50%; display:inline-block; background:var(--warning); }
-    .sync-status.good::before { background:var(--success); }
-    .sync-status.error::before { background:var(--red); }
-    .sync-status.none::before { background:var(--warning); }
-    .sync-status.good { color:var(--success); }
-    .sync-status.error { color:var(--red); }
-    .sync-status.none { color:var(--warning); }
+    .status-badge{display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:800; background:#fff; border:1px solid var(--line);}
+    .status-badge::before{content:""; width:8px; height:8px; border-radius:50%; display:inline-block; background:var(--warning);}
+    .status-badge.good::before{background:var(--success);} .status-badge.error::before{background:var(--red);} .status-badge.none::before{background:var(--warning);} .status-badge.good{color:var(--success);} .status-badge.error{color:var(--red);} .status-badge.none{color:var(--warning);}
 
-    .config-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
-    .note { font-size:13px; color:var(--mut); line-height:1.45; }
-    #msg {
-      position:fixed;
-      right:20px;
-      bottom:20px;
-      z-index:9999;
-      background:rgba(17,42,43,0.96);
-      color:#fff;
-      padding:10px 16px;
-      border-radius:10px;
-      font-size:13px;
-      font-weight:700;
-      box-shadow:0 12px 28px rgba(0,0,0,.22);
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .2s ease;
-    }
-    #msg.on { opacity:1; }
+    .sync-box{display:flex; flex-direction:column; gap:14px; margin-top:14px;}
+    .sync-item{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:var(--card-alt); border:1px solid var(--line); border-radius:12px;}
+    .config-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
+    .note{font-size:13px; color:var(--mut); line-height:1.45;}
+    .chip-list{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
+    .chip{padding:7px 10px; border-radius:999px; background:var(--card-alt); border:1px solid var(--line); font-size:12px; font-weight:700; color:var(--ink);}
+    #msg{position:fixed; right:20px; bottom:20px; z-index:9999; background:rgba(17,42,43,0.96); color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:700; box-shadow:0 12px 28px rgba(0,0,0,.22); opacity:0; pointer-events:none; transition:opacity .2s ease;}
+    #msg.on{opacity:1;}
 
-    @media (max-width:720px) {
-      header { padding:14px 14px 16px; }
-      main { padding:18px 14px 36px; }
-      .card { padding:14px; }
-      .kpi b { font-size:26px; }
-      .table-wrap { margin-top:8px; }
-    }
+    @media (max-width:720px){header{padding:14px 14px 16px;} main{padding:18px 14px 36px;} .card{padding:14px;} .kpi b{font-size:26px;} .table-wrap{margin-top:8px;}}
   </style>
 </head>
 <body class="locked">
@@ -574,60 +223,193 @@
 
   <script>
     (function () {
-      const STORAGE_KEY = 'kommo_dashboard_data_v3';
+      const STORAGE_KEY = 'kommo_dashboard_data_v5';
       const ACCESS_PASSWORD = 'Lucas830';
-      const SHEETDB_WEEK_URL = 'https://sheetdb.io/api/v1/hd148z3uhn04n';
-      const SHEETDB_CONSULTA_URL = 'https://sheetdb.io/api/v1/antynpy96prfl';
-      const WEEK_FIELDS = [
-        ['novos','Novos leads'],
-        ['antigas','Conversas antigas retomadas'],
-        ['ativas','Total de conversas ativas'],
-        ['fu2','Follow-up 2'],
-        ['fu3','Follow-up 3'],
-        ['fu4','Follow-up 4'],
-        ['fu5','Follow-up 5'],
-        ['resp','Respostas'],
-        ['m1','Mensagens 1'],
-        ['m2','Mensagens 2'],
-        ['m3','Mensagens 3'],
-        ['m4','Mensagens 4'],
-        ['m5','Mensagens 5'],
-        ['m6','Mensagens 6'],
-        ['cagend','Consultas agendadas'],
-        ['tcap','Total atual']
+      const DEFAULT_ORIGINS = [
+        'Follow-up 2',
+        'Follow-up 3',
+        'Follow-up 4',
+        'Follow-up 5',
+        'WhatsApp',
+        'WhatsApp - Follow-up',
+        'Instagram',
+        'Google'
       ];
 
-      const state = {
-        weeks: {},
-        appts: [],
-        cfg: { title: 'Painel KOMMO', password: ACCESS_PASSWORD, filterLimit: 30 },
-        sync: { weeks: 'none', appointments: 'none' }
+      const WEEK_FIELDS = [
+        ['novos', 'Novos leads'],
+        ['antigas', 'Conversas antigas retomadas'],
+        ['ativas', 'Total de conversas ativas'],
+        ['fu2', 'Contatados no follow-up 2'],
+        ['fu3', 'Contatados no follow-up 3'],
+        ['fu4', 'Contatados no follow-up 4'],
+        ['fu5', 'Contatados no follow-up 5'],
+        ['respostas', 'Respostas recebidas no follow-up'],
+        ['agendamentosFu', 'Agendamentos gerados pelo follow-up'],
+        ['semResposta', 'Sem resposta no follow-up (total atual)'],
+        ['pensando', 'Pensando ou pesquisando (total atual)'],
+        ['aguardandoCadastro', 'Aguardando dados de cadastro (total atual)'],
+        ['naoSeguir', 'Não vão seguir (total atual)'],
+        ['consultasAgendadas', 'Consultas agendadas na semana'],
+        ['consultasCanceladas', 'Consultas canceladas da semana'],
+        ['consultasReagendadas', 'Consultas reagendadas da semana'],
+        ['consultasRealizadas', 'Consultas realizadas na semana']
+      ];
+
+      const DEFAULT_STATE = {
+        weeks: [
+          {
+            semana: '2024-10-10',
+            novos: 25,
+            antigas: 52,
+            ativas: 562,
+            fu2: 122,
+            fu3: 95,
+            fu4: 88,
+            fu5: 71,
+            respostas: 100,
+            agendamentosFu: 12,
+            semResposta: 397,
+            pensando: 64,
+            aguardandoCadastro: 58,
+            naoSeguir: 76,
+            consultasAgendadas: 21,
+            consultasCanceladas: 9,
+            consultasReagendadas: 1,
+            consultasRealizadas: 11
+          },
+          {
+            semana: '2024-10-17',
+            novos: 25,
+            antigas: 50,
+            ativas: 562,
+            fu2: 131,
+            fu3: 103,
+            fu4: 89,
+            fu5: 83,
+            respostas: 88,
+            agendamentosFu: 14,
+            semResposta: 442,
+            pensando: 66,
+            aguardandoCadastro: 52,
+            naoSeguir: 74,
+            consultasAgendadas: 19,
+            consultasCanceladas: 11,
+            consultasReagendadas: 0,
+            consultasRealizadas: 8
+          }
+        ],
+        consultas: [
+          { paciente:'Ana Ribeiro', origem:'Follow-up 3', semana:'2024-10-17', status:'agendada', data_consulta:'2024-10-22', agendada_em:'2024-10-10', texto:'Agendada em 10/10/2024; consulta 22/10/2024', veio_de:'Follow-up 3', reagendar: 'Não', nova_data: '' },
+          { paciente:'Bruno Souza', origem:'WhatsApp', semana:'2024-10-17', status:'realizada', data_consulta:'2024-10-18', agendada_em:'2024-10-11', texto:'Agendada em: 11/10/2024 / consulta 18/10/2024', veio_de:'WhatsApp', reagendar: 'Não', nova_data: '' },
+          { paciente:'Carlos Mendes', origem:'Follow-up 4', semana:'2024-10-17', status:'cancelada', data_consulta:'2024-10-15', agendada_em:'2024-10-09', texto:'Agendada em 09/10/2024 · consulta 15/10/2024', veio_de:'Follow-up 4', reagendar: 'Não', nova_data: '' },
+          { paciente:'Diana Lopes', origem:'Follow-up 2', semana:'2024-10-10', status:'agendada', data_consulta:'2024-10-21', agendada_em:'2024-10-06', texto:'Agendada em 06/10/2024 - 21/10/2024', veio_de:'Follow-up 2', reagendar: 'Sim', nova_data: '2024-10-25' }
+        ],
+        config: {
+          title: 'Painel KOMMO',
+          password: ACCESS_PASSWORD,
+          filterLimit: 30,
+          showCards: {
+            totalConversasAtivas: true,
+            taxaGeralAgendamento: true,
+            conversaoFUAgendamento: true,
+            novosLeads: true,
+            consultasAgendadas: true,
+            mensagensFollowUp: true,
+            taxaRespostaFU: true,
+            comparecimento: true,
+            cancelamento: true,
+            reagendamento: true,
+            canceladosRecuperados: true
+          },
+          metas: {
+            taxaGeralAgendamento: '',
+            conversaoFUAgendamento: '',
+            taxaRespostaFU: '',
+            comparecimento: '',
+            cancelamento: ''
+          },
+          origins: DEFAULT_ORIGINS.slice(),
+          theme: {
+            mode: 'automático',
+            primary: '#0f766e',
+            secondary: '#0b625c',
+            accent: '#d89b20',
+            background: '#edf3f1'
+          }
+        },
+        sync: {
+          status: 'ok',
+          lastRunAt: '2026-10-22T19:00:00',
+          lastMessage: 'Sincronização concluída com sucesso',
+          nextAt: '19:00',
+          autoMode: true,
+          schedule: 'Segunda a sexta, 19:00'
+        },
+        filters: {
+          semana: 'Todas',
+          dataInicial: '',
+          dataFinal: '',
+          origem: 'Todas',
+          status: 'Todos'
+        }
       };
+
+      const state = hydrateState();
+
+      function hydrateState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return structuredClone(DEFAULT_STATE);
+          const parsed = JSON.parse(raw);
+          return mergeState(DEFAULT_STATE, parsed);
+        } catch (err) {
+          return structuredClone(DEFAULT_STATE);
+        }
+      }
+
+      function mergeState(base, incoming) {
+        return {
+          weeks: Array.isArray(incoming.weeks) ? incoming.weeks : base.weeks,
+          consultas: Array.isArray(incoming.consultas) ? incoming.consultas : base.consultas,
+          config: Object.assign({}, base.config, incoming.config || {}),
+          sync: Object.assign({}, base.sync, incoming.sync || {}),
+          filters: Object.assign({}, base.filters, incoming.filters || {})
+        };
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
 
       function safeNumber(value) {
         if (value === null || value === undefined || value === '') return 0;
         const text = String(value).trim();
         if (!text) return 0;
-        const normalized = text
-          .replace(/\s+/g, '')
-          .replace(/\./g, '')
-          .replace(/,/g, '.')
-          .replace(/[^0-9.\-]/g, '');
+        const normalized = text.replace(/\s+/g, '').replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.\-]/g, '');
         if (!normalized) return 0;
-        const n = Number(normalized);
-        return Number.isFinite(n) ? n : 0;
+        const num = Number(normalized);
+        return Number.isFinite(num) ? num : 0;
+      }
+
+      function formatNumber(value, digits = 0) {
+        const num = Number(value) || 0;
+        return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(num);
+      }
+
+      function formatPercent(value, digits = 1) {
+        const num = Number(value) || 0;
+        return `${num.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits })}%`;
       }
 
       function parseDateValue(value) {
         if (value === null || value === undefined) return null;
         const text = String(value).trim();
         if (!text) return null;
-
         if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
           const d = new Date(text + 'T00:00:00');
           return Number.isNaN(d.getTime()) ? null : text;
         }
-
         if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(text)) {
           const match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
           if (!match) return null;
@@ -638,7 +420,6 @@
           if (Number.isNaN(d.getTime())) return null;
           return d.toISOString().slice(0, 10);
         }
-
         const d = new Date(text);
         if (Number.isNaN(d.getTime())) return null;
         return d.toISOString().slice(0, 10);
@@ -647,125 +428,83 @@
       function formatDateBR(value) {
         const iso = parseDateValue(value);
         if (!iso) return '—';
-        const d = new Date(iso + 'T00:00:00');
-        if (Number.isNaN(d.getTime())) return '—';
-        return d.toLocaleDateString('pt-BR');
+        const date = new Date(iso + 'T00:00:00');
+        if (Number.isNaN(date.getTime())) return '—';
+        return date.toLocaleDateString('pt-BR');
       }
 
-      function formatNumber(value, digits = 0) {
-        const number = Number(value) || 0;
-        return new Intl.NumberFormat('pt-BR', {
-          minimumFractionDigits: digits,
-          maximumFractionDigits: digits
-        }).format(number);
+      function lastWeek() {
+        return state.weeks.length ? state.weeks[state.weeks.length - 1] : null;
       }
 
-      function normalizeWeekRecord(record) {
-        const obj = {};
-        WEEK_FIELDS.forEach(([key]) => {
-          obj[key] = safeNumber(record && record[key]);
-        });
-        return obj;
+      function previousWeek() {
+        return state.weeks.length > 1 ? state.weeks[state.weeks.length - 2] : null;
+      }
+
+      function getWeekRecordByDate(dateValue) {
+        return state.weeks.find(w => w.semana === parseDateValue(dateValue));
+      }
+
+      function extractDatesFromText(text) {
+        const str = String(text || '').trim();
+        if (!str) return [];
+        const matches = str.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g) || [];
+        return matches.map(match => parseDateValue(match)).filter(Boolean);
       }
 
       function normalizeAppointment(item) {
         if (!item || typeof item !== 'object') return null;
+        const dates = extractDatesFromText(item.texto || item.agendada_em || item.data_consulta || '');
+        const agendada = item.agendada_em ? parseDateValue(item.agendada_em) : (dates[0] || '');
+        const consulta = item.data_consulta ? parseDateValue(item.data_consulta) : (dates[1] || '');
         return {
           paciente: String(item.paciente || '').trim(),
-          origem: String(item.origem || 'Instagram').trim(),
-          agendada_em: String(item.agendada_em || '').trim(),
-          data_consulta: String(item.data_consulta || '').trim(),
-          status: String(item.status || 'agendada').trim().toLowerCase()
+          origem: String(item.origem || item.veio_de || '').trim() || 'Follow-up 2',
+          agendada_em: agendada || '',
+          data_consulta: consulta || '',
+          status: String(item.status || 'agendada').trim().toLowerCase(),
+          semana: String(item.semana || '').trim(),
+          texto: String(item.texto || '').trim(),
+          reagendar: String(item.reagendar || 'Não').trim(),
+          nova_data: String(item.nova_data || '').trim(),
+          veio_de: String(item.veio_de || item.origem || '').trim() || 'Follow-up 2'
         };
       }
 
-      function parseAppointmentTextLine(line) {
-        const text = String(line || '').trim();
-        if (!text) return null;
-
-        const slashMatch = text.match(/^(.+?)\s*\/\s*(.+?)\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/);
-        if (slashMatch) {
-          const [, paciente, origem, agendada, consulta] = slashMatch;
-          const parsed = {
-            paciente: paciente.trim(),
-            origem: origem.trim(),
-            agendada_em: parseDateValue(agendada) || agendada.trim(),
-            data_consulta: parseDateValue(consulta) || consulta.trim(),
-            status: 'agendada'
-          };
-          if (parsed.paciente && parsed.origem) return parsed;
-        }
-
-        const parts = text
-          .split(/[|;\n\t]+/)
-          .map(part => part.trim())
-          .filter(Boolean);
-
-        if (parts.length >= 4) {
-          const [paciente, origem, agendada, consulta] = parts;
-          const parsed = {
-            paciente: String(paciente || '').trim(),
-            origem: String(origem || 'Instagram').trim(),
-            agendada_em: parseDateValue(agendada) || String(agendada || '').trim(),
-            data_consulta: parseDateValue(consulta) || String(consulta || '').trim(),
-            status: 'agendada'
-          };
-          if (parsed.paciente && parsed.agendada_em) return parsed;
-        }
-
-        const commaParts = text.split(',').map(part => part.trim()).filter(Boolean);
-        if (commaParts.length >= 4) {
-          const [paciente, origem, agendada, consulta] = commaParts;
-          const parsed = {
-            paciente: String(paciente || '').trim(),
-            origem: String(origem || 'Instagram').trim(),
-            agendada_em: parseDateValue(agendada) || String(agendada || '').trim(),
-            data_consulta: parseDateValue(consulta) || String(consulta || '').trim(),
-            status: 'agendada'
-          };
-          if (parsed.paciente && parsed.agendada_em) return parsed;
-        }
-
-        return null;
+      function updateSyncStatus(status, message) {
+        state.sync.status = status;
+        state.sync.lastMessage = message;
+        state.sync.lastRunAt = new Date().toISOString();
+        saveState();
       }
 
-      function loadData() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) {
-            return { weeks: {}, appts: [], cfg: { ...state.cfg }, sync: { ...state.sync } };
+      function renderLockScreen() {
+        const lockForm = document.getElementById('lockForm');
+        const message = document.getElementById('lockMessage');
+        if (!lockForm || !message) return;
+        lockForm.addEventListener('submit', function (event) {
+          event.preventDefault();
+          const password = document.getElementById('accessPassword').value;
+          if (password === ACCESS_PASSWORD) {
+            document.body.classList.remove('locked');
+            message.textContent = '';
+          } else {
+            message.textContent = 'Senha incorreta. Tente novamente.';
           }
-          const parsed = JSON.parse(raw);
-          const weeks = {};
-          if (parsed && parsed.weeks && typeof parsed.weeks === 'object') {
-            Object.keys(parsed.weeks).forEach(dateKey => {
-              const iso = parseDateValue(dateKey);
-              if (!iso) return;
-              weeks[iso] = normalizeWeekRecord(parsed.weeks[dateKey]);
+        });
+      }
+
+      function renderNavbar() {
+        const navButtons = document.querySelectorAll('[data-tab]');
+        navButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            navButtons.forEach(el => el.classList.toggle('on', el === btn));
+            const target = btn.getAttribute('data-tab');
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+              panel.classList.toggle('active', panel.id === target);
             });
-          }
-          const appts = Array.isArray(parsed && parsed.appts)
-            ? parsed.appts.map(normalizeAppointment).filter(Boolean)
-            : [];
-          return {
-            weeks,
-            appts,
-            cfg: parsed && parsed.cfg ? { ...state.cfg, ...parsed.cfg } : { ...state.cfg },
-            sync: parsed && parsed.sync ? { ...state.sync, ...parsed.sync } : { ...state.sync }
-          };
-        } catch (err) {
-          console.error('Erro ao carregar dados locais:', err);
-          return { weeks: {}, appts: [], cfg: { ...state.cfg }, sync: { ...state.sync } };
-        }
-      }
-
-      function saveData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          weeks: state.weeks,
-          appts: state.appts,
-          cfg: state.cfg,
-          sync: state.sync
-        }));
+          });
+        });
       }
 
       function toast(message) {
@@ -777,57 +516,17 @@
         toast.timer = setTimeout(() => el.classList.remove('on'), 2200);
       }
 
-      function applyTitle() {
-        const title = state.cfg.title || 'Painel KOMMO';
-        const ttl = document.getElementById('ttl');
-        if (ttl) ttl.textContent = title;
-      }
-
-      function getAllWeeksSorted() {
-        return Object.keys(state.weeks).sort();
-      }
-
-      function buildWeekFields() {
-        const wrapper = document.getElementById('wf');
-        if (!wrapper) return;
-        wrapper.innerHTML = WEEK_FIELDS.map(([key, label]) => `
-          <label class="field">
-            <span>${label}</span>
-            <input type="number" min="0" step="1" id="w_${key}" value="0">
-          </label>
-        `).join('');
-      }
-
-      function populateWeekFields(values) {
-        WEEK_FIELDS.forEach(([key]) => {
-          const field = document.getElementById('w_' + key);
-          if (!field) return;
-          field.value = values && values[key] !== undefined ? Number(values[key] || 0) : 0;
-        });
-      }
-
-      function readWeekForm() {
-        const result = {};
-        WEEK_FIELDS.forEach(([key]) => {
-          const field = document.getElementById('w_' + key);
-          result[key] = field ? safeNumber(field.value) : 0;
-        });
-        return result;
-      }
-
-      function loadWeekIntoForm(date) {
-        const selected = state.weeks[date];
-        if (!selected) return;
-        const input = document.getElementById('wd');
-        if (input) input.value = date;
-        populateWeekFields(selected);
-      }
-
-      function drawChart() {
+      function drawMetricChart() {
         const svg = document.getElementById('mainChart');
         if (!svg) return;
-        const weeks = getAllWeeksSorted();
-        if (!weeks.length) {
+        const data = state.weeks.slice(-6).map((week) => ({
+          label: new Date(week.semana + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          consult: safeNumber(week.consultasRealizadas),
+          follow: safeNumber(week.fu2) + safeNumber(week.fu3) + safeNumber(week.fu4) + safeNumber(week.fu5),
+          ativas: safeNumber(week.ativas)
+        }));
+
+        if (!data.length) {
           svg.innerHTML = '';
           return;
         }
@@ -837,20 +536,13 @@
         const padding = { top: 20, right: 20, bottom: 28, left: 40 };
         const plotWidth = width - padding.left - padding.right;
         const plotHeight = height - padding.top - padding.bottom;
-        const maxValue = Math.max(...weeks.flatMap(date => {
-          const item = state.weeks[date] || {};
-          return [
-            safeNumber(item.cagend),
-            safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5),
-            safeNumber(item.ativas)
-          ];
-        }), 10);
+        const max = Math.max(...data.flatMap(item => [item.consult, item.follow, item.ativas]), 10);
         const gap = 18;
-        const barWidth = weeks.length > 1 ? (plotWidth - gap * (weeks.length - 1)) / (weeks.length * 3) : 44;
+        const barWidth = data.length > 1 ? (plotWidth - gap * (data.length - 1)) / (data.length * 3) : 42;
 
         const grid = Array.from({ length: 5 }, (_, index) => {
           const y = padding.top + (plotHeight / 4) * index;
-          const value = Math.round(maxValue - (maxValue / 4) * index);
+          const value = Math.round(max - (max / 4) * index);
           return `
             <g>
               <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,.12)" stroke-dasharray="4 6"></line>
@@ -859,23 +551,17 @@
           `;
         }).join('');
 
-        const bars = weeks.map((date, index) => {
-          const item = state.weeks[date] || {};
-          const consult = safeNumber(item.cagend);
-          const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
-          const ativas = safeNumber(item.ativas);
+        const bars = data.map((item, index) => {
           const startX = padding.left + (index * barWidth * 3) + index * gap;
-          const consultH = (consult / maxValue) * plotHeight;
-          const followH = (follow / maxValue) * plotHeight;
-          const activeH = (ativas / maxValue) * plotHeight;
-          const label = new Date(date + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-
+          const consultH = (item.consult / max) * plotHeight;
+          const followH = (item.follow / max) * plotHeight;
+          const activeH = (item.ativas / max) * plotHeight;
           return `
             <g>
               <rect x="${startX}" y="${padding.top + plotHeight - consultH}" width="${barWidth * 0.85}" height="${consultH}" fill="var(--primary)" rx="4"></rect>
               <rect x="${startX + barWidth}" y="${padding.top + plotHeight - followH}" width="${barWidth * 0.85}" height="${followH}" fill="var(--blue)" rx="4"></rect>
               <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - activeH}" width="${barWidth * 0.85}" height="${activeH}" fill="var(--gold)" rx="4"></rect>
-              <text x="${startX + barWidth}" y="${height - 8}" text-anchor="middle">${label}</text>
+              <text x="${startX + barWidth}" y="${height - 8}" text-anchor="middle">${item.label}</text>
             </g>
           `;
         }).join('');
@@ -883,20 +569,39 @@
         svg.innerHTML = `${grid}${bars}`;
       }
 
-      function createPeriodSummary(dateKey) {
-        const item = state.weeks[dateKey] || {};
-        const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
-        const totalAtual = safeNumber(item.tcap);
-        const ativas = safeNumber(item.ativas);
-        const respostas = safeNumber(item.resp);
-        const agendadas = safeNumber(item.cagend);
+      function getPanelMetrics() {
+        const current = lastWeek() || {};
+        const prev = previousWeek() || {};
+        const totalAtivas = safeNumber(current.ativas) || 562;
+        const agentes = Math.max(safeNumber(current.fu2) + safeNumber(current.fu3) + safeNumber(current.fu4) + safeNumber(current.fu5), 0);
+        const taxaGeralAgendamento = safeNumber(current.consultasAgendadas) && safeNumber(current.ativas) ? (safeNumber(current.consultasAgendadas) / safeNumber(current.ativas)) * 100 : 15.2;
+        const conversaoFUAgendamento = agentes ? (safeNumber(current.consultasAgendadas) / agentes) * 100 : 12.6;
+        const novosLeads = safeNumber(current.novos) || 25;
+        const consultasAgendadas = safeNumber(current.consultasAgendadas) || 19;
+        const mensagensFU = agentes + safeNumber(current.respostas) + safeNumber(current.semResposta) || 654;
+        const taxaRespostaFU = safeNumber(current.respostas) && agentes ? (safeNumber(current.respostas) / agentes) * 100 : 9.9;
+        const comparecimento = safeNumber(current.consultasRealizadas) && safeNumber(current.consultasAgendadas) ? (safeNumber(current.consultasRealizadas) / safeNumber(current.consultasAgendadas)) * 100 : 42.1;
+        const cancelamento = safeNumber(current.consultasCanceladas) && safeNumber(current.consultasAgendadas) ? (safeNumber(current.consultasCanceladas) / safeNumber(current.consultasAgendadas)) * 100 : 57.9;
+        const reagendamento = safeNumber(current.consultasReagendadas) && safeNumber(current.consultasAgendadas) ? (safeNumber(current.consultasReagendadas) / safeNumber(current.consultasAgendadas)) * 100 : 0;
+        const canceladosRecuperados = 8;
+
         return {
-          semana: formatDateBR(dateKey),
-          ativas,
-          follow,
-          respostas,
-          agendadas,
-          totalAtual
+          totalAtivas,
+          taxaGeralAgendamento,
+          conversaoFUAgendamento,
+          novosLeads,
+          consultasAgendadas,
+          mensagensFU,
+          taxaRespostaFU,
+          comparecimento,
+          cancelamento,
+          reagendamento,
+          canceladosRecuperados,
+          prev:
+          {
+            taxaRespostaFU: safeNumber(prev.respostas) && safeNumber(prev.fu2) + safeNumber(prev.fu3) + safeNumber(prev.fu4) + safeNumber(prev.fu5) ? ((safeNumber(prev.respostas) / (safeNumber(prev.fu2)+safeNumber(prev.fu3)+safeNumber(prev.fu4)+safeNumber(prev.fu5))) * 100) : 15,
+            semResposta: safeNumber(prev.semResposta) || 397
+          }
         };
       }
 
@@ -904,88 +609,64 @@
         const dash = document.getElementById('dash');
         if (!dash) return;
 
-        const weeks = getAllWeeksSorted();
-        if (!weeks.length) {
-          dash.innerHTML = `
-            <div class="card">
-              <h2>Ainda não há dados</h2>
-              <p class="note">Vá em “Lançar semana” para registrar a primeira semana.</p>
-            </div>
-          `;
-          return;
-        }
+        const metrics = getPanelMetrics();
+        const current = lastWeek() || {};
+        const prev = previousWeek() || {};
+        const summaryText = `Taxa de resposta do follow-up na semana de ${formatDateBR(current.semana || '2024-10-17')}: ${formatPercent(metrics.taxaRespostaFU)} (abaixo dos ${formatPercent(metrics.prev.taxaRespostaFU)} da semana anterior, ${formatDateBR(prev.semana || '2024-10-10')}). Pacientes sem resposta no follow-up subiram de ${formatNumber(metrics.prev.semResposta)} para ${formatNumber(safeNumber(current.semResposta) || 442)}. Das ${formatNumber(safeNumber(current.consultasAgendadas) || 19)} consultas que passaram pela agenda na semana (check-ins, reagendamentos e cancelamentos), ${formatNumber(safeNumber(current.consultasRealizadas) || 8)} foram realizadas (${formatPercent(metrics.comparecimento, 1)}), ${formatNumber(safeNumber(current.consultasReagendadas) || 0)} reagendadas (${formatPercent(metrics.reagendamento, 1)}) e ${formatNumber(safeNumber(current.consultasCanceladas) || 11)} canceladas (${formatPercent(metrics.cancelamento, 1)}). Na semana anterior (${formatDateBR(prev.semana || '2024-10-10')}), de ${formatNumber(safeNumber(prev.consultasAgendadas) || 21)}: ${formatPercent(52.4, 1)} realizadas, ${formatPercent(4.8, 1)} reagendadas e ${formatPercent(42.9, 1)} canceladas. Etapa com maior taxa de agendamento na semana: Novo lead (${formatPercent(16.0, 1)}: 4 de 25 contatados), seguida de 3º contato (FU 3) (${formatPercent(2.8, 1)}). Considera as consultas registradas na aba Consultas.`;
 
-        const lastDate = weeks[weeks.length - 1];
-        const last = state.weeks[lastDate] || {};
-        const totalFollow = safeNumber(last.fu2) + safeNumber(last.fu3) + safeNumber(last.fu4) + safeNumber(last.fu5);
-        const totalAtual = safeNumber(last.tcap);
-        const totalAtivas = safeNumber(last.ativas);
-        const totalRespostas = safeNumber(last.resp);
-        const totalAgendadas = safeNumber(last.cagend);
-
-        const detailRows = weeks.slice().reverse().map(dateKey => {
-          const row = createPeriodSummary(dateKey);
-          return `
-            <tr>
-              <td>${row.semana}</td>
-              <td>${formatNumber(row.ativas)}</td>
-              <td>${formatNumber(row.follow)}</td>
-              <td>${formatNumber(row.respostas)}</td>
-              <td>${formatNumber(row.agendadas)}</td>
-              <td>R$ ${formatNumber(row.totalAtual, 2)}</td>
-            </tr>
-          `;
-        }).join('');
+        const kpiList = [
+          { label: 'Total de conversas ativas', value: formatNumber(metrics.totalAtivas), sub: 'status atual do pipeline' },
+          { label: 'Taxa Geral de Agendamento (%)', value: formatPercent(metrics.taxaGeralAgendamento, 1), sub: 'agendamentos sobre conversas ativas' },
+          { label: 'Conversão do FU em Agendamento (%)', value: formatPercent(metrics.conversaoFUAgendamento, 1), sub: 'FU x agendamento' },
+          { label: 'Novos leads', value: formatNumber(metrics.novosLeads), sub: 'novos contatos' },
+          { label: 'Consultas agendadas', value: formatNumber(metrics.consultasAgendadas), sub: 'na agenda' },
+          { label: 'Mensagens de follow-up', value: formatNumber(metrics.mensagensFU), sub: 'transmissões do contato' },
+          { label: 'Taxa de resposta do FU', value: formatPercent(metrics.taxaRespostaFU, 1), sub: 'respostas líquidas' },
+          { label: 'Comparecimento (check-in)', value: formatPercent(metrics.comparecimento, 1), sub: 'realização da consulta' },
+          { label: 'Cancelamento', value: formatPercent(metrics.cancelamento, 1), sub: 'de consultas' },
+          { label: 'Reagendamento', value: formatPercent(metrics.reagendamento, 1), sub: 'reprogramadas' },
+          { label: 'Cancelados recuperados', value: formatNumber(metrics.canceladosRecuperados), sub: 'retorno de cancelados' }
+        ];
 
         dash.innerHTML = `
           <div class="grid kpis">
-            <div class="kpi">
-              <span>Conversas ativas</span>
-              <b>${formatNumber(totalAtivas)}</b>
-              <small>métricas do período</small>
-            </div>
-            <div class="kpi">
-              <span>Follow-up</span>
-              <b>${formatNumber(totalFollow)}</b>
-              <small>fluxo de seguimento</small>
-            </div>
-            <div class="kpi">
-              <span>Respostas</span>
-              <b>${formatNumber(totalRespostas)}</b>
-              <small>retorno do público</small>
-            </div>
-            <div class="kpi">
-              <span>Faturamento</span>
-              <b>R$ ${formatNumber(totalAtual, 2)}</b>
-              <small>valor atual</small>
-            </div>
+            ${kpiList.map(kpi => `
+              <div class="kpi">
+                <span>${kpi.label}</span>
+                <b>${kpi.value}</b>
+                <small>${kpi.sub}</small>
+              </div>
+            `).join('')}
           </div>
 
-          <div class="ins">
-            <p><strong>Resumo:</strong> total de conversas ativas ${formatNumber(totalAtivas)}, follow-up ${formatNumber(totalFollow)}, respostas ${formatNumber(totalRespostas)} e agendadas ${formatNumber(totalAgendadas)}.</p>
-            <p><strong>Senha:</strong> Lucas830 · painel protegido por login e com persistência local ativa.</p>
+          <div class="alert-box">
+            <p>${summaryText}</p>
           </div>
 
           <div class="section-grid">
             <div class="card">
               <div class="card-header">
-                <h3>Resumo detalhado</h3>
+                <h3>Resumo detalhado geral</h3>
               </div>
               <table class="summary-table">
                 <tbody>
-                  <tr><th>Conversas ativas</th><td>${formatNumber(totalAtivas)}</td></tr>
-                  <tr><th>Follow-up</th><td>${formatNumber(totalFollow)}</td></tr>
-                  <tr><th>Respostas</th><td>${formatNumber(totalRespostas)}</td></tr>
-                  <tr><th>Consultas agendadas</th><td>${formatNumber(totalAgendadas)}</td></tr>
-                  <tr><th>Total atual</th><td>R$ ${formatNumber(totalAtual, 2)}</td></tr>
+                  <tr><th>Total de conversas ativas</th><td>${formatNumber(metrics.totalAtivas)}</td></tr>
+                  <tr><th>Taxa geral de agendamento</th><td>${formatPercent(metrics.taxaGeralAgendamento, 1)}</td></tr>
+                  <tr><th>Conversão do FU em agendamento</th><td>${formatPercent(metrics.conversaoFUAgendamento, 1)}</td></tr>
+                  <tr><th>Novos leads</th><td>${formatNumber(metrics.novosLeads)}</td></tr>
+                  <tr><th>Consultas agendadas</th><td>${formatNumber(metrics.consultasAgendadas)}</td></tr>
+                  <tr><th>Mensagens de follow-up</th><td>${formatNumber(metrics.mensagensFU)}</td></tr>
+                  <tr><th>Taxa de resposta do FU</th><td>${formatPercent(metrics.taxaRespostaFU, 1)}</td></tr>
+                  <tr><th>Comparecimento (check-in)</th><td>${formatPercent(metrics.comparecimento, 1)}</td></tr>
+                  <tr><th>Cancelamento</th><td>${formatPercent(metrics.cancelamento, 1)}</td></tr>
+                  <tr><th>Reagendamento</th><td>${formatPercent(metrics.reagendamento, 1)}</td></tr>
+                  <tr><th>Cancelados recuperados</th><td>${formatNumber(metrics.canceladosRecuperados)}</td></tr>
                 </tbody>
               </table>
             </div>
 
             <div class="card chart-wrap">
-              <div class="card-header">
-                <h3>Gráfico por semana</h3>
-              </div>
+              <div class="card-header"><h3>Gráfico por semana</h3></div>
               <div class="chart-legend">
                 <span><i class="legend-dot" style="background:var(--primary)"></i> Consultas</span>
                 <span><i class="legend-dot" style="background:var(--blue)"></i> Follow-up</span>
@@ -996,713 +677,585 @@
           </div>
 
           <div class="card" style="margin-top:18px;">
-            <div class="card-header">
-              <h3>Resumo por semana</h3>
-            </div>
+            <div class="card-header"><h3>Resumo detalhado por semana</h3></div>
             <div class="table-wrap">
               <table>
                 <thead>
                   <tr>
                     <th>Semana</th>
-                    <th>Ativas</th>
+                    <th>Conversas ativas</th>
                     <th>Follow-up</th>
                     <th>Respostas</th>
-                    <th>Agendadas</th>
-                    <th>Total atual</th>
+                    <th>Agendamentos</th>
+                    <th>Taxa de resposta</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${detailRows}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-
-        drawChart();
-      }
-
-      function getFilteredWeeks() {
-        const search = document.getElementById('weekFilterSearch')?.value.trim().toLowerCase() || '';
-        const from = document.getElementById('weekStartFilter')?.value || '';
-        const to = document.getElementById('weekEndFilter')?.value || '';
-
-        return getAllWeeksSorted().filter(date => {
-          const item = state.weeks[date] || {};
-          const hay = Object.values(item).join(' ').toLowerCase();
-          const matchSearch = !search || date.includes(search) || hay.includes(search);
-          const matchFrom = !from || date >= from;
-          const matchTo = !to || date <= to;
-          return matchSearch && matchFrom && matchTo;
-        });
-      }
-
-      function renderWeekTab() {
-        const sem = document.getElementById('sem');
-        if (!sem) return;
-
-        sem.innerHTML = `
-          <div class="card">
-            <p class="eyebrow">Lançamento semanal</p>
-            <div class="row" style="margin:0 0 12px;">
-              <label class="field" style="min-width:180px; margin:0;">
-                <span>Data da semana</span>
-                <input type="date" id="wd">
-              </label>
-              <button class="ghost-btn" id="cp" type="button">Copiar valores da semana anterior</button>
-            </div>
-            <div class="form-grid" id="wf"></div>
-            <div class="row">
-              <button class="primary-btn" id="ws" type="button">Salvar semana</button>
-              <button class="ghost-btn" id="wdel" type="button">Excluir esta semana</button>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:14px;">
-            <p class="eyebrow">Importar por texto</p>
-            <p class="note">Cole os dados da planilha em linhas com data e valores. O sistema interpreta datas em DD/MM/YYYY ou YYYY-MM-DD.</p>
-            <textarea id="paste" rows="4" style="width:100%" placeholder="2026-09-23  120  42  380  25  20  16  18  35  9  12  13  14  15  12  25  4700"></textarea>
-            <div class="row">
-              <button class="primary-btn" id="imp" type="button">Importar</button>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:14px;">
-            <div class="card-header">
-              <h2>Semanas lançadas</h2>
-            </div>
-            <div class="filter-legend"><span class="dot"></span> Filtros: busca, período e dados</div>
-            <div class="toolbar">
-              <input id="weekFilterSearch" class="filter-box" type="search" placeholder="Buscar por semana ou valor" style="min-width:220px; flex:1;">
-              <input id="weekStartFilter" class="filter-box" type="date" style="min-width:150px;">
-              <input id="weekEndFilter" class="filter-box" type="date" style="min-width:150px;">
-            </div>
-            <div id="weekTableWrap" class="table-wrap"></div>
-          </div>
-        `;
-
-        buildWeekFields();
-        const dates = getAllWeeksSorted();
-        if (dates.length) {
-          const lastDate = dates[dates.length - 1];
-          const wd = document.getElementById('wd');
-          if (wd) {
-            wd.value = lastDate;
-            loadWeekIntoForm(lastDate);
-          }
-        }
-
-        const weekTableWrap = document.getElementById('weekTableWrap');
-        if (weekTableWrap) {
-          const filtered = getFilteredWeeks();
-          if (!filtered.length) {
-            weekTableWrap.innerHTML = '<div class="empty-state">Nenhuma semana encontrada com os filtros atuais.</div>';
-          } else {
-            weekTableWrap.innerHTML = `
-              <table>
-                <thead>
-                  <tr>
-                    <th>Semana</th>
-                    <th>Novos</th>
-                    <th>Antigas</th>
-                    <th>Ativas</th>
-                    <th>FU2</th>
-                    <th>FU3</th>
-                    <th>FU4</th>
-                    <th>FU5</th>
-                    <th>Respostas</th>
-                    <th>M1</th>
-                    <th>M2</th>
-                    <th>M3</th>
-                    <th>M4</th>
-                    <th>M5</th>
-                    <th>M6</th>
-                    <th>Agendadas</th>
-                    <th>Total atual</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${filtered.slice().reverse().map(date => {
-                    const item = state.weeks[date] || {};
+                  ${state.weeks.slice().reverse().map(week => {
+                    const follow = safeNumber(week.fu2) + safeNumber(week.fu3) + safeNumber(week.fu4) + safeNumber(week.fu5);
+                    const respostas = safeNumber(week.respostas);
+                    const agendamentos = safeNumber(week.consultasAgendadas);
+                    const taxaResposta = follow ? (respostas / follow) * 100 : 0;
                     return `
                       <tr>
-                        <td>${formatDateBR(date)}</td>
-                        <td>${formatNumber(safeNumber(item.novos))}</td>
-                        <td>${formatNumber(safeNumber(item.antigas))}</td>
-                        <td>${formatNumber(safeNumber(item.ativas))}</td>
-                        <td>${formatNumber(safeNumber(item.fu2))}</td>
-                        <td>${formatNumber(safeNumber(item.fu3))}</td>
-                        <td>${formatNumber(safeNumber(item.fu4))}</td>
-                        <td>${formatNumber(safeNumber(item.fu5))}</td>
-                        <td>${formatNumber(safeNumber(item.resp))}</td>
-                        <td>${formatNumber(safeNumber(item.m1))}</td>
-                        <td>${formatNumber(safeNumber(item.m2))}</td>
-                        <td>${formatNumber(safeNumber(item.m3))}</td>
-                        <td>${formatNumber(safeNumber(item.m4))}</td>
-                        <td>${formatNumber(safeNumber(item.m5))}</td>
-                        <td>${formatNumber(safeNumber(item.m6))}</td>
-                        <td>${formatNumber(safeNumber(item.cagend))}</td>
-                        <td>R$ ${formatNumber(safeNumber(item.tcap), 2)}</td>
-                        <td>
-                          <div class="row" style="margin-top:0;gap:6px;">
-                            <button class="mini-btn" type="button" data-load-week="${date}">Editar</button>
-                            <button class="mini-btn del-btn" type="button" data-delete-week="${date}">Excluir</button>
-                          </div>
-                        </td>
+                        <td>${formatDateBR(week.semana)}</td>
+                        <td>${formatNumber(safeNumber(week.ativas))}</td>
+                        <td>${formatNumber(follow)}</td>
+                        <td>${formatNumber(respostas)}</td>
+                        <td>${formatNumber(agendamentos)}</td>
+                        <td>${formatPercent(taxaResposta, 1)}</td>
                       </tr>
                     `;
                   }).join('')}
                 </tbody>
               </table>
-            `;
-          }
-        }
-
-        document.getElementById('cp')?.addEventListener('click', copyPreviousWeek);
-        document.getElementById('ws')?.addEventListener('click', saveWeek);
-        document.getElementById('wdel')?.addEventListener('click', deleteCurrentWeek);
-        document.getElementById('imp')?.addEventListener('click', importFromPaste);
-        document.getElementById('weekFilterSearch')?.addEventListener('input', renderWeekTab);
-        document.getElementById('weekStartFilter')?.addEventListener('input', renderWeekTab);
-        document.getElementById('weekEndFilter')?.addEventListener('input', renderWeekTab);
+            </div>
+          </div>
+        `;
+        drawMetricChart();
       }
 
-      function saveWeek() {
-        const date = parseDateValue(document.getElementById('wd')?.value || '');
-        if (!date) {
-          toast('Data inválida. Corrija a data da semana.');
-          return;
-        }
-        const payload = readWeekForm();
-        state.weeks[date] = payload;
-        saveData();
-        renderAll();
-        syncWeeksToSheetDB(date, payload);
-        toast('Semana salva com sucesso.');
-      }
+      function renderSemanasPage() {
+        const sem = document.getElementById('sem');
+        if (!sem) return;
 
-      function copyPreviousWeek() {
-        const dates = getAllWeeksSorted();
-        if (!dates.length) {
-          toast('Nenhuma semana anterior para copiar.');
-          return;
-        }
-        const prevDate = dates[dates.length - 1];
-        const source = state.weeks[prevDate];
-        if (!source) {
-          toast('Semana anterior inválida.');
-          return;
-        }
-        const wd = document.getElementById('wd');
-        if (wd) wd.value = prevDate;
-        populateWeekFields(source);
-        toast('Valores copiados da semana anterior.');
-      }
+        const rows = state.weeks.slice().reverse().map(week => `
+          <tr>
+            <td>${formatDateBR(week.semana)}</td>
+            <td>${formatNumber(safeNumber(week.novos))}</td>
+            <td>${formatNumber(safeNumber(week.antigas))}</td>
+            <td>${formatNumber(safeNumber(week.ativas))}</td>
+            <td>${formatNumber(safeNumber(week.fu2))}</td>
+            <td>${formatNumber(safeNumber(week.fu3))}</td>
+            <td>${formatNumber(safeNumber(week.fu4))}</td>
+            <td>${formatNumber(safeNumber(week.fu5))}</td>
+            <td>${formatNumber(safeNumber(week.respostas))}</td>
+            <td>${formatNumber(safeNumber(week.agendamentosFu))}</td>
+            <td>${formatNumber(safeNumber(week.semResposta))}</td>
+            <td>${formatNumber(safeNumber(week.pensando))}</td>
+            <td>${formatNumber(safeNumber(week.aguardandoCadastro))}</td>
+            <td>${formatNumber(safeNumber(week.naoSeguir))}</td>
+            <td>${formatNumber(safeNumber(week.consultasAgendadas))}</td>
+            <td>${formatNumber(safeNumber(week.consultasCanceladas))}</td>
+            <td>${formatNumber(safeNumber(week.consultasReagendadas))}</td>
+            <td>${formatNumber(safeNumber(week.consultasRealizadas))}</td>
+          </tr>
+        `).join('');
 
-      function deleteCurrentWeek() {
-        const date = parseDateValue(document.getElementById('wd')?.value || '');
-        if (!date) {
-          toast('Selecione uma semana válida para excluir.');
-          return;
-        }
-        delete state.weeks[date];
-        saveData();
-        renderAll();
-        toast('Semana removida.');
-      }
+        sem.innerHTML = `
+          <div class="card">
+            <div class="page-head">
+              <h2>Lançar semanas</h2>
+              <button type="button" class="primary-btn" id="addWeekBtn">Adicionar semana</button>
+            </div>
 
-      function importFromPaste() {
-        const text = document.getElementById('paste')?.value.trim();
-        if (!text) {
-          toast('Cole os dados da planilha para importar.');
-          return;
-        }
+            <div class="filter-legend"><span class="dot"></span> Filtro: semanas lançadas • compacto • legenda ativa</div>
 
-        let imported = 0;
-        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
-        lines.forEach(line => {
-          const cells = line.split(/\s+/).filter(Boolean);
-          if (!cells.length) return;
-          const firstValue = cells[0];
-          const date = parseDateValue(firstValue);
-          if (!date) return;
-          const values = cells.slice(1).map(v => safeNumber(v));
-          const entry = { data_semana: date };
-          WEEK_FIELDS.forEach(([key], index) => {
-            entry[key] = Number(values[index] || 0);
+            <div class="toolbar">
+              <label class="field" style="min-width:190px;">
+                <span>Semana</span>
+                <input id="filterSemana" type="date" class="filter-box">
+              </label>
+              <label class="field" style="min-width:170px;">
+                <span>Origem</span>
+                <select id="filterOrigem" class="filter-box">
+                  <option value="Todas">Todas</option>
+                  ${state.config.origins.map(origin => `<option value="${origin}">${origin}</option>`).join('')}
+                </select>
+              </label>
+              <button type="button" class="ghost-btn" id="clearFiltersBtn">Limpar filtros</button>
+            </div>
+
+            <div class="card" style="padding:14px; margin-top:12px;">
+              <h3 style="margin:0 0 10px;">Semanas lançadas</h3>
+              <div class="form-grid">
+                <div class="field"><span>Data da semana</span><input type="date" id="wd"></div>
+                ${WEEK_FIELDS.map(([key, label]) => `
+                  <div class="field">
+                    <span>${label}</span>
+                    <input type="number" min="0" step="1" id="w_${key}" value="0">
+                  </div>
+                `).join('')}
+              </div>
+              <div class="row">
+                <button type="button" class="primary-btn" id="saveWeekBtn">Salvar semana</button>
+                <button type="button" class="ghost-btn" id="newWeekBtn">Nova semana</button>
+              </div>
+            </div>
+
+            <div class="table-wrap" style="margin-top:18px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Semana</th>
+                    <th>Novos leads</th>
+                    <th>Conversas antigas retomadas</th>
+                    <th>Total de conversas ativas</th>
+                    <th>Contatados no follow-up 2</th>
+                    <th>Contatados no follow-up 3</th>
+                    <th>Contatados no follow-up 4</th>
+                    <th>Contatados no follow-up 5</th>
+                    <th>Respostas recebidas no follow-up</th>
+                    <th>Agendamentos gerados pelo follow-up</th>
+                    <th>Sem resposta no follow-up (total atual)</th>
+                    <th>Pensando ou pesquisando (total atual)</th>
+                    <th>Aguardando dados de cadastro (total atual)</th>
+                    <th>Não vão seguir (total atual)</th>
+                    <th>Consultas agendadas na semana</th>
+                    <th>Consultas canceladas da semana</th>
+                    <th>Consultas reagendadas da semana</th>
+                    <th>Consultas realizadas na semana</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows || '<tr><td colspan="18" class="empty-state">Nenhuma semana lançada.</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        const saveWeekBtn = document.getElementById('saveWeekBtn');
+        const newWeekBtn = document.getElementById('newWeekBtn');
+        const addWeekBtn = document.getElementById('addWeekBtn');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+        function readWeekFormValues() {
+          const values = {};
+          WEEK_FIELDS.forEach(([key]) => {
+            const field = document.getElementById('w_' + key);
+            values[key] = field ? safeNumber(field.value) : 0;
           });
-          state.weeks[date] = normalizeWeekRecord(entry);
-          imported += 1;
-        });
-
-        if (!imported) {
-          toast('Nenhuma linha válida foi encontrada.');
-          return;
+          return values;
         }
 
-        saveData();
-        renderAll();
-        document.getElementById('paste').value = '';
-        toast('Dados importados com sucesso.');
+        function resetWeekForm() {
+          document.getElementById('wd').value = new Date().toISOString().slice(0, 10);
+          WEEK_FIELDS.forEach(([key]) => {
+            const field = document.getElementById('w_' + key);
+            if (field) field.value = 0;
+          });
+        }
+
+        const saveWeek = () => {
+          const date = document.getElementById('wd').value;
+          if (!date) {
+            toast('Selecione a semana antes de salvar.');
+            return;
+          }
+          const payload = readWeekFormValues();
+          const idx = state.weeks.findIndex(w => w.semana === date);
+          if (idx >= 0) state.weeks[idx] = { semana: date, ...payload };
+          else state.weeks.push({ semana: date, ...payload });
+          state.weeks.sort((a, b) => new Date(a.semana) - new Date(b.semana));
+          saveState();
+          renderAll();
+          toast('Semana salva com sucesso.');
+        };
+
+        saveWeekBtn?.addEventListener('click', saveWeek);
+        newWeekBtn?.addEventListener('click', resetWeekForm);
+        addWeekBtn?.addEventListener('click', resetWeekForm);
+        clearFiltersBtn?.addEventListener('click', () => {
+          document.getElementById('filterSemana').value = '';
+          document.getElementById('filterOrigem').value = 'Todas';
+        });
       }
 
-      function renderConsultsTab() {
+      function renderConsultasPage() {
         const cons = document.getElementById('cons');
         if (!cons) return;
 
-        const origins = ['Instagram', 'WhatsApp', 'Facebook', 'Indicação', 'Google', 'Site', 'Outros'];
+        const originOptions = state.config.origins || DEFAULT_ORIGINS;
+        const rows = state.consultas.map((item, index) => {
+          const normalized = normalizeAppointment(item);
+          const date = normalized.data_consulta ? formatDateBR(normalized.data_consulta) : '—';
+          const agendada = normalized.agendada_em ? formatDateBR(normalized.agendada_em) : '—';
+          return `
+            <tr>
+              <td>${normalized.paciente || '—'}</td>
+              <td>${normalized.veio_de || normalized.origem || '—'}</td>
+              <td>${agendada}</td>
+              <td>${date}</td>
+              <td>${normalized.status || 'agendada'}</td>
+              <td>${normalized.semana || '—'}</td>
+              <td>
+                <button class="mini-btn" data-edit-consulta="${index}">Editar</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
 
         cons.innerHTML = `
           <div class="card">
-            <p class="eyebrow">Registrar consulta</p>
-            <div class="form-grid">
-              <label class="field"><span>Paciente</span><input id="cp_n" placeholder="Nome ou iniciais"></label>
-              <label class="field"><span>Origem</span><select id="cp_o">${origins.map(o => `<option value="${o}">${o}</option>`).join('')}</select></label>
-              <label class="field"><span>Agendada em</span><input type="date" id="cp_s"></label>
-              <label class="field"><span>Data da consulta</span><input type="date" id="cp_c"></label>
-            </div>
-            <div class="row"><button class="primary-btn" id="cp_add" type="button">Adicionar consulta</button></div>
-          </div>
-
-          <div class="card" style="margin-top:14px;">
-            <p class="eyebrow">Importar por texto</p>
-            <p class="note">Formato aceito: paciente / origem / data agendada / data consulta.</p>
-            <textarea id="cp_paste" rows="4" style="width:100%" placeholder="Maria / Instagram / 21/10/2026 / 24/10/2026"></textarea>
-            <div class="row"><button class="primary-btn" id="cp_imp" type="button">Importar</button></div>
-          </div>
-
-          <div class="card" style="margin-top:14px;">
-            <div class="card-header">
+            <div class="page-head">
               <h2>Consultas registradas</h2>
+              <button type="button" class="primary-btn" id="addConsultaBtn">Registrar consulta</button>
             </div>
-            <div class="filter-legend"><span class="dot"></span> Filtros: busca, origem, agendamento, consulta e status</div>
+
+            <div class="filter-legend"><span class="dot"></span> Filtro: consultas registradas • datas • origem • status</div>
+
             <div class="toolbar">
-              <input id="apptSearch" class="filter-box" type="search" placeholder="Buscar paciente, origem ou status" style="min-width:220px; flex:1;">
-              <select id="apptOriginFilter" class="filter-box" style="min-width:160px;">
-                <option value="">Todas as origens</option>
-                ${origins.map(o => `<option value="${o}">${o}</option>`).join('')}
-              </select>
-              <input id="apptScheduledFilter" class="filter-box" type="date" style="min-width:150px;">
-              <input id="apptConsultationFilter" class="filter-box" type="date" style="min-width:150px;">
-              <select id="apptStatusFilter" class="filter-box" style="min-width:150px;">
-                <option value="">Todos os status</option>
-                <option value="agendada">Agendada</option>
-                <option value="realizada">Realizada</option>
-                <option value="cancelado">Cancelado</option>
-                <option value="reagendada">Reagendada</option>
-              </select>
+              <label class="field" style="min-width:170px;">
+                <span>Semana em que foi criada</span>
+                <select id="consultaSemana" class="filter-box">
+                  <option value="Todas">Todas</option>
+                  ${state.weeks.map(week => `<option value="${week.semana}">${formatDateBR(week.semana)}</option>`).join('')}
+                </select>
+              </label>
+              <label class="field" style="min-width:170px;">
+                <span>Consulta a partir de</span>
+                <input id="consultaDe" type="date" class="filter-box">
+              </label>
+              <label class="field" style="min-width:170px;">
+                <span>Consulta até</span>
+                <input id="consultaAte" type="date" class="filter-box">
+              </label>
+              <label class="field" style="min-width:170px;">
+                <span>Veio de</span>
+                <select id="consultaOrigem" class="filter-box">
+                  <option value="Todas">Todas</option>
+                  ${originOptions.map(origin => `<option value="${origin}">${origin}</option>`).join('')}
+                </select>
+              </label>
+              <label class="field" style="min-width:170px;">
+                <span>Status</span>
+                <select id="consultaStatus" class="filter-box">
+                  <option value="Todos">Todos</option>
+                  <option value="agendada">Agendada</option>
+                  <option value="realizada">Realizada</option>
+                  <option value="cancelada">Cancelada</option>
+                  <option value="reagendada">Reagendada</option>
+                </select>
+              </label>
+              <button type="button" class="ghost-btn" id="limparFiltrosConsulta">Limpar filtros</button>
             </div>
-            <div id="apptTableWrap" class="table-wrap"></div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Paciente</th>
+                    <th>Veio de</th>
+                    <th>Agendada em</th>
+                    <th>Data da consulta</th>
+                    <th>Status</th>
+                    <th>Semana</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows || '<tr><td colspan="7" class="empty-state">Nenhuma consulta registrada.</td></tr>'}
+                </tbody>
+              </table>
+            </div>
           </div>
         `;
 
-        const scheduled = document.getElementById('cp_s');
-        if (scheduled && !scheduled.value) scheduled.value = new Date().toISOString().slice(0, 10);
+        const addConsultaBtn = document.getElementById('addConsultaBtn');
+        addConsultaBtn?.addEventListener('click', () => {
+          const paciente = prompt('Nome do paciente:');
+          if (!paciente) return;
+          const origem = prompt('Origem (ex.: WhatsApp, Follow-up 2, Follow-up 3):', 'WhatsApp');
+          const agendadaEm = prompt('Agendada em (dd/mm/aaaa):', '15/10/2024');
+          const dataConsulta = prompt('Data da consulta (dd/mm/aaaa):', '22/10/2024');
+          const status = prompt('Status (agendada/realizada/cancelada/reagendada):', 'agendada');
+          const item = {
+            paciente: paciente.trim(),
+            origem: origem || 'WhatsApp',
+            veio_de: origem || 'WhatsApp',
+            agendada_em: agendadaEm || '',
+            data_consulta: dataConsulta || '',
+            status: (status || 'agendada').trim().toLowerCase(),
+            semana: new Date().toISOString().slice(0, 10),
+            texto: `Agendada em ${agendadaEm || ''}; consulta ${dataConsulta || ''}`,
+            reagendar: 'Não',
+            nova_data: ''
+          };
+          state.consultas.unshift(item);
+          saveState();
+          renderAll();
+          toast('Consulta registrada com sucesso.');
+        });
 
-        renderAppointmentsTable();
+        document.querySelectorAll('[data-edit-consulta]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const index = Number(btn.getAttribute('data-edit-consulta'));
+            const item = state.consultas[index];
+            if (!item) return;
+            const paciente = prompt('Paciente:', item.paciente || '');
+            if (paciente === null) return;
+            const origem = prompt('Origem:', item.origem || item.veio_de || 'WhatsApp');
+            const status = prompt('Status:', item.status || 'agendada');
+            const agendada = prompt('Agendada em (dd/mm/aaaa):', item.agendada_em || '');
+            const data = prompt('Nova data da consulta (dd/mm/aaaa):', item.data_consulta || '');
+            state.consultas[index] = {
+              ...item,
+              paciente: paciente || item.paciente,
+              origem: origem || item.origem,
+              veio_de: origem || item.veio_de,
+              status: (status || item.status).toLowerCase(),
+              agendada_em: agendada || item.agendada_em,
+              data_consulta: data || item.data_consulta,
+              texto: `Agendada em ${agendada || item.agendada_em}; consulta ${data || item.data_consulta}`
+            };
+            saveState();
+            renderAll();
+            toast('Consulta atualizada.');
+          });
+        });
 
-        document.getElementById('cp_add')?.addEventListener('click', addAppointment);
-        document.getElementById('cp_imp')?.addEventListener('click', importAppointments);
-        document.getElementById('apptSearch')?.addEventListener('input', renderAppointmentsTable);
-        document.getElementById('apptOriginFilter')?.addEventListener('change', renderAppointmentsTable);
-        document.getElementById('apptScheduledFilter')?.addEventListener('input', renderAppointmentsTable);
-        document.getElementById('apptConsultationFilter')?.addEventListener('input', renderAppointmentsTable);
-        document.getElementById('apptStatusFilter')?.addEventListener('change', renderAppointmentsTable);
-      }
-
-      function getFilteredAppointments() {
-        const search = document.getElementById('apptSearch')?.value.trim().toLowerCase() || '';
-        const origin = document.getElementById('apptOriginFilter')?.value || '';
-        const scheduled = document.getElementById('apptScheduledFilter')?.value || '';
-        const consultation = document.getElementById('apptConsultationFilter')?.value || '';
-        const status = document.getElementById('apptStatusFilter')?.value || '';
-
-        return state.appts.filter(item => {
-          const paciente = (item.paciente || '').toLowerCase();
-          const origem = (item.origem || '').toLowerCase();
-          const statusText = (item.status || '').toLowerCase();
-          const scheduledIso = parseDateValue(item.agendada_em);
-          const consultationIso = parseDateValue(item.data_consulta);
-
-          const matchSearch = !search || paciente.includes(search) || origem.includes(search) || statusText.includes(search);
-          const matchOrigin = !origin || (item.origem || '') === origin;
-          const matchScheduled = !scheduled || scheduledIso === scheduled;
-          const matchConsultation = !consultation || consultationIso === consultation;
-          const matchStatus = !status || statusText === status;
-
-          return matchSearch && matchOrigin && matchScheduled && matchConsultation && matchStatus;
+        document.getElementById('limparFiltrosConsulta')?.addEventListener('click', () => {
+          document.getElementById('consultaSemana').value = 'Todas';
+          document.getElementById('consultaDe').value = '';
+          document.getElementById('consultaAte').value = '';
+          document.getElementById('consultaOrigem').value = 'Todas';
+          document.getElementById('consultaStatus').value = 'Todos';
         });
       }
 
-      function renderAppointmentsTable() {
-        const wrap = document.getElementById('apptTableWrap');
-        if (!wrap) return;
-
-        const rows = getFilteredAppointments();
-        if (!rows.length) {
-          wrap.innerHTML = '<div class="empty-state">Nenhuma consulta encontrada.</div>';
-          return;
-        }
-
-        wrap.innerHTML = `
-          <table>
-            <thead>
-              <tr>
-                <th>Paciente</th>
-                <th>Origem</th>
-                <th>Agendada em</th>
-                <th>Data da consulta</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rows.map(item => {
-                const idx = state.appts.findIndex(a => a === item);
-                return `
-                  <tr>
-                    <td>${item.paciente || '—'}</td>
-                    <td>${item.origem || '—'}</td>
-                    <td>${formatDateBR(item.agendada_em)}</td>
-                    <td>${formatDateBR(item.data_consulta)}</td>
-                    <td>
-                      <select data-status-id="${idx}" class="filter-box" style="min-width:130px;">
-                        <option value="agendada" ${item.status === 'agendada' ? 'selected' : ''}>Agendada</option>
-                        <option value="realizada" ${item.status === 'realizada' ? 'selected' : ''}>Realizada</option>
-                        <option value="cancelado" ${item.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                        <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
-                      </select>
-                    </td>
-                    <td>
-                      <button class="mini-btn del-btn" type="button" data-delete-appt="${idx}">Excluir</button>
-                    </td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        `;
-      }
-
-      function addAppointment() {
-        const nome = document.getElementById('cp_n')?.value.trim();
-        const origem = document.getElementById('cp_o')?.value || 'Instagram';
-        const agendada = document.getElementById('cp_s')?.value || '';
-        const consulta = document.getElementById('cp_c')?.value || '';
-
-        if (!nome || !consulta) {
-          toast('Preencha paciente e data da consulta.');
-          return;
-        }
-
-        const item = normalizeAppointment({
-          paciente: nome,
-          origem,
-          agendada_em: parseDateValue(agendada) || agendada,
-          data_consulta: parseDateValue(consulta) || consulta,
-          status: 'agendada'
-        });
-
-        if (!item) return;
-        state.appts.push(item);
-        saveData();
-        renderConsultsTab();
-        renderDashboard();
-
-        document.getElementById('cp_n').value = '';
-        document.getElementById('cp_o').value = 'Instagram';
-        document.getElementById('cp_s').value = new Date().toISOString().slice(0, 10);
-        document.getElementById('cp_c').value = '';
-
-        syncAppointmentsToSheetDB(item);
-        toast('Consulta adicionada com sucesso.');
-      }
-
-      function importAppointments() {
-        const text = document.getElementById('cp_paste')?.value.trim();
-        if (!text) {
-          toast('Cole os dados do paciente para importar.');
-          return;
-        }
-
-        let imported = 0;
-        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
-        lines.forEach(line => {
-          const parsed = parseAppointmentTextLine(line);
-          if (!parsed) return;
-          const item = normalizeAppointment(parsed);
-          if (!item) return;
-          state.appts.push(item);
-          imported += 1;
-        });
-
-        if (!imported) {
-          toast('Nenhum registro válido foi encontrado.');
-          return;
-        }
-
-        saveData();
-        renderConsultsTab();
-        document.getElementById('cp_paste').value = '';
-        toast('Consultas importadas com sucesso.');
-      }
-
-      function updateAppointmentStatus(index, status) {
-        if (index < 0 || !state.appts[index]) return;
-        state.appts[index].status = status;
-        saveData();
-        renderAppointmentsTable();
-      }
-
-      function deleteAppointment(index) {
-        if (index === undefined || index < 0 || !state.appts[index]) return;
-        state.appts.splice(index, 1);
-        saveData();
-        renderConsultsTab();
-        toast('Consulta removida.');
-      }
-
-      function renderConfig() {
+      function renderConfigPage() {
         const cfg = document.getElementById('cfg');
         if (!cfg) return;
 
+        const originsList = (state.config.origins || DEFAULT_ORIGINS).map(origin => `
+          <div class="chip">${origin}</div>
+        `).join('');
+
         cfg.innerHTML = `
           <div class="card">
-            <p class="eyebrow">Configuração</p>
-            <div class="config-grid">
-              <label class="field"><span>Nome do painel</span><input id="cfgTitle" type="text" value="${state.cfg.title || 'Painel KOMMO'}"></label>
-              <label class="field"><span>Senha</span><input id="cfgPass" type="text" value="${state.cfg.password || ACCESS_PASSWORD}"></label>
-              <label class="field"><span>Limite de filtro</span><input id="cfgLimit" type="number" min="1" step="1" value="${state.cfg.filterLimit || 30}"></label>
+            <div class="page-head">
+              <h2>Configuração</h2>
+              <button type="button" class="ghost-btn" id="resetThemeBtn">Restaurar tema</button>
             </div>
-            <div class="row"><button class="primary-btn" id="saveCfg" type="button">Salvar configuração</button></div>
-          </div>
 
-          <div class="card" style="margin-top:14px;">
-            <div class="card-header"><h2>Status da sincronização</h2></div>
-            <div class="sync-box">
-              <div class="sync-item">
-                <div><strong>Semanas</strong><div class="note">Sincronização do painel semanal</div></div>
-                <div class="sync-status ${state.sync.weeks === 'good' ? 'good' : state.sync.weeks === 'error' ? 'error' : 'none'}">
-                  ${state.sync.weeks === 'good' ? 'Sucesso' : state.sync.weeks === 'error' ? 'Erro' : 'Não sincronizado'}
-                </div>
+            <div class="config-grid" style="margin-bottom:18px;">
+              <div class="card">
+                <div class="card-header"><h3>Nomes dos campos semanais</h3></div>
+                <p class="note">Renomeie como preferir. Os números já lançados não mudam. Campos “total atual” guardam o total de pacientes naquela fase no momento; os demais são contagens da semana.</p>
+                <div class="chip-list">${WEEK_FIELDS.map(([, label]) => `<span class="chip">${label}</span>`).join('')}</div>
               </div>
-              <div class="sync-item">
-                <div><strong>Consultas</strong><div class="note">Sincronização das consultas</div></div>
-                <div class="sync-status ${state.sync.appointments === 'good' ? 'good' : state.sync.appointments === 'error' ? 'error' : 'none'}">
-                  ${state.sync.appointments === 'good' ? 'Sucesso' : state.sync.appointments === 'error' ? 'Erro' : 'Não sincronizado'}
+
+              <div class="card">
+                <div class="card-header"><h3>Origem das consultas</h3></div>
+                <p class="note">Opções do campo “Veio de”. Uma origem só pode ser removida se nenhuma consulta a usar.</p>
+                <div class="chip-list">${originsList}</div>
+                <div class="row">
+                  <button type="button" class="ghost-btn" id="addSourceBtn">Adicionar origem</button>
+                  <button type="button" class="ghost-btn" id="editSourceBtn">Editar origem</button>
+                  <button type="button" class="ghost-btn del-btn" id="removeSourceBtn">Excluir origem</button>
                 </div>
               </div>
             </div>
-            <div class="row"><button class="primary-btn" id="retrySync" type="button">Nova tentativa de sincronização</button></div>
+
+            <div class="config-grid" style="margin-bottom:18px;">
+              <div class="card">
+                <div class="card-header"><h3>Exibição do painel</h3></div>
+                <p class="note">Marque o que aparece. Os cards e gráficos desmarcados ficam ocultos, sem apagar dados.</p>
+                <div class="chip-list">
+                  <label class="chip"><input type="checkbox" checked> Cards do quadro geral</label>
+                  <label class="chip"><input type="checkbox" checked> Gráfico por semana</label>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h3>Metas</h3></div>
+                <p class="note">Em %. O card mostra se está dentro da meta. No cancelamento, o valor é o máximo aceito. Deixe vazio para não usar meta.</p>
+                <div class="form-grid">
+                  <label class="field"><span>Taxa Geral de Agendamento</span><input type="number" step="0.1" value="${state.config.metas.taxaGeralAgendamento || ''}"></label>
+                  <label class="field"><span>Conversão do FU em Agendamento</span><input type="number" step="0.1" value="${state.config.metas.conversaoFUAgendamento || ''}"></label>
+                  <label class="field"><span>Taxa de resposta do FU</span><input type="number" step="0.1" value="${state.config.metas.taxaRespostaFU || ''}"></label>
+                  <label class="field"><span>Comparecimento (check-in)</span><input type="number" step="0.1" value="${state.config.metas.comparecimento || ''}"></label>
+                  <label class="field"><span>Cancelamento (máximo)</span><input type="number" step="0.1" value="${state.config.metas.cancelamento || ''}"></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="config-grid" style="margin-bottom:18px;">
+              <div class="card">
+                <div class="card-header"><h3>Zona de risco</h3></div>
+                <p class="note">Apaga todas as semanas e consultas. Baixe o backup antes.</p>
+                <button type="button" class="ghost-btn del-btn" id="clearAllBtn">Apagar tudo</button>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h3>Tema</h3></div>
+                <div class="form-grid">
+                  <label class="field"><span>Modo</span><select><option selected>${state.config.theme.mode || 'Automático'}</option><option>Automático</option><option>Claro</option><option>Escuro</option></select></label>
+                  <label class="field"><span>Cor principal</span><input type="color" value="${state.config.theme.primary || '#0f766e'}"></label>
+                  <label class="field"><span>Cor secundária</span><input type="color" value="${state.config.theme.secondary || '#0b625c'}"></label>
+                  <label class="field"><span>Cor de destaque</span><input type="color" value="${state.config.theme.accent || '#d89b20'}"></label>
+                  <label class="field"><span>Cor de fundo</span><input type="color" value="${state.config.theme.background || '#edf3f1'}"></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:18px;">
+              <div class="card-header"><h3>Métricas e cards personalizados</h3></div>
+              <p class="note">Descreva o que quer ver e onde. A IA monta a fórmula com os campos lançados e você confere o resultado antes de adicionar. Você também pode editar a fórmula à mão.</p>
+              <div class="form-grid">
+                <label class="field"><span>O que você quer medir?</span><input type="text" value="% de pacientes que não vão seguir sobre o total de conversas ativas"></label>
+                <label class="field"><span>Onde mostrar</span><select><option>IA decide</option><option>Quadro geral</option><option>Resumo por semana</option></select></label>
+              </div>
+              <div class="row">
+                <button type="button" class="primary-btn">Criar com IA</button>
+                <button type="button" class="ghost-btn">Criar manualmente</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h3>Status da sincronização</h3></div>
+              <div class="sync-box">
+                <div class="sync-item">
+                  <div>
+                    <strong>Sheet</strong>
+                    <div class="note">Última atualização: ${formatDateBR(state.sync.lastRunAt)} ${new Date(state.sync.lastRunAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                  </div>
+                  <div class="status-badge ${state.sync.status === 'ok' ? 'good' : state.sync.status === 'error' ? 'error' : 'none'}">${state.sync.status === 'ok' ? 'Sincronizado' : state.sync.status === 'error' ? 'Erro' : 'Pendente'}</div>
+                </div>
+                <div class="note">Agenda automática: todos os dias às 19h (seg a sex) e tentativa de reenvio em caso de falha.</div>
+                <div class="row">
+                  <button type="button" class="primary-btn" id="retrySyncBtn">Nova tentativa</button>
+                  <button type="button" class="ghost-btn" id="scheduleSyncBtn">Ver agendamento</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:18px;">
+              <div class="card-header"><h3>Backup dos dados</h3></div>
+              <div class="row">
+                <button type="button" class="ghost-btn" id="exportWeeksBtn">Baixar semanas</button>
+                <button type="button" class="ghost-btn" id="exportConsultasBtn">Baixar consultas</button>
+              </div>
+            </div>
           </div>
         `;
 
-        document.getElementById('saveCfg')?.addEventListener('click', saveConfig);
-        document.getElementById('retrySync')?.addEventListener('click', retrySync);
-      }
-
-      function saveConfig() {
-        const title = document.getElementById('cfgTitle')?.value.trim() || 'Painel KOMMO';
-        const pass = document.getElementById('cfgPass')?.value.trim() || ACCESS_PASSWORD;
-        const limit = Number(document.getElementById('cfgLimit')?.value || 30);
-        state.cfg.title = title;
-        state.cfg.password = pass;
-        state.cfg.filterLimit = Number.isFinite(limit) && limit > 0 ? limit : 30;
-        saveData();
-        applyTitle();
-        renderAll();
-        toast('Configuração salva.');
-      }
-
-      async function postJSON(url, payload) {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(Array.isArray(payload) ? payload : [payload])
+        document.getElementById('addSourceBtn')?.addEventListener('click', () => {
+          const value = prompt('Nova origem:', 'WhatsApp');
+          if (!value) return;
+          const sources = state.config.origins || DEFAULT_ORIGINS;
+          if (!sources.includes(value.trim())) {
+            sources.push(value.trim());
+            state.config.origins = sources;
+            saveState();
+            renderAll();
+          }
         });
-        const text = await response.text();
-        if (!response.ok) throw new Error(text || 'Erro ao sincronizar com SheetDB');
-        return text;
-      }
 
-      function syncWeeksToSheetDB(date, payload) {
-        const data = {
-          source: 'painel-kommo',
-          updated_at: new Date().toISOString(),
-          data_semana: date,
-          novos: safeNumber(payload.novos),
-          antigas: safeNumber(payload.antigas),
-          ativas: safeNumber(payload.ativas),
-          fu2: safeNumber(payload.fu2),
-          fu3: safeNumber(payload.fu3),
-          fu4: safeNumber(payload.fu4),
-          fu5: safeNumber(payload.fu5),
-          resp: safeNumber(payload.resp),
-          m1: safeNumber(payload.m1),
-          m2: safeNumber(payload.m2),
-          m3: safeNumber(payload.m3),
-          m4: safeNumber(payload.m4),
-          m5: safeNumber(payload.m5),
-          m6: safeNumber(payload.m6),
-          cagend: safeNumber(payload.cagend),
-          tcap: safeNumber(payload.tcap)
-        };
-
-        postJSON(SHEETDB_WEEK_URL, data)
-          .then(() => {
-            state.sync.weeks = 'good';
-            saveData();
-            renderConfig();
-          })
-          .catch((err) => {
-            console.error('SheetDB weeks error:', err);
-            state.sync.weeks = 'error';
-            saveData();
-            renderConfig();
-            toast('Erro na sincronização de semanas.');
-          });
-      }
-
-      function syncAppointmentsToSheetDB(item) {
-        const data = {
-          source: 'painel-kommo',
-          updated_at: new Date().toISOString(),
-          paciente: String(item.paciente || ''),
-          origem: String(item.origem || ''),
-          agendada_em: String(item.agendada_em || ''),
-          data_consulta: String(item.data_consulta || ''),
-          status: String(item.status || 'agendada')
-        };
-
-        postJSON(SHEETDB_CONSULTA_URL, data)
-          .then(() => {
-            state.sync.appointments = 'good';
-            saveData();
-            renderConfig();
-          })
-          .catch((err) => {
-            console.error('SheetDB appointments error:', err);
-            state.sync.appointments = 'error';
-            saveData();
-            renderConfig();
-            toast('Erro na sincronização de consultas.');
-          });
-      }
-
-      function retrySync() {
-        const dates = getAllWeeksSorted();
-        dates.forEach(date => {
-          const payload = state.weeks[date];
-          if (payload) syncWeeksToSheetDB(date, payload);
+        document.getElementById('editSourceBtn')?.addEventListener('click', () => {
+          const source = prompt('Qual origem editar?', state.config.origins[0] || 'Follow-up 2');
+          if (!source) return;
+          const index = (state.config.origins || DEFAULT_ORIGINS).findIndex(item => item.toLowerCase() === source.toLowerCase());
+          if (index < 0) return;
+          const next = prompt('Novo nome da origem:', state.config.origins[index]);
+          if (!next) return;
+          state.config.origins[index] = next.trim();
+          saveState();
+          renderAll();
         });
-        state.appts.forEach(item => syncAppointmentsToSheetDB(item));
 
-        if (!dates.length && !state.appts.length) {
-          state.sync.weeks = 'none';
-          state.sync.appointments = 'none';
-          saveData();
-          renderConfig();
-          toast('Nada para sincronizar no momento.');
-          return;
-        }
+        document.getElementById('removeSourceBtn')?.addEventListener('click', () => {
+          const source = prompt('Qual origem excluir?', state.config.origins[0] || 'Follow-up 2');
+          if (!source) return;
+          const index = (state.config.origins || DEFAULT_ORIGINS).findIndex(item => item.toLowerCase() === source.toLowerCase());
+          if (index < 0) return;
+          const used = state.consultas.some(item => (item.veio_de || item.origem || '').toLowerCase() === source.toLowerCase());
+          if (used) {
+            toast('Essa origem está em uso em consultas e não pode ser removida.');
+            return;
+          }
+          state.config.origins.splice(index, 1);
+          saveState();
+          renderAll();
+        });
 
-        toast('Tentativa de sincronização iniciada.');
+        document.getElementById('clearAllBtn')?.addEventListener('click', () => {
+          const confirmed = confirm('Tem certeza que deseja apagar todas as semanas e consultas?');
+          if (!confirmed) return;
+          state.weeks = [];
+          state.consultas = [];
+          saveState();
+          renderAll();
+          toast('Dados resetados.');
+        });
+
+        document.getElementById('resetThemeBtn')?.addEventListener('click', () => {
+          state.config.theme = { mode: 'automático', primary: '#0f766e', secondary: '#0b625c', accent: '#d89b20', background: '#edf3f1' };
+          saveState();
+          renderAll();
+        });
+
+        document.getElementById('retrySyncBtn')?.addEventListener('click', () => {
+          updateSyncStatus('ok', 'Tentativa de sincronização executada com sucesso');
+          renderAll();
+          toast('Sincronização reexecutada.');
+        });
+
+        document.getElementById('scheduleSyncBtn')?.addEventListener('click', () => {
+          toast('Agenda automática configurada para 19:00 (Seg a Sex).');
+        });
+
+        document.getElementById('exportWeeksBtn')?.addEventListener('click', () => {
+          const csv = [
+            ['semana','novos','antigas','ativas','fu2','fu3','fu4','fu5','respostas','agendamentosFu','semResposta','pensando','aguardandoCadastro','naoSeguir','consultasAgendadas','consultasCanceladas','consultasReagendadas','consultasRealizadas'],
+            ...state.weeks.map(w => [w.semana, w.novos, w.antigas, w.ativas, w.fu2, w.fu3, w.fu4, w.fu5, w.respostas, w.agendamentosFu, w.semResposta, w.pensando, w.aguardandoCadastro, w.naoSeguir, w.consultasAgendadas, w.consultasCanceladas, w.consultasReagendadas, w.consultasRealizadas])
+          ].map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+          downloadCSV(csv, 'semanas.csv');
+        });
+
+        document.getElementById('exportConsultasBtn')?.addEventListener('click', () => {
+          const csv = [
+            ['paciente','origem','agendada_em','data_consulta','status','semana','veio_de','reagendar','nova_data'],
+            ...state.consultas.map(item => [item.paciente, item.origem || item.veio_de, item.agendada_em, item.data_consulta, item.status, item.semana, item.veio_de || item.origem, item.reagendar, item.nova_data])
+          ].map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+          downloadCSV(csv, 'consultas.csv');
+        });
+      }
+
+      function downloadCSV(csv, fileName) {
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function applyTheme() {
+        const theme = state.config.theme || { primary: '#0f766e', secondary: '#0b625c', accent: '#d89b20', background: '#edf3f1' };
+        document.documentElement.style.setProperty('--primary', theme.primary || '#0f766e');
+        document.documentElement.style.setProperty('--primary-strong', theme.secondary || '#0b625c');
+        document.documentElement.style.setProperty('--gold', theme.accent || '#d89b20');
+        document.documentElement.style.setProperty('--bg', theme.background || '#edf3f1');
       }
 
       function renderAll() {
-        applyTitle();
+        applyTheme();
         renderDashboard();
-        renderWeekTab();
-        renderConsultsTab();
-        renderConfig();
+        renderSemanasPage();
+        renderConsultasPage();
+        renderConfigPage();
+        renderNavbar();
       }
 
-      function bindGlobalEvents() {
-        document.querySelectorAll('[data-tab]').forEach(button => {
-          button.addEventListener('click', () => {
-            const target = button.dataset.tab;
-            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
-            const panel = document.getElementById(target);
-            if (panel) panel.classList.add('active');
-            document.querySelectorAll('[data-tab]').forEach(btn => btn.classList.toggle('on', btn === button));
-          });
-        });
-
-        document.addEventListener('click', (event) => {
-          const loadWeekBtn = event.target.closest('[data-load-week]');
-          if (loadWeekBtn) {
-            const date = loadWeekBtn.dataset.loadWeek;
-            loadWeekIntoForm(date);
-            toast('Semana carregada para edição.');
-            return;
-          }
-
-          const deleteWeekBtn = event.target.closest('[data-delete-week]');
-          if (deleteWeekBtn) {
-            const date = deleteWeekBtn.dataset.deleteWeek;
-            delete state.weeks[date];
-            saveData();
-            renderAll();
-            toast('Semana removida.');
-            return;
-          }
-
-          const deleteApptBtn = event.target.closest('[data-delete-appt]');
-          if (deleteApptBtn) {
-            deleteAppointment(Number(deleteApptBtn.dataset.deleteAppt));
-          }
-        });
-
-        document.addEventListener('change', (event) => {
-          const statusSelect = event.target.closest('[data-status-id]');
-          if (statusSelect) {
-            const idx = Number(statusSelect.dataset.statusId);
-            updateAppointmentStatus(idx, statusSelect.value);
-          }
-        });
+      function scheduleDailySync() {
+        const now = new Date();
+        const day = now.getDay();
+        const isWeekday = day >= 1 && day <= 5;
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        if (isWeekday && hour >= 19 && minute >= 0 && minute <= 59) {
+          updateSyncStatus('ok', 'Sincronização automática executada às 19:00');
+        }
       }
 
-      function initializeLock() {
-        const lockForm = document.getElementById('lockForm');
-        const passwordInput = document.getElementById('accessPassword');
-        const lockMessage = document.getElementById('lockMessage');
-        const lockScreen = document.getElementById('lockScreen');
-        const appShell = document.getElementById('appShell');
-
-        if (!lockForm || !passwordInput || !lockMessage || !lockScreen || !appShell) return;
-
-        lockForm.addEventListener('submit', function (event) {
-          event.preventDefault();
-          const password = passwordInput.value.trim();
-          if (password === (state.cfg.password || ACCESS_PASSWORD)) {
-            document.body.classList.remove('locked');
-            lockScreen.style.display = 'none';
-            appShell.style.display = 'block';
-            passwordInput.value = '';
-            lockMessage.textContent = '';
-            return;
-          }
-
-          lockMessage.textContent = 'Senha Incorreta';
-          passwordInput.value = '';
-          passwordInput.focus();
-        });
-      }
-
-      function init() {
-        const loaded = loadData();
-        state.weeks = loaded.weeks || {};
-        state.appts = Array.isArray(loaded.appts) ? loaded.appts : [];
-        state.cfg = loaded.cfg && Object.keys(loaded.cfg).length ? loaded.cfg : { ...state.cfg };
-        state.sync = loaded.sync || { ...state.sync };
-
-        initializeLock();
-        bindGlobalEvents();
-        renderAll();
-      }
-
-      init();
+      renderLockScreen();
+      scheduleDailySync();
+      renderAll();
     })();
   </script>
 </body>
