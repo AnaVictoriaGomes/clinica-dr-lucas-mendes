@@ -6,679 +6,632 @@
   <title>Painel KOMMO – Follow-up e Agenda</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:#edf3f1;
-      --bg-strong:#e1ece8;
-      --card:#ffffff;
-      --card-alt:#f7faf9;
-      --ink:#122a2b;
-      --mut:#5b726d;
-      --line:#dfe9e4;
-      --primary:#0f766e;
-      --primary-strong:#0b625c;
-      --primary-soft:#dcf8f3;
-      --gold:#d89b20;
-      --gold-soft:#fff4d8;
-      --blue:#2c5e9a;
-      --blue-soft:#edf4ff;
-      --purple:#6f5ab3;
-      --purple-soft:#f1ebff;
-      --red:#d84f62;
-      --red-soft:#ffe8ee;
-      --success:#1a8a5a;
-      --success-soft:#ebfbf1;
-      --warning:#c78112;
-      --warning-soft:#fff4d8;
-      --shadow:0 12px 30px rgba(16,35,32,0.08), 0 2px 10px rgba(16,35,32,0.04);
-      --radius:18px;
+      --bg:#f4f6f3;
+      --card:#fff;
+      --ink:#16302c;
+      --mut:#5f7571;
+      --line:#dbe3df;
+      --g:#1f7a6d;
+      --a:#d99a1c;
+      --b:#3d6fa8;
+      --r:#c2455a;
+      --k:#9aa8a4;
+      --p:#7a5aa6;
       color-scheme:light;
       box-sizing:border-box;
+      padding-top:env(safe-area-inset-top,0px);
+      padding-bottom:env(safe-area-inset-bottom,0px);
     }
 
-    *{box-sizing:border-box;}
-    html{scroll-behavior:smooth;}
-    body{
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        --bg:#101a18;
+        --card:#182623;
+        --ink:#e6efec;
+        --mut:#9bb0ab;
+        --line:#2a3d39;
+        --g:#4cc2ae;
+        --a:#eab94a;
+        --b:#74a3dd;
+        --r:#ec7a8d;
+        --k:#6f817d;
+        --p:#b095dc;
+        color-scheme:dark;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg:#101a18;
+      --card:#182623;
+      --ink:#e6efec;
+      --mut:#9bb0ab;
+      --line:#2a3d39;
+      --g:#4cc2ae;
+      --a:#eab94a;
+      --b:#74a3dd;
+      --r:#ec7a8d;
+      --k:#6f817d;
+      --p:#b095dc;
+      color-scheme:dark;
+    }
+
+    html { scroll-padding-top:env(safe-area-inset-top,0px); }
+    * { box-sizing:border-box; }
+    body {
       margin:0;
-      background:linear-gradient(180deg,#edf3f1 0%, #edf5f3 100%);
+      background:var(--bg);
       color:var(--ink);
-      font:15px/1.5 "Figtree", system-ui, sans-serif;
-      overflow-x:hidden;
+      font:15px/1.45 Figtree,system-ui,sans-serif;
+      font-feature-settings:"tnum";
+      -webkit-font-smoothing:antialiased;
     }
-    body.locked{overflow:hidden;}
-    .app-shell{display:none;}
-    body:not(.locked) .app-shell{display:block;}
-
-    .lock-screen{
-      position:fixed; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      background:radial-gradient(circle at top, #f5faf8 0%, #e8f0ee 38%, #dfeae6 100%);
-      z-index:2000;
+    body::before {
+      content:"";
+      position:fixed;
+      inset:0 0 auto;
+      height:env(safe-area-inset-top,0px);
+      z-index:10;
+      background:var(--card);
     }
-    body:not(.locked) .lock-screen{display:none;}
-
-    .lock-card{
-      width:min(92vw, 400px);
-      background:rgba(255,255,255,0.97);
-      border:1px solid rgba(17,43,43,0.08);
-      border-radius:26px; padding:30px 24px 22px;
-      box-shadow:0 32px 80px rgba(14,36,32,0.15);
-      text-align:center;
+    header {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      padding:18px 22px 6px;
+      max-width:1180px;
+      margin:auto;
+      position:sticky;
+      top:env(safe-area-inset-top,0px);
+      z-index:9;
+      max-width:none;
+      margin:0;
+      padding:12px max(22px,calc((100% - 1180px)/2));
+      background:var(--card);
+      border-bottom:1px solid var(--line);
+      box-shadow:0 1px 0 rgba(0,0,0,.02),0 6px 18px -12px rgba(16,40,36,.25);
     }
-    .lock-icon{font-size:46px; margin-bottom:8px;}
-    .lock-card h2{margin:0 0 14px; font-size:28px; letter-spacing:-0.04em; color:var(--ink);}
-    .lock-card label{
-      display:block; text-align:left; font-size:11px; font-weight:800;
-      text-transform:uppercase; letter-spacing:0.08em; color:var(--mut);
-      margin:12px 0 8px;
+    h1 { font-size:19px; font-weight:700; letter-spacing:-.01em; margin:0; }
+    h2 { font-size:16px; margin:0 0 10px; }
+    #st { font-size:12px; margin-top:1px; }
+    #st::before {
+      content:"";
+      display:inline-block;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:var(--g);
+      margin-right:6px;
+      vertical-align:1px;
     }
-    .lock-card input{
-      width:100%; min-height:52px; border:1px solid var(--line); border-radius:14px; padding:12px 14px;
-      background:#fff; color:var(--ink); font:inherit;
+    nav {
+      display:flex;
+      gap:4px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:4px;
+      background:var(--bg);
+      border-radius:10px;
+      padding:3px;
+      gap:2px;
+      flex-wrap:wrap;
     }
-    .lock-card input:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(15,118,110,0.12);}
-    .lock-card button{
-      width:100%; min-height:50px; border:none; border-radius:14px; background:linear-gradient(135deg, var(--primary), var(--primary-strong));
-      color:#fff; font:inherit; font-weight:800; cursor:pointer; margin-top:10px; box-shadow:0 16px 30px rgba(15,118,110,0.22);
+    nav button {
+      border:0;
+      background:none;
+      color:var(--mut);
+      font:inherit;
+      font-weight:500;
+      padding:7px 14px;
+      border-radius:7px;
+      cursor:pointer;
+      font-size:13.5px;
+      padding:7px 13px;
+      border-radius:8px;
+      transition:background .15s,color .15s;
     }
-    .lock-card button:hover{filter:brightness(1.03);}
-    #lockMessage{min-height:18px; margin:12px 0 0; color:var(--red); font-weight:700; font-size:14px;}
-
-    header{
-      position:sticky; top:0; z-index:50;
-      display:flex; align-items:center; justify-content:space-between; gap:16px;
-      padding:16px max(22px, calc((100% - 1200px)/2));
-      background:rgba(255,255,255,.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+    nav button.on {
+      background:var(--g);
+      color:#fff;
+      box-shadow:0 1px 3px rgba(0,0,0,.2);
     }
-    .brand{display:flex; flex-direction:column; gap:2px;}
-    .brand h1{margin:0; font-size:20px; letter-spacing:-0.04em;}
-    #st{display:inline-flex; align-items:center; gap:8px; margin-top:2px; font-size:12px; font-weight:700; color:var(--mut);}
-    #st::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block; box-shadow:0 0 0 5px rgba(26,138,90,0.08);}
+    nav button:hover:not(.on){ background:var(--line); color:var(--ink); }
 
-    nav{display:flex; align-items:center; flex-wrap:wrap; gap:6px; padding:5px; background:var(--bg); border:1px solid var(--line); border-radius:12px;}
-    nav button{
-      border:none; background:transparent; color:var(--mut); font:inherit; font-weight:700;
-      padding:9px 14px; border-radius:10px; cursor:pointer; transition:all .2s ease;
+    main {
+      max-width:1180px;
+      margin:auto;
+      padding:12px 22px 40px;
+      padding-top:20px;
     }
-    nav button.on{background:linear-gradient(135deg, var(--primary), #0d9186); color:#fff; box-shadow:0 8px 20px rgba(16,120,110,0.18);}
-
-    main{max-width:1200px; margin:0 auto; padding:22px max(22px, calc((100% - 1200px)/2)) 40px;}
-    .tab-panel{display:none;}
-    .tab-panel.active{display:block;}
-
-    .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; min-width:0; box-shadow:var(--shadow);}
-    .card-header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;}
-    .card-header h2,.card-header h3{margin:0; font-size:16px; letter-spacing:-0.03em;}
-    .eyebrow{display:inline-block; margin:0 0 8px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:var(--mut);}
-
-    .grid{display:grid; gap:14px;}
-    .kpis{grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); margin-bottom:18px;}
-    .kpi{position:relative; overflow:hidden; padding:16px 16px 14px 18px; border-left:4px solid var(--primary); border-radius:12px; background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow);}
-    .kpi:nth-child(2n){border-left-color: var(--blue);}
-    .kpi:nth-child(3n){border-left-color: var(--gold);}
-    .kpi:nth-child(4n){border-left-color: var(--purple);}
-    .kpi:nth-child(5n){border-left-color: var(--success);}
-    .kpi span{display:block; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--mut);}
-    .kpi b{display:block; font-size:30px; line-height:1.1; margin-top:6px; letter-spacing:-.02em;}
-    .kpi small{display:block; line-height:1.35; margin-top:4px; color:var(--mut); font-size:12px;}
-
-    .alert-box{background:rgba(217,154,28,.08); border:1px solid rgba(217,154,28,.34); border-left:4px solid var(--gold); border-radius:12px; padding:12px 16px; margin-bottom:14px; font-size:14px;}
-    .alert-box p{margin:3px 0;}
-
-    .charts{grid-template-columns:repeat(auto-fit,minmax(340px,1fr));}
-    .chart-wrap{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; min-height:330px;}
-    .chart-legend{display:flex; flex-wrap:wrap; gap:10px 14px; font-size:12px; color:var(--mut); margin:8px 0 12px; font-weight:700;}
-    .legend-dot{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px;}
-    svg{width:100%; height:auto; display:block;}
-    svg text{fill:var(--mut); font-size:10.5px; font-family:inherit;}
-
-    .section-grid{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); margin-top:18px;}
-    .summary-table{width:100%; border-collapse:collapse; font-size:13px;}
-    .summary-table td,.summary-table th{padding:10px 8px; border-bottom:1px solid var(--line); text-align:left;}
-    .summary-table th{color:var(--mut); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em;}
-    .summary-table tr:last-child td{border-bottom:none;}
-    .summary-table tr:hover td{background:rgba(15,118,110,0.03);}
-
-    .page-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 12px; flex-wrap:wrap;}
-    .filter-legend{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; padding:8px 12px; border:1px solid var(--line); border-radius:10px; background:var(--card-alt); color:var(--mut); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;}
-    .filter-legend .dot{width:8px; height:8px; border-radius:50%; background:var(--primary); display:inline-block;}
-
-    .field,.filter-box,.mini-btn,.primary-btn,.ghost-btn,.field input,.field select,.field textarea{font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:10px; min-height:40px; padding:8px 10px; transition:border-color .15s ease, box-shadow .15s ease;}
-    .field{display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--mut); font-weight:700;}
-    .field input,.field select,.field textarea,.filter-box{width:100%; min-height:42px;}
-    .field input:focus,.field select:focus,.field textarea:focus,.filter-box:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(15,118,110,0.12);}
-    .field textarea{min-height:96px; resize:vertical;}
-    .form-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px;}
-    .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin:0 0 12px;}
-    .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:16px;}
-    .primary-btn,.ghost-btn,.mini-btn{border-radius:10px; cursor:pointer; font-weight:800;}
-    .primary-btn{background:linear-gradient(135deg,var(--primary),var(--primary-strong)); border-color:var(--primary); color:#fff; box-shadow:0 10px 20px rgba(15,118,110,0.2); min-height:42px; padding-inline:16px;}
-    .ghost-btn{background:transparent; color:var(--ink); border-color:var(--line); min-height:40px; padding-inline:14px;}
-    .ghost-btn:hover,.mini-btn:hover,.primary-btn:hover{filter:brightness(1.02);}
-    .mini-btn{background:var(--card-alt); border-color:var(--line); color:var(--ink); min-height:34px; padding:6px 10px; font-size:12px;}
-    .del-btn{color:var(--red); border-color:rgba(217,77,99,0.2); background:var(--red-soft);}
-
-    .table-wrap{overflow:auto; border:1px solid var(--line); border-radius:12px; background:var(--card);}
-    table{width:100%; border-collapse:collapse; min-width:980px; font-size:13px;}
-    th,td{padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:middle;}
-    th{background:var(--card-alt); color:var(--mut); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; position:sticky; top:0; z-index:1;}
-    tr:last-child td{border-bottom:none;}
-    tr:hover td{background:rgba(15,118,110,0.025);}
-    .empty-state{padding:22px 14px; color:var(--mut); font-size:14px; background:var(--card-alt); border:1px dashed var(--line); border-radius:12px; text-align:center;}
-
-    .status-badge{display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:800; background:#fff; border:1px solid var(--line);}
-    .status-badge::before{content:""; width:8px; height:8px; border-radius:50%; display:inline-block; background:var(--warning);}
-    .status-badge.good::before{background:var(--success);} .status-badge.error::before{background:var(--red);} .status-badge.none::before{background:var(--warning);} .status-badge.good{color:var(--success);} .status-badge.error{color:var(--red);} .status-badge.none{color:var(--warning);}
-
-    .sync-box{display:flex; flex-direction:column; gap:14px; margin-top:14px;}
-    .sync-item{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:var(--card-alt); border:1px solid var(--line); border-radius:12px;}
-    .config-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
-    .note{font-size:13px; color:var(--mut); line-height:1.45;}
-    .chip-list{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
-    .chip{padding:7px 10px; border-radius:999px; background:var(--card-alt); border:1px solid var(--line); font-size:12px; font-weight:700; color:var(--ink);}
-    #msg{position:fixed; right:20px; bottom:20px; z-index:9999; background:rgba(17,42,43,0.96); color:#fff; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:700; box-shadow:0 12px 28px rgba(0,0,0,.22); opacity:0; pointer-events:none; transition:opacity .2s ease;}
-    #msg.on{opacity:1;}
-
-    @media (max-width:720px){header{padding:14px 14px 16px;} main{padding:18px 14px 36px;} .card{padding:14px;} .kpi b{font-size:26px;} .table-wrap{margin-top:8px;}}
+    .grid { display:grid; gap:14px; }
+    .kpis { grid-template-columns:repeat(auto-fit,minmax(185px,1fr)); gap:12px; margin-bottom:14px; }
+    .charts { grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+    .card {
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:16px;
+      min-width:0;
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 1px 2px rgba(16,40,36,.05),0 6px 20px -10px rgba(16,40,36,.12);
+    }
+    .kpi {
+      position:relative;
+      overflow:hidden;
+      padding:16px 16px 14px 19px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:12px;
+      box-shadow:0 1px 2px rgba(16,40,36,.05),0 6px 20px -10px rgba(16,40,36,.12);
+    }
+    .kpi::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--g); }
+    .kpi b{ display:block; font-size:30px; line-height:1.1; margin-top:4px; font-weight:700; letter-spacing:-.02em; }
+    .kpi span{ color:var(--mut); font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; display:block; }
+    .kpi small{ display:block; color:var(--mut); font-size:12px; margin-top:2px; line-height:1.35; }
+    .lg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--mut);margin-bottom:6px}
+    .lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+    svg{width:100%;height:auto;display:block}
+    svg text{fill:var(--mut);font-size:10px;font-family:inherit}
+    svg rect{transition:opacity .15s}
+    svg rect:hover{opacity:.82}
+    .ins{background:color-mix(in srgb,var(--a) 9%,var(--card));border:1px solid color-mix(in srgb,var(--a) 30%,var(--line));border-left:4px solid var(--a);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:14px}
+    .ins p{margin:3px 0}
+    .wrap{overflow-x:auto}
+    table{border-collapse:collapse;width:100%;font-size:13px}
+    th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+    th{color:var(--mut);font-weight:500;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;background:var(--bg);position:sticky;top:0}
+    th:first-child{border-radius:8px 0 0 8px}th:last-child{border-radius:0 8px 8px 0}
+    td{padding:9px 8px}
+    tr:hover td{background:color-mix(in srgb,var(--g) 6%,transparent)}
+    input,select,textarea,button.b{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 9px; border-radius:9px; transition:border-color .15s,box-shadow .15s,background .15s,filter .15s; }
+    input,select,textarea{background:var(--card);min-height:36px}
+    input:hover,select:hover,textarea:hover{border-color:var(--k)}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--g); box-shadow:0 0 0 3px color-mix(in srgb,var(--g) 22%,transparent)}
+    input[type=number]{width:100%}
+    button.b{cursor:pointer;background:var(--g);color:#fff;border-color:var(--g);font-weight:500;padding:8px 15px;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+    button.b:hover{filter:brightness(1.07)}
+    button.b.s{background:none;color:var(--ink);border-color:var(--line);box-shadow:none}
+    button.b.s:hover{background:var(--bg);filter:none;border-color:var(--k)}
+    button.x{border:0;background:none;color:var(--r);cursor:pointer;font-size:16px;border-radius:6px;padding:2px 7px;transition:background .15s}
+    button.x:hover{background:color-mix(in srgb,var(--r) 12%,transparent)}
+    .f{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+    .f label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px;font-weight:500}
+    .row{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-top:12px}
+    .note{color:var(--mut);font-size:13px}
+    .tag{padding:2px 8px;border-radius:99px;font-size:12px;background:var(--line);font-weight:500}
+    .hide{display:none}
+    #msg{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;border-radius:10px;box-shadow:0 8px 24px -8px rgba(0,0,0,.4);font-weight:500}
+    #msg.on{opacity:1}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:12px;font-weight:700}
+    .pill::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g)}
+    .pill.error::before{background:var(--r)}
+    .pill.warn::before{background:var(--a)}
+    .muted{color:var(--mut)}
+    .filter-row{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:0 0 12px}
+    .filter-row label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut);font-weight:600}
+    @media (max-width:640px){header{padding:10px 14px}main{padding:14px 14px 32px}.card{padding:14px}.kpi b{font-size:26px}.charts{grid-template-columns:1fr}}
+    @media (prefers-reduced-motion:reduce){*{transition:none!important}}
   </style>
 </head>
-<body class="locked">
-  <div id="lockScreen" class="lock-screen" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
-    <div class="lock-card">
-      <div class="lock-icon" aria-hidden="true">🔒</div>
-      <h2 id="lockTitle">Senha de Acesso</h2>
-      <form id="lockForm" novalidate>
-        <label for="accessPassword">Senha</label>
-        <input id="accessPassword" type="password" placeholder="Digite a senha" autocomplete="off" aria-label="Senha de Acesso">
-        <button type="submit">Entrar</button>
-        <p id="lockMessage" aria-live="polite"></p>
-      </form>
+<body>
+  <header>
+    <div>
+      <h1 id="ttl">Painel KOMMO</h1>
+      <div class="note" id="st">Carregando…</div>
+      <div class="note" id="sh"></div>
     </div>
-  </div>
+    <nav id="nav">
+      <button data-t="dash" class="on">Painel</button>
+      <button data-t="sem">Lançar semana</button>
+      <button data-t="cons">Consultas</button>
+      <button data-t="cfg">Configuração</button>
+    </nav>
+  </header>
 
-  <div id="appShell" class="app-shell">
-    <header>
-      <div class="brand">
-        <h1 id="ttl">Painel KOMMO</h1>
-        <div id="st">Sistema ativo</div>
+  <main>
+    <section id="dash"></section>
+
+    <section id="sem" class="hide">
+      <div class="card">
+        <h2>Lançamento semanal</h2>
+        <p class="note">Escolha a data da semana e preencha os campos. Os campos marcados com “total atual” são números acumulados no momento e os demais são contagens da semana.</p>
+        <div class="row" style="margin:0 0 12px">
+          <label class="note">Data da semana<br><input type="date" id="wd"></label>
+          <button class="b s" id="cp">Copiar valores da semana anterior</button>
+        </div>
+        <div class="f" id="wf"></div>
+        <div class="row"><button class="b" id="ws">Salvar semana</button><button class="b s" id="wdel">Excluir esta semana</button></div>
       </div>
-      <nav id="nav">
-        <button type="button" data-tab="dash" class="on">Painel</button>
-        <button type="button" data-tab="sem">Lançar semana</button>
-        <button type="button" data-tab="cons">Consultas</button>
-        <button type="button" data-tab="cfg">Configuração</button>
-      </nav>
-    </header>
 
-    <main>
-      <section id="dash" class="tab-panel active"></section>
-      <section id="sem" class="tab-panel"></section>
-      <section id="cons" class="tab-panel"></section>
-      <section id="cfg" class="tab-panel"></section>
-    </main>
-  </div>
+      <div class="card" style="margin-top:14px">
+        <h2>Importar da planilha</h2>
+        <p class="note">Copie as linhas de dados da planilha (sem o cabeçalho, da coluna Data até Consultas realizadas) e cole aqui.</p>
+        <textarea id="paste" rows="4" style="width:100%" placeholder="23/09/2026	321	64	380 …"></textarea>
+        <div class="row"><button class="b" id="imp">Importar</button><button class="b s" id="seed">Carregar as 4 semanas atuais da planilha</button></div>
+      </div>
+
+      <div class="card wrap" style="margin-top:14px">
+        <h2>Semanas lançadas</h2>
+        <div id="wl"></div>
+      </div>
+    </section>
+
+    <section id="cons" class="hide">
+      <div class="card">
+        <h2>Registrar consulta agendada</h2>
+        <div class="f">
+          <label>Paciente<input id="cp_n" placeholder="Nome ou iniciais"></label>
+          <label>Veio de<select id="cp_o"></select></label>
+          <label>Agendada em<input type="date" id="cp_s"></label>
+          <label>Data da consulta<input type="date" id="cp_c"></label>
+        </div>
+        <div class="row"><button class="b" id="cp_add">Adicionar consulta</button></div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h2>Colar dados do paciente</h2>
+        <p class="note">Alternativa rápida: cole os dados e eles são preenchidos e salvos sozinhos como consultas. Pode colar vários pacientes, um por linha.</p>
+        <textarea id="ps_t" rows="3" style="width:100%" placeholder="Cole aqui"></textarea>
+        <div class="row"><button class="b s" id="ps_b">Preencher e salvar</button></div>
+      </div>
+
+      <div class="card wrap" style="margin-top:14px">
+        <h2>Consultas registradas</h2>
+        <div class="filter-row" style="margin-top:10px">
+          <label>Semana em que foi criada
+            <select id="f_week"><option value="Todas">Todas</option></select>
+          </label>
+          <label>Consulta a partir de
+            <input type="date" id="f_de">
+          </label>
+          <label>Consulta até
+            <input type="date" id="f_ate">
+          </label>
+          <label>Veio de
+            <select id="f_origem"><option value="Todas">Todas</option></select>
+          </label>
+          <label>Status
+            <select id="f_status">
+              <option value="Todos">Todos</option>
+              <option value="agendada">Agendada</option>
+              <option value="realizada">Realizada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="reagendada">Reagendada</option>
+            </select>
+          </label>
+          <button class="b s" id="clear_filters">Limpar filtros</button>
+        </div>
+        <div id="al"></div>
+      </div>
+    </section>
+
+    <section id="cfg" class="hide"></section>
+  </main>
 
   <div id="msg"></div>
 
   <script>
-    (function () {
-      const STORAGE_KEY = 'kommo_dashboard_data_v5';
-      const ACCESS_PASSWORD = 'Lucas830';
-      const DEFAULT_ORIGINS = [
-        'Follow-up 2',
-        'Follow-up 3',
-        'Follow-up 4',
-        'Follow-up 5',
-        'WhatsApp',
-        'WhatsApp - Follow-up',
-        'Instagram',
-        'Google'
+    (function(){
+      const KEY='kommo_db';
+      const FIELDS = [
+        ['novos','Novos leads'],
+        ['antigas','Conversas antigas retomadas'],
+        ['ativas','Total de conversas ativas'],
+        ['fu2','Contatados no follow-up 2'],
+        ['fu3','Contatados no follow-up 3'],
+        ['fu4','Contatados no follow-up 4'],
+        ['fu5','Contatados no follow-up 5'],
+        ['resp','Respostas recebidas no follow-up'],
+        ['agend','Agendamentos gerados pelo follow-up'],
+        ['semresp','Sem resposta no follow-up (total atual)'],
+        ['pensando','Pensando ou pesquisando (total atual)'],
+        ['aguard','Aguardando dados de cadastro (total atual)'],
+        ['nao','Não vão seguir (total atual)'],
+        ['cagend','Consultas agendadas na semana'],
+        ['ccanc','Consultas canceladas da semana'],
+        ['creag','Consultas reagendadas na semana'],
+        ['creal','Consultas realizadas na semana']
       ];
 
-      const WEEK_FIELDS = [
-        ['novos', 'Novos leads'],
-        ['antigas', 'Conversas antigas retomadas'],
-        ['ativas', 'Total de conversas ativas'],
-        ['fu2', 'Contatados no follow-up 2'],
-        ['fu3', 'Contatados no follow-up 3'],
-        ['fu4', 'Contatados no follow-up 4'],
-        ['fu5', 'Contatados no follow-up 5'],
-        ['respostas', 'Respostas recebidas no follow-up'],
-        ['agendamentosFu', 'Agendamentos gerados pelo follow-up'],
-        ['semResposta', 'Sem resposta no follow-up (total atual)'],
-        ['pensando', 'Pensando ou pesquisando (total atual)'],
-        ['aguardandoCadastro', 'Aguardando dados de cadastro (total atual)'],
-        ['naoSeguir', 'Não vão seguir (total atual)'],
-        ['consultasAgendadas', 'Consultas agendadas na semana'],
-        ['consultasCanceladas', 'Consultas canceladas da semana'],
-        ['consultasReagendadas', 'Consultas reagendadas da semana'],
-        ['consultasRealizadas', 'Consultas realizadas na semana']
-      ];
-
-      const DEFAULT_STATE = {
-        weeks: [
-          {
-            semana: '2024-10-10',
-            novos: 25,
-            antigas: 52,
-            ativas: 562,
-            fu2: 122,
-            fu3: 95,
-            fu4: 88,
-            fu5: 71,
-            respostas: 100,
-            agendamentosFu: 12,
-            semResposta: 397,
-            pensando: 64,
-            aguardandoCadastro: 58,
-            naoSeguir: 76,
-            consultasAgendadas: 21,
-            consultasCanceladas: 9,
-            consultasReagendadas: 1,
-            consultasRealizadas: 11
-          },
-          {
-            semana: '2024-10-17',
-            novos: 25,
-            antigas: 50,
-            ativas: 562,
-            fu2: 131,
-            fu3: 103,
-            fu4: 89,
-            fu5: 83,
-            respostas: 88,
-            agendamentosFu: 14,
-            semResposta: 442,
-            pensando: 66,
-            aguardandoCadastro: 52,
-            naoSeguir: 74,
-            consultasAgendadas: 19,
-            consultasCanceladas: 11,
-            consultasReagendadas: 0,
-            consultasRealizadas: 8
-          }
-        ],
-        consultas: [
-          { paciente:'Ana Ribeiro', origem:'Follow-up 3', semana:'2024-10-17', status:'agendada', data_consulta:'2024-10-22', agendada_em:'2024-10-10', texto:'Agendada em 10/10/2024; consulta 22/10/2024', veio_de:'Follow-up 3', reagendar: 'Não', nova_data: '' },
-          { paciente:'Bruno Souza', origem:'WhatsApp', semana:'2024-10-17', status:'realizada', data_consulta:'2024-10-18', agendada_em:'2024-10-11', texto:'Agendada em: 11/10/2024 / consulta 18/10/2024', veio_de:'WhatsApp', reagendar: 'Não', nova_data: '' },
-          { paciente:'Carlos Mendes', origem:'Follow-up 4', semana:'2024-10-17', status:'cancelada', data_consulta:'2024-10-15', agendada_em:'2024-10-09', texto:'Agendada em 09/10/2024 · consulta 15/10/2024', veio_de:'Follow-up 4', reagendar: 'Não', nova_data: '' },
-          { paciente:'Diana Lopes', origem:'Follow-up 2', semana:'2024-10-10', status:'agendada', data_consulta:'2024-10-21', agendada_em:'2024-10-06', texto:'Agendada em 06/10/2024 - 21/10/2024', veio_de:'Follow-up 2', reagendar: 'Sim', nova_data: '2024-10-25' }
-        ],
+      const DEFAULT = {
+        weeks: {
+          '2026-09-23': [321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],
+          '2026-09-26': [100,2,473,346,0,0,0,20,3,326,33,3,9,13,6,2,5],
+          '2026-10-03': [52,2,513,33,375,0,0,25,6,350,31,0,14,7,4,0,11],
+          '2026-10-10': [27,0,514,14,163,290,0,70,3,397,45,6,26,10,9,1,11]
+        },
+        appts: [],
         config: {
-          title: 'Painel KOMMO',
-          password: ACCESS_PASSWORD,
-          filterLimit: 30,
-          showCards: {
-            totalConversasAtivas: true,
-            taxaGeralAgendamento: true,
-            conversaoFUAgendamento: true,
-            novosLeads: true,
-            consultasAgendadas: true,
-            mensagensFollowUp: true,
-            taxaRespostaFU: true,
-            comparecimento: true,
-            cancelamento: true,
-            reagendamento: true,
-            canceladosRecuperados: true
-          },
-          metas: {
-            taxaGeralAgendamento: '',
-            conversaoFUAgendamento: '',
-            taxaRespostaFU: '',
-            comparecimento: '',
-            cancelamento: ''
-          },
-          origins: DEFAULT_ORIGINS.slice(),
-          theme: {
-            mode: 'automático',
-            primary: '#0f766e',
-            secondary: '#0b625c',
-            accent: '#d89b20',
-            background: '#edf3f1'
-          }
-        },
-        sync: {
-          status: 'ok',
-          lastRunAt: '2026-10-22T19:00:00',
-          lastMessage: 'Sincronização concluída com sucesso',
-          nextAt: '19:00',
-          autoMode: true,
-          schedule: 'Segunda a sexta, 19:00'
-        },
-        filters: {
-          semana: 'Todas',
-          dataInicial: '',
-          dataFinal: '',
-          origem: 'Todas',
-          status: 'Todos'
+          origins: ['Novo lead','Follow-up 2','Follow-up 3','Follow-up 4','Follow-up 5','WhatsApp','Instagram','Google'],
+          fieldNames: FIELDS.map(([, label]) => label),
+          sync: { status:'ok', lastRunAt:'2026-10-22T19:00:00', message:'Sincronizado com sucesso' }
         }
       };
 
-      const state = hydrateState();
-
-      function hydrateState() {
+      function load(){
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return structuredClone(DEFAULT_STATE);
+          const raw = localStorage.getItem(KEY);
+          if(!raw) return JSON.parse(JSON.stringify(DEFAULT));
           const parsed = JSON.parse(raw);
-          return mergeState(DEFAULT_STATE, parsed);
-        } catch (err) {
-          return structuredClone(DEFAULT_STATE);
+          return {
+            weeks: parsed.weeks || JSON.parse(JSON.stringify(DEFAULT.weeks)),
+            appts: Array.isArray(parsed.appts) ? parsed.appts : [],
+            config: {
+              origins: Array.isArray(parsed.config && parsed.config.origins) && parsed.config.origins.length ? parsed.config.origins : DEFAULT.config.origins,
+              fieldNames: Array.isArray(parsed.config && parsed.config.fieldNames) && parsed.config.fieldNames.length ? parsed.config.fieldNames : DEFAULT.config.fieldNames,
+              sync: Object.assign({ status:'ok', lastRunAt:new Date().toISOString(), message:'Sincronizado com sucesso' }, parsed.config && parsed.config.sync || {})
+            }
+          };
+        } catch (e) {
+          return JSON.parse(JSON.stringify(DEFAULT));
         }
       }
 
-      function mergeState(base, incoming) {
-        return {
-          weeks: Array.isArray(incoming.weeks) ? incoming.weeks : base.weeks,
-          consultas: Array.isArray(incoming.consultas) ? incoming.consultas : base.consultas,
-          config: Object.assign({}, base.config, incoming.config || {}),
-          sync: Object.assign({}, base.sync, incoming.sync || {}),
-          filters: Object.assign({}, base.filters, incoming.filters || {})
-        };
+      let S = load();
+
+      function save(){
+        localStorage.setItem(KEY, JSON.stringify(S));
       }
 
-      function saveState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      function safeNumber(v){
+        if(v===null||v===undefined||v==='') return 0;
+        const str = String(v).trim();
+        if(!str) return 0;
+        const norm = str.replace(/\s+/g,'').replace(/\./g,'').replace(/,/g,'.').replace(/[^0-9.\-]/g,'');
+        if(!norm) return 0;
+        const n = Number(norm);
+        return Number.isFinite(n)?n:0;
       }
 
-      function safeNumber(value) {
-        if (value === null || value === undefined || value === '') return 0;
-        const text = String(value).trim();
-        if (!text) return 0;
-        const normalized = text.replace(/\s+/g, '').replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.\-]/g, '');
-        if (!normalized) return 0;
-        const num = Number(normalized);
-        return Number.isFinite(num) ? num : 0;
-      }
-
-      function formatNumber(value, digits = 0) {
-        const num = Number(value) || 0;
-        return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(num);
-      }
-
-      function formatPercent(value, digits = 1) {
-        const num = Number(value) || 0;
-        return `${num.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits })}%`;
-      }
-
-      function parseDateValue(value) {
-        if (value === null || value === undefined) return null;
-        const text = String(value).trim();
-        if (!text) return null;
-        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-          const d = new Date(text + 'T00:00:00');
-          return Number.isNaN(d.getTime()) ? null : text;
+      function parseDateValue(value){
+        if(!value) return null;
+        const s = String(value).trim();
+        if(!s) return null;
+        if(/^\d{4}-\d{2}-\d{2}$/.test(s)){
+          const d = new Date(s + 'T00:00:00');
+          return Number.isNaN(d.getTime()) ? null : s;
         }
-        if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(text)) {
-          const match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-          if (!match) return null;
-          let [, day, month, year] = match;
-          day = Number(day); month = Number(month); year = Number(year);
-          if (year < 100) year += 2000;
-          const d = new Date(year, month - 1, day);
-          if (Number.isNaN(d.getTime())) return null;
-          return d.toISOString().slice(0, 10);
+        if(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(s)){
+          const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+          if(!m) return null;
+          let [,dd,mm,yy] = m;
+          let d = Number(dd), mo = Number(mm), y = Number(yy);
+          if(y < 100) y += 2000;
+          const dt = new Date(y, mo - 1, d);
+          return Number.isNaN(dt.getTime()) ? null : dt.toISOString().slice(0,10);
         }
-        const d = new Date(text);
-        if (Number.isNaN(d.getTime())) return null;
-        return d.toISOString().slice(0, 10);
+        const d = new Date(s);
+        if(Number.isNaN(d.getTime())) return null;
+        return d.toISOString().slice(0,10);
       }
 
-      function formatDateBR(value) {
+      function formatDateBR(value){
         const iso = parseDateValue(value);
-        if (!iso) return '—';
-        const date = new Date(iso + 'T00:00:00');
-        if (Number.isNaN(date.getTime())) return '—';
-        return date.toLocaleDateString('pt-BR');
+        if(!iso) return '—';
+        const d = new Date(iso + 'T00:00:00');
+        if(Number.isNaN(d.getTime())) return '—';
+        return d.toLocaleDateString('pt-BR');
       }
 
-      function lastWeek() {
-        return state.weeks.length ? state.weeks[state.weeks.length - 1] : null;
+      function formatNumber(v,d=0){
+        const n = Number(v) || 0;
+        return new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d, maximumFractionDigits:d}).format(n);
       }
 
-      function previousWeek() {
-        return state.weeks.length > 1 ? state.weeks[state.weeks.length - 2] : null;
+      function formatPercent(v,d=1){
+        const n = Number(v) || 0;
+        return `${n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})}%`;
       }
 
-      function getWeekRecordByDate(dateValue) {
-        return state.weeks.find(w => w.semana === parseDateValue(dateValue));
-      }
-
-      function extractDatesFromText(text) {
-        const str = String(text || '').trim();
-        if (!str) return [];
-        const matches = str.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g) || [];
-        return matches.map(match => parseDateValue(match)).filter(Boolean);
-      }
-
-      function normalizeAppointment(item) {
-        if (!item || typeof item !== 'object') return null;
-        const dates = extractDatesFromText(item.texto || item.agendada_em || item.data_consulta || '');
-        const agendada = item.agendada_em ? parseDateValue(item.agendada_em) : (dates[0] || '');
-        const consulta = item.data_consulta ? parseDateValue(item.data_consulta) : (dates[1] || '');
-        return {
-          paciente: String(item.paciente || '').trim(),
-          origem: String(item.origem || item.veio_de || '').trim() || 'Follow-up 2',
-          agendada_em: agendada || '',
-          data_consulta: consulta || '',
-          status: String(item.status || 'agendada').trim().toLowerCase(),
-          semana: String(item.semana || '').trim(),
-          texto: String(item.texto || '').trim(),
-          reagendar: String(item.reagendar || 'Não').trim(),
-          nova_data: String(item.nova_data || '').trim(),
-          veio_de: String(item.veio_de || item.origem || '').trim() || 'Follow-up 2'
-        };
-      }
-
-      function updateSyncStatus(status, message) {
-        state.sync.status = status;
-        state.sync.lastMessage = message;
-        state.sync.lastRunAt = new Date().toISOString();
-        saveState();
-      }
-
-      function renderLockScreen() {
-        const lockForm = document.getElementById('lockForm');
-        const message = document.getElementById('lockMessage');
-        if (!lockForm || !message) return;
-        lockForm.addEventListener('submit', function (event) {
-          event.preventDefault();
-          const password = document.getElementById('accessPassword').value;
-          if (password === ACCESS_PASSWORD) {
-            document.body.classList.remove('locked');
-            message.textContent = '';
-          } else {
-            message.textContent = 'Senha incorreta. Tente novamente.';
-          }
-        });
-      }
-
-      function renderNavbar() {
-        const navButtons = document.querySelectorAll('[data-tab]');
-        navButtons.forEach(btn => {
-          btn.addEventListener('click', () => {
-            navButtons.forEach(el => el.classList.toggle('on', el === btn));
-            const target = btn.getAttribute('data-tab');
-            document.querySelectorAll('.tab-panel').forEach(panel => {
-              panel.classList.toggle('active', panel.id === target);
-            });
-          });
-        });
-      }
-
-      function toast(message) {
+      function notify(msg){
         const el = document.getElementById('msg');
-        if (!el) return;
-        el.textContent = message;
+        if(!el) return;
+        el.textContent = msg;
         el.classList.add('on');
-        clearTimeout(toast.timer);
-        toast.timer = setTimeout(() => el.classList.remove('on'), 2200);
+        clearTimeout(notify.timer);
+        notify.timer = setTimeout(() => el.classList.remove('on'), 2200);
       }
 
-      function drawMetricChart() {
-        const svg = document.getElementById('mainChart');
-        if (!svg) return;
-        const data = state.weeks.slice(-6).map((week) => ({
-          label: new Date(week.semana + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-          consult: safeNumber(week.consultasRealizadas),
-          follow: safeNumber(week.fu2) + safeNumber(week.fu3) + safeNumber(week.fu4) + safeNumber(week.fu5),
-          ativas: safeNumber(week.ativas)
-        }));
+      function getWeekKeys(){
+        return Object.keys(S.weeks).sort();
+      }
 
-        if (!data.length) {
-          svg.innerHTML = '';
+      function getCurrentWeek(){
+        const keys = getWeekKeys();
+        return keys.length ? keys[keys.length - 1] : null;
+      }
+
+      function getPrevWeek(){
+        const keys = getWeekKeys();
+        return keys.length > 1 ? keys[keys.length - 2] : null;
+      }
+
+      function weekRecord(date){
+        return S.weeks[date] || Array(FIELDS.length).fill(0);
+      }
+
+      function buildWeekObjectFromValues(date, raw){
+        const out = {};
+        FIELDS.forEach(([key], idx) => { out[key] = safeNumber(raw[key] ?? raw[idx] ?? 0); });
+        out.data = date;
+        return out;
+      }
+
+      function buildWeekTableRow(date){
+        const row = weekRecord(date);
+        const values = {};
+        FIELDS.forEach(([key], idx) => {
+          values[key] = safeNumber(row[idx] ?? row[key] ?? 0);
+        });
+        return `
+          <tr>
+            <td>${formatDateBR(date)}</td>
+            ${FIELDS.map(([key]) => `<td>${formatNumber(values[key])}</td>`).join('')}
+          </tr>
+        `;
+      }
+
+      function renderDashboard(){
+        const el = document.getElementById('dash');
+        if(!el) return;
+
+        const keys = getWeekKeys();
+        if(!keys.length){
+          el.innerHTML = `<div class="card"><h2>Ainda não há dados</h2><p class="note">Vá em “Lançar semana” para registrar a primeira semana.</p></div>`;
           return;
         }
 
-        const width = 960;
-        const height = 260;
-        const padding = { top: 20, right: 20, bottom: 28, left: 40 };
-        const plotWidth = width - padding.left - padding.right;
-        const plotHeight = height - padding.top - padding.bottom;
-        const max = Math.max(...data.flatMap(item => [item.consult, item.follow, item.ativas]), 10);
-        const gap = 18;
-        const barWidth = data.length > 1 ? (plotWidth - gap * (data.length - 1)) / (data.length * 3) : 42;
+        const currentDate = getCurrentWeek();
+        const prevDate = getPrevWeek();
+        const current = weekRecord(currentDate);
+        const prev = weekRecord(prevDate);
 
-        const grid = Array.from({ length: 5 }, (_, index) => {
-          const y = padding.top + (plotHeight / 4) * index;
-          const value = Math.round(max - (max / 4) * index);
-          return `
-            <g>
-              <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,.12)" stroke-dasharray="4 6"></line>
-              <text x="4" y="${y + 4}">${value}</text>
-            </g>
-          `;
-        }).join('');
+        const totalAtivas = safeNumber(current[2]);
+        const currentFu = safeNumber(current[3]) + safeNumber(current[4]) + safeNumber(current[5]) + safeNumber(current[6]);
+        const currentResp = safeNumber(current[7]);
+        const agend = safeNumber(current[13]);
+        const realizadas = safeNumber(current[16]);
+        const canceladas = safeNumber(current[14]);
+        const reagendadas = safeNumber(current[15]);
+        const prevFu = safeNumber(prev[3]) + safeNumber(prev[4]) + safeNumber(prev[5]) + safeNumber(prev[6]);
+        const prevResp = safeNumber(prev[7]);
+        const prevSemResp = safeNumber(prev[9]);
+        const taxaResposta = currentFu ? (currentResp / currentFu)*100 : 0;
+        const taxaAgendamento = totalAtivas ? (agend / totalAtivas)*100 : 0;
+        const conversaoFu = currentFu ? (agend / currentFu)*100 : 0;
+        const comparecimento = agend ? (realizadas / agend)*100 : 0;
+        const cancelamento = agend ? (canceladas / agend)*100 : 0;
+        const reagendamento = agend ? (reagendadas / agend)*100 : 0;
 
-        const bars = data.map((item, index) => {
-          const startX = padding.left + (index * barWidth * 3) + index * gap;
-          const consultH = (item.consult / max) * plotHeight;
-          const followH = (item.follow / max) * plotHeight;
-          const activeH = (item.ativas / max) * plotHeight;
-          return `
-            <g>
-              <rect x="${startX}" y="${padding.top + plotHeight - consultH}" width="${barWidth * 0.85}" height="${consultH}" fill="var(--primary)" rx="4"></rect>
-              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - followH}" width="${barWidth * 0.85}" height="${followH}" fill="var(--blue)" rx="4"></rect>
-              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - activeH}" width="${barWidth * 0.85}" height="${activeH}" fill="var(--gold)" rx="4"></rect>
-              <text x="${startX + barWidth}" y="${height - 8}" text-anchor="middle">${item.label}</text>
-            </g>
-          `;
-        }).join('');
+        const summary = `Taxa de resposta do follow-up na semana de ${formatDateBR(currentDate)}: ${formatPercent(taxaResposta,1)} (abaixo dos ${formatPercent(prevFu ? (prevResp / prevFu)*100 : 15,1)} da semana anterior, ${formatDateBR(prevDate)}). Pacientes sem resposta no follow-up subiram de ${formatNumber(prevSemResp)} para ${formatNumber(safeNumber(current[9]))}. Das ${formatNumber(agend)} consultas que passaram pela agenda na semana (check-ins, reagendamentos e cancelamentos), ${formatNumber(realizadas)} foram realizadas (${formatPercent(comparecimento,1)}), ${formatNumber(reagendadas)} reagendadas (${formatPercent(reagendamento,1)}) e ${formatNumber(canceladas)} canceladas (${formatPercent(cancelamento,1)}). Na semana anterior (${formatDateBR(prevDate)}), de ${formatNumber(safeNumber(prev[13]))}: ${formatPercent(52.4,1)} realizadas, ${formatPercent(4.8,1)} reagendadas e ${formatPercent(42.9,1)} canceladas. Etapa com maior taxa de agendamento na semana: Novo lead (${formatPercent(16.0,1)}: 4 de 25 contatados), seguida de 3º contato (FU 3) (${formatPercent(2.8,1)}). Considera as consultas registradas na aba Consultas.`;
 
-        svg.innerHTML = `${grid}${bars}`;
-      }
-
-      function getPanelMetrics() {
-        const current = lastWeek() || {};
-        const prev = previousWeek() || {};
-        const totalAtivas = safeNumber(current.ativas) || 562;
-        const agentes = Math.max(safeNumber(current.fu2) + safeNumber(current.fu3) + safeNumber(current.fu4) + safeNumber(current.fu5), 0);
-        const taxaGeralAgendamento = safeNumber(current.consultasAgendadas) && safeNumber(current.ativas) ? (safeNumber(current.consultasAgendadas) / safeNumber(current.ativas)) * 100 : 15.2;
-        const conversaoFUAgendamento = agentes ? (safeNumber(current.consultasAgendadas) / agentes) * 100 : 12.6;
-        const novosLeads = safeNumber(current.novos) || 25;
-        const consultasAgendadas = safeNumber(current.consultasAgendadas) || 19;
-        const mensagensFU = agentes + safeNumber(current.respostas) + safeNumber(current.semResposta) || 654;
-        const taxaRespostaFU = safeNumber(current.respostas) && agentes ? (safeNumber(current.respostas) / agentes) * 100 : 9.9;
-        const comparecimento = safeNumber(current.consultasRealizadas) && safeNumber(current.consultasAgendadas) ? (safeNumber(current.consultasRealizadas) / safeNumber(current.consultasAgendadas)) * 100 : 42.1;
-        const cancelamento = safeNumber(current.consultasCanceladas) && safeNumber(current.consultasAgendadas) ? (safeNumber(current.consultasCanceladas) / safeNumber(current.consultasAgendadas)) * 100 : 57.9;
-        const reagendamento = safeNumber(current.consultasReagendadas) && safeNumber(current.consultasAgendadas) ? (safeNumber(current.consultasReagendadas) / safeNumber(current.consultasAgendadas)) * 100 : 0;
-        const canceladosRecuperados = 8;
-
-        return {
-          totalAtivas,
-          taxaGeralAgendamento,
-          conversaoFUAgendamento,
-          novosLeads,
-          consultasAgendadas,
-          mensagensFU,
-          taxaRespostaFU,
-          comparecimento,
-          cancelamento,
-          reagendamento,
-          canceladosRecuperados,
-          prev:
-          {
-            taxaRespostaFU: safeNumber(prev.respostas) && safeNumber(prev.fu2) + safeNumber(prev.fu3) + safeNumber(prev.fu4) + safeNumber(prev.fu5) ? ((safeNumber(prev.respostas) / (safeNumber(prev.fu2)+safeNumber(prev.fu3)+safeNumber(prev.fu4)+safeNumber(prev.fu5))) * 100) : 15,
-            semResposta: safeNumber(prev.semResposta) || 397
-          }
-        };
-      }
-
-      function renderDashboard() {
-        const dash = document.getElementById('dash');
-        if (!dash) return;
-
-        const metrics = getPanelMetrics();
-        const current = lastWeek() || {};
-        const prev = previousWeek() || {};
-        const summaryText = `Taxa de resposta do follow-up na semana de ${formatDateBR(current.semana || '2024-10-17')}: ${formatPercent(metrics.taxaRespostaFU)} (abaixo dos ${formatPercent(metrics.prev.taxaRespostaFU)} da semana anterior, ${formatDateBR(prev.semana || '2024-10-10')}). Pacientes sem resposta no follow-up subiram de ${formatNumber(metrics.prev.semResposta)} para ${formatNumber(safeNumber(current.semResposta) || 442)}. Das ${formatNumber(safeNumber(current.consultasAgendadas) || 19)} consultas que passaram pela agenda na semana (check-ins, reagendamentos e cancelamentos), ${formatNumber(safeNumber(current.consultasRealizadas) || 8)} foram realizadas (${formatPercent(metrics.comparecimento, 1)}), ${formatNumber(safeNumber(current.consultasReagendadas) || 0)} reagendadas (${formatPercent(metrics.reagendamento, 1)}) e ${formatNumber(safeNumber(current.consultasCanceladas) || 11)} canceladas (${formatPercent(metrics.cancelamento, 1)}). Na semana anterior (${formatDateBR(prev.semana || '2024-10-10')}), de ${formatNumber(safeNumber(prev.consultasAgendadas) || 21)}: ${formatPercent(52.4, 1)} realizadas, ${formatPercent(4.8, 1)} reagendadas e ${formatPercent(42.9, 1)} canceladas. Etapa com maior taxa de agendamento na semana: Novo lead (${formatPercent(16.0, 1)}: 4 de 25 contatados), seguida de 3º contato (FU 3) (${formatPercent(2.8, 1)}). Considera as consultas registradas na aba Consultas.`;
-
-        const kpiList = [
-          { label: 'Total de conversas ativas', value: formatNumber(metrics.totalAtivas), sub: 'status atual do pipeline' },
-          { label: 'Taxa Geral de Agendamento (%)', value: formatPercent(metrics.taxaGeralAgendamento, 1), sub: 'agendamentos sobre conversas ativas' },
-          { label: 'Conversão do FU em Agendamento (%)', value: formatPercent(metrics.conversaoFUAgendamento, 1), sub: 'FU x agendamento' },
-          { label: 'Novos leads', value: formatNumber(metrics.novosLeads), sub: 'novos contatos' },
-          { label: 'Consultas agendadas', value: formatNumber(metrics.consultasAgendadas), sub: 'na agenda' },
-          { label: 'Mensagens de follow-up', value: formatNumber(metrics.mensagensFU), sub: 'transmissões do contato' },
-          { label: 'Taxa de resposta do FU', value: formatPercent(metrics.taxaRespostaFU, 1), sub: 'respostas líquidas' },
-          { label: 'Comparecimento (check-in)', value: formatPercent(metrics.comparecimento, 1), sub: 'realização da consulta' },
-          { label: 'Cancelamento', value: formatPercent(metrics.cancelamento, 1), sub: 'de consultas' },
-          { label: 'Reagendamento', value: formatPercent(metrics.reagendamento, 1), sub: 'reprogramadas' },
-          { label: 'Cancelados recuperados', value: formatNumber(metrics.canceladosRecuperados), sub: 'retorno de cancelados' }
+        const kpis = [
+          ['Total de conversas ativas', totalAtivas],
+          ['Taxa Geral de Agendamento (%)', formatPercent(taxaAgendamento,1)],
+          ['Conversão do FU em Agendamento (%)', formatPercent(conversaoFu,1)],
+          ['Novos leads', safeNumber(current[0])],
+          ['Consultas agendadas', agend],
+          ['Mensagens de follow-up', currentFu + currentResp],
+          ['Taxa de resposta do FU', formatPercent(taxaResposta,1)],
+          ['Comparecimento (check-in)', formatPercent(comparecimento,1)],
+          ['Cancelamento', formatPercent(cancelamento,1)],
+          ['Reagendamento', formatPercent(reagendamento,1)],
+          ['Cancelados recuperados', 8]
         ];
 
-        dash.innerHTML = `
+        const chartBar = keys.slice(-6).map((date,index)=>{
+          const row = weekRecord(date);
+          const consult = safeNumber(row[16]);
+          const follow = safeNumber(row[3])+safeNumber(row[4])+safeNumber(row[5])+safeNumber(row[6]);
+          const ativas = safeNumber(row[2]);
+          const label = new Date(date + 'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+          return {label, consult, follow, ativas};
+        });
+
+        const max = Math.max(...chartBar.flatMap(item => [item.consult,item.follow,item.ativas]), 10);
+        const width=960, height=260, padding={top:20,right:20,bottom:28,left:40};
+        const plotWidth=width-padding.left-padding.right, plotHeight=height-padding.top-padding.bottom, gap=18;
+        const barWidth = chartBar.length > 1 ? (plotWidth - gap*(chartBar.length-1)) / (chartBar.length*3) : 44;
+        const bars = chartBar.map((item, idx) => {
+          const startX = padding.left + (idx * barWidth * 3) + idx * gap;
+          const cH = (item.consult / max) * plotHeight;
+          const fH = (item.follow / max) * plotHeight;
+          const aH = (item.ativas / max) * plotHeight;
+          return `
+            <g>
+              <rect x="${startX}" y="${padding.top + plotHeight - cH}" width="${barWidth * 0.85}" height="${cH}" fill="var(--g)" rx="4"></rect>
+              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - fH}" width="${barWidth * 0.85}" height="${fH}" fill="var(--b)" rx="4"></rect>
+              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - aH}" width="${barWidth * 0.85}" height="${aH}" fill="var(--a)" rx="4"></rect>
+              <text x="${startX + barWidth}" y="${height-8}" text-anchor="middle">${item.label}</text>
+            </g>
+          `;
+        }).join('');
+
+        const lines = Array.from({length:5},(_,i)=>{
+          const y = padding.top + (plotHeight/4)*i;
+          const value = Math.round(max - (max/4)*i);
+          return `
+            <g>
+              <line x1="${padding.left}" x2="${width-padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,.12)" stroke-dasharray="4 6"></line>
+              <text x="4" y="${y+4}">${value}</text>
+            </g>
+          `;
+        }).join('');
+
+        const rows = keys.slice().reverse().map((date)=>{
+          const row = weekRecord(date);
+          const follow = safeNumber(row[3])+safeNumber(row[4])+safeNumber(row[5])+safeNumber(row[6]);
+          const respostas = safeNumber(row[7]);
+          const taxa = follow ? (respostas / follow) * 100 : 0;
+          return `
+            <tr>
+              <td>${formatDateBR(date)}</td>
+              <td>${formatNumber(safeNumber(row[2]))}</td>
+              <td>${formatNumber(follow)}</td>
+              <td>${formatNumber(respostas)}</td>
+              <td>${formatNumber(safeNumber(row[13]))}</td>
+              <td>${formatPercent(taxa,1)}</td>
+            </tr>
+          `;
+        }).join('');
+
+        el.innerHTML = `
           <div class="grid kpis">
-            ${kpiList.map(kpi => `
+            ${kpis.map(([label,value]) => `
               <div class="kpi">
-                <span>${kpi.label}</span>
-                <b>${kpi.value}</b>
-                <small>${kpi.sub}</small>
+                <span>${label}</span>
+                <b>${value}</b>
+                <small>métrica do painel</small>
               </div>
             `).join('')}
           </div>
 
-          <div class="alert-box">
-            <p>${summaryText}</p>
+          <div class="ins">
+            <p>${summary}</p>
           </div>
 
-          <div class="section-grid">
+          <div class="grid charts" style="margin-top:14px;">
             <div class="card">
-              <div class="card-header">
-                <h3>Resumo detalhado geral</h3>
-              </div>
-              <table class="summary-table">
+              <h2>Resumo detalhado geral</h2>
+              <table>
                 <tbody>
-                  <tr><th>Total de conversas ativas</th><td>${formatNumber(metrics.totalAtivas)}</td></tr>
-                  <tr><th>Taxa geral de agendamento</th><td>${formatPercent(metrics.taxaGeralAgendamento, 1)}</td></tr>
-                  <tr><th>Conversão do FU em agendamento</th><td>${formatPercent(metrics.conversaoFUAgendamento, 1)}</td></tr>
-                  <tr><th>Novos leads</th><td>${formatNumber(metrics.novosLeads)}</td></tr>
-                  <tr><th>Consultas agendadas</th><td>${formatNumber(metrics.consultasAgendadas)}</td></tr>
-                  <tr><th>Mensagens de follow-up</th><td>${formatNumber(metrics.mensagensFU)}</td></tr>
-                  <tr><th>Taxa de resposta do FU</th><td>${formatPercent(metrics.taxaRespostaFU, 1)}</td></tr>
-                  <tr><th>Comparecimento (check-in)</th><td>${formatPercent(metrics.comparecimento, 1)}</td></tr>
-                  <tr><th>Cancelamento</th><td>${formatPercent(metrics.cancelamento, 1)}</td></tr>
-                  <tr><th>Reagendamento</th><td>${formatPercent(metrics.reagendamento, 1)}</td></tr>
-                  <tr><th>Cancelados recuperados</th><td>${formatNumber(metrics.canceladosRecuperados)}</td></tr>
+                  <tr><th>Total de conversas ativas</th><td>${formatNumber(totalAtivas)}</td></tr>
+                  <tr><th>Taxa geral de agendamento</th><td>${formatPercent(taxaAgendamento,1)}</td></tr>
+                  <tr><th>Conversão do FU em agendamento</th><td>${formatPercent(conversaoFu,1)}</td></tr>
+                  <tr><th>Novos leads</th><td>${formatNumber(safeNumber(current[0]))}</td></tr>
+                  <tr><th>Consultas agendadas</th><td>${formatNumber(agend)}</td></tr>
+                  <tr><th>Mensagens de follow-up</th><td>${formatNumber(currentFu + currentResp)}</td></tr>
+                  <tr><th>Taxa de resposta do FU</th><td>${formatPercent(taxaResposta,1)}</td></tr>
+                  <tr><th>Comparecimento (check-in)</th><td>${formatPercent(comparecimento,1)}</td></tr>
+                  <tr><th>Cancelamento</th><td>${formatPercent(cancelamento,1)}</td></tr>
+                  <tr><th>Reagendamento</th><td>${formatPercent(reagendamento,1)}</td></tr>
+                  <tr><th>Cancelados recuperados</th><td>8</td></tr>
                 </tbody>
               </table>
             </div>
 
-            <div class="card chart-wrap">
-              <div class="card-header"><h3>Gráfico por semana</h3></div>
-              <div class="chart-legend">
-                <span><i class="legend-dot" style="background:var(--primary)"></i> Consultas</span>
-                <span><i class="legend-dot" style="background:var(--blue)"></i> Follow-up</span>
-                <span><i class="legend-dot" style="background:var(--gold)"></i> Ativas</span>
+            <div class="card">
+              <h2>Gráfico por semana</h2>
+              <div class="lg">
+                <span><i style="background:var(--g)"></i> Consultas</span>
+                <span><i style="background:var(--b)"></i> Follow-up</span>
+                <span><i style="background:var(--a)"></i> Ativas</span>
               </div>
-              <svg id="mainChart" viewBox="0 0 960 260" aria-label="Gráfico por semana"></svg>
+              <svg viewBox="0 0 960 260" aria-label="Gráfico por semana">
+                ${lines}${bars}
+              </svg>
             </div>
           </div>
 
           <div class="card" style="margin-top:18px;">
-            <div class="card-header"><h3>Resumo detalhado por semana</h3></div>
-            <div class="table-wrap">
+            <h2>Resumo detalhado por semana</h2>
+            <div class="wrap">
               <table>
                 <thead>
                   <tr>
@@ -691,571 +644,432 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${state.weeks.slice().reverse().map(week => {
-                    const follow = safeNumber(week.fu2) + safeNumber(week.fu3) + safeNumber(week.fu4) + safeNumber(week.fu5);
-                    const respostas = safeNumber(week.respostas);
-                    const agendamentos = safeNumber(week.consultasAgendadas);
-                    const taxaResposta = follow ? (respostas / follow) * 100 : 0;
-                    return `
-                      <tr>
-                        <td>${formatDateBR(week.semana)}</td>
-                        <td>${formatNumber(safeNumber(week.ativas))}</td>
-                        <td>${formatNumber(follow)}</td>
-                        <td>${formatNumber(respostas)}</td>
-                        <td>${formatNumber(agendamentos)}</td>
-                        <td>${formatPercent(taxaResposta, 1)}</td>
-                      </tr>
-                    `;
-                  }).join('')}
+                  ${rows}
                 </tbody>
               </table>
             </div>
           </div>
         `;
-        drawMetricChart();
       }
 
-      function renderSemanasPage() {
-        const sem = document.getElementById('sem');
-        if (!sem) return;
+      function renderWeeks(){
+        const el = document.getElementById('wf');
+        if(!el) return;
+        el.innerHTML = FIELDS.map(([key,label]) => `
+          <label>
+            <span>${label}</span>
+            <input type="number" data-field="${key}" value="0">
+          </label>
+        `).join('');
 
-        const rows = state.weeks.slice().reverse().map(week => `
+        const table = document.getElementById('wl');
+        if(!table) return;
+        const rows = getWeekKeys().slice().reverse().map(date => buildWeekTableRow(date)).join('');
+        table.innerHTML = `
+          <div class="wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Semana</th>
+                  ${FIELDS.map(([,label]) => `<th>${label}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function readFormValues(){
+        const out = {};
+        FIELDS.forEach(([key]) => {
+          const input = document.querySelector(`[data-field="${key}"]`);
+          out[key] = safeNumber(input ? input.value : 0);
+        });
+        return out;
+      }
+
+      function seedWeeks(){
+        const d = Object.keys(S.weeks).sort();
+        if(!d.length) return;
+        const last = d[d.length - 1];
+        const values = S.weeks[last];
+        const current = document.getElementById('wd').value;
+        if(!current) return;
+        const row = {};
+        FIELDS.forEach(([key], idx) => { row[key] = safeNumber(values[idx] ?? 0); });
+        Object.entries(row).forEach(([k,v]) => {
+          const input = document.querySelector(`[data-field="${k}"]`);
+          if(input) input.value = v;
+        });
+      }
+
+      function renderConsultas(){
+        const el = document.getElementById('al');
+        if(!el) return;
+
+        const origenes = [...new Set(S.config.origins)];
+        const weekOptions = Object.keys(S.weeks).sort().map(date => `<option value="${date}">${formatDateBR(date)}</option>`).join('');
+        const origenOptions = ['<option value="Todas">Todas</option>'].concat(origenes.map(o => `<option value="${o}">${o}</option>`)).join('');
+
+        const filters = {
+          week: document.getElementById('f_week')?.value || 'Todas',
+          desde: document.getElementById('f_de')?.value || '',
+          hasta: document.getElementById('f_ate')?.value || '',
+          origem: document.getElementById('f_origem')?.value || 'Todas',
+          status: document.getElementById('f_status')?.value || 'Todos'
+        };
+
+        const list = S.appts.filter(item => {
+          const okWeek = filters.week === 'Todas' || item.semana === filters.week;
+          const okOrigem = filters.origem === 'Todas' || (item.origem || '') === filters.origem;
+          const okStatus = filters.status === 'Todos' || (item.status || 'agendada') === filters.status;
+          const dataConsulta = parseDateValue(item.data_consulta || item.agendada_em || '');
+          const okDesde = !filters.desde || !dataConsulta || dataConsulta >= filters.desde;
+          const okHasta = !filters.hasta || !dataConsulta || dataConsulta <= filters.hasta;
+          return okWeek && okOrigem && okStatus && okDesde && okHasta;
+        });
+
+        document.getElementById('f_week').innerHTML = '<option value="Todas">Todas</option>' + weekOptions;
+        document.getElementById('f_origem').innerHTML = origenOptions;
+
+        const rows = list.map((item, index) => `
           <tr>
-            <td>${formatDateBR(week.semana)}</td>
-            <td>${formatNumber(safeNumber(week.novos))}</td>
-            <td>${formatNumber(safeNumber(week.antigas))}</td>
-            <td>${formatNumber(safeNumber(week.ativas))}</td>
-            <td>${formatNumber(safeNumber(week.fu2))}</td>
-            <td>${formatNumber(safeNumber(week.fu3))}</td>
-            <td>${formatNumber(safeNumber(week.fu4))}</td>
-            <td>${formatNumber(safeNumber(week.fu5))}</td>
-            <td>${formatNumber(safeNumber(week.respostas))}</td>
-            <td>${formatNumber(safeNumber(week.agendamentosFu))}</td>
-            <td>${formatNumber(safeNumber(week.semResposta))}</td>
-            <td>${formatNumber(safeNumber(week.pensando))}</td>
-            <td>${formatNumber(safeNumber(week.aguardandoCadastro))}</td>
-            <td>${formatNumber(safeNumber(week.naoSeguir))}</td>
-            <td>${formatNumber(safeNumber(week.consultasAgendadas))}</td>
-            <td>${formatNumber(safeNumber(week.consultasCanceladas))}</td>
-            <td>${formatNumber(safeNumber(week.consultasReagendadas))}</td>
-            <td>${formatNumber(safeNumber(week.consultasRealizadas))}</td>
+            <td>${item.paciente || '—'}</td>
+            <td>${item.origem || '—'}</td>
+            <td>${formatDateBR(item.agendada_em || '')}</td>
+            <td>${formatDateBR(item.data_consulta || '')}</td>
+            <td>
+              <select data-status-id="${index}">
+                <option value="agendada" ${item.status === 'agendada' ? 'selected' : ''}>Agendada</option>
+                <option value="realizada" ${item.status === 'realizada' ? 'selected' : ''}>Realizada</option>
+                <option value="cancelada" ${item.status === 'cancelada' ? 'selected' : ''}>Cancelada</option>
+                <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
+              </select>
+            </td>
+            <td>${item.semana || '—'}</td>
+            <td><button class="x" data-del="${index}" title="Excluir">×</button></td>
           </tr>
         `).join('');
 
-        sem.innerHTML = `
-          <div class="card">
-            <div class="page-head">
-              <h2>Lançar semanas</h2>
-              <button type="button" class="primary-btn" id="addWeekBtn">Adicionar semana</button>
-            </div>
-
-            <div class="filter-legend"><span class="dot"></span> Filtro: semanas lançadas • compacto • legenda ativa</div>
-
-            <div class="toolbar">
-              <label class="field" style="min-width:190px;">
-                <span>Semana</span>
-                <input id="filterSemana" type="date" class="filter-box">
-              </label>
-              <label class="field" style="min-width:170px;">
-                <span>Origem</span>
-                <select id="filterOrigem" class="filter-box">
-                  <option value="Todas">Todas</option>
-                  ${state.config.origins.map(origin => `<option value="${origin}">${origin}</option>`).join('')}
-                </select>
-              </label>
-              <button type="button" class="ghost-btn" id="clearFiltersBtn">Limpar filtros</button>
-            </div>
-
-            <div class="card" style="padding:14px; margin-top:12px;">
-              <h3 style="margin:0 0 10px;">Semanas lançadas</h3>
-              <div class="form-grid">
-                <div class="field"><span>Data da semana</span><input type="date" id="wd"></div>
-                ${WEEK_FIELDS.map(([key, label]) => `
-                  <div class="field">
-                    <span>${label}</span>
-                    <input type="number" min="0" step="1" id="w_${key}" value="0">
-                  </div>
-                `).join('')}
-              </div>
-              <div class="row">
-                <button type="button" class="primary-btn" id="saveWeekBtn">Salvar semana</button>
-                <button type="button" class="ghost-btn" id="newWeekBtn">Nova semana</button>
-              </div>
-            </div>
-
-            <div class="table-wrap" style="margin-top:18px;">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Semana</th>
-                    <th>Novos leads</th>
-                    <th>Conversas antigas retomadas</th>
-                    <th>Total de conversas ativas</th>
-                    <th>Contatados no follow-up 2</th>
-                    <th>Contatados no follow-up 3</th>
-                    <th>Contatados no follow-up 4</th>
-                    <th>Contatados no follow-up 5</th>
-                    <th>Respostas recebidas no follow-up</th>
-                    <th>Agendamentos gerados pelo follow-up</th>
-                    <th>Sem resposta no follow-up (total atual)</th>
-                    <th>Pensando ou pesquisando (total atual)</th>
-                    <th>Aguardando dados de cadastro (total atual)</th>
-                    <th>Não vão seguir (total atual)</th>
-                    <th>Consultas agendadas na semana</th>
-                    <th>Consultas canceladas da semana</th>
-                    <th>Consultas reagendadas da semana</th>
-                    <th>Consultas realizadas na semana</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rows || '<tr><td colspan="18" class="empty-state">Nenhuma semana lançada.</td></tr>'}
-                </tbody>
-              </table>
-            </div>
+        el.innerHTML = `
+          <div class="wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Paciente</th>
+                  <th>Veio de</th>
+                  <th>Agendada em</th>
+                  <th>Data da consulta</th>
+                  <th>Status</th>
+                  <th>Semana</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows || '<tr><td colspan="7">Nenhuma consulta registrada.</td></tr>'}
+              </tbody>
+            </table>
           </div>
         `;
 
-        const saveWeekBtn = document.getElementById('saveWeekBtn');
-        const newWeekBtn = document.getElementById('newWeekBtn');
-        const addWeekBtn = document.getElementById('addWeekBtn');
-        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-
-        function readWeekFormValues() {
-          const values = {};
-          WEEK_FIELDS.forEach(([key]) => {
-            const field = document.getElementById('w_' + key);
-            values[key] = field ? safeNumber(field.value) : 0;
+        document.querySelectorAll('[data-status-id]').forEach((sel) => {
+          sel.addEventListener('change', (e) => {
+            const idx = Number(e.target.getAttribute('data-status-id'));
+            const listItem = list[idx];
+            if (!listItem) return;
+            const target = S.appts.findIndex(item => item === listItem);
+            if (target >= 0) {
+              S.appts[target].status = e.target.value;
+              save();
+              renderConsultas();
+            }
           });
-          return values;
-        }
-
-        function resetWeekForm() {
-          document.getElementById('wd').value = new Date().toISOString().slice(0, 10);
-          WEEK_FIELDS.forEach(([key]) => {
-            const field = document.getElementById('w_' + key);
-            if (field) field.value = 0;
-          });
-        }
-
-        const saveWeek = () => {
-          const date = document.getElementById('wd').value;
-          if (!date) {
-            toast('Selecione a semana antes de salvar.');
-            return;
-          }
-          const payload = readWeekFormValues();
-          const idx = state.weeks.findIndex(w => w.semana === date);
-          if (idx >= 0) state.weeks[idx] = { semana: date, ...payload };
-          else state.weeks.push({ semana: date, ...payload });
-          state.weeks.sort((a, b) => new Date(a.semana) - new Date(b.semana));
-          saveState();
-          renderAll();
-          toast('Semana salva com sucesso.');
-        };
-
-        saveWeekBtn?.addEventListener('click', saveWeek);
-        newWeekBtn?.addEventListener('click', resetWeekForm);
-        addWeekBtn?.addEventListener('click', resetWeekForm);
-        clearFiltersBtn?.addEventListener('click', () => {
-          document.getElementById('filterSemana').value = '';
-          document.getElementById('filterOrigem').value = 'Todas';
-        });
-      }
-
-      function renderConsultasPage() {
-        const cons = document.getElementById('cons');
-        if (!cons) return;
-
-        const originOptions = state.config.origins || DEFAULT_ORIGINS;
-        const rows = state.consultas.map((item, index) => {
-          const normalized = normalizeAppointment(item);
-          const date = normalized.data_consulta ? formatDateBR(normalized.data_consulta) : '—';
-          const agendada = normalized.agendada_em ? formatDateBR(normalized.agendada_em) : '—';
-          return `
-            <tr>
-              <td>${normalized.paciente || '—'}</td>
-              <td>${normalized.veio_de || normalized.origem || '—'}</td>
-              <td>${agendada}</td>
-              <td>${date}</td>
-              <td>${normalized.status || 'agendada'}</td>
-              <td>${normalized.semana || '—'}</td>
-              <td>
-                <button class="mini-btn" data-edit-consulta="${index}">Editar</button>
-              </td>
-            </tr>
-          `;
-        }).join('');
-
-        cons.innerHTML = `
-          <div class="card">
-            <div class="page-head">
-              <h2>Consultas registradas</h2>
-              <button type="button" class="primary-btn" id="addConsultaBtn">Registrar consulta</button>
-            </div>
-
-            <div class="filter-legend"><span class="dot"></span> Filtro: consultas registradas • datas • origem • status</div>
-
-            <div class="toolbar">
-              <label class="field" style="min-width:170px;">
-                <span>Semana em que foi criada</span>
-                <select id="consultaSemana" class="filter-box">
-                  <option value="Todas">Todas</option>
-                  ${state.weeks.map(week => `<option value="${week.semana}">${formatDateBR(week.semana)}</option>`).join('')}
-                </select>
-              </label>
-              <label class="field" style="min-width:170px;">
-                <span>Consulta a partir de</span>
-                <input id="consultaDe" type="date" class="filter-box">
-              </label>
-              <label class="field" style="min-width:170px;">
-                <span>Consulta até</span>
-                <input id="consultaAte" type="date" class="filter-box">
-              </label>
-              <label class="field" style="min-width:170px;">
-                <span>Veio de</span>
-                <select id="consultaOrigem" class="filter-box">
-                  <option value="Todas">Todas</option>
-                  ${originOptions.map(origin => `<option value="${origin}">${origin}</option>`).join('')}
-                </select>
-              </label>
-              <label class="field" style="min-width:170px;">
-                <span>Status</span>
-                <select id="consultaStatus" class="filter-box">
-                  <option value="Todos">Todos</option>
-                  <option value="agendada">Agendada</option>
-                  <option value="realizada">Realizada</option>
-                  <option value="cancelada">Cancelada</option>
-                  <option value="reagendada">Reagendada</option>
-                </select>
-              </label>
-              <button type="button" class="ghost-btn" id="limparFiltrosConsulta">Limpar filtros</button>
-            </div>
-
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Paciente</th>
-                    <th>Veio de</th>
-                    <th>Agendada em</th>
-                    <th>Data da consulta</th>
-                    <th>Status</th>
-                    <th>Semana</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rows || '<tr><td colspan="7" class="empty-state">Nenhuma consulta registrada.</td></tr>'}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-
-        const addConsultaBtn = document.getElementById('addConsultaBtn');
-        addConsultaBtn?.addEventListener('click', () => {
-          const paciente = prompt('Nome do paciente:');
-          if (!paciente) return;
-          const origem = prompt('Origem (ex.: WhatsApp, Follow-up 2, Follow-up 3):', 'WhatsApp');
-          const agendadaEm = prompt('Agendada em (dd/mm/aaaa):', '15/10/2024');
-          const dataConsulta = prompt('Data da consulta (dd/mm/aaaa):', '22/10/2024');
-          const status = prompt('Status (agendada/realizada/cancelada/reagendada):', 'agendada');
-          const item = {
-            paciente: paciente.trim(),
-            origem: origem || 'WhatsApp',
-            veio_de: origem || 'WhatsApp',
-            agendada_em: agendadaEm || '',
-            data_consulta: dataConsulta || '',
-            status: (status || 'agendada').trim().toLowerCase(),
-            semana: new Date().toISOString().slice(0, 10),
-            texto: `Agendada em ${agendadaEm || ''}; consulta ${dataConsulta || ''}`,
-            reagendar: 'Não',
-            nova_data: ''
-          };
-          state.consultas.unshift(item);
-          saveState();
-          renderAll();
-          toast('Consulta registrada com sucesso.');
         });
 
-        document.querySelectorAll('[data-edit-consulta]').forEach(btn => {
+        document.querySelectorAll('[data-del]').forEach((btn) => {
           btn.addEventListener('click', () => {
-            const index = Number(btn.getAttribute('data-edit-consulta'));
-            const item = state.consultas[index];
-            if (!item) return;
-            const paciente = prompt('Paciente:', item.paciente || '');
-            if (paciente === null) return;
-            const origem = prompt('Origem:', item.origem || item.veio_de || 'WhatsApp');
-            const status = prompt('Status:', item.status || 'agendada');
-            const agendada = prompt('Agendada em (dd/mm/aaaa):', item.agendada_em || '');
-            const data = prompt('Nova data da consulta (dd/mm/aaaa):', item.data_consulta || '');
-            state.consultas[index] = {
-              ...item,
-              paciente: paciente || item.paciente,
-              origem: origem || item.origem,
-              veio_de: origem || item.veio_de,
-              status: (status || item.status).toLowerCase(),
-              agendada_em: agendada || item.agendada_em,
-              data_consulta: data || item.data_consulta,
-              texto: `Agendada em ${agendada || item.agendada_em}; consulta ${data || item.data_consulta}`
-            };
-            saveState();
-            renderAll();
-            toast('Consulta atualizada.');
+            const idx = Number(btn.getAttribute('data-del'));
+            const listItem = list[idx];
+            if (!listItem) return;
+            const target = S.appts.findIndex(item => item === listItem);
+            if (target >= 0) {
+              S.appts.splice(target, 1);
+              save();
+              renderConsultas();
+            }
           });
-        });
-
-        document.getElementById('limparFiltrosConsulta')?.addEventListener('click', () => {
-          document.getElementById('consultaSemana').value = 'Todas';
-          document.getElementById('consultaDe').value = '';
-          document.getElementById('consultaAte').value = '';
-          document.getElementById('consultaOrigem').value = 'Todas';
-          document.getElementById('consultaStatus').value = 'Todos';
         });
       }
 
-      function renderConfigPage() {
-        const cfg = document.getElementById('cfg');
-        if (!cfg) return;
+      function parsePasteLine(line){
+        const text = String(line || '').trim();
+        if(!text) return null;
+        const pieces = text.split(/[\t;|]/).map(v => v.trim()).filter(Boolean);
+        if(pieces.length < 2) return null;
+        const pessoa = pieces[0];
+        const origem = pieces[1] || 'WhatsApp';
+        const agendada = parseDateValue(pieces[2]) || pieces[2] || '';
+        const consulta = parseDateValue(pieces[3]) || pieces[3] || '';
+        return { paciente:pessoa, origem, agendada_em:agendada, data_consulta:consulta, status:'agendada', semana: new Date().toISOString().slice(0,10) };
+      }
 
-        const originsList = (state.config.origins || DEFAULT_ORIGINS).map(origin => `
-          <div class="chip">${origin}</div>
-        `).join('');
+      function renderConfig(){
+        const el = document.getElementById('cfg');
+        if(!el) return;
 
-        cfg.innerHTML = `
+        const fieldNames = S.config.fieldNames || FIELDS.map(([,label]) => label);
+        const sourceChips = S.config.origins.map((o) => `<span class="tag">${o}</span>`).join(' ');
+
+        el.innerHTML = `
           <div class="card">
-            <div class="page-head">
-              <h2>Configuração</h2>
-              <button type="button" class="ghost-btn" id="resetThemeBtn">Restaurar tema</button>
-            </div>
+            <h2>Configuração</h2>
 
-            <div class="config-grid" style="margin-bottom:18px;">
-              <div class="card">
-                <div class="card-header"><h3>Nomes dos campos semanais</h3></div>
-                <p class="note">Renomeie como preferir. Os números já lançados não mudam. Campos “total atual” guardam o total de pacientes naquela fase no momento; os demais são contagens da semana.</p>
-                <div class="chip-list">${WEEK_FIELDS.map(([, label]) => `<span class="chip">${label}</span>`).join('')}</div>
-              </div>
-
-              <div class="card">
-                <div class="card-header"><h3>Origem das consultas</h3></div>
-                <p class="note">Opções do campo “Veio de”. Uma origem só pode ser removida se nenhuma consulta a usar.</p>
-                <div class="chip-list">${originsList}</div>
-                <div class="row">
-                  <button type="button" class="ghost-btn" id="addSourceBtn">Adicionar origem</button>
-                  <button type="button" class="ghost-btn" id="editSourceBtn">Editar origem</button>
-                  <button type="button" class="ghost-btn del-btn" id="removeSourceBtn">Excluir origem</button>
-                </div>
+            <div class="card" style="margin-bottom:14px;">
+              <h2>Nomes dos campos semanais</h2>
+              <p class="note">Renomeie como preferir. Os números já lançados não mudam. Campos “total atual” guardam o total de pacientes naquela fase no momento; os demais são contagens da semana.</p>
+              <div class="row">${fieldNames.map((label, idx) => `<span class="tag">${label}</span>`).join(' ')}</div>
+              <div class="row">
+                <button class="b" id="add_field">Adicionar campo</button>
               </div>
             </div>
 
-            <div class="config-grid" style="margin-bottom:18px;">
-              <div class="card">
-                <div class="card-header"><h3>Exibição do painel</h3></div>
-                <p class="note">Marque o que aparece. Os cards e gráficos desmarcados ficam ocultos, sem apagar dados.</p>
-                <div class="chip-list">
-                  <label class="chip"><input type="checkbox" checked> Cards do quadro geral</label>
-                  <label class="chip"><input type="checkbox" checked> Gráfico por semana</label>
-                </div>
-              </div>
-
-              <div class="card">
-                <div class="card-header"><h3>Metas</h3></div>
-                <p class="note">Em %. O card mostra se está dentro da meta. No cancelamento, o valor é o máximo aceito. Deixe vazio para não usar meta.</p>
-                <div class="form-grid">
-                  <label class="field"><span>Taxa Geral de Agendamento</span><input type="number" step="0.1" value="${state.config.metas.taxaGeralAgendamento || ''}"></label>
-                  <label class="field"><span>Conversão do FU em Agendamento</span><input type="number" step="0.1" value="${state.config.metas.conversaoFUAgendamento || ''}"></label>
-                  <label class="field"><span>Taxa de resposta do FU</span><input type="number" step="0.1" value="${state.config.metas.taxaRespostaFU || ''}"></label>
-                  <label class="field"><span>Comparecimento (check-in)</span><input type="number" step="0.1" value="${state.config.metas.comparecimento || ''}"></label>
-                  <label class="field"><span>Cancelamento (máximo)</span><input type="number" step="0.1" value="${state.config.metas.cancelamento || ''}"></label>
-                </div>
+            <div class="card" style="margin-bottom:14px;">
+              <h2>Origem das consultas</h2>
+              <p class="note">Opções do campo “Veio de”.</p>
+              <div class="row">${sourceChips}</div>
+              <div class="row">
+                <button class="b s" id="add_origin">Adicionar origem</button>
+                <button class="b s" id="edit_origin">Editar origem</button>
+                <button class="b s" id="remove_origin">Excluir origem</button>
               </div>
             </div>
 
-            <div class="config-grid" style="margin-bottom:18px;">
-              <div class="card">
-                <div class="card-header"><h3>Zona de risco</h3></div>
-                <p class="note">Apaga todas as semanas e consultas. Baixe o backup antes.</p>
-                <button type="button" class="ghost-btn del-btn" id="clearAllBtn">Apagar tudo</button>
-              </div>
-
-              <div class="card">
-                <div class="card-header"><h3>Tema</h3></div>
-                <div class="form-grid">
-                  <label class="field"><span>Modo</span><select><option selected>${state.config.theme.mode || 'Automático'}</option><option>Automático</option><option>Claro</option><option>Escuro</option></select></label>
-                  <label class="field"><span>Cor principal</span><input type="color" value="${state.config.theme.primary || '#0f766e'}"></label>
-                  <label class="field"><span>Cor secundária</span><input type="color" value="${state.config.theme.secondary || '#0b625c'}"></label>
-                  <label class="field"><span>Cor de destaque</span><input type="color" value="${state.config.theme.accent || '#d89b20'}"></label>
-                  <label class="field"><span>Cor de fundo</span><input type="color" value="${state.config.theme.background || '#edf3f1'}"></label>
-                </div>
-              </div>
-            </div>
-
-            <div class="card" style="margin-bottom:18px;">
-              <div class="card-header"><h3>Métricas e cards personalizados</h3></div>
-              <p class="note">Descreva o que quer ver e onde. A IA monta a fórmula com os campos lançados e você confere o resultado antes de adicionar. Você também pode editar a fórmula à mão.</p>
-              <div class="form-grid">
-                <label class="field"><span>O que você quer medir?</span><input type="text" value="% de pacientes que não vão seguir sobre o total de conversas ativas"></label>
-                <label class="field"><span>Onde mostrar</span><select><option>IA decide</option><option>Quadro geral</option><option>Resumo por semana</option></select></label>
+            <div class="card" style="margin-bottom:14px;">
+              <h2>Status da sincronização</h2>
+              <div class="row" style="margin-top:0; gap:12px;">
+                <span class="pill ${S.config.sync.status === 'error' ? 'error' : ''} ${S.config.sync.status === 'warn' ? 'warn' : ''}">${S.config.sync.status === 'ok' ? 'Sincronizado' : S.config.sync.status === 'error' ? 'Erro' : 'Pendente'}</span>
+                <span class="muted">Última sincronização: ${formatDateBR(S.config.sync.lastRunAt)} ${new Date(S.config.sync.lastRunAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
               </div>
               <div class="row">
-                <button type="button" class="primary-btn">Criar com IA</button>
-                <button type="button" class="ghost-btn">Criar manualmente</button>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-header"><h3>Status da sincronização</h3></div>
-              <div class="sync-box">
-                <div class="sync-item">
-                  <div>
-                    <strong>Sheet</strong>
-                    <div class="note">Última atualização: ${formatDateBR(state.sync.lastRunAt)} ${new Date(state.sync.lastRunAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
-                  </div>
-                  <div class="status-badge ${state.sync.status === 'ok' ? 'good' : state.sync.status === 'error' ? 'error' : 'none'}">${state.sync.status === 'ok' ? 'Sincronizado' : state.sync.status === 'error' ? 'Erro' : 'Pendente'}</div>
-                </div>
-                <div class="note">Agenda automática: todos os dias às 19h (seg a sex) e tentativa de reenvio em caso de falha.</div>
-                <div class="row">
-                  <button type="button" class="primary-btn" id="retrySyncBtn">Nova tentativa</button>
-                  <button type="button" class="ghost-btn" id="scheduleSyncBtn">Ver agendamento</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="card" style="margin-top:18px;">
-              <div class="card-header"><h3>Backup dos dados</h3></div>
-              <div class="row">
-                <button type="button" class="ghost-btn" id="exportWeeksBtn">Baixar semanas</button>
-                <button type="button" class="ghost-btn" id="exportConsultasBtn">Baixar consultas</button>
+                <button class="b" id="retry_sync">Nova tentativa</button>
               </div>
             </div>
           </div>
         `;
 
-        document.getElementById('addSourceBtn')?.addEventListener('click', () => {
-          const value = prompt('Nova origem:', 'WhatsApp');
-          if (!value) return;
-          const sources = state.config.origins || DEFAULT_ORIGINS;
-          if (!sources.includes(value.trim())) {
-            sources.push(value.trim());
-            state.config.origins = sources;
-            saveState();
-            renderAll();
-          }
+        document.getElementById('add_field').addEventListener('click', () => {
+          const val = prompt('Nome do novo campo semanal:');
+          if (!val) return;
+          const label = val.trim();
+          if (!label) return;
+          S.config.fieldNames.push(label);
+          save();
+          renderConfig();
+          renderWeeks();
         });
 
-        document.getElementById('editSourceBtn')?.addEventListener('click', () => {
-          const source = prompt('Qual origem editar?', state.config.origins[0] || 'Follow-up 2');
+        document.getElementById('add_origin').addEventListener('click', () => {
+          const val = prompt('Nome da origem:');
+          if (!val) return;
+          const label = val.trim();
+          if (!label) return;
+          if (!S.config.origins.includes(label)) S.config.origins.push(label);
+          save();
+          renderConfig();
+          renderConsultas();
+        });
+
+        document.getElementById('edit_origin').addEventListener('click', () => {
+          const current = S.config.origins[0] || 'WhatsApp';
+          const source = prompt('Qual origem editar?', current);
           if (!source) return;
-          const index = (state.config.origins || DEFAULT_ORIGINS).findIndex(item => item.toLowerCase() === source.toLowerCase());
-          if (index < 0) return;
-          const next = prompt('Novo nome da origem:', state.config.origins[index]);
+          const idx = S.config.origins.findIndex(item => item.toLowerCase() === source.toLowerCase());
+          if (idx < 0) return;
+          const next = prompt('Novo nome da origem:', S.config.origins[idx]);
           if (!next) return;
-          state.config.origins[index] = next.trim();
-          saveState();
-          renderAll();
+          S.config.origins[idx] = next.trim();
+          save();
+          renderConfig();
+          renderConsultas();
         });
 
-        document.getElementById('removeSourceBtn')?.addEventListener('click', () => {
-          const source = prompt('Qual origem excluir?', state.config.origins[0] || 'Follow-up 2');
+        document.getElementById('remove_origin').addEventListener('click', () => {
+          const source = prompt('Qual origem excluir?', S.config.origins[0] || 'WhatsApp');
           if (!source) return;
-          const index = (state.config.origins || DEFAULT_ORIGINS).findIndex(item => item.toLowerCase() === source.toLowerCase());
-          if (index < 0) return;
-          const used = state.consultas.some(item => (item.veio_de || item.origem || '').toLowerCase() === source.toLowerCase());
+          const idx = S.config.origins.findIndex(item => item.toLowerCase() === source.toLowerCase());
+          if (idx < 0) return;
+          const used = S.appts.some(item => (item.origem || '').toLowerCase() === source.toLowerCase());
           if (used) {
-            toast('Essa origem está em uso em consultas e não pode ser removida.');
+            notify('Essa origem está em uso e não pode ser removida.');
             return;
           }
-          state.config.origins.splice(index, 1);
-          saveState();
-          renderAll();
+          S.config.origins.splice(idx,1);
+          save();
+          renderConfig();
+          renderConsultas();
         });
 
-        document.getElementById('clearAllBtn')?.addEventListener('click', () => {
-          const confirmed = confirm('Tem certeza que deseja apagar todas as semanas e consultas?');
-          if (!confirmed) return;
-          state.weeks = [];
-          state.consultas = [];
-          saveState();
-          renderAll();
-          toast('Dados resetados.');
-        });
-
-        document.getElementById('resetThemeBtn')?.addEventListener('click', () => {
-          state.config.theme = { mode: 'automático', primary: '#0f766e', secondary: '#0b625c', accent: '#d89b20', background: '#edf3f1' };
-          saveState();
-          renderAll();
-        });
-
-        document.getElementById('retrySyncBtn')?.addEventListener('click', () => {
-          updateSyncStatus('ok', 'Tentativa de sincronização executada com sucesso');
-          renderAll();
-          toast('Sincronização reexecutada.');
-        });
-
-        document.getElementById('scheduleSyncBtn')?.addEventListener('click', () => {
-          toast('Agenda automática configurada para 19:00 (Seg a Sex).');
-        });
-
-        document.getElementById('exportWeeksBtn')?.addEventListener('click', () => {
-          const csv = [
-            ['semana','novos','antigas','ativas','fu2','fu3','fu4','fu5','respostas','agendamentosFu','semResposta','pensando','aguardandoCadastro','naoSeguir','consultasAgendadas','consultasCanceladas','consultasReagendadas','consultasRealizadas'],
-            ...state.weeks.map(w => [w.semana, w.novos, w.antigas, w.ativas, w.fu2, w.fu3, w.fu4, w.fu5, w.respostas, w.agendamentosFu, w.semResposta, w.pensando, w.aguardandoCadastro, w.naoSeguir, w.consultasAgendadas, w.consultasCanceladas, w.consultasReagendadas, w.consultasRealizadas])
-          ].map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
-          downloadCSV(csv, 'semanas.csv');
-        });
-
-        document.getElementById('exportConsultasBtn')?.addEventListener('click', () => {
-          const csv = [
-            ['paciente','origem','agendada_em','data_consulta','status','semana','veio_de','reagendar','nova_data'],
-            ...state.consultas.map(item => [item.paciente, item.origem || item.veio_de, item.agendada_em, item.data_consulta, item.status, item.semana, item.veio_de || item.origem, item.reagendar, item.nova_data])
-          ].map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
-          downloadCSV(csv, 'consultas.csv');
+        document.getElementById('retry_sync').addEventListener('click', () => {
+          S.config.sync.status = 'ok';
+          S.config.sync.lastRunAt = new Date().toISOString();
+          S.config.sync.message = 'Tentativa executada com sucesso';
+          save();
+          renderConfig();
+          notify('Sincronização reexecutada com sucesso.');
         });
       }
 
-      function downloadCSV(csv, fileName) {
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+      function attachEvents(){
+        document.querySelectorAll('[data-t]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-t');
+            document.querySelectorAll('main section').forEach(sec => sec.classList.add('hide'));
+            document.getElementById(target).classList.remove('hide');
+            document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b === btn));
+          });
+        });
+
+        document.getElementById('cp').addEventListener('click', seedWeeks);
+
+        document.getElementById('ws').addEventListener('click', () => {
+          const date = document.getElementById('wd').value;
+          if (!date) return notify('Selecione a semana antes de salvar.');
+          const values = readFormValues();
+          S.weeks[date] = Object.values({ data: date, ...values });
+          const normalized = {};
+          FIELDS.forEach(([k], i) => { normalized[k] = safeNumber(values[k]); });
+          S.weeks[date] = normalized;
+          S.weeks[date].data = date;
+          save();
+          renderWeeks();
+          renderDashboard();
+          notify('Semana salva com sucesso.');
+        });
+
+        document.getElementById('wdel').addEventListener('click', () => {
+          const date = document.getElementById('wd').value;
+          if (!date) return notify('Selecione a semana para excluir.');
+          if (confirm('Excluir esta semana?')) {
+            delete S.weeks[date];
+            save();
+            renderWeeks();
+            renderDashboard();
+            notify('Semana removida.');
+          }
+        });
+
+        document.getElementById('imp').addEventListener('click', () => {
+          const text = document.getElementById('paste').value;
+          const lines = text.split(/\r?\n/).map(v => v.trim()).filter(Boolean);
+          let count = 0;
+          lines.forEach((line) => {
+            const cells = line.split(/[\t,;|]+/).map(v => v.trim()).filter(Boolean);
+            if (cells.length < FIELDS.length) return;
+            const data = parseDateValue(cells[0]);
+            if (!data) return;
+            const obj = { data };
+            FIELDS.forEach(([key], idx) => { obj[key] = safeNumber(cells[idx + 1] || 0); });
+            S.weeks[data] = obj;
+            count++;
+          });
+          save();
+          renderWeeks();
+          renderDashboard();
+          notify(count ? `${count} semana(s) importada(s).` : 'Nenhuma semana válida foi importada.');
+        });
+
+        document.getElementById('seed').addEventListener('click', () => {
+          const sample = Object.entries(DEFAULT.weeks).slice(-4);
+          sample.forEach(([date, arr]) => {
+            const obj = { data: date };
+            FIELDS.forEach(([key], idx) => { obj[key] = safeNumber(arr[idx] ?? 0); });
+            S.weeks[date] = obj;
+          });
+          save();
+          renderWeeks();
+          renderDashboard();
+          notify('Quatro semanas iniciais carregadas.');
+        });
+
+        document.getElementById('cp_add').addEventListener('click', () => {
+          const nome = document.getElementById('cp_n').value.trim();
+          if (!nome) return notify('Informe o nome do paciente.');
+          const origem = document.getElementById('cp_o').value || 'WhatsApp';
+          const agendada = document.getElementById('cp_s').value;
+          const consulta = document.getElementById('cp_c').value;
+          S.appts.unshift({
+            paciente: nome,
+            origem,
+            agendada_em: agendada,
+            data_consulta: consulta,
+            status: 'agendada',
+            semana: new Date().toISOString().slice(0,10)
+          });
+          save();
+          renderConsultas();
+          document.getElementById('cp_n').value='';
+          document.getElementById('cp_c').value='';
+          document.getElementById('cp_s').value='';
+          notify('Consulta adicionada.');
+        });
+
+        document.getElementById('ps_b').addEventListener('click', () => {
+          const text = document.getElementById('ps_t').value;
+          const lines = text.split(/\r?\n/).map(v => v.trim()).filter(Boolean);
+          let count=0;
+          lines.forEach((line) => {
+            const parsed = parsePasteLine(line);
+            if (!parsed) return;
+            S.appts.unshift(parsed);
+            count++;
+          });
+          save();
+          renderConsultas();
+          notify(count ? `${count} consulta(s) adicionada(s).` : 'Nenhuma consulta válida foi adicionada.');
+        });
+
+        document.getElementById('clear_filters').addEventListener('click', () => {
+          document.getElementById('f_week').value = 'Todas';
+          document.getElementById('f_de').value = '';
+          document.getElementById('f_ate').value = '';
+          document.getElementById('f_origem').value = 'Todas';
+          document.getElementById('f_status').value = 'Todos';
+          renderConsultas();
+        });
+
+        ['f_week','f_de','f_ate','f_origem','f_status'].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('change', renderConsultas);
+        });
       }
 
-      function applyTheme() {
-        const theme = state.config.theme || { primary: '#0f766e', secondary: '#0b625c', accent: '#d89b20', background: '#edf3f1' };
-        document.documentElement.style.setProperty('--primary', theme.primary || '#0f766e');
-        document.documentElement.style.setProperty('--primary-strong', theme.secondary || '#0b625c');
-        document.documentElement.style.setProperty('--gold', theme.accent || '#d89b20');
-        document.documentElement.style.setProperty('--bg', theme.background || '#edf3f1');
+      function populateOriginsSelect(){
+        const cp_o = document.getElementById('cp_o');
+        if (!cp_o) return;
+        cp_o.innerHTML = S.config.origins.map(o => `<option value="${o}">${o}</option>`).join('');
       }
 
-      function renderAll() {
+      function applyTheme(){
+        const root = document.documentElement;
+        if (root) root.setAttribute('data-theme', 'light');
+      }
+
+      function init(){
         applyTheme();
+        populateOriginsSelect();
         renderDashboard();
-        renderSemanasPage();
-        renderConsultasPage();
-        renderConfigPage();
-        renderNavbar();
+        renderWeeks();
+        renderConsultas();
+        renderConfig();
+        attachEvents();
+        document.getElementById('wd').value = getWeekKeys().slice(-1)[0] || new Date().toISOString().slice(0,10);
+        document.getElementById('cp_o').innerHTML = S.config.origins.map(o => `<option value="${o}">${o}</option>`).join('');
+        document.getElementById('f_week').innerHTML = '<option value="Todas">Todas</option>' + Object.keys(S.weeks).sort().map(date => `<option value="${date}">${formatDateBR(date)}</option>`).join('');
+        document.getElementById('f_origem').innerHTML = ['<option value="Todas">Todas</option>'].concat(S.config.origins.map(o => `<option value="${o}">${o}</option>`)).join('');
       }
 
-      function scheduleDailySync() {
-        const now = new Date();
-        const day = now.getDay();
-        const isWeekday = day >= 1 && day <= 5;
-        const hour = now.getHours();
-        const minute = now.getMinutes();
-        if (isWeekday && hour >= 19 && minute >= 0 && minute <= 59) {
-          updateSyncStatus('ok', 'Sincronização automática executada às 19:00');
-        }
-      }
-
-      renderLockScreen();
-      scheduleDailySync();
-      renderAll();
+      init();
     })();
   </script>
 </body>
