@@ -202,8 +202,8 @@
       border:1px solid var(--line);
       border-radius:var(--radius);
       padding:18px;
-      box-shadow:var(--shadow);
       min-width:0;
+      box-shadow:var(--shadow);
     }
     .card-header {
       display:flex;
@@ -212,8 +212,7 @@
       gap:12px;
       margin-bottom:14px;
     }
-    .card-header h2,
-    .card-header h3 {
+    .card-header h2, .card-header h3 {
       margin:0;
       font-size:16px;
       letter-spacing:-0.03em;
@@ -227,106 +226,91 @@
       letter-spacing:0.08em;
       color:var(--mut);
     }
-    .hero {
-      margin-bottom:18px;
-    }
-    .hero-head {
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
-      margin-bottom:18px;
-      flex-wrap:wrap;
-    }
-    .hero-head h2 {
-      margin:0;
-      font-size:28px;
-      letter-spacing:-0.05em;
-    }
-    .status-pill {
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:var(--card-alt);
-      font-size:12px;
-      font-weight:700;
-      color:var(--mut);
-    }
-    .status-pill::before {
-      content:"";
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--warning);
-      display:inline-block;
-    }
-    .status-pill.good::before { background:var(--success); }
-    .status-pill.error::before { background:var(--red); }
-    .status-pill.none::before { background:var(--warning); }
 
-    .kpi-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-      gap:14px;
-    }
+    .grid { display:grid; gap:14px; }
+    .kpis { grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin-bottom:14px; }
     .kpi {
       position:relative;
       overflow:hidden;
       padding:16px 16px 14px 18px;
-      border-radius:16px;
+      border-left:4px solid var(--primary);
+      border-radius:12px;
       background:var(--card);
       border:1px solid var(--line);
       box-shadow:var(--shadow);
-      border-left-width:4px;
-      border-left-style:solid;
     }
-    .kpi:nth-child(1) { border-left-color:var(--primary); }
-    .kpi:nth-child(2) { border-left-color:var(--blue); }
-    .kpi:nth-child(3) { border-left-color:var(--gold); }
-    .kpi:nth-child(4) { border-left-color:var(--purple); }
-    .kpi-label {
+    .kpi:nth-child(2) { border-left-color: var(--blue); }
+    .kpi:nth-child(3) { border-left-color: var(--gold); }
+    .kpi:nth-child(4) { border-left-color: var(--purple); }
+    .kpi span {
       display:block;
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:0.08em;
+      font-size:11.5px;
+      font-weight:700;
       text-transform:uppercase;
+      letter-spacing:.05em;
       color:var(--mut);
     }
-    .kpi-value {
+    .kpi b {
       display:block;
-      margin-top:10px;
       font-size:30px;
       line-height:1.1;
-      font-weight:800;
-      letter-spacing:-0.05em;
-      color:var(--ink);
-    }
-    .kpi-meta {
-      display:block;
       margin-top:6px;
+      letter-spacing:-.02em;
+    }
+    .kpi small {
+      display:block;
+      line-height:1.35;
+      margin-top:4px;
+      color:var(--mut);
+      font-size:12px;
+    }
+
+    .ins {
+      background:rgba(217,154,28,.08);
+      border:1px solid rgba(217,154,28,.34);
+      border-left:4px solid var(--gold);
+      border-radius:12px;
+      padding:12px 16px;
+      margin-bottom:14px;
+      font-size:14px;
+    }
+    .ins p { margin:3px 0; }
+
+    .charts { grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+    .chart-wrap {
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      min-height:330px;
+    }
+    .chart-legend {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 14px;
       font-size:12px;
       color:var(--mut);
+      margin:8px 0 12px;
+      font-weight:700;
     }
+    .legend-dot {
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:2px;
+      margin-right:6px;
+      vertical-align:-1px;
+    }
+    svg { width:100%; height:auto; display:block; }
+    svg text { fill:var(--mut); font-size:10.5px; font-family:inherit; }
 
-    .insight {
+    .section-grid {
+      display:grid;
+      gap:18px;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
       margin-top:18px;
-      padding:14px 16px;
-      background:linear-gradient(135deg, var(--gold-soft), #fffdf4);
-      border:1px solid rgba(216,155,32,0.35);
-      border-left:4px solid var(--gold);
-      border-radius:16px;
-      color:var(--ink);
     }
-    .insight strong { font-weight:800; }
-
-    .summary-table {
-      width:100%;
-      border-collapse:collapse;
-      font-size:13px;
-    }
+    .summary-table { width:100%; border-collapse:collapse; font-size:13px; }
     .summary-table td, .summary-table th {
       padding:10px 8px;
       border-bottom:1px solid var(--line);
@@ -337,53 +321,12 @@
       font-size:11px;
       font-weight:800;
       text-transform:uppercase;
-      letter-spacing:0.08em;
+      letter-spacing:.08em;
     }
     .summary-table tr:last-child td { border-bottom:none; }
     .summary-table tr:hover td { background:rgba(15,118,110,0.03); }
 
-    .section-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
-      gap:18px;
-      margin-top:18px;
-    }
-    .chart-wrap {
-      background:linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:14px;
-      min-height:330px;
-    }
-    .chart-legend {
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px 16px;
-      margin:12px 0 16px;
-      font-size:12px;
-      color:var(--mut);
-      font-weight:700;
-    }
-    .legend-dot {
-      display:inline-block;
-      width:10px;
-      height:10px;
-      border-radius:3px;
-      margin-right:6px;
-      vertical-align:-1px;
-    }
-    svg { display:block; width:100%; height:auto; }
-    svg text { fill:var(--mut); font-size:10.5px; font-family:inherit; }
-
-    .field,
-    .filter-box,
-    .inline-input,
-    .mini-btn,
-    .primary-btn,
-    .ghost-btn,
-    .field input,
-    .field select,
-    .field textarea {
+    .field, .filter-box, .mini-btn, .primary-btn, .ghost-btn, .field input, .field select, .field textarea {
       font:inherit;
       color:var(--ink);
       background:var(--card);
@@ -401,28 +344,16 @@
       color:var(--mut);
       font-weight:700;
     }
-    .field input,
-    .field select,
-    .field textarea,
-    .filter-box,
-    .inline-input {
-      width:100%;
-      min-height:42px;
-    }
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus,
-    .filter-box:focus,
-    .inline-input:focus {
+    .field input, .field select, .field textarea, .filter-box { width:100%; min-height:42px; }
+    .field input:focus, .field select:focus, .field textarea:focus, .filter-box:focus {
       outline:none;
       border-color:var(--primary);
       box-shadow:0 0 0 4px rgba(15,118,110,0.12);
     }
     .field textarea { min-height:96px; resize:vertical; }
-
     .form-grid {
       display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
       gap:12px;
     }
     .row {
@@ -439,9 +370,7 @@
       align-items:end;
       margin:0 0 12px;
     }
-    .primary-btn,
-    .ghost-btn,
-    .mini-btn {
+    .primary-btn, .ghost-btn, .mini-btn {
       border-radius:10px;
       cursor:pointer;
       font-weight:800;
@@ -461,9 +390,7 @@
       min-height:40px;
       padding-inline:14px;
     }
-    .ghost-btn:hover,
-    .mini-btn:hover,
-    .primary-btn:hover { filter:brightness(1.02); }
+    .ghost-btn:hover, .mini-btn:hover, .primary-btn:hover { filter:brightness(1.02); }
     .mini-btn {
       background:var(--card-alt);
       border-color:var(--line);
@@ -487,14 +414,13 @@
     table {
       width:100%;
       border-collapse:collapse;
-      min-width:760px;
+      min-width:980px;
       font-size:13px;
     }
     th, td {
       padding:10px 12px;
       border-bottom:1px solid var(--line);
       text-align:left;
-      white-space:nowrap;
       vertical-align:middle;
     }
     th {
@@ -520,11 +446,36 @@
       text-align:center;
     }
 
+    .filter-box { background:var(--card-alt); }
+    .filter-legend {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:var(--card-alt);
+      color:var(--mut);
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+    }
+    .filter-legend .dot {
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--primary);
+      display:inline-block;
+    }
+
     .sync-box {
       display:flex;
       flex-direction:column;
       gap:14px;
-      padding:14px 0 0;
+      margin-top:14px;
     }
     .sync-item {
       display:flex;
@@ -564,14 +515,10 @@
 
     .config-grid {
       display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
       gap:12px;
     }
-    .note {
-      font-size:13px;
-      color:var(--mut);
-      line-height:1.45;
-    }
+    .note { font-size:13px; color:var(--mut); line-height:1.45; }
     #msg {
       position:fixed;
       right:20px;
@@ -590,14 +537,11 @@
     }
     #msg.on { opacity:1; }
 
-    @media (max-width:720px) {
-      header {
-        padding:14px 14px 16px;
-      }
+    @media (max-width:720px){
+      header { padding:14px 14px 16px; }
       main { padding:18px 14px 36px; }
       .card { padding:14px; }
-      .hero-head h2 { font-size:24px; }
-      .kpi-value { font-size:26px; }
+      .kpi b { font-size:26px; }
       .table-wrap { margin-top:8px; }
     }
   </style>
@@ -642,10 +586,10 @@
 
   <script>
     (function () {
-      const STORAGE_KEY = 'kommo_dashboard_data_v2';
-      const ACCESS_PASSWORD = 'Lucas830';
+      const STORAGE_KEY = 'kommo_dashboard_data';
       const SHEETDB_WEEK_URL = 'https://sheetdb.io/api/v1/hd148z3uhn04n';
       const SHEETDB_CONSULTA_URL = 'https://sheetdb.io/api/v1/antynpy96prfl';
+      const ACCESS_PASSWORD = 'Lucas830';
       const FIELDS = [
         ['novos','Novos leads'],
         ['antigas','Conversas antigas retomadas'],
@@ -686,48 +630,46 @@
         return Number.isFinite(n) ? n : 0;
       }
 
-      function parseDateValue(rawValue) {
-        if (rawValue === null || rawValue === undefined) return null;
-        const value = String(rawValue).trim();
-        if (!value) return null;
+      function parseDateValue(value) {
+        if (value === null || value === undefined) return null;
+        const text = String(value).trim();
+        if (!text) return null;
 
-        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-          const date = new Date(value + 'T00:00:00');
-          return Number.isNaN(date.getTime()) ? null : value;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+          const d = new Date(text + 'T00:00:00');
+          return Number.isNaN(d.getTime()) ? null : text;
         }
 
-        if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(value)) {
-          const match = value.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-          if (!match) return null;
-          let [, day, month, year] = match;
-          day = Number(day);
-          month = Number(month);
-          year = Number(year);
+        const match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+        if (match) {
+          let day = Number(match[1]);
+          let month = Number(match[2]);
+          let year = Number(match[3]);
           if (year < 100) year += 2000;
-          const date = new Date(year, month - 1, day);
-          if (Number.isNaN(date.getTime())) return null;
-          return date.toISOString().slice(0, 10);
+          const d = new Date(year, month - 1, day);
+          if (Number.isNaN(d.getTime())) return null;
+          return d.toISOString().slice(0, 10);
         }
 
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return null;
-        return date.toISOString().slice(0, 10);
+        const d = new Date(text);
+        if (Number.isNaN(d.getTime())) return null;
+        return d.toISOString().slice(0, 10);
       }
 
       function formatDateBR(value) {
         const iso = parseDateValue(value);
         if (!iso) return '—';
-        const date = new Date(iso + 'T00:00:00');
-        if (Number.isNaN(date.getTime())) return '—';
-        return date.toLocaleDateString('pt-BR');
+        const d = new Date(iso + 'T00:00:00');
+        if (Number.isNaN(d.getTime())) return '—';
+        return d.toLocaleDateString('pt-BR');
       }
 
       function formatNumber(value, digits = 0) {
-        const number = Number(value) || 0;
+        const n = Number(value) || 0;
         return new Intl.NumberFormat('pt-BR', {
           minimumFractionDigits: digits,
           maximumFractionDigits: digits
-        }).format(number);
+        }).format(n);
       }
 
       function normalizeWeekRecord(record) {
@@ -738,15 +680,15 @@
         return out;
       }
 
-      function normalizeWeeksMap(rawWeeks) {
-        const entries = {};
-        if (!rawWeeks || typeof rawWeeks !== 'object') return entries;
-        Object.keys(rawWeeks).forEach(key => {
-          const iso = parseDateValue(key);
-          if (!iso) return;
-          entries[iso] = normalizeWeekRecord(rawWeeks[key]);
-        });
-        return entries;
+      function normalizeAppointment(item) {
+        if (!item || typeof item !== 'object') return null;
+        return {
+          paciente: item.paciente || '',
+          origem: item.origem || 'Instagram',
+          agendada_em: item.agendada_em || '',
+          data_consulta: item.data_consulta || '',
+          status: item.status || 'agendada'
+        };
       }
 
       function loadData() {
@@ -754,9 +696,18 @@
           const raw = localStorage.getItem(STORAGE_KEY);
           if (!raw) return { weeks: {}, appts: [], cfg: { ...state.cfg }, sync: { ...state.sync } };
           const parsed = JSON.parse(raw);
+          const weeks = {};
+          if (parsed && parsed.weeks && typeof parsed.weeks === 'object') {
+            Object.keys(parsed.weeks).forEach(dateKey => {
+              const iso = parseDateValue(dateKey);
+              if (!iso) return;
+              weeks[iso] = normalizeWeekRecord(parsed.weeks[dateKey]);
+            });
+          }
+          const appts = Array.isArray(parsed && parsed.appts) ? parsed.appts.map(normalizeAppointment).filter(Boolean) : [];
           return {
-            weeks: normalizeWeeksMap(parsed && parsed.weeks ? parsed.weeks : {}),
-            appts: Array.isArray(parsed && parsed.appts) ? parsed.appts : [],
+            weeks,
+            appts,
             cfg: parsed && parsed.cfg ? { ...state.cfg, ...parsed.cfg } : { ...state.cfg },
             sync: parsed && parsed.sync ? { ...state.sync, ...parsed.sync } : { ...state.sync }
           };
@@ -786,6 +737,21 @@
 
       function getAllWeeksSorted() {
         return Object.keys(state.weeks).sort();
+      }
+
+      function getFilteredWeeks() {
+        const search = document.getElementById('weekFilterSearch')?.value.trim().toLowerCase() || '';
+        const from = document.getElementById('weekStartFilter')?.value || '';
+        const to = document.getElementById('weekEndFilter')?.value || '';
+
+        return getAllWeeksSorted().filter(date => {
+          const item = state.weeks[date] || {};
+          const hay = Object.values(item).join(' ').toLowerCase();
+          const matchSearch = !search || date.includes(search) || hay.includes(search);
+          const matchFrom = !from || date >= from;
+          const matchTo = !to || date <= to;
+          return matchSearch && matchFrom && matchTo;
+        });
       }
 
       function buildWeekFields() {
@@ -819,138 +785,42 @@
       function loadWeekIntoForm(date) {
         const data = state.weeks[date];
         if (!data) return;
-        const wd = document.getElementById('wd');
-        if (wd) wd.value = date;
+        const input = document.getElementById('wd');
+        if (input) input.value = date;
         populateWeekFields(data);
       }
 
-      function applyTitle() {
-        const title = state.cfg.title || 'Painel KOMMO';
-        const ttl = document.getElementById('ttl');
-        if (ttl) ttl.textContent = title;
-      }
+      function getWeekSummaryTableRows() {
+        const weeks = getAllWeeksSorted();
+        if (!weeks.length) return '<tr><td colspan="6">Nenhuma semana lançada.</td></tr>';
 
-      function renderDashboard() {
-        const dash = document.getElementById('dash');
-        if (!dash) return;
-
-        const allWeeks = getAllWeeksSorted();
-        if (!allWeeks.length) {
-          dash.innerHTML = `
-            <div class="card">
-              <p class="eyebrow">Painel</p>
-              <h2 style="margin:0;">Ainda não há dados</h2>
-              <p class="note" style="margin-top:8px;">Vá em “Lançar semana” para registrar a primeira semana.</p>
-            </div>
+        return weeks.slice().reverse().map(date => {
+          const item = state.weeks[date] || {};
+          const total = safeNumber(item.ativas) + safeNumber(item.resp) + safeNumber(item.cagend);
+          return `
+            <tr>
+              <td>${formatDateBR(date)}</td>
+              <td>${formatNumber(safeNumber(item.ativas))}</td>
+              <td>${formatNumber(safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5))}</td>
+              <td>${formatNumber(safeNumber(item.resp))}</td>
+              <td>${formatNumber(safeNumber(item.cagend))}</td>
+              <td>R$ ${formatNumber(safeNumber(item.tcap), 2)}</td>
+            </tr>
           `;
-          return;
-        }
-
-        const last = state.weeks[allWeeks[allWeeks.length - 1]] || {};
-        const totalFollow = safeNumber(last.fu2) + safeNumber(last.fu3) + safeNumber(last.fu4) + safeNumber(last.fu5);
-        const totalAtivas = safeNumber(last.ativas);
-        const totalRespostas = safeNumber(last.resp);
-        const totalAgendadas = safeNumber(last.cagend);
-        const totalAtual = safeNumber(last.tcap);
-
-        const summaryRows = [
-          ['Ativas', formatNumber(totalAtivas)],
-          ['Follow-up', formatNumber(totalFollow)],
-          ['Respostas', formatNumber(totalRespostas)],
-          ['Consultas agendadas', formatNumber(totalAgendadas)],
-          ['Total atual', 'R$ ' + formatNumber(totalAtual, 2)]
-        ];
-
-        dash.innerHTML = `
-          <div class="hero">
-            <div class="hero-head">
-              <div>
-                <p class="eyebrow">Resumo do período</p>
-                <h2>${state.cfg.title || 'Painel KOMMO'}</h2>
-              </div>
-              <div class="status-pill ${state.sync.weeks === 'good' ? 'good' : state.sync.weeks === 'error' ? 'error' : 'none'}">
-                SheetDB: ${state.sync.weeks === 'good' ? 'Sucesso' : state.sync.weeks === 'error' ? 'Erro' : 'Não sincronizado'}
-              </div>
-            </div>
-
-            <div class="kpi-grid">
-              <div class="kpi">
-                <span class="kpi-label">Conversas ativas</span>
-                <span class="kpi-value">${formatNumber(totalAtivas)}</span>
-                <span class="kpi-meta">Total do período</span>
-              </div>
-              <div class="kpi">
-                <span class="kpi-label">Follow-up</span>
-                <span class="kpi-value">${formatNumber(totalFollow)}</span>
-                <span class="kpi-meta">Mensagens acumuladas</span>
-              </div>
-              <div class="kpi">
-                <span class="kpi-label">Respostas</span>
-                <span class="kpi-value">${formatNumber(totalRespostas)}</span>
-                <span class="kpi-meta">Resposta do público</span>
-              </div>
-              <div class="kpi">
-                <span class="kpi-label">Faturamento</span>
-                <span class="kpi-value">R$ ${formatNumber(totalAtual, 2)}</span>
-                <span class="kpi-meta">Valor atual</span>
-              </div>
-            </div>
-
-            <div class="insight">
-              <strong>Senha:</strong> Lucas830 · painel protegido por login e com persistência local ativa.
-            </div>
-          </div>
-
-          <div class="section-grid">
-            <div class="card">
-              <div class="card-header">
-                <h3>Resumo</h3>
-              </div>
-              <table class="summary-table">
-                <tbody>
-                  ${summaryRows.map(([label, value]) => `
-                    <tr>
-                      <th>${label}</th>
-                      <td>${value}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-
-            <div class="card chart-wrap">
-              <div class="card-header">
-                <h3>Gráfico por semana</h3>
-              </div>
-              <div class="chart-legend">
-                <span><i class="legend-dot" style="background:var(--primary)"></i> Ativas</span>
-                <span><i class="legend-dot" style="background:var(--blue)"></i> Follow-up</span>
-                <span><i class="legend-dot" style="background:var(--gold)"></i> Respostas</span>
-              </div>
-              <svg id="mainChart" viewBox="0 0 960 260" aria-label="Gráfico de desempenho por semana"></svg>
-            </div>
-          </div>
-        `;
-
-        drawWeeklyChart();
+        }).join('');
       }
 
-      function drawWeeklyChart() {
+      function drawChart() {
         const svg = document.getElementById('mainChart');
         if (!svg) return;
-
         const weeks = getAllWeeksSorted();
-        if (!weeks.length) {
-          svg.innerHTML = '';
-          return;
-        }
+        if (!weeks.length) { svg.innerHTML = ''; return; }
 
         const width = 960;
         const height = 260;
-        const padding = { top: 20, right: 20, bottom: 34, left: 46 };
+        const padding = { top: 20, right: 20, bottom: 30, left: 40 };
         const plotWidth = width - padding.left - padding.right;
         const plotHeight = height - padding.top - padding.bottom;
-
         const values = weeks.map(date => {
           const item = state.weeks[date] || {};
           return [
@@ -959,9 +829,8 @@
             safeNumber(item.resp)
           ];
         });
-
         const maxValue = Math.max(...values.flat(), 10);
-        const gap = 24;
+        const gap = 18;
         const barWidth = (plotWidth - gap * (weeks.length - 1)) / (weeks.length * 3);
 
         const grid = Array.from({ length: 5 }, (_, index) => {
@@ -969,8 +838,8 @@
           const value = Math.round(maxValue - (maxValue / 4) * index);
           return `
             <g>
-              <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(17,43,43,.10)" stroke-dasharray="5 7"></line>
-              <text x="6" y="${y + 4}">${value}</text>
+              <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,.12)" stroke-dasharray="4 6"></line>
+              <text x="4" y="${y + 4}" fill="var(--mut)">${value}</text>
             </g>
           `;
         }).join('');
@@ -981,7 +850,6 @@
           const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
           const resp = safeNumber(item.resp);
           const startX = padding.left + (index * barWidth * 3) + index * gap;
-
           const hAtivas = (ativas / maxValue) * plotHeight;
           const hFollow = (follow / maxValue) * plotHeight;
           const hResp = (resp / maxValue) * plotHeight;
@@ -989,10 +857,10 @@
 
           return `
             <g>
-              <rect x="${startX}" y="${padding.top + plotHeight - hAtivas}" width="${barWidth * 0.82}" height="${hAtivas}" fill="var(--primary)" rx="5"></rect>
-              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - hFollow}" width="${barWidth * 0.82}" height="${hFollow}" fill="var(--blue)" rx="5"></rect>
-              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - hResp}" width="${barWidth * 0.82}" height="${hResp}" fill="var(--gold)" rx="5"></rect>
-              <text x="${startX + barWidth}" y="${height - 10}" text-anchor="middle">${label}</text>
+              <rect x="${startX}" y="${padding.top + plotHeight - hAtivas}" width="${barWidth * 0.8}" height="${hAtivas}" fill="var(--primary)" rx="4"></rect>
+              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - hFollow}" width="${barWidth * 0.8}" height="${hFollow}" fill="var(--blue)" rx="4"></rect>
+              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - hResp}" width="${barWidth * 0.8}" height="${hResp}" fill="var(--gold)" rx="4"></rect>
+              <text x="${startX + barWidth}" y="${height - 8}" text-anchor="middle">${label}</text>
             </g>
           `;
         }).join('');
@@ -1000,18 +868,102 @@
         svg.innerHTML = `${grid}${bars}`;
       }
 
-      function getFilteredWeeks() {
-        const search = document.getElementById('weekFilterSearch')?.value.trim().toLowerCase() || '';
-        const start = document.getElementById('weekStartFilter')?.value || '';
-        const end = document.getElementById('weekEndFilter')?.value || '';
+      function renderDashboard() {
+        const dash = document.getElementById('dash');
+        if (!dash) return;
+        const weeks = getAllWeeksSorted();
+        if (!weeks.length) {
+          dash.innerHTML = `
+            <div class="card">
+              <h2>Ainda não há dados</h2>
+              <p class="note">Vá em “Lançar semana” para registrar a primeira semana.</p>
+            </div>
+          `;
+          return;
+        }
 
-        return getAllWeeksSorted().filter(date => {
-          const item = state.weeks[date] || {};
-          const matchSearch = !search || date.includes(search) || Object.keys(item).some(key => String(item[key]).toLowerCase().includes(search));
-          const matchStart = !start || date >= start;
-          const matchEnd = !end || date <= end;
-          return matchSearch && matchStart && matchEnd;
-        });
+        const latestDate = weeks[weeks.length - 1];
+        const last = state.weeks[latestDate] || {};
+        const totalFollow = safeNumber(last.fu2) + safeNumber(last.fu3) + safeNumber(last.fu4) + safeNumber(last.fu5);
+        const totalAtivas = safeNumber(last.ativas);
+        const totalRespostas = safeNumber(last.resp);
+        const totalAgendadas = safeNumber(last.cagend);
+        const totalAtual = safeNumber(last.tcap);
+
+        dash.innerHTML = `
+          <div class="grid kpis">
+            <div class="kpi">
+              <span>Conversas ativas</span>
+              <b>${formatNumber(totalAtivas)}</b>
+            </div>
+            <div class="kpi">
+              <span>Follow-up</span>
+              <b>${formatNumber(totalFollow)}</b>
+              <small>acumulado</small>
+            </div>
+            <div class="kpi">
+              <span>Respostas</span>
+              <b>${formatNumber(totalRespostas)}</b>
+            </div>
+            <div class="kpi">
+              <span>Faturamento</span>
+              <b>R$ ${formatNumber(totalAtual, 2)}</b>
+            </div>
+          </div>
+
+          <div class="ins">
+            <p><strong>Resumo do período:</strong> ${formatDateBR(latestDate)} · ${formatNumber(totalAtivas)} ativas · ${formatNumber(totalFollow)} follow-up · ${formatNumber(totalRespostas)} respostas · ${formatNumber(totalAgendadas)} agendadas.</p>
+            <p><strong>Senha:</strong> Lucas830 · painel protegido por login e com persistência local ativa.</p>
+          </div>
+
+          <div class="card chart-wrap" style="margin-top:14px;">
+            <h2>Gráfico por semana</h2>
+            <div class="chart-legend">
+              <span><i class="legend-dot" style="background:var(--primary)"></i> Ativas</span>
+              <span><i class="legend-dot" style="background:var(--blue)"></i> Follow-up</span>
+              <span><i class="legend-dot" style="background:var(--gold)"></i> Respostas</span>
+            </div>
+            <svg id="mainChart" viewBox="0 0 960 260" aria-label="Gráfico de desempenho por semana"></svg>
+          </div>
+
+          <div class="section-grid" style="margin-top:18px;">
+            <div class="card">
+              <div class="card-header"><h3>Resumo detalhado</h3></div>
+              <table class="summary-table">
+                <tbody>
+                  <tr><th>Ativas</th><td>${formatNumber(totalAtivas)}</td></tr>
+                  <tr><th>Follow-up</th><td>${formatNumber(totalFollow)}</td></tr>
+                  <tr><th>Respostas</th><td>${formatNumber(totalRespostas)}</td></tr>
+                  <tr><th>Consultas agendadas</th><td>${formatNumber(totalAgendadas)}</td></tr>
+                  <tr><th>Total atual</th><td>R$ ${formatNumber(totalAtual, 2)}</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h3>Resumo por semana</h3></div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Semana</th>
+                      <th>Ativas</th>
+                      <th>Follow-up</th>
+                      <th>Respostas</th>
+                      <th>Agendadas</th>
+                      <th>Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${getWeekSummaryTableRows()}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+
+        drawChart();
       }
 
       function renderWeekTab() {
@@ -1020,34 +972,34 @@
 
         sem.innerHTML = `
           <div class="card">
-            <p class="eyebrow">Lançamento semanal</p>
-            <div class="toolbar">
+            <h2>Lançamento semanal</h2>
+            <p class="note">Escolha a data da semana. Se a semana já existir, os valores são carregados para edição. Os campos marcados com * são obrigatórios.</p>
+            <div class="row" style="margin:0 0 12px;">
               <label class="field" style="min-width:180px; margin:0;">
                 <span>Data da semana</span>
                 <input type="date" id="wd">
               </label>
-              <button class="ghost-btn" type="button" id="cp">Copiar valores da semana anterior</button>
+              <button class="ghost-btn" id="cp" type="button">Copiar valores da semana anterior</button>
             </div>
-            <div class="form-grid" id="wf" style="margin-top:14px;"></div>
+            <div class="form-grid" id="wf"></div>
             <div class="row">
-              <button class="primary-btn" type="button" id="ws">Salvar semana</button>
-              <button class="ghost-btn" type="button" id="wdel">Excluir esta semana</button>
+              <button class="primary-btn" id="ws" type="button">Salvar semana</button>
+              <button class="ghost-btn" id="wdel" type="button">Excluir esta semana</button>
             </div>
           </div>
 
-          <div class="card" style="margin-top:18px;">
-            <p class="eyebrow">Importar por texto</p>
-            <p class="note">Cole linhas com data e valores da planilha. Aceita DD/MM/YYYY, YYYY-MM-DD e separação por tabulação ou espaços.</p>
-            <textarea id="paste" rows="5" style="width:100%; margin-top:10px;" placeholder="2026-09-23    120    42    180    25    ..."></textarea>
+          <div class="card" style="margin-top:14px;">
+            <h2>Importar da planilha</h2>
+            <p class="note">Cole as linhas de dados da planilha sem o cabeçalho, da coluna Data até Consultas realizadas.</p>
+            <textarea id="paste" rows="4" style="width:100%" placeholder="23/09/2026\t321\t64\t380 …"></textarea>
             <div class="row">
-              <button class="primary-btn" type="button" id="imp">Importar</button>
+              <button class="primary-btn" id="imp" type="button">Importar</button>
             </div>
           </div>
 
-          <div class="card" style="margin-top:18px;">
-            <div class="card-header">
-              <h2>Semanas lançadas</h2>
-            </div>
+          <div class="card" style="margin-top:14px;">
+            <h2>Semanas lançadas</h2>
+            <div class="filter-legend"><span class="dot"></span> Filtros: busca, intervalo e semana</div>
             <div class="toolbar">
               <input id="weekFilterSearch" class="filter-box" type="search" placeholder="Buscar por semana ou valor" style="min-width:220px; flex:1;">
               <input id="weekStartFilter" class="filter-box" type="date" style="min-width:150px;">
@@ -1058,44 +1010,70 @@
         `;
 
         buildWeekFields();
-
-        const allWeeks = getAllWeeksSorted();
-        if (allWeeks.length) {
-          const lastDate = allWeeks[allWeeks.length - 1];
+        const dates = getAllWeeksSorted();
+        if (dates.length) {
+          const date = dates[dates.length - 1];
           const wd = document.getElementById('wd');
-          if (wd) wd.value = lastDate;
-          loadWeekIntoForm(lastDate);
+          if (wd) {
+            wd.value = date;
+            loadWeekIntoForm(date);
+          }
         }
 
-        const weekTableWrap = document.getElementById('weekTableWrap');
-        if (weekTableWrap) {
+        const tableWrap = document.getElementById('weekTableWrap');
+        if (tableWrap) {
           const filtered = getFilteredWeeks();
           if (!filtered.length) {
-            weekTableWrap.innerHTML = '<div class="empty-state">Nenhuma semana encontrada com os filtros atuais.</div>';
+            tableWrap.innerHTML = '<div class="empty-state">Nenhuma semana encontrada com os filtros atuais.</div>';
           } else {
-            weekTableWrap.innerHTML = `
+            tableWrap.innerHTML = `
               <table>
                 <thead>
                   <tr>
                     <th>Semana</th>
+                    <th>Novos</th>
+                    <th>Antigas</th>
                     <th>Ativas</th>
-                    <th>Follow-up</th>
+                    <th>FU2</th>
+                    <th>FU3</th>
+                    <th>FU4</th>
+                    <th>FU5</th>
                     <th>Respostas</th>
+                    <th>M1</th>
+                    <th>M2</th>
+                    <th>M3</th>
+                    <th>M4</th>
+                    <th>M5</th>
+                    <th>M6</th>
+                    <th>Agendadas</th>
+                    <th>Total atual</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${filtered.slice().reverse().map(date => {
                     const item = state.weeks[date] || {};
-                    const followUp = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
                     return `
                       <tr>
                         <td>${formatDateBR(date)}</td>
+                        <td>${formatNumber(safeNumber(item.novos))}</td>
+                        <td>${formatNumber(safeNumber(item.antigas))}</td>
                         <td>${formatNumber(safeNumber(item.ativas))}</td>
-                        <td>${formatNumber(followUp)}</td>
+                        <td>${formatNumber(safeNumber(item.fu2))}</td>
+                        <td>${formatNumber(safeNumber(item.fu3))}</td>
+                        <td>${formatNumber(safeNumber(item.fu4))}</td>
+                        <td>${formatNumber(safeNumber(item.fu5))}</td>
                         <td>${formatNumber(safeNumber(item.resp))}</td>
+                        <td>${formatNumber(safeNumber(item.m1))}</td>
+                        <td>${formatNumber(safeNumber(item.m2))}</td>
+                        <td>${formatNumber(safeNumber(item.m3))}</td>
+                        <td>${formatNumber(safeNumber(item.m4))}</td>
+                        <td>${formatNumber(safeNumber(item.m5))}</td>
+                        <td>${formatNumber(safeNumber(item.m6))}</td>
+                        <td>${formatNumber(safeNumber(item.cagend))}</td>
+                        <td>R$ ${formatNumber(safeNumber(item.tcap), 2)}</td>
                         <td>
-                          <div class="row" style="margin-top:0;">
+                          <div class="row" style="margin-top:0;gap:6px;">
                             <button class="mini-btn" type="button" data-load-week="${date}">Editar</button>
                             <button class="mini-btn del-btn" type="button" data-delete-week="${date}">Excluir</button>
                           </div>
@@ -1118,6 +1096,45 @@
         document.getElementById('weekEndFilter')?.addEventListener('input', renderWeekTab);
       }
 
+      function parseAppointmentText(text) {
+        if (!text) return null;
+        const cleaned = String(text).trim();
+        if (!cleaned) return null;
+
+        const slashMatch = cleaned.match(/^(.+?)\s*\/\s*(.+?)\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/);
+        if (slashMatch) {
+          return {
+            paciente: slashMatch[1].trim(),
+            origem: slashMatch[2].trim() || 'Instagram',
+            agendada_em: parseDateValue(slashMatch[3]),
+            data_consulta: parseDateValue(slashMatch[4]),
+            status: 'agendada'
+          };
+        }
+
+        const keywordMatch = cleaned.match(/(?:agendada\s*em|agendado\s*em|data\s*agendada)\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+        const consultaMatch = cleaned.match(/(?:data\s*da\s*consulta|consulta)\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+        const pacienteMatch = cleaned.match(/^(.+?)\s*\/\s*(.+?)(?:\s*\/\s*(?:\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/);
+
+        if (keywordMatch || consultaMatch || pacienteMatch) {
+          const base = (patient => patient ? patient[1].trim() : '')(
+            cleaned.match(/^(.+?)\s*\/\s*(.+?)(?:\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/)
+          );
+
+          const origem = cleaned.match(/^.+?\s*\/\s*(.+?)\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/);
+
+          return {
+            paciente: base || cleaned.split(/\s*\/\s*/)[0].trim() || 'Paciente',
+            origem: (origem && origem[1] ? origem[1].trim() : 'Instagram'),
+            agendada_em: parseDateValue(keywordMatch ? keywordMatch[1] : (cleaned.match(/^.+?\s*\/\s*.+?\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/) || [])[1] || '')),
+            data_consulta: parseDateValue(consultaMatch ? consultaMatch[1] : (cleaned.match(/^.+?\s*\/\s*.+?\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/) || [])[1] || '')),
+            status: 'agendada'
+          };
+        }
+
+        return null;
+      }
+
       function renderConsultsTab() {
         const cons = document.getElementById('cons');
         if (!cons) return;
@@ -1126,50 +1143,31 @@
 
         cons.innerHTML = `
           <div class="card">
-            <p class="eyebrow">Registrar consulta agendada</p>
+            <h2>Registrar consulta agendada</h2>
             <div class="form-grid">
-              <label class="field">
-                <span>Paciente</span>
-                <input id="cp_n" placeholder="Nome ou iniciais">
-              </label>
-              <label class="field">
-                <span>Origem</span>
-                <select id="cp_o">
-                  ${origins.map(origin => `<option value="${origin}">${origin}</option>`).join('')}
-                </select>
-              </label>
-              <label class="field">
-                <span>Agendada em</span>
-                <input id="cp_s" type="date">
-              </label>
-              <label class="field">
-                <span>Data da consulta</span>
-                <input id="cp_c" type="date">
-              </label>
+              <label class="field"><span>Paciente</span><input id="cp_n" placeholder="Nome ou iniciais"></label>
+              <label class="field"><span>Veio de</span><select id="cp_o">${origins.map(o => `<option value="${o}">${o}</option>`).join('')}</select></label>
+              <label class="field"><span>Agendada em</span><input type="date" id="cp_s"></label>
+              <label class="field"><span>Data da consulta</span><input type="date" id="cp_c"></label>
             </div>
-            <div class="row">
-              <button class="primary-btn" type="button" id="cp_add">Adicionar consulta</button>
-            </div>
+            <div class="row"><button class="primary-btn" id="cp_add" type="button">Adicionar consulta</button></div>
           </div>
 
-          <div class="card" style="margin-top:18px;">
-            <p class="eyebrow">Importação por texto</p>
-            <p class="note">Formato sugerido: nome / origem / 21/10/2026 / 24/10/2026</p>
-            <textarea id="cp_paste" rows="4" style="width:100%; margin-top:10px;" placeholder="Maria / Instagram / 21/10/2026 / 24/10/2026"></textarea>
-            <div class="row">
-              <button class="primary-btn" type="button" id="cp_imp">Importar</button>
-            </div>
+          <div class="card" style="margin-top:14px;">
+            <h2>Colar dados do paciente</h2>
+            <p class="note">Alternativa rápida: cole os dados e eles são preenchidos automaticamente e salvos como consultas.</p>
+            <textarea id="cp_paste" rows="4" style="width:100%" placeholder="Maria / Instagram / 21/10/2026 / 24/10/2026"></textarea>
+            <div class="row"><button class="primary-btn" id="cp_imp" type="button">Importar</button></div>
           </div>
 
-          <div class="card" style="margin-top:18px;">
-            <div class="card-header">
-              <h2>Consultas registradas</h2>
-            </div>
+          <div class="card" style="margin-top:14px;">
+            <h2>Consultas registradas</h2>
+            <div class="filter-legend"><span class="dot"></span> Filtros: busca, origem, agendamento, consulta e status</div>
             <div class="toolbar">
-              <input id="apptSearch" class="filter-box" type="search" placeholder="Buscar paciente, origem ou status" style="min-width:230px; flex:1;">
+              <input id="apptSearch" class="filter-box" type="search" placeholder="Buscar paciente, origem ou status" style="min-width:220px; flex:1;">
               <select id="apptOriginFilter" class="filter-box" style="min-width:160px;">
                 <option value="">Todas as origens</option>
-                ${origins.map(origin => `<option value="${origin}">${origin}</option>`).join('')}
+                ${origins.map(o => `<option value="${o}">${o}</option>`).join('')}
               </select>
               <input id="apptScheduledFilter" class="filter-box" type="date" style="min-width:150px;">
               <input id="apptConsultationFilter" class="filter-box" type="date" style="min-width:150px;">
@@ -1207,28 +1205,27 @@
         const status = document.getElementById('apptStatusFilter')?.value || '';
 
         return state.appts.filter(item => {
-          const pessoa = (item.paciente || '').toLowerCase();
+          const paciente = (item.paciente || '').toLowerCase();
           const origem = (item.origem || '').toLowerCase();
           const statusText = (item.status || '').toLowerCase();
           const scheduledIso = parseDateValue(item.agendada_em);
           const consultationIso = parseDateValue(item.data_consulta);
 
-          const textMatch = !search || pessoa.includes(search) || origem.includes(search) || statusText.includes(search);
-          const originMatch = !origin || (item.origem || '') === origin;
-          const scheduledMatch = !scheduled || scheduledIso === scheduled;
-          const consultationMatch = !consultation || consultationIso === consultation;
-          const statusMatch = !status || statusText === status;
+          const matchSearch = !search || paciente.includes(search) || origem.includes(search) || statusText.includes(search);
+          const matchOrigin = !origin || (item.origem || '') === origin;
+          const matchScheduled = !scheduled || scheduledIso === scheduled;
+          const matchConsultation = !consultation || consultationIso === consultation;
+          const matchStatus = !status || statusText === status;
 
-          return textMatch && originMatch && scheduledMatch && consultationMatch && statusMatch;
+          return matchSearch && matchOrigin && matchScheduled && matchConsultation && matchStatus;
         });
       }
 
       function renderAppointmentsTable() {
         const wrap = document.getElementById('apptTableWrap');
         if (!wrap) return;
-
-        const filtered = getFilteredAppointments();
-        if (!filtered.length) {
+        const rows = getFilteredAppointments();
+        if (!rows.length) {
           wrap.innerHTML = '<div class="empty-state">Nenhuma consulta encontrada.</div>';
           return;
         }
@@ -1246,8 +1243,8 @@
               </tr>
             </thead>
             <tbody>
-              ${filtered.map(item => {
-                const index = state.appts.findIndex(entry => entry === item);
+              ${rows.map(item => {
+                const idx = state.appts.findIndex(a => a === item);
                 return `
                   <tr>
                     <td>${item.paciente || '—'}</td>
@@ -1255,16 +1252,14 @@
                     <td>${formatDateBR(item.agendada_em)}</td>
                     <td>${formatDateBR(item.data_consulta)}</td>
                     <td>
-                      <select data-status-id="${index}" class="filter-box" style="min-width:130px;">
+                      <select data-status-id="${idx}" class="filter-box" style="min-width:130px;">
                         <option value="agendada" ${item.status === 'agendada' ? 'selected' : ''}>Agendada</option>
                         <option value="realizada" ${item.status === 'realizada' ? 'selected' : ''}>Realizada</option>
                         <option value="cancelado" ${item.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
                         <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
                       </select>
                     </td>
-                    <td>
-                      <button class="mini-btn del-btn" type="button" data-delete-appt="${index}">Excluir</button>
-                    </td>
+                    <td><button class="mini-btn del-btn" type="button" data-delete-appt="${idx}">Excluir</button></td>
                   </tr>
                 `;
               }).join('')}
@@ -1279,37 +1274,24 @@
 
         cfg.innerHTML = `
           <div class="card">
-            <p class="eyebrow">Configuração</p>
+            <h2>Configuração</h2>
             <div class="config-grid">
-              <label class="field">
-                <span>Nome do painel</span>
-                <input id="cfgTitle" type="text" value="${state.cfg.title || 'Painel KOMMO'}">
-              </label>
-              <label class="field">
-                <span>Senha</span>
-                <input id="cfgPass" type="text" value="${state.cfg.password || ACCESS_PASSWORD}">
-              </label>
-              <label class="field">
-                <span>Limite de filtro</span>
-                <input id="cfgLimit" type="number" min="1" step="1" value="${state.cfg.filterLimit || 30}">
-              </label>
+              <label class="field"><span>Nome do painel</span><input id="cfgTitle" type="text" value="${state.cfg.title || 'Painel KOMMO'}"></label>
+              <label class="field"><span>Senha</span><input id="cfgPass" type="text" value="${state.cfg.password || ACCESS_PASSWORD}"></label>
+              <label class="field"><span>Limite de filtro</span><input id="cfgLimit" type="number" min="1" step="1" value="${state.cfg.filterLimit || 30}"></label>
             </div>
-            <div class="row">
-              <button class="primary-btn" type="button" id="saveCfg">Salvar configuração</button>
-            </div>
+            <div class="row"><button class="primary-btn" id="saveCfg" type="button">Salvar configuração</button></div>
           </div>
 
-          <div class="card" style="margin-top:18px;">
-            <div class="card-header">
-              <h2>Status da sincronização</h2>
-            </div>
+          <div class="card" style="margin-top:14px;">
+            <h2>Status da sincronização</h2>
             <div class="sync-box">
               <div class="sync-item">
                 <div>
                   <strong>Semanas</strong>
                   <div class="note">Sincronização do painel semanal</div>
                 </div>
-                <div id="syncWeeks" class="sync-status ${state.sync.weeks === 'good' ? 'good' : state.sync.weeks === 'error' ? 'error' : 'none'}">
+                <div class="sync-status ${state.sync.weeks === 'good' ? 'good' : state.sync.weeks === 'error' ? 'error' : 'none'}">
                   ${state.sync.weeks === 'good' ? 'Sucesso' : state.sync.weeks === 'error' ? 'Erro' : 'Não sincronizado'}
                 </div>
               </div>
@@ -1318,14 +1300,12 @@
                   <strong>Consultas</strong>
                   <div class="note">Sincronização das consultas</div>
                 </div>
-                <div id="syncAppointments" class="sync-status ${state.sync.appointments === 'good' ? 'good' : state.sync.appointments === 'error' ? 'error' : 'none'}">
+                <div class="sync-status ${state.sync.appointments === 'good' ? 'good' : state.sync.appointments === 'error' ? 'error' : 'none'}">
                   ${state.sync.appointments === 'good' ? 'Sucesso' : state.sync.appointments === 'error' ? 'Erro' : 'Não sincronizado'}
                 </div>
               </div>
             </div>
-            <div class="row">
-              <button class="primary-btn" type="button" id="retrySync">Nova tentativa de sincronização</button>
-            </div>
+            <div class="row"><button class="primary-btn" id="retrySync" type="button">Nova tentativa de sincronização</button></div>
           </div>
         `;
 
@@ -1334,34 +1314,35 @@
       }
 
       function saveConfig() {
-        const nextTitle = document.getElementById('cfgTitle')?.value.trim() || 'Painel KOMMO';
-        const nextPass = document.getElementById('cfgPass')?.value.trim() || ACCESS_PASSWORD;
-        const nextLimit = Number(document.getElementById('cfgLimit')?.value || 30);
-
-        state.cfg.title = nextTitle;
-        state.cfg.password = nextPass;
-        state.cfg.filterLimit = Number.isFinite(nextLimit) && nextLimit > 0 ? nextLimit : 30;
+        const title = document.getElementById('cfgTitle')?.value.trim() || 'Painel KOMMO';
+        const pass = document.getElementById('cfgPass')?.value.trim() || ACCESS_PASSWORD;
+        const limit = Number(document.getElementById('cfgLimit')?.value || 30);
+        state.cfg.title = title;
+        state.cfg.password = pass;
+        state.cfg.filterLimit = Number.isFinite(limit) && limit > 0 ? limit : 30;
         saveData();
         applyTitle();
         renderAll();
         toast('Configuração salva.');
       }
 
-      function saveWeek() {
-        const dateField = document.getElementById('wd');
-        const rawDate = dateField ? dateField.value : '';
-        const normalizedDate = parseDateValue(rawDate);
+      function applyTitle() {
+        const title = state.cfg.title || 'Painel KOMMO';
+        const ttl = document.getElementById('ttl');
+        if (ttl) ttl.textContent = title;
+      }
 
-        if (!normalizedDate) {
+      function saveWeek() {
+        const date = parseDateValue(document.getElementById('wd')?.value || '');
+        if (!date) {
           toast('Data inválida. Corrija a data da semana.');
           return;
         }
-
         const payload = readWeekForm();
-        state.weeks[normalizedDate] = payload;
+        state.weeks[date] = payload;
         saveData();
         renderAll();
-        syncWeeksToSheetDB(normalizedDate, payload);
+        syncWeeksToSheetDB(date, payload);
         toast('Semana salva com sucesso.');
       }
 
@@ -1371,30 +1352,25 @@
           toast('Nenhuma semana anterior para copiar.');
           return;
         }
-
         const prevDate = dates[dates.length - 1];
         const source = state.weeks[prevDate];
         if (!source) {
           toast('Semana anterior inválida.');
           return;
         }
-
-        const currentDate = document.getElementById('wd')?.value || prevDate;
-        const normalized = parseDateValue(currentDate) || prevDate;
-        const wd = document.getElementById('wd');
-        if (wd) wd.value = normalized;
+        const input = document.getElementById('wd');
+        if (input) input.value = prevDate;
         populateWeekFields(source);
         toast('Valores copiados da semana anterior.');
       }
 
       function deleteCurrentWeek() {
-        const value = document.getElementById('wd')?.value || '';
-        const iso = parseDateValue(value);
-        if (!iso) {
+        const date = parseDateValue(document.getElementById('wd')?.value || '');
+        if (!date) {
           toast('Selecione uma semana válida para excluir.');
           return;
         }
-        delete state.weeks[iso];
+        delete state.weeks[date];
         saveData();
         renderAll();
         toast('Semana removida.');
@@ -1407,20 +1383,19 @@
           return;
         }
 
-        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
         let imported = 0;
-
+        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
         lines.forEach(line => {
-          const cells = line.split(/\t|\s{2,}|\s*;\s*/).map(item => item.trim()).filter(Boolean);
+          const cells = line.split(/\t|\s{2,}|\s*;\s*/).map(v => v.trim()).filter(Boolean);
           if (!cells.length) return;
           const [first, ...rest] = cells;
-          const date = parseDateValue(first);
-          if (!date) return;
-          const entry = { data_semana: date };
+          const iso = parseDateValue(first);
+          if (!iso) return;
+          const item = { data_semana: iso };
           FIELDS.forEach(([key], index) => {
-            entry[key] = safeNumber(rest[index] || 0);
+            item[key] = safeNumber(rest[index] || 0);
           });
-          state.weeks[date] = normalizeWeekRecord(entry);
+          state.weeks[iso] = normalizeWeekRecord(item);
           imported += 1;
         });
 
@@ -1438,7 +1413,7 @@
       function addAppointment() {
         const nome = document.getElementById('cp_n')?.value.trim();
         const origem = document.getElementById('cp_o')?.value || 'Instagram';
-        const marcada = document.getElementById('cp_s')?.value || '';
+        const agendada = document.getElementById('cp_s')?.value || '';
         const consulta = document.getElementById('cp_c')?.value || '';
 
         if (!nome || !consulta) {
@@ -1446,14 +1421,15 @@
           return;
         }
 
-        const item = {
+        const item = normalizeAppointment({
           paciente: nome,
           origem,
-          agendada_em: parseDateValue(marcada) || marcada,
+          agendada_em: parseDateValue(agendada) || agendada,
           data_consulta: parseDateValue(consulta) || consulta,
           status: 'agendada'
-        };
+        });
 
+        if (!item) return;
         state.appts.push(item);
         saveData();
         renderConsultsTab();
@@ -1475,20 +1451,13 @@
           return;
         }
 
-        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
         let imported = 0;
-
+        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
         lines.forEach(line => {
-          const parts = line.split(/\s*\/\s*|\s*;\s*|\t+/).map(part => part.trim()).filter(Boolean);
-          if (parts.length < 4) return;
-          const [paciente, origem, agendada, consulta] = parts;
-          const item = {
-            paciente: paciente || 'Paciente',
-            origem: origem || 'Instagram',
-            agendada_em: parseDateValue(agendada) || agendada,
-            data_consulta: parseDateValue(consulta) || consulta,
-            status: 'agendada'
-          };
+          const parsed = parseAppointmentText(line);
+          if (!parsed) return;
+          const item = normalizeAppointment(parsed);
+          if (!item) return;
           state.appts.push(item);
           imported += 1;
         });
@@ -1525,14 +1494,13 @@
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify(Array.isArray(payload) ? payload : [payload])
         });
-
         const text = await response.text();
         if (!response.ok) throw new Error(text || 'Erro ao sincronizar com SheetDB');
         return text;
       }
 
       function syncWeeksToSheetDB(date, payload) {
-        const dataObject = {
+        const toSend = {
           source: 'painel-kommo',
           updated_at: new Date().toISOString(),
           data_semana: date,
@@ -1554,14 +1522,14 @@
           tcap: safeNumber(payload.tcap)
         };
 
-        postJSON(SHEETDB_WEEK_URL, dataObject)
+        postJSON(SHEETDB_WEEK_URL, toSend)
           .then(() => {
             state.sync.weeks = 'good';
             saveData();
             renderConfig();
           })
-          .catch((error) => {
-            console.error('SheetDB weeks error:', error);
+          .catch((err) => {
+            console.error('SheetDB weeks error:', err);
             state.sync.weeks = 'error';
             saveData();
             renderConfig();
@@ -1570,7 +1538,7 @@
       }
 
       function syncAppointmentsToSheetDB(item) {
-        const payload = {
+        const toSend = {
           source: 'painel-kommo',
           updated_at: new Date().toISOString(),
           paciente: String(item.paciente || ''),
@@ -1580,14 +1548,14 @@
           status: String(item.status || 'agendada')
         };
 
-        postJSON(SHEETDB_CONSULTA_URL, payload)
+        postJSON(SHEETDB_CONSULTA_URL, toSend)
           .then(() => {
             state.sync.appointments = 'good';
             saveData();
             renderConfig();
           })
-          .catch((error) => {
-            console.error('SheetDB appointments error:', error);
+          .catch((err) => {
+            console.error('SheetDB appointments error:', err);
             state.sync.appointments = 'error';
             saveData();
             renderConfig();
@@ -1596,15 +1564,14 @@
       }
 
       function retrySync() {
-        const allWeeks = getAllWeeksSorted();
-        allWeeks.forEach(date => {
+        const dates = getAllWeeksSorted();
+        dates.forEach(date => {
           const payload = state.weeks[date];
           if (payload) syncWeeksToSheetDB(date, payload);
         });
-
         state.appts.forEach(item => syncAppointmentsToSheetDB(item));
 
-        if (!allWeeks.length && !state.appts.length) {
+        if (!dates.length && !state.appts.length) {
           state.sync.weeks = 'none';
           state.sync.appointments = 'none';
           saveData();
@@ -1612,17 +1579,24 @@
           toast('Nada para sincronizar no momento.');
           return;
         }
-
         toast('Tentativa de sincronização iniciada.');
       }
 
-      function bindGlobalEvents() {
-        const navButtons = document.querySelectorAll('[data-tab]');
-        navButtons.forEach(button => {
+      function renderAll() {
+        applyTitle();
+        renderDashboard();
+        renderWeekTab();
+        renderConsultsTab();
+        renderConfig();
+      }
+
+      function bindEvents() {
+        document.querySelectorAll('[data-tab]').forEach(button => {
           button.addEventListener('click', () => {
             const target = button.dataset.tab;
             document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
-            document.getElementById(target)?.classList.add('active');
+            const panel = document.getElementById(target);
+            if (panel) panel.classList.add('active');
             document.querySelectorAll('[data-tab]').forEach(btn => btn.classList.toggle('on', btn === button));
           });
         });
@@ -1663,36 +1637,28 @@
 
       function initializeLock() {
         const lockForm = document.getElementById('lockForm');
-        const accessPasswordInput = document.getElementById('accessPassword');
+        const passwordInput = document.getElementById('accessPassword');
         const lockMessage = document.getElementById('lockMessage');
         const lockScreen = document.getElementById('lockScreen');
         const appShell = document.getElementById('appShell');
 
-        if (lockForm && accessPasswordInput && lockMessage && lockScreen && appShell) {
-          lockForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const password = accessPasswordInput.value.trim();
-            if (password === (state.cfg.password || ACCESS_PASSWORD)) {
-              document.body.classList.remove('locked');
-              lockScreen.style.display = 'none';
-              appShell.style.display = 'block';
-              accessPasswordInput.value = '';
-              lockMessage.textContent = '';
-              return;
-            }
-            lockMessage.textContent = 'Senha Incorreta';
-            accessPasswordInput.value = '';
-            accessPasswordInput.focus();
-          });
-        }
-      }
+        if (!lockForm || !passwordInput || !lockMessage || !lockScreen || !appShell) return;
 
-      function renderAll() {
-        applyTitle();
-        renderDashboard();
-        renderWeekTab();
-        renderConsultsTab();
-        renderConfig();
+        lockForm.addEventListener('submit', (event) => {
+          event.preventDefault();
+          const password = passwordInput.value.trim();
+          if (password === (state.cfg.password || ACCESS_PASSWORD)) {
+            document.body.classList.remove('locked');
+            lockScreen.style.display = 'none';
+            appShell.style.display = 'block';
+            passwordInput.value = '';
+            lockMessage.textContent = '';
+            return;
+          }
+          lockMessage.textContent = 'Senha Incorreta';
+          passwordInput.value = '';
+          passwordInput.focus();
+        });
       }
 
       function init() {
@@ -1703,7 +1669,7 @@
         state.sync = loaded.sync || { ...state.sync };
 
         initializeLock();
-        bindGlobalEvents();
+        bindEvents();
         renderAll();
       }
 
