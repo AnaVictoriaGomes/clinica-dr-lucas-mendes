@@ -20,13 +20,11 @@
       --r:#c2455a;
       --k:#9aa8a4;
       --p:#7a5aa6;
-      --shadow: rgba(15,41,36,.14);
       color-scheme: light;
       box-sizing: border-box;
     }
 
     * { box-sizing: border-box; }
-
     html { scroll-padding-top: env(safe-area-inset-top, 0px); }
 
     body {
@@ -38,7 +36,6 @@
     }
 
     body.locked { overflow:hidden; }
-
     .app-shell { display:none; }
     body:not(.locked) .app-shell { display:block; }
 
@@ -51,19 +48,18 @@
       background:radial-gradient(circle at top, #f4faf8 0%, #eaf0ee 40%, #dfeae7 100%);
       z-index:1000;
     }
-
     body:not(.locked) .lock-screen { display:none; }
 
     .lock-card {
       width:min(92vw, 380px);
       background: rgba(255,255,255,.92);
-      border: 1px solid rgba(22,48,44,.08);
+      border:1px solid rgba(22,48,44,.08);
       border-radius:20px;
       padding:28px 22px 22px;
       box-shadow: 0 20px 60px rgba(15,41,36,.18);
     }
 
-    .lock-icon{ font-size:42px; margin-bottom:10px; }
+    .lock-icon { font-size:42px; margin-bottom:10px; }
     .lock-card h2 {
       margin:0 0 14px;
       font-size:26px;
@@ -114,7 +110,6 @@
     }
 
     .lock-card button:hover { filter:brightness(1.04); }
-
     #lockMessage {
       min-height:22px;
       margin:10px 0 0;
@@ -142,7 +137,6 @@
 
     h1 { font-size:20px; margin:0; }
     h2 { font-size:16px; margin:0 0 12px; }
-
     .note { color:var(--mut); font-size:13px; line-height:1.45; }
 
     #st { margin-top:2px; }
@@ -255,7 +249,6 @@
     }
 
     .ins p { margin:3px 0; }
-
     .wrap { overflow-x:auto; }
 
     table {
@@ -352,7 +345,7 @@
       box-shadow:none;
     }
     button.b.s:hover { background:var(--bg); filter:none; border-color:var(--k); }
-    button.b:disabled { opacity:.55; cursor:wait; }
+    button.b:disabled { opacity:.55; cursor:not-allowed; }
 
     button.x {
       border:0;
@@ -375,6 +368,46 @@
       margin-bottom:10px;
     }
 
+    .sync-warning {
+      background:rgba(194,69,90,.08);
+      border:1px solid rgba(194,69,90,.25);
+      color:var(--ink);
+      border-left:4px solid var(--r);
+      border-radius:12px;
+      padding:12px 14px;
+      margin-bottom:14px;
+      font-size:14px;
+    }
+
+    .sync-ok {
+      background:rgba(31,122,109,.08);
+      border:1px solid rgba(31,122,109,.25);
+      border-left:4px solid var(--g);
+      border-radius:12px;
+      padding:12px 14px;
+      margin-bottom:14px;
+      font-size:14px;
+    }
+
+    .status-pill {
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      margin-left:6px;
+    }
+
+    .status-pill.ok {
+      background:rgba(31,122,109,.12);
+      color:var(--g);
+    }
+
+    .status-pill.fail {
+      background:rgba(194,69,90,.10);
+      color:var(--r);
+    }
+
     #msg {
       position:fixed;
       right:20px;
@@ -394,10 +427,7 @@
       transition:opacity .2s ease, transform .2s ease;
     }
 
-    #msg.on {
-      opacity:1;
-      transform:translateY(0);
-    }
+    #msg.on { opacity:1; }
 
     @media (max-width:640px){
       header { padding:10px 14px; }
@@ -427,7 +457,6 @@
       <div>
         <h1 id="ttl">Painel KOMMO</h1>
         <div class="note" id="st">Carregando…</div>
-        <div class="note" id="sh"></div>
       </div>
       <nav id="nav">
         <button data-t="dash" class="on">Painel</button>
@@ -457,11 +486,10 @@
 
         <div class="card" style="margin-top:14px">
           <h2>Importar da planilha</h2>
-          <p class="note">Cole as linhas de dados da planilha sem o cabeçalho, da coluna Data até Consultas realizadas.</p>
-          <textarea id="paste" rows="4" style="width:100%" placeholder="23/09/2026	321	64	380 …"></textarea>
+          <p class="note">Cole as linhas da planilha sem cabeçalho. Aceita separação por tabulação, ponto e vírgula, vírgula ou pipe.</p>
+          <textarea id="paste" rows="5" style="width:100%" placeholder="2026-09-23;170;34;410;22;15;8;5;12;10;..."></textarea>
           <div class="row">
             <button class="b" id="imp">Importar</button>
-            <button class="b s" id="seed">Carregar as 4 semanas atuais da planilha</button>
           </div>
         </div>
 
@@ -486,57 +514,40 @@
         <div class="card" style="margin-top:14px">
           <h2>Colar dados do paciente</h2>
           <p class="note">Alternativa rápida: cole os dados e eles são preenchidos automaticamente e salvos como consultas.</p>
-          <textarea id="cp_paste" rows="4" style="width:100%" placeholder="Maria / Instagram / 21/10/2026 / 24/10/2026"></textarea>
+          <textarea id="cp_paste" rows="4" style="width:100%" placeholder="Maria / Instagram / 2026-10-21 / 2026-10-24"></textarea>
           <div class="row"><button class="b" id="cp_imp">Importar</button></div>
         </div>
 
         <div class="card wrap" style="margin-top:14px">
           <h2>Consultas registradas</h2>
-          <p class="note">Mude o status quando a consulta acontecer, for cancelada ou reagendada.</p>
+          <p class="note">Edite o paciente, status, origem ou data diretamente aqui.</p>
           <div id="al"></div>
         </div>
       </section>
 
-      <section id="cfg" class="hide"></section>
+      <section id="cfg" class="hide">
+        <div id="cfgPanel"></div>
+      </section>
     </main>
 
     <div id="msg"></div>
   </div>
 
   <script>
-  (function(){
-    const STORAGE_KEY = 'kommo_dashboard_data';
+  (function () {
+    const STORAGE_KEY = 'kommo_dashboard_data_v2';
     const SHEETDB_WEEK_URL = 'https://sheetdb.io/api/v1/hd148z3uhn04n';
     const SHEETDB_CONSULTA_URL = 'https://sheetdb.io/api/v1/antynpy96prfl';
-
     const ACCESS_PASSWORD = 'Lucas830';
-    const lockForm = document.getElementById('lockForm');
-    const accessPasswordInput = document.getElementById('accessPassword');
-    const lockMessage = document.getElementById('lockMessage');
-    const lockScreen = document.getElementById('lockScreen');
-    const appShell = document.getElementById('appShell');
 
-    if (lockForm && accessPasswordInput && lockMessage && lockScreen && appShell) {
-      function unlockSite(){
-        document.body.classList.remove('locked');
-        lockScreen.style.display = 'none';
-        appShell.style.display = 'block';
-        accessPasswordInput.value = '';
-        lockMessage.textContent = '';
-      }
-
-      lockForm.addEventListener('submit', function(event){
-        event.preventDefault();
-        const password = accessPasswordInput.value.trim();
-        if (password === ACCESS_PASSWORD) {
-          unlockSite();
-          return;
-        }
-        lockMessage.textContent = 'Senha Incorreta';
-        accessPasswordInput.value = '';
-        accessPasswordInput.focus();
-      });
-    }
+    const ORIG = {
+      novo: 'Novo lead',
+      c2: '2º contato (FU 2)',
+      c3: '3º contato (FU 3)',
+      c4: '4º contato (FU 4)',
+      c5: '5º contato (FU 5)',
+      sem: 'Sem retorno no follow-up'
+    };
 
     const FIELDS = [
       ['novos','Novos leads'],
@@ -557,24 +568,41 @@
       ['tcap','Total atual']
     ];
 
-    const ORIG = {
-      novo:'Novo lead',
-      c2:'2º contato (FU 2)',
-      c3:'3º contato (FU 3)',
-      c4:'4º contato (FU 4)',
-      c5:'5º contato (FU 5)',
-      sem:'Sem retorno no follow-up'
+    const STATE_DEFAULT = {
+      weeks: {},
+      appts: [],
+      history: {},
+      cfg: {
+        sync: { lastAttempt: null, success: false, message: 'Ainda não foi sincronizado.' }
+      }
     };
 
-    const state = { weeks:{}, appts:[], cfg:{} };
-    let currentTab = 'dash';
+    const state = structuredClone(STATE_DEFAULT);
 
-    function safeNumber(value){
-      const n = Number(value);
+    function safeNumber(value) {
+      const n = Number(String(value ?? '').replace(/[.%\s]/g, '').replace(',', '.'));
       return Number.isFinite(n) ? n : 0;
     }
 
-    function toast(message){
+    function cleanText(value) {
+      return String(value ?? '').trim();
+    }
+
+    function formatDateBR(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr + 'T00:00:00');
+      if (Number.isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('pt-BR');
+    }
+
+    function formatDateTimeBR(dateIso) {
+      if (!dateIso) return '—';
+      const d = new Date(dateIso);
+      if (Number.isNaN(d.getTime())) return dateIso;
+      return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    function toast(message) {
       const el = document.getElementById('msg');
       if (!el) return;
       el.textContent = message;
@@ -583,37 +611,54 @@
       toast.timer = setTimeout(() => el.classList.remove('on'), 2200);
     }
 
-    function loadData(){
+    function loadData() {
       try {
-        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"weeks":{},"appts":[]}');
-        state.weeks = parsed && parsed.weeks ? parsed.weeks : {};
-        state.appts = Array.isArray(parsed && parsed.appts) ? parsed.appts : [];
-        state.cfg = parsed && parsed.cfg ? parsed.cfg : {};
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          Object.assign(state, structuredClone(STATE_DEFAULT));
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        state.weeks = parsed.weeks || {};
+        state.appts = Array.isArray(parsed.appts) ? parsed.appts : [];
+        state.history = parsed.history || {};
+        state.cfg = parsed.cfg || structuredClone(STATE_DEFAULT.cfg);
       } catch {
-        state.weeks = {};
-        state.appts = [];
-        state.cfg = {};
+        Object.assign(state, structuredClone(STATE_DEFAULT));
       }
     }
 
-    function saveData(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ weeks: state.weeks, appts: state.appts, cfg: state.cfg }));
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        weeks: state.weeks,
+        appts: state.appts,
+        history: state.history,
+        cfg: state.cfg
+      }));
     }
 
-    function formatDateBR(dateStr){
-      if (!dateStr) return '—';
-      const d = new Date(dateStr + 'T00:00:00');
-      if (Number.isNaN(d.getTime())) return dateStr;
-      return d.toLocaleDateString('pt-BR');
+    function setSyncStatus(success, message) {
+      state.cfg.sync = {
+        lastAttempt: new Date().toISOString(),
+        success,
+        message
+      };
+      saveData();
+      renderConfig();
     }
 
-    function getLastWeek(){
-      const dates = Object.keys(state.weeks).sort();
-      if (!dates.length) return null;
-      return state.weeks[dates[dates.length-1]];
+    function appendHistory(date, payload) {
+      if (!date) return;
+      const list = state.history[date] || [];
+      list.unshift({
+        at: new Date().toISOString(),
+        payload: JSON.parse(JSON.stringify(payload))
+      });
+      state.history[date] = list.slice(0, 12);
+      saveData();
     }
 
-    function populateWeekFields(data){
+    function populateWeekFields(data) {
       FIELDS.forEach(([key]) => {
         const field = document.getElementById('w_' + key);
         if (!field) return;
@@ -621,31 +666,32 @@
       });
     }
 
-    function buildWeekFields(){
+    function buildWeekFields() {
       const container = document.getElementById('wf');
       if (!container) return;
-      const html = FIELDS.filter(([key]) => key !== 'cagend').map(([key, label]) => `
+      container.innerHTML = FIELDS.filter(([key]) => key !== 'cagend').map(([key, label]) => `
         <label>
           ${label}
           <input type="number" min="0" step="1" id="w_${key}" value="0">
         </label>
       `).join('');
-      container.innerHTML = html;
 
-      const selectedDate = document.getElementById('wd')?.value || '';
-      if (selectedDate && state.weeks[selectedDate]) populateWeekFields(state.weeks[selectedDate]);
+      const wd = document.getElementById('wd');
+      if (wd && wd.value && state.weeks[wd.value]) {
+        populateWeekFields(state.weeks[wd.value]);
+      }
     }
 
-    function readWeekForm(){
+    function readWeekForm() {
       const result = {};
       FIELDS.forEach(([key]) => {
-        const field = document.getElementById('w_' + key);
-        result[key] = field ? safeNumber(field.value) : 0;
+        const input = document.getElementById('w_' + key);
+        result[key] = input ? safeNumber(input.value) : 0;
       });
       return result;
     }
 
-    function renderDashboard(){
+    function renderDashboard() {
       const dash = document.getElementById('dash');
       if (!dash) return;
 
@@ -660,10 +706,10 @@
         return;
       }
 
-      const last = state.weeks[orderedWeeks[orderedWeeks.length-1]];
+      const last = state.weeks[orderedWeeks[orderedWeeks.length - 1]];
       const totalFollow = safeNumber(last.fu2) + safeNumber(last.fu3) + safeNumber(last.fu4) + safeNumber(last.fu5);
-      const totalMensagens = safeNumber(last.resp);
       const totalAtivas = safeNumber(last.ativas);
+      const totalRespostas = safeNumber(last.resp);
       const totalAtual = safeNumber(last.tcap);
 
       dash.innerHTML = `
@@ -673,26 +719,23 @@
             <b>${totalAtivas.toLocaleString('pt-BR')}</b>
           </div>
           <div class="card kpi">
-            <span>Mensagens follow-up</span>
+            <span>Follow-up</span>
             <b>${totalFollow}</b>
             <small>acumulado</small>
           </div>
           <div class="card kpi">
             <span>Respostas</span>
-            <b>${totalMensagens.toLocaleString('pt-BR')}</b>
+            <b>${totalRespostas.toLocaleString('pt-BR')}</b>
           </div>
           <div class="card kpi">
-            <span>Faturamento</span>
+            <span>Total atual</span>
             <b>R$ ${totalAtual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
           </div>
-        </div>
-        <div class="ins">
-          <p>Senha: <b>Lucas830</b> (para liberar o painel).</p>
         </div>
       `;
     }
 
-    function renderWeekList(){
+    function renderWeekList() {
       const el = document.getElementById('wl');
       if (!el) return;
 
@@ -718,7 +761,7 @@
       }).join('');
     }
 
-    function renderAppointments(){
+    function renderAppointments() {
       const el = document.getElementById('al');
       if (!el) return;
 
@@ -729,39 +772,106 @@
 
       el.innerHTML = state.appts.map((item, idx) => `
         <div class="week-item">
-          <strong>${item.paciente || 'Paciente'}</strong><br>
-          <small>${item.origem || '—'} · ${formatDateBR(item.data_consulta)} · ${item.status || 'agendada'}</small>
+          <div class="f" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));">
+            <label>Paciente
+              <input type="text" data-appt-field="paciente" data-appt-index="${idx}" value="${escapeHtml(item.paciente || '')}">
+            </label>
+            <label>Veio de
+              <select data-appt-field="origem" data-appt-index="${idx}">
+                ${Object.entries(ORIG).map(([key, label]) => `<option value="${key}" ${item.origem === key ? 'selected' : ''}>${label}</option>`).join('')}
+              </select>
+            </label>
+            <label>Agendada em
+              <input type="date" data-appt-field="agendada_em" data-appt-index="${idx}" value="${item.agendada_em || ''}">
+            </label>
+            <label>Consulta
+              <input type="date" data-appt-field="data_consulta" data-appt-index="${idx}" value="${item.data_consulta || ''}">
+            </label>
+            <label>Status
+              <select data-appt-field="status" data-appt-index="${idx}">
+                <option value="agendada" ${item.status === 'agendada' ? 'selected' : ''}>Agendada</option>
+                <option value="realizada" ${item.status === 'realizada' ? 'selected' : ''}>Realizada</option>
+                <option value="cancelado" ${item.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
+              </select>
+            </label>
+          </div>
           <div class="row">
-            <select data-status-id="${idx}" aria-label="Status da consulta">
-              <option value="agendada" ${item.status === 'agendada' ? 'selected' : ''}>Agendada</option>
-              <option value="realizada" ${item.status === 'realizada' ? 'selected' : ''}>Realizada</option>
-              <option value="cancelado" ${item.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-              <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
-            </select>
+            <button class="b" data-save-appt="${idx}" type="button">Salvar edição</button>
             <button class="b s" data-delete-appt="${idx}" type="button">Excluir</button>
           </div>
         </div>
       `).join('');
     }
 
-    function renderAll(){
+    function renderConfig() {
+      const cfg = document.getElementById('cfgPanel');
+      if (!cfg) return;
+
+      const status = state.cfg.sync || { lastAttempt: null, success: false, message: 'Ainda não foi sincronizado.' };
+      const hasSyncError = !status.success;
+      const statusText = status.success ? 'Sincronização com sucesso' : 'Sincronização falhou';
+      const lastAttemptText = status.lastAttempt ? formatDateTimeBR(status.lastAttempt) : 'Nunca';
+
+      const history = Object.entries(state.history).slice(0, 8);
+      const historyHtml = history.length
+        ? history.map(([date, entries]) => `
+            <div class="week-item">
+              <strong>${date}</strong><br>
+              ${entries.slice(0, 3).map(entry => `<small>${formatDateTimeBR(entry.at)} · ${entry.payload && entry.payload.novos !== undefined ? 'salvo' : 'snapshot'}</small><br>`).join('')}
+            </div>
+          `).join('')
+        : '<p class="note">Nenhum histórico registrado ainda.</p>';
+
+      cfg.innerHTML = `
+        <div class="card">
+          <h2>Configuração</h2>
+          ${hasSyncError ? `
+            <div class="sync-warning">
+              <strong>Atenção:</strong> a sincronização com o SheetDB falhou. Os dados continuam salvos localmente e o painel permanece funcionando.<br>
+              <small>Última tentativa: ${lastAttemptText}</small>
+            </div>
+          ` : `
+            <div class="sync-ok">
+              <strong>Sincronização ativa.</strong> Os dados foram enviados com sucesso.<br>
+              <small>Última tentativa: ${lastAttemptText}</small>
+            </div>
+          `}
+
+          <div class="card" style="margin-top:12px; background:var(--bg); border-color:var(--line);">
+            <h2 style="margin-bottom:8px">Status da sincronização</h2>
+            <p class="note">Última sincronização: <strong>${lastAttemptText}</strong></p>
+            <p class="note">Resultado: <span class="status-pill ${status.success ? 'ok' : 'fail'}">${statusText}</span></p>
+            <p class="note">Mensagem: ${status.message || 'Sem mensagem.'}</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;">
+          <h2>Histórico por semana</h2>
+          ${historyHtml}
+        </div>
+      `;
+    }
+
+    function renderAll() {
       renderDashboard();
       renderWeekList();
       renderAppointments();
+      renderConfig();
 
       const wd = document.getElementById('wd');
-      if (wd) wd.value = wd.value || new Date().toISOString().slice(0,10);
+      if (wd && !wd.value) wd.value = new Date().toISOString().slice(0, 10);
 
-      const cp = document.getElementById('cp_o');
-      if (cp && !cp.value) {
-        cp.innerHTML = Object.entries(ORIG).map(([key, value]) => `<option value="${key}">${value}</option>`).join('');
+      const cpOrigin = document.getElementById('cp_o');
+      if (cpOrigin && !cpOrigin.value) {
+        cpOrigin.innerHTML = Object.entries(ORIG).map(([key, value]) => `<option value="${key}">${value}</option>`).join('');
       }
     }
 
-    function buildPayloadWeek(date, data){
+    function buildWeekPayload(date, data) {
       return {
-        source:'painel-kommo',
-        updated_at:new Date().toISOString(),
+        source: 'painel-kommo',
+        updated_at: new Date().toISOString(),
         data_semana: date,
         novos: safeNumber(data.novos),
         antigas: safeNumber(data.antigas),
@@ -782,43 +892,44 @@
       };
     }
 
-    function buildPayloadConsulta(item){
+    function buildConsultaPayload(item) {
       return {
-        source:'painel-kommo',
-        updated_at:new Date().toISOString(),
-        paciente: String(item.paciente || ''),
-        origem: String(item.origem || ''),
-        agendada_em: String(item.agendada_em || ''),
-        data_consulta: String(item.data_consulta || ''),
-        status: String(item.status || 'agendada'),
-        reagendado: String(item.reagendado || ''),
-        observacao: String(item.observacao || '')
+        source: 'painel-kommo',
+        updated_at: new Date().toISOString(),
+        paciente: cleanText(item.paciente),
+        origem: cleanText(item.origem),
+        agendada_em: cleanText(item.agendada_em),
+        data_consulta: cleanText(item.data_consulta),
+        status: cleanText(item.status || 'agendada'),
+        reagendado: cleanText(item.reagendado),
+        observacao: cleanText(item.observacao)
       };
     }
 
-    async function postJSON(url, payload){
+    async function postJSON(url, payload) {
       const response = await fetch(url, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(Array.isArray(payload) ? payload : [payload])
       });
 
       const text = await response.text();
-      if (!response.ok) {
-        throw new Error(text || 'Erro ao enviar para o SheetDB');
-      }
+      if (!response.ok) throw new Error(text || 'Erro ao sincronizar com SheetDB');
       return text;
     }
 
-    async function saveWeekToSheetDB(payload){
+    async function saveWeekToSheetDB(payload) {
       await postJSON(SHEETDB_WEEK_URL, payload);
     }
 
-    async function saveConsultaToSheetDB(payload){
+    async function saveConsultaToSheetDB(payload) {
       await postJSON(SHEETDB_CONSULTA_URL, payload);
     }
 
-    function saveWeek(){
+    function saveWeek() {
       const date = document.getElementById('wd').value;
       if (!date) {
         toast('Escolha a data da semana');
@@ -827,36 +938,39 @@
 
       const payload = readWeekForm();
       state.weeks[date] = payload;
+      appendHistory(date, payload);
       saveData();
       renderAll();
 
       (async () => {
         try {
-          await saveWeekToSheetDB(buildPayloadWeek(date, payload));
-          toast('Dados salvos com sucesso!');
+          await saveWeekToSheetDB(buildWeekPayload(date, payload));
+          setSyncStatus(true, 'Sincronização semanal concluída com sucesso.');
+          toast('Dados salvos e sincronizados.');
         } catch (err) {
           console.error(err);
+          setSyncStatus(false, 'Falha na sincronização do SheetDB. Dados salvos localmente.');
           toast('Erro no SheetDB. Dados salvos localmente.');
         }
       })();
     }
 
-    function addAppointment(){
-      const name = document.getElementById('cp_n').value.trim();
+    function addAppointment() {
+      const patientName = document.getElementById('cp_n').value.trim();
       const origin = document.getElementById('cp_o').value;
       const scheduled = document.getElementById('cp_s').value;
-      const consultation = document.getElementById('cp_c').value;
+      const consultDate = document.getElementById('cp_c').value;
 
-      if (!name || !consultation) {
+      if (!patientName || !consultDate) {
         toast('Preencha paciente e data da consulta.');
         return;
       }
 
       const item = {
-        paciente: name,
+        paciente: patientName,
         origem: origin,
         agendada_em: scheduled,
-        data_consulta: consultation,
+        data_consulta: consultDate,
         status: 'agendada',
         reagendado: '',
         observacao: ''
@@ -867,21 +981,23 @@
       renderAll();
 
       document.getElementById('cp_n').value = '';
-      document.getElementById('cp_s').value = new Date().toISOString().slice(0,10);
+      document.getElementById('cp_s').value = new Date().toISOString().slice(0, 10);
       document.getElementById('cp_c').value = '';
 
       (async () => {
         try {
-          await saveConsultaToSheetDB(buildPayloadConsulta(item));
-          toast('Consulta salva com sucesso!');
+          await saveConsultaToSheetDB(buildConsultaPayload(item));
+          setSyncStatus(true, 'Consulta sincronizada com sucesso.');
+          toast('Consulta salva e sincronizada.');
         } catch (err) {
           console.error(err);
+          setSyncStatus(false, 'Falha ao sincronizar consulta. Dados salvos localmente.');
           toast('Consulta salva localmente, mas falhou no SheetDB.');
         }
       })();
     }
 
-    function deleteWeek(date){
+    function deleteWeek(date) {
       if (!date) return;
       delete state.weeks[date];
       saveData();
@@ -889,7 +1005,7 @@
       toast('Semana removida');
     }
 
-    function deleteAppt(index){
+    function deleteAppt(index) {
       if (index === undefined || !state.appts[index]) return;
       state.appts.splice(index, 1);
       saveData();
@@ -897,68 +1013,122 @@
       toast('Consulta removida');
     }
 
-    function importFromPaste(){
+    function parseSheetDataset(rawText) {
+      const lines = rawText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      if (!lines.length) return [];
+
+      const normalized = lines.map(line => {
+        const split = line
+          .split(/\t+|\s*;\s*|\s*\|\s*|\s*,\s*(?=\d|\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2})/)
+          .map(v => v.trim())
+          .filter(v => v !== '');
+        return split;
+      }).filter(row => row.length > 1);
+
+      if (!normalized.length) return [];
+
+      const sample = normalized[0].map(cell => cell.toLowerCase());
+      let headerIndex = null;
+      const possibleHeaders = ['data','semana','novos','antigas','ativas','fu2','fu3','fu4','fu5','respostas','mensagens'];
+
+      if (sample.some(cell => possibleHeaders.some(h => cell.includes(h)))) {
+        const headerRow = normalized[0];
+        const mapped = {};
+        headerRow.forEach((cell, idx) => {
+          const lower = cell.toLowerCase();
+          if (lower.includes('data')) mapped.data = idx;
+          if (lower.includes('novo')) mapped.novos = idx;
+          if (lower.includes('antiga')) mapped.antigas = idx;
+          if (lower.includes('ativa')) mapped.ativas = idx;
+          if (lower.includes('fu2') || lower.includes('follow-up 2')) mapped.fu2 = idx;
+          if (lower.includes('fu3') || lower.includes('follow-up 3')) mapped.fu3 = idx;
+          if (lower.includes('fu4') || lower.includes('follow-up 4')) mapped.fu4 = idx;
+          if (lower.includes('fu5') || lower.includes('follow-up 5')) mapped.fu5 = idx;
+          if (lower.includes('resposta')) mapped.resp = idx;
+          if (lower.includes('mensagem 1')) mapped.m1 = idx;
+          if (lower.includes('mensagem 2')) mapped.m2 = idx;
+          if (lower.includes('mensagem 3')) mapped.m3 = idx;
+          if (lower.includes('mensagem 4')) mapped.m4 = idx;
+          if (lower.includes('mensagem 5')) mapped.m5 = idx;
+          if (lower.includes('mensagem 6')) mapped.m6 = idx;
+          if (lower.includes('consultas agendadas')) mapped.cagend = idx;
+          if (lower.includes('total atual') || lower.includes('faturamento')) mapped.tcap = idx;
+        });
+
+        const rows = normalized.slice(1).filter(row => row.length >= 2);
+        return rows.map(row => {
+          const entry = { data_semana: row[mapped.data || 0] || '' };
+          FIELDS.forEach(([key]) => {
+            const idx = mapped[key];
+            entry[key] = idx !== undefined ? safeNumber(row[idx]) : 0;
+          });
+          return entry;
+        });
+      }
+
+      return normalized.map(row => {
+        const date = row[0] || '';
+        const entry = { data_semana: date };
+        FIELDS.forEach(([key], idx) => {
+          entry[key] = safeNumber(row[idx + 1] || 0);
+        });
+        return entry;
+      });
+    }
+
+    function importFromPaste() {
       const text = document.getElementById('paste').value.trim();
       if (!text) {
         toast('Cole os dados da planilha');
         return;
       }
 
-      const rows = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
-      const imported = [];
-
-      rows.forEach(line => {
-        const cells = line.split(/\t|\s{2,}/).map(v => v.trim());
-        const [date, ...values] = cells;
-        if (!date || values.length === 0) return;
-
-        const entry = { data_semana: date };
-        FIELDS.forEach(([key], idx) => {
-          entry[key] = safeNumber(values[idx] || 0);
-        });
-        imported.push(entry);
-      });
-
+      const imported = parseSheetDataset(text);
       if (!imported.length) {
         toast('Nenhuma linha válida para importar.');
         return;
       }
 
       imported.forEach(item => {
-        state.weeks[item.data_semana] = Object.fromEntries(FIELDS.map(([k]) => [k, item[k]]));
+        if (!item.data_semana) return;
+        const payload = {};
+        FIELDS.forEach(([key]) => { payload[key] = safeNumber(item[key] || 0); });
+        state.weeks[item.data_semana] = payload;
+        appendHistory(item.data_semana, payload);
       });
+
       saveData();
       renderAll();
       toast('Dados importados com sucesso!');
     }
 
-    function importConsultationPaste(){
+    function importConsultationPaste() {
       const text = document.getElementById('cp_paste').value.trim();
       if (!text) {
         toast('Cole os dados do paciente');
         return;
       }
 
-      const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
-      for (const line of lines) {
-        const parts = line.split(/\s*\/\s*|\t+/).map(v => v.trim()).filter(Boolean);
-        if (!parts.length) continue;
+      const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      lines.forEach(line => {
+        const parts = line.split(/\s*\/\s*|\t+|\s*;\s*/).map(v => v.trim()).filter(Boolean);
+        if (!parts.length) return;
 
-        const patient = parts[0];
+        const patient = parts[0] || 'Paciente';
         const origin = parts[1] || 'novo';
-        const scheduled = parts[2] || new Date().toISOString().slice(0,10);
-        const consultation = parts[3] || scheduled;
+        const scheduled = parts[2] || new Date().toISOString().slice(0, 10);
+        const consultDate = parts[3] || scheduled;
 
         state.appts.push({
           paciente: patient,
           origem: origin,
           agendada_em: scheduled,
-          data_consulta: consultation,
+          data_consulta: consultDate,
           status: 'agendada',
           reagendado: '',
           observacao: ''
         });
-      }
+      });
 
       saveData();
       renderAll();
@@ -966,7 +1136,7 @@
       toast('Consultas importadas');
     }
 
-    function copyPreviousWeek(){
+    function copyPreviousWeek() {
       const dates = Object.keys(state.weeks).sort();
       if (dates.length < 2) {
         toast('Não há semana anterior para copiar.');
@@ -983,21 +1153,57 @@
       const clone = {};
       FIELDS.forEach(([key]) => clone[key] = safeNumber(previous[key] || 0));
       state.weeks[selectedDate] = clone;
+      appendHistory(selectedDate, clone);
       saveData();
-      renderAll();
       populateWeekFields(clone);
+      renderAll();
       toast('Valores copiados da semana anterior');
     }
 
-    function bindEvents(){
-      document.getElementById('ws')?.addEventListener('click', saveWeek);
-      document.getElementById('wdel')?.addEventListener('click', () => {
-        const date = document.getElementById('wd').value;
-        deleteWeek(date);
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function saveEditedAppt(index) {
+      if (index === undefined || !state.appts[index]) return;
+      const item = state.appts[index];
+      item.paciente = document.querySelector(`input[data-appt-field="paciente"][data-appt-index="${index}"]`)?.value || item.paciente;
+      item.origem = document.querySelector(`select[data-appt-field="origem"][data-appt-index="${index}"]`)?.value || item.origem;
+      item.agendada_em = document.querySelector(`input[data-appt-field="agendada_em"][data-appt-index="${index}"]`)?.value || item.agendada_em;
+      item.data_consulta = document.querySelector(`input[data-appt-field="data_consulta"][data-appt-index="${index}"]`)?.value || item.data_consulta;
+      item.status = document.querySelector(`select[data-appt-field="status"][data-appt-index="${index}"]`)?.value || item.status;
+      saveData();
+      renderAll();
+      toast('Consulta atualizada');
+    }
+
+    function bindEvents() {
+      document.getElementById('lockForm')?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const password = document.getElementById('accessPassword').value.trim();
+        const message = document.getElementById('lockMessage');
+        if (password === ACCESS_PASSWORD) {
+          document.body.classList.remove('locked');
+          document.getElementById('lockScreen').style.display = 'none';
+          document.getElementById('appShell').style.display = 'block';
+          document.getElementById('accessPassword').value = '';
+          message.textContent = '';
+          return;
+        }
+        message.textContent = 'Senha incorreta';
+        document.getElementById('accessPassword').value = '';
+        document.getElementById('accessPassword').focus();
       });
+
+      document.getElementById('ws')?.addEventListener('click', saveWeek);
+      document.getElementById('wdel')?.addEventListener('click', () => deleteWeek(document.getElementById('wd').value));
       document.getElementById('cp')?.addEventListener('click', copyPreviousWeek);
       document.getElementById('imp')?.addEventListener('click', importFromPaste);
-      document.getElementById('seed')?.addEventListener('click', () => toast('Importação da planilha disponível no módulo de importação manual.'));
       document.getElementById('cp_add')?.addEventListener('click', addAppointment);
       document.getElementById('cp_imp')?.addEventListener('click', importConsultationPaste);
 
@@ -1021,17 +1227,23 @@
         const deleteApptButton = event.target.closest('[data-delete-appt]');
         if (deleteApptButton) {
           deleteAppt(Number(deleteApptButton.getAttribute('data-delete-appt')));
+          return;
+        }
+
+        const saveApptButton = event.target.closest('[data-save-appt]');
+        if (saveApptButton) {
+          saveEditedAppt(Number(saveApptButton.getAttribute('data-save-appt')));
         }
       });
 
       document.addEventListener('change', (event) => {
-        const statusId = event.target.getAttribute('data-status-id');
-        if (statusId !== null) {
-          const idx = Number(statusId);
-          if (state.appts[idx]) {
-            state.appts[idx].status = event.target.value;
+        if (event.target.matches('[data-appt-field]')) {
+          const index = Number(event.target.getAttribute('data-appt-index'));
+          const field = event.target.getAttribute('data-appt-field');
+          if (typeof index === 'number' && state.appts[index]) {
+            state.appts[index][field] = event.target.value;
             saveData();
-            toast('Status atualizado');
+            renderConfig();
           }
         }
       });
@@ -1039,8 +1251,8 @@
       document.getElementById('nav')?.addEventListener('click', (event) => {
         const button = event.target.closest('[data-t]');
         if (!button) return;
-        currentTab = button.dataset.t;
-        ['dash','sem','cons','cfg'].forEach(id => {
+        const currentTab = button.dataset.t;
+        ['dash', 'sem', 'cons', 'cfg'].forEach(id => {
           const section = document.getElementById(id);
           if (section) section.classList.toggle('hide', id !== currentTab);
         });
@@ -1048,14 +1260,23 @@
       });
     }
 
-    function init(){
+    function init() {
       loadData();
-      document.getElementById('wd').value = new Date().toISOString().slice(0,10);
-      document.getElementById('cp_s').value = new Date().toISOString().slice(0,10);
-      document.getElementById('cp_o').innerHTML = Object.entries(ORIG).map(([key, value]) => `<option value="${key}">${value}</option>`).join('');
-      buildWeekFields();
       renderAll();
+      buildWeekFields();
       bindEvents();
+
+      const today = new Date().toISOString().slice(0, 10);
+      const wd = document.getElementById('wd');
+      if (wd) wd.value = today;
+
+      const cpS = document.getElementById('cp_s');
+      if (cpS) cpS.value = today;
+
+      const cpOrigin = document.getElementById('cp_o');
+      if (cpOrigin) {
+        cpOrigin.innerHTML = Object.entries(ORIG).map(([key, value]) => `<option value="${key}">${value}</option>`).join('');
+      }
     }
 
     init();
