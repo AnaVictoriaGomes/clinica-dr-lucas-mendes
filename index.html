@@ -36,7 +36,6 @@
       color-scheme:light;
       box-sizing:border-box;
     }
-
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; }
     body {
@@ -498,14 +497,7 @@
       background:#fff;
       border:1px solid var(--line);
     }
-    .sync-status::before {
-      content:"";
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      display:inline-block;
-      background:var(--warning);
-    }
+    .sync-status::before { content:""; width:8px; height:8px; border-radius:50%; display:inline-block; background:var(--warning); }
     .sync-status.good::before { background:var(--success); }
     .sync-status.error::before { background:var(--red); }
     .sync-status.none::before { background:var(--warning); }
@@ -513,11 +505,7 @@
     .sync-status.error { color:var(--red); }
     .sync-status.none { color:var(--warning); }
 
-    .config-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:12px;
-    }
+    .config-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
     .note { font-size:13px; color:var(--mut); line-height:1.45; }
     #msg {
       position:fixed;
@@ -537,7 +525,7 @@
     }
     #msg.on { opacity:1; }
 
-    @media (max-width:720px){
+    @media (max-width:720px) {
       header { padding:14px 14px 16px; }
       main { padding:18px 14px 36px; }
       .card { padding:14px; }
@@ -586,11 +574,11 @@
 
   <script>
     (function () {
-      const STORAGE_KEY = 'kommo_dashboard_data';
+      const STORAGE_KEY = 'kommo_dashboard_data_v3';
+      const ACCESS_PASSWORD = 'Lucas830';
       const SHEETDB_WEEK_URL = 'https://sheetdb.io/api/v1/hd148z3uhn04n';
       const SHEETDB_CONSULTA_URL = 'https://sheetdb.io/api/v1/antynpy96prfl';
-      const ACCESS_PASSWORD = 'Lucas830';
-      const FIELDS = [
+      const WEEK_FIELDS = [
         ['novos','Novos leads'],
         ['antigas','Conversas antigas retomadas'],
         ['ativas','Total de conversas ativas'],
@@ -640,11 +628,11 @@
           return Number.isNaN(d.getTime()) ? null : text;
         }
 
-        const match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-        if (match) {
-          let day = Number(match[1]);
-          let month = Number(match[2]);
-          let year = Number(match[3]);
+        if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(text)) {
+          const match = text.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+          if (!match) return null;
+          let [, day, month, year] = match;
+          day = Number(day); month = Number(month); year = Number(year);
           if (year < 100) year += 2000;
           const d = new Date(year, month - 1, day);
           if (Number.isNaN(d.getTime())) return null;
@@ -665,36 +653,88 @@
       }
 
       function formatNumber(value, digits = 0) {
-        const n = Number(value) || 0;
+        const number = Number(value) || 0;
         return new Intl.NumberFormat('pt-BR', {
           minimumFractionDigits: digits,
           maximumFractionDigits: digits
-        }).format(n);
+        }).format(number);
       }
 
       function normalizeWeekRecord(record) {
-        const out = {};
-        FIELDS.forEach(([key]) => {
-          out[key] = safeNumber(record && record[key]);
+        const obj = {};
+        WEEK_FIELDS.forEach(([key]) => {
+          obj[key] = safeNumber(record && record[key]);
         });
-        return out;
+        return obj;
       }
 
       function normalizeAppointment(item) {
         if (!item || typeof item !== 'object') return null;
         return {
-          paciente: item.paciente || '',
-          origem: item.origem || 'Instagram',
-          agendada_em: item.agendada_em || '',
-          data_consulta: item.data_consulta || '',
-          status: item.status || 'agendada'
+          paciente: String(item.paciente || '').trim(),
+          origem: String(item.origem || 'Instagram').trim(),
+          agendada_em: String(item.agendada_em || '').trim(),
+          data_consulta: String(item.data_consulta || '').trim(),
+          status: String(item.status || 'agendada').trim().toLowerCase()
         };
+      }
+
+      function parseAppointmentTextLine(line) {
+        const text = String(line || '').trim();
+        if (!text) return null;
+
+        const slashMatch = text.match(/^(.+?)\s*\/\s*(.+?)\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/);
+        if (slashMatch) {
+          const [, paciente, origem, agendada, consulta] = slashMatch;
+          const parsed = {
+            paciente: paciente.trim(),
+            origem: origem.trim(),
+            agendada_em: parseDateValue(agendada) || agendada.trim(),
+            data_consulta: parseDateValue(consulta) || consulta.trim(),
+            status: 'agendada'
+          };
+          if (parsed.paciente && parsed.origem) return parsed;
+        }
+
+        const parts = text
+          .split(/[|;\n\t]+/)
+          .map(part => part.trim())
+          .filter(Boolean);
+
+        if (parts.length >= 4) {
+          const [paciente, origem, agendada, consulta] = parts;
+          const parsed = {
+            paciente: String(paciente || '').trim(),
+            origem: String(origem || 'Instagram').trim(),
+            agendada_em: parseDateValue(agendada) || String(agendada || '').trim(),
+            data_consulta: parseDateValue(consulta) || String(consulta || '').trim(),
+            status: 'agendada'
+          };
+          if (parsed.paciente && parsed.agendada_em) return parsed;
+        }
+
+        const commaParts = text.split(',').map(part => part.trim()).filter(Boolean);
+        if (commaParts.length >= 4) {
+          const [paciente, origem, agendada, consulta] = commaParts;
+          const parsed = {
+            paciente: String(paciente || '').trim(),
+            origem: String(origem || 'Instagram').trim(),
+            agendada_em: parseDateValue(agendada) || String(agendada || '').trim(),
+            data_consulta: parseDateValue(consulta) || String(consulta || '').trim(),
+            status: 'agendada'
+          };
+          if (parsed.paciente && parsed.agendada_em) return parsed;
+        }
+
+        return null;
       }
 
       function loadData() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return { weeks: {}, appts: [], cfg: { ...state.cfg }, sync: { ...state.sync } };
+          if (!raw) {
+            return { weeks: {}, appts: [], cfg: { ...state.cfg }, sync: { ...state.sync } };
+          }
           const parsed = JSON.parse(raw);
           const weeks = {};
           if (parsed && parsed.weeks && typeof parsed.weeks === 'object') {
@@ -704,15 +744,17 @@
               weeks[iso] = normalizeWeekRecord(parsed.weeks[dateKey]);
             });
           }
-          const appts = Array.isArray(parsed && parsed.appts) ? parsed.appts.map(normalizeAppointment).filter(Boolean) : [];
+          const appts = Array.isArray(parsed && parsed.appts)
+            ? parsed.appts.map(normalizeAppointment).filter(Boolean)
+            : [];
           return {
             weeks,
             appts,
             cfg: parsed && parsed.cfg ? { ...state.cfg, ...parsed.cfg } : { ...state.cfg },
             sync: parsed && parsed.sync ? { ...state.sync, ...parsed.sync } : { ...state.sync }
           };
-        } catch (error) {
-          console.error('Erro ao ler localStorage:', error);
+        } catch (err) {
+          console.error('Erro ao carregar dados locais:', err);
           return { weeks: {}, appts: [], cfg: { ...state.cfg }, sync: { ...state.sync } };
         }
       }
@@ -735,8 +777,249 @@
         toast.timer = setTimeout(() => el.classList.remove('on'), 2200);
       }
 
+      function applyTitle() {
+        const title = state.cfg.title || 'Painel KOMMO';
+        const ttl = document.getElementById('ttl');
+        if (ttl) ttl.textContent = title;
+      }
+
       function getAllWeeksSorted() {
         return Object.keys(state.weeks).sort();
+      }
+
+      function buildWeekFields() {
+        const wrapper = document.getElementById('wf');
+        if (!wrapper) return;
+        wrapper.innerHTML = WEEK_FIELDS.map(([key, label]) => `
+          <label class="field">
+            <span>${label}</span>
+            <input type="number" min="0" step="1" id="w_${key}" value="0">
+          </label>
+        `).join('');
+      }
+
+      function populateWeekFields(values) {
+        WEEK_FIELDS.forEach(([key]) => {
+          const field = document.getElementById('w_' + key);
+          if (!field) return;
+          field.value = values && values[key] !== undefined ? Number(values[key] || 0) : 0;
+        });
+      }
+
+      function readWeekForm() {
+        const result = {};
+        WEEK_FIELDS.forEach(([key]) => {
+          const field = document.getElementById('w_' + key);
+          result[key] = field ? safeNumber(field.value) : 0;
+        });
+        return result;
+      }
+
+      function loadWeekIntoForm(date) {
+        const selected = state.weeks[date];
+        if (!selected) return;
+        const input = document.getElementById('wd');
+        if (input) input.value = date;
+        populateWeekFields(selected);
+      }
+
+      function drawChart() {
+        const svg = document.getElementById('mainChart');
+        if (!svg) return;
+        const weeks = getAllWeeksSorted();
+        if (!weeks.length) {
+          svg.innerHTML = '';
+          return;
+        }
+
+        const width = 960;
+        const height = 260;
+        const padding = { top: 20, right: 20, bottom: 28, left: 40 };
+        const plotWidth = width - padding.left - padding.right;
+        const plotHeight = height - padding.top - padding.bottom;
+        const maxValue = Math.max(...weeks.flatMap(date => {
+          const item = state.weeks[date] || {};
+          return [
+            safeNumber(item.cagend),
+            safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5),
+            safeNumber(item.ativas)
+          ];
+        }), 10);
+        const gap = 18;
+        const barWidth = weeks.length > 1 ? (plotWidth - gap * (weeks.length - 1)) / (weeks.length * 3) : 44;
+
+        const grid = Array.from({ length: 5 }, (_, index) => {
+          const y = padding.top + (plotHeight / 4) * index;
+          const value = Math.round(maxValue - (maxValue / 4) * index);
+          return `
+            <g>
+              <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,.12)" stroke-dasharray="4 6"></line>
+              <text x="4" y="${y + 4}">${value}</text>
+            </g>
+          `;
+        }).join('');
+
+        const bars = weeks.map((date, index) => {
+          const item = state.weeks[date] || {};
+          const consult = safeNumber(item.cagend);
+          const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
+          const ativas = safeNumber(item.ativas);
+          const startX = padding.left + (index * barWidth * 3) + index * gap;
+          const consultH = (consult / maxValue) * plotHeight;
+          const followH = (follow / maxValue) * plotHeight;
+          const activeH = (ativas / maxValue) * plotHeight;
+          const label = new Date(date + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+          return `
+            <g>
+              <rect x="${startX}" y="${padding.top + plotHeight - consultH}" width="${barWidth * 0.85}" height="${consultH}" fill="var(--primary)" rx="4"></rect>
+              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - followH}" width="${barWidth * 0.85}" height="${followH}" fill="var(--blue)" rx="4"></rect>
+              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - activeH}" width="${barWidth * 0.85}" height="${activeH}" fill="var(--gold)" rx="4"></rect>
+              <text x="${startX + barWidth}" y="${height - 8}" text-anchor="middle">${label}</text>
+            </g>
+          `;
+        }).join('');
+
+        svg.innerHTML = `${grid}${bars}`;
+      }
+
+      function createPeriodSummary(dateKey) {
+        const item = state.weeks[dateKey] || {};
+        const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
+        const totalAtual = safeNumber(item.tcap);
+        const ativas = safeNumber(item.ativas);
+        const respostas = safeNumber(item.resp);
+        const agendadas = safeNumber(item.cagend);
+        return {
+          semana: formatDateBR(dateKey),
+          ativas,
+          follow,
+          respostas,
+          agendadas,
+          totalAtual
+        };
+      }
+
+      function renderDashboard() {
+        const dash = document.getElementById('dash');
+        if (!dash) return;
+
+        const weeks = getAllWeeksSorted();
+        if (!weeks.length) {
+          dash.innerHTML = `
+            <div class="card">
+              <h2>Ainda não há dados</h2>
+              <p class="note">Vá em “Lançar semana” para registrar a primeira semana.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const lastDate = weeks[weeks.length - 1];
+        const last = state.weeks[lastDate] || {};
+        const totalFollow = safeNumber(last.fu2) + safeNumber(last.fu3) + safeNumber(last.fu4) + safeNumber(last.fu5);
+        const totalAtual = safeNumber(last.tcap);
+        const totalAtivas = safeNumber(last.ativas);
+        const totalRespostas = safeNumber(last.resp);
+        const totalAgendadas = safeNumber(last.cagend);
+
+        const detailRows = weeks.slice().reverse().map(dateKey => {
+          const row = createPeriodSummary(dateKey);
+          return `
+            <tr>
+              <td>${row.semana}</td>
+              <td>${formatNumber(row.ativas)}</td>
+              <td>${formatNumber(row.follow)}</td>
+              <td>${formatNumber(row.respostas)}</td>
+              <td>${formatNumber(row.agendadas)}</td>
+              <td>R$ ${formatNumber(row.totalAtual, 2)}</td>
+            </tr>
+          `;
+        }).join('');
+
+        dash.innerHTML = `
+          <div class="grid kpis">
+            <div class="kpi">
+              <span>Conversas ativas</span>
+              <b>${formatNumber(totalAtivas)}</b>
+              <small>métricas do período</small>
+            </div>
+            <div class="kpi">
+              <span>Follow-up</span>
+              <b>${formatNumber(totalFollow)}</b>
+              <small>fluxo de seguimento</small>
+            </div>
+            <div class="kpi">
+              <span>Respostas</span>
+              <b>${formatNumber(totalRespostas)}</b>
+              <small>retorno do público</small>
+            </div>
+            <div class="kpi">
+              <span>Faturamento</span>
+              <b>R$ ${formatNumber(totalAtual, 2)}</b>
+              <small>valor atual</small>
+            </div>
+          </div>
+
+          <div class="ins">
+            <p><strong>Resumo:</strong> total de conversas ativas ${formatNumber(totalAtivas)}, follow-up ${formatNumber(totalFollow)}, respostas ${formatNumber(totalRespostas)} e agendadas ${formatNumber(totalAgendadas)}.</p>
+            <p><strong>Senha:</strong> Lucas830 · painel protegido por login e com persistência local ativa.</p>
+          </div>
+
+          <div class="section-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3>Resumo detalhado</h3>
+              </div>
+              <table class="summary-table">
+                <tbody>
+                  <tr><th>Conversas ativas</th><td>${formatNumber(totalAtivas)}</td></tr>
+                  <tr><th>Follow-up</th><td>${formatNumber(totalFollow)}</td></tr>
+                  <tr><th>Respostas</th><td>${formatNumber(totalRespostas)}</td></tr>
+                  <tr><th>Consultas agendadas</th><td>${formatNumber(totalAgendadas)}</td></tr>
+                  <tr><th>Total atual</th><td>R$ ${formatNumber(totalAtual, 2)}</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card chart-wrap">
+              <div class="card-header">
+                <h3>Gráfico por semana</h3>
+              </div>
+              <div class="chart-legend">
+                <span><i class="legend-dot" style="background:var(--primary)"></i> Consultas</span>
+                <span><i class="legend-dot" style="background:var(--blue)"></i> Follow-up</span>
+                <span><i class="legend-dot" style="background:var(--gold)"></i> Ativas</span>
+              </div>
+              <svg id="mainChart" viewBox="0 0 960 260" aria-label="Gráfico por semana"></svg>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <div class="card-header">
+              <h3>Resumo por semana</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Semana</th>
+                    <th>Ativas</th>
+                    <th>Follow-up</th>
+                    <th>Respostas</th>
+                    <th>Agendadas</th>
+                    <th>Total atual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${detailRows}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        drawChart();
       }
 
       function getFilteredWeeks() {
@@ -754,226 +1037,13 @@
         });
       }
 
-      function buildWeekFields() {
-        const wrapper = document.getElementById('wf');
-        if (!wrapper) return;
-        wrapper.innerHTML = FIELDS.map(([key, label]) => `
-          <label class="field">
-            <span>${label}</span>
-            <input type="number" min="0" step="1" id="w_${key}" value="0">
-          </label>
-        `).join('');
-      }
-
-      function populateWeekFields(data = {}) {
-        FIELDS.forEach(([key]) => {
-          const field = document.getElementById('w_' + key);
-          if (!field) return;
-          field.value = data && data[key] !== undefined ? Number(data[key] || 0) : 0;
-        });
-      }
-
-      function readWeekForm() {
-        const result = {};
-        FIELDS.forEach(([key]) => {
-          const field = document.getElementById('w_' + key);
-          result[key] = field ? safeNumber(field.value) : 0;
-        });
-        return result;
-      }
-
-      function loadWeekIntoForm(date) {
-        const data = state.weeks[date];
-        if (!data) return;
-        const input = document.getElementById('wd');
-        if (input) input.value = date;
-        populateWeekFields(data);
-      }
-
-      function getWeekSummaryTableRows() {
-        const weeks = getAllWeeksSorted();
-        if (!weeks.length) return '<tr><td colspan="6">Nenhuma semana lançada.</td></tr>';
-
-        return weeks.slice().reverse().map(date => {
-          const item = state.weeks[date] || {};
-          const total = safeNumber(item.ativas) + safeNumber(item.resp) + safeNumber(item.cagend);
-          return `
-            <tr>
-              <td>${formatDateBR(date)}</td>
-              <td>${formatNumber(safeNumber(item.ativas))}</td>
-              <td>${formatNumber(safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5))}</td>
-              <td>${formatNumber(safeNumber(item.resp))}</td>
-              <td>${formatNumber(safeNumber(item.cagend))}</td>
-              <td>R$ ${formatNumber(safeNumber(item.tcap), 2)}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      function drawChart() {
-        const svg = document.getElementById('mainChart');
-        if (!svg) return;
-        const weeks = getAllWeeksSorted();
-        if (!weeks.length) { svg.innerHTML = ''; return; }
-
-        const width = 960;
-        const height = 260;
-        const padding = { top: 20, right: 20, bottom: 30, left: 40 };
-        const plotWidth = width - padding.left - padding.right;
-        const plotHeight = height - padding.top - padding.bottom;
-        const values = weeks.map(date => {
-          const item = state.weeks[date] || {};
-          return [
-            safeNumber(item.ativas),
-            safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5),
-            safeNumber(item.resp)
-          ];
-        });
-        const maxValue = Math.max(...values.flat(), 10);
-        const gap = 18;
-        const barWidth = (plotWidth - gap * (weeks.length - 1)) / (weeks.length * 3);
-
-        const grid = Array.from({ length: 5 }, (_, index) => {
-          const y = padding.top + (plotHeight / 4) * index;
-          const value = Math.round(maxValue - (maxValue / 4) * index);
-          return `
-            <g>
-              <line x1="${padding.left}" x2="${width - padding.right}" y1="${y}" y2="${y}" stroke="rgba(22,48,44,.12)" stroke-dasharray="4 6"></line>
-              <text x="4" y="${y + 4}" fill="var(--mut)">${value}</text>
-            </g>
-          `;
-        }).join('');
-
-        const bars = weeks.map((date, index) => {
-          const item = state.weeks[date] || {};
-          const ativas = safeNumber(item.ativas);
-          const follow = safeNumber(item.fu2) + safeNumber(item.fu3) + safeNumber(item.fu4) + safeNumber(item.fu5);
-          const resp = safeNumber(item.resp);
-          const startX = padding.left + (index * barWidth * 3) + index * gap;
-          const hAtivas = (ativas / maxValue) * plotHeight;
-          const hFollow = (follow / maxValue) * plotHeight;
-          const hResp = (resp / maxValue) * plotHeight;
-          const label = new Date(date + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-
-          return `
-            <g>
-              <rect x="${startX}" y="${padding.top + plotHeight - hAtivas}" width="${barWidth * 0.8}" height="${hAtivas}" fill="var(--primary)" rx="4"></rect>
-              <rect x="${startX + barWidth}" y="${padding.top + plotHeight - hFollow}" width="${barWidth * 0.8}" height="${hFollow}" fill="var(--blue)" rx="4"></rect>
-              <rect x="${startX + barWidth * 2}" y="${padding.top + plotHeight - hResp}" width="${barWidth * 0.8}" height="${hResp}" fill="var(--gold)" rx="4"></rect>
-              <text x="${startX + barWidth}" y="${height - 8}" text-anchor="middle">${label}</text>
-            </g>
-          `;
-        }).join('');
-
-        svg.innerHTML = `${grid}${bars}`;
-      }
-
-      function renderDashboard() {
-        const dash = document.getElementById('dash');
-        if (!dash) return;
-        const weeks = getAllWeeksSorted();
-        if (!weeks.length) {
-          dash.innerHTML = `
-            <div class="card">
-              <h2>Ainda não há dados</h2>
-              <p class="note">Vá em “Lançar semana” para registrar a primeira semana.</p>
-            </div>
-          `;
-          return;
-        }
-
-        const latestDate = weeks[weeks.length - 1];
-        const last = state.weeks[latestDate] || {};
-        const totalFollow = safeNumber(last.fu2) + safeNumber(last.fu3) + safeNumber(last.fu4) + safeNumber(last.fu5);
-        const totalAtivas = safeNumber(last.ativas);
-        const totalRespostas = safeNumber(last.resp);
-        const totalAgendadas = safeNumber(last.cagend);
-        const totalAtual = safeNumber(last.tcap);
-
-        dash.innerHTML = `
-          <div class="grid kpis">
-            <div class="kpi">
-              <span>Conversas ativas</span>
-              <b>${formatNumber(totalAtivas)}</b>
-            </div>
-            <div class="kpi">
-              <span>Follow-up</span>
-              <b>${formatNumber(totalFollow)}</b>
-              <small>acumulado</small>
-            </div>
-            <div class="kpi">
-              <span>Respostas</span>
-              <b>${formatNumber(totalRespostas)}</b>
-            </div>
-            <div class="kpi">
-              <span>Faturamento</span>
-              <b>R$ ${formatNumber(totalAtual, 2)}</b>
-            </div>
-          </div>
-
-          <div class="ins">
-            <p><strong>Resumo do período:</strong> ${formatDateBR(latestDate)} · ${formatNumber(totalAtivas)} ativas · ${formatNumber(totalFollow)} follow-up · ${formatNumber(totalRespostas)} respostas · ${formatNumber(totalAgendadas)} agendadas.</p>
-            <p><strong>Senha:</strong> Lucas830 · painel protegido por login e com persistência local ativa.</p>
-          </div>
-
-          <div class="card chart-wrap" style="margin-top:14px;">
-            <h2>Gráfico por semana</h2>
-            <div class="chart-legend">
-              <span><i class="legend-dot" style="background:var(--primary)"></i> Ativas</span>
-              <span><i class="legend-dot" style="background:var(--blue)"></i> Follow-up</span>
-              <span><i class="legend-dot" style="background:var(--gold)"></i> Respostas</span>
-            </div>
-            <svg id="mainChart" viewBox="0 0 960 260" aria-label="Gráfico de desempenho por semana"></svg>
-          </div>
-
-          <div class="section-grid" style="margin-top:18px;">
-            <div class="card">
-              <div class="card-header"><h3>Resumo detalhado</h3></div>
-              <table class="summary-table">
-                <tbody>
-                  <tr><th>Ativas</th><td>${formatNumber(totalAtivas)}</td></tr>
-                  <tr><th>Follow-up</th><td>${formatNumber(totalFollow)}</td></tr>
-                  <tr><th>Respostas</th><td>${formatNumber(totalRespostas)}</td></tr>
-                  <tr><th>Consultas agendadas</th><td>${formatNumber(totalAgendadas)}</td></tr>
-                  <tr><th>Total atual</th><td>R$ ${formatNumber(totalAtual, 2)}</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="card">
-              <div class="card-header"><h3>Resumo por semana</h3></div>
-              <div class="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Semana</th>
-                      <th>Ativas</th>
-                      <th>Follow-up</th>
-                      <th>Respostas</th>
-                      <th>Agendadas</th>
-                      <th>Valor</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${getWeekSummaryTableRows()}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        `;
-
-        drawChart();
-      }
-
       function renderWeekTab() {
         const sem = document.getElementById('sem');
         if (!sem) return;
 
         sem.innerHTML = `
           <div class="card">
-            <h2>Lançamento semanal</h2>
-            <p class="note">Escolha a data da semana. Se a semana já existir, os valores são carregados para edição. Os campos marcados com * são obrigatórios.</p>
+            <p class="eyebrow">Lançamento semanal</p>
             <div class="row" style="margin:0 0 12px;">
               <label class="field" style="min-width:180px; margin:0;">
                 <span>Data da semana</span>
@@ -989,17 +1059,19 @@
           </div>
 
           <div class="card" style="margin-top:14px;">
-            <h2>Importar da planilha</h2>
-            <p class="note">Cole as linhas de dados da planilha sem o cabeçalho, da coluna Data até Consultas realizadas.</p>
-            <textarea id="paste" rows="4" style="width:100%" placeholder="23/09/2026\t321\t64\t380 …"></textarea>
+            <p class="eyebrow">Importar por texto</p>
+            <p class="note">Cole os dados da planilha em linhas com data e valores. O sistema interpreta datas em DD/MM/YYYY ou YYYY-MM-DD.</p>
+            <textarea id="paste" rows="4" style="width:100%" placeholder="2026-09-23  120  42  380  25  20  16  18  35  9  12  13  14  15  12  25  4700"></textarea>
             <div class="row">
               <button class="primary-btn" id="imp" type="button">Importar</button>
             </div>
           </div>
 
           <div class="card" style="margin-top:14px;">
-            <h2>Semanas lançadas</h2>
-            <div class="filter-legend"><span class="dot"></span> Filtros: busca, intervalo e semana</div>
+            <div class="card-header">
+              <h2>Semanas lançadas</h2>
+            </div>
+            <div class="filter-legend"><span class="dot"></span> Filtros: busca, período e dados</div>
             <div class="toolbar">
               <input id="weekFilterSearch" class="filter-box" type="search" placeholder="Buscar por semana ou valor" style="min-width:220px; flex:1;">
               <input id="weekStartFilter" class="filter-box" type="date" style="min-width:150px;">
@@ -1012,21 +1084,21 @@
         buildWeekFields();
         const dates = getAllWeeksSorted();
         if (dates.length) {
-          const date = dates[dates.length - 1];
+          const lastDate = dates[dates.length - 1];
           const wd = document.getElementById('wd');
           if (wd) {
-            wd.value = date;
-            loadWeekIntoForm(date);
+            wd.value = lastDate;
+            loadWeekIntoForm(lastDate);
           }
         }
 
-        const tableWrap = document.getElementById('weekTableWrap');
-        if (tableWrap) {
+        const weekTableWrap = document.getElementById('weekTableWrap');
+        if (weekTableWrap) {
           const filtered = getFilteredWeeks();
           if (!filtered.length) {
-            tableWrap.innerHTML = '<div class="empty-state">Nenhuma semana encontrada com os filtros atuais.</div>';
+            weekTableWrap.innerHTML = '<div class="empty-state">Nenhuma semana encontrada com os filtros atuais.</div>';
           } else {
-            tableWrap.innerHTML = `
+            weekTableWrap.innerHTML = `
               <table>
                 <thead>
                   <tr>
@@ -1096,43 +1168,83 @@
         document.getElementById('weekEndFilter')?.addEventListener('input', renderWeekTab);
       }
 
-      function parseAppointmentText(text) {
-        if (!text) return null;
-        const cleaned = String(text).trim();
-        if (!cleaned) return null;
+      function saveWeek() {
+        const date = parseDateValue(document.getElementById('wd')?.value || '');
+        if (!date) {
+          toast('Data inválida. Corrija a data da semana.');
+          return;
+        }
+        const payload = readWeekForm();
+        state.weeks[date] = payload;
+        saveData();
+        renderAll();
+        syncWeeksToSheetDB(date, payload);
+        toast('Semana salva com sucesso.');
+      }
 
-        const slashMatch = cleaned.match(/^(.+?)\s*\/\s*(.+?)\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/);
-        if (slashMatch) {
-          return {
-            paciente: slashMatch[1].trim(),
-            origem: slashMatch[2].trim() || 'Instagram',
-            agendada_em: parseDateValue(slashMatch[3]),
-            data_consulta: parseDateValue(slashMatch[4]),
-            status: 'agendada'
-          };
+      function copyPreviousWeek() {
+        const dates = getAllWeeksSorted();
+        if (!dates.length) {
+          toast('Nenhuma semana anterior para copiar.');
+          return;
+        }
+        const prevDate = dates[dates.length - 1];
+        const source = state.weeks[prevDate];
+        if (!source) {
+          toast('Semana anterior inválida.');
+          return;
+        }
+        const wd = document.getElementById('wd');
+        if (wd) wd.value = prevDate;
+        populateWeekFields(source);
+        toast('Valores copiados da semana anterior.');
+      }
+
+      function deleteCurrentWeek() {
+        const date = parseDateValue(document.getElementById('wd')?.value || '');
+        if (!date) {
+          toast('Selecione uma semana válida para excluir.');
+          return;
+        }
+        delete state.weeks[date];
+        saveData();
+        renderAll();
+        toast('Semana removida.');
+      }
+
+      function importFromPaste() {
+        const text = document.getElementById('paste')?.value.trim();
+        if (!text) {
+          toast('Cole os dados da planilha para importar.');
+          return;
         }
 
-        const keywordMatch = cleaned.match(/(?:agendada\s*em|agendado\s*em|data\s*agendada)\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
-        const consultaMatch = cleaned.match(/(?:data\s*da\s*consulta|consulta)\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
-        const pacienteMatch = cleaned.match(/^(.+?)\s*\/\s*(.+?)(?:\s*\/\s*(?:\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/);
+        let imported = 0;
+        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
+        lines.forEach(line => {
+          const cells = line.split(/\s+/).filter(Boolean);
+          if (!cells.length) return;
+          const firstValue = cells[0];
+          const date = parseDateValue(firstValue);
+          if (!date) return;
+          const values = cells.slice(1).map(v => safeNumber(v));
+          const entry = { data_semana: date };
+          WEEK_FIELDS.forEach(([key], index) => {
+            entry[key] = Number(values[index] || 0);
+          });
+          state.weeks[date] = normalizeWeekRecord(entry);
+          imported += 1;
+        });
 
-        if (keywordMatch || consultaMatch || pacienteMatch) {
-          const base = (patient => patient ? patient[1].trim() : '')(
-            cleaned.match(/^(.+?)\s*\/\s*(.+?)(?:\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/)
-          );
-
-          const origem = cleaned.match(/^.+?\s*\/\s*(.+?)\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/);
-
-          return {
-            paciente: base || cleaned.split(/\s*\/\s*/)[0].trim() || 'Paciente',
-            origem: (origem && origem[1] ? origem[1].trim() : 'Instagram'),
-            agendada_em: parseDateValue(keywordMatch ? keywordMatch[1] : (cleaned.match(/^.+?\s*\/\s*.+?\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/) || [])[1] || '')),
-            data_consulta: parseDateValue(consultaMatch ? consultaMatch[1] : (cleaned.match(/^.+?\s*\/\s*.+?\s*\/\s*\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\s*\/\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})$/) || [])[1] || '')),
-            status: 'agendada'
-          };
+        if (!imported) {
+          toast('Nenhuma linha válida foi encontrada.');
+          return;
         }
 
-        return null;
+        saveData();
+        renderAll();
+        document.getElementById('paste').value = '';
+        toast('Dados importados com sucesso.');
       }
 
       function renderConsultsTab() {
@@ -1143,10 +1255,10 @@
 
         cons.innerHTML = `
           <div class="card">
-            <h2>Registrar consulta agendada</h2>
+            <p class="eyebrow">Registrar consulta</p>
             <div class="form-grid">
               <label class="field"><span>Paciente</span><input id="cp_n" placeholder="Nome ou iniciais"></label>
-              <label class="field"><span>Veio de</span><select id="cp_o">${origins.map(o => `<option value="${o}">${o}</option>`).join('')}</select></label>
+              <label class="field"><span>Origem</span><select id="cp_o">${origins.map(o => `<option value="${o}">${o}</option>`).join('')}</select></label>
               <label class="field"><span>Agendada em</span><input type="date" id="cp_s"></label>
               <label class="field"><span>Data da consulta</span><input type="date" id="cp_c"></label>
             </div>
@@ -1154,14 +1266,16 @@
           </div>
 
           <div class="card" style="margin-top:14px;">
-            <h2>Colar dados do paciente</h2>
-            <p class="note">Alternativa rápida: cole os dados e eles são preenchidos automaticamente e salvos como consultas.</p>
+            <p class="eyebrow">Importar por texto</p>
+            <p class="note">Formato aceito: paciente / origem / data agendada / data consulta.</p>
             <textarea id="cp_paste" rows="4" style="width:100%" placeholder="Maria / Instagram / 21/10/2026 / 24/10/2026"></textarea>
             <div class="row"><button class="primary-btn" id="cp_imp" type="button">Importar</button></div>
           </div>
 
           <div class="card" style="margin-top:14px;">
-            <h2>Consultas registradas</h2>
+            <div class="card-header">
+              <h2>Consultas registradas</h2>
+            </div>
             <div class="filter-legend"><span class="dot"></span> Filtros: busca, origem, agendamento, consulta e status</div>
             <div class="toolbar">
               <input id="apptSearch" class="filter-box" type="search" placeholder="Buscar paciente, origem ou status" style="min-width:220px; flex:1;">
@@ -1224,6 +1338,7 @@
       function renderAppointmentsTable() {
         const wrap = document.getElementById('apptTableWrap');
         if (!wrap) return;
+
         const rows = getFilteredAppointments();
         if (!rows.length) {
           wrap.innerHTML = '<div class="empty-state">Nenhuma consulta encontrada.</div>';
@@ -1259,155 +1374,15 @@
                         <option value="reagendada" ${item.status === 'reagendada' ? 'selected' : ''}>Reagendada</option>
                       </select>
                     </td>
-                    <td><button class="mini-btn del-btn" type="button" data-delete-appt="${idx}">Excluir</button></td>
+                    <td>
+                      <button class="mini-btn del-btn" type="button" data-delete-appt="${idx}">Excluir</button>
+                    </td>
                   </tr>
                 `;
               }).join('')}
             </tbody>
           </table>
         `;
-      }
-
-      function renderConfig() {
-        const cfg = document.getElementById('cfg');
-        if (!cfg) return;
-
-        cfg.innerHTML = `
-          <div class="card">
-            <h2>Configuração</h2>
-            <div class="config-grid">
-              <label class="field"><span>Nome do painel</span><input id="cfgTitle" type="text" value="${state.cfg.title || 'Painel KOMMO'}"></label>
-              <label class="field"><span>Senha</span><input id="cfgPass" type="text" value="${state.cfg.password || ACCESS_PASSWORD}"></label>
-              <label class="field"><span>Limite de filtro</span><input id="cfgLimit" type="number" min="1" step="1" value="${state.cfg.filterLimit || 30}"></label>
-            </div>
-            <div class="row"><button class="primary-btn" id="saveCfg" type="button">Salvar configuração</button></div>
-          </div>
-
-          <div class="card" style="margin-top:14px;">
-            <h2>Status da sincronização</h2>
-            <div class="sync-box">
-              <div class="sync-item">
-                <div>
-                  <strong>Semanas</strong>
-                  <div class="note">Sincronização do painel semanal</div>
-                </div>
-                <div class="sync-status ${state.sync.weeks === 'good' ? 'good' : state.sync.weeks === 'error' ? 'error' : 'none'}">
-                  ${state.sync.weeks === 'good' ? 'Sucesso' : state.sync.weeks === 'error' ? 'Erro' : 'Não sincronizado'}
-                </div>
-              </div>
-              <div class="sync-item">
-                <div>
-                  <strong>Consultas</strong>
-                  <div class="note">Sincronização das consultas</div>
-                </div>
-                <div class="sync-status ${state.sync.appointments === 'good' ? 'good' : state.sync.appointments === 'error' ? 'error' : 'none'}">
-                  ${state.sync.appointments === 'good' ? 'Sucesso' : state.sync.appointments === 'error' ? 'Erro' : 'Não sincronizado'}
-                </div>
-              </div>
-            </div>
-            <div class="row"><button class="primary-btn" id="retrySync" type="button">Nova tentativa de sincronização</button></div>
-          </div>
-        `;
-
-        document.getElementById('saveCfg')?.addEventListener('click', saveConfig);
-        document.getElementById('retrySync')?.addEventListener('click', retrySync);
-      }
-
-      function saveConfig() {
-        const title = document.getElementById('cfgTitle')?.value.trim() || 'Painel KOMMO';
-        const pass = document.getElementById('cfgPass')?.value.trim() || ACCESS_PASSWORD;
-        const limit = Number(document.getElementById('cfgLimit')?.value || 30);
-        state.cfg.title = title;
-        state.cfg.password = pass;
-        state.cfg.filterLimit = Number.isFinite(limit) && limit > 0 ? limit : 30;
-        saveData();
-        applyTitle();
-        renderAll();
-        toast('Configuração salva.');
-      }
-
-      function applyTitle() {
-        const title = state.cfg.title || 'Painel KOMMO';
-        const ttl = document.getElementById('ttl');
-        if (ttl) ttl.textContent = title;
-      }
-
-      function saveWeek() {
-        const date = parseDateValue(document.getElementById('wd')?.value || '');
-        if (!date) {
-          toast('Data inválida. Corrija a data da semana.');
-          return;
-        }
-        const payload = readWeekForm();
-        state.weeks[date] = payload;
-        saveData();
-        renderAll();
-        syncWeeksToSheetDB(date, payload);
-        toast('Semana salva com sucesso.');
-      }
-
-      function copyPreviousWeek() {
-        const dates = getAllWeeksSorted();
-        if (!dates.length) {
-          toast('Nenhuma semana anterior para copiar.');
-          return;
-        }
-        const prevDate = dates[dates.length - 1];
-        const source = state.weeks[prevDate];
-        if (!source) {
-          toast('Semana anterior inválida.');
-          return;
-        }
-        const input = document.getElementById('wd');
-        if (input) input.value = prevDate;
-        populateWeekFields(source);
-        toast('Valores copiados da semana anterior.');
-      }
-
-      function deleteCurrentWeek() {
-        const date = parseDateValue(document.getElementById('wd')?.value || '');
-        if (!date) {
-          toast('Selecione uma semana válida para excluir.');
-          return;
-        }
-        delete state.weeks[date];
-        saveData();
-        renderAll();
-        toast('Semana removida.');
-      }
-
-      function importFromPaste() {
-        const text = document.getElementById('paste')?.value.trim();
-        if (!text) {
-          toast('Cole os dados da planilha para importar.');
-          return;
-        }
-
-        let imported = 0;
-        const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
-        lines.forEach(line => {
-          const cells = line.split(/\t|\s{2,}|\s*;\s*/).map(v => v.trim()).filter(Boolean);
-          if (!cells.length) return;
-          const [first, ...rest] = cells;
-          const iso = parseDateValue(first);
-          if (!iso) return;
-          const item = { data_semana: iso };
-          FIELDS.forEach(([key], index) => {
-            item[key] = safeNumber(rest[index] || 0);
-          });
-          state.weeks[iso] = normalizeWeekRecord(item);
-          imported += 1;
-        });
-
-        if (!imported) {
-          toast('Nenhuma linha válida foi encontrada.');
-          return;
-        }
-
-        saveData();
-        renderAll();
-        document.getElementById('paste').value = '';
-        toast('Dados importados com sucesso.');
       }
 
       function addAppointment() {
@@ -1454,7 +1429,7 @@
         let imported = 0;
         const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
         lines.forEach(line => {
-          const parsed = parseAppointmentText(line);
+          const parsed = parseAppointmentTextLine(line);
           if (!parsed) return;
           const item = normalizeAppointment(parsed);
           if (!item) return;
@@ -1488,6 +1463,58 @@
         toast('Consulta removida.');
       }
 
+      function renderConfig() {
+        const cfg = document.getElementById('cfg');
+        if (!cfg) return;
+
+        cfg.innerHTML = `
+          <div class="card">
+            <p class="eyebrow">Configuração</p>
+            <div class="config-grid">
+              <label class="field"><span>Nome do painel</span><input id="cfgTitle" type="text" value="${state.cfg.title || 'Painel KOMMO'}"></label>
+              <label class="field"><span>Senha</span><input id="cfgPass" type="text" value="${state.cfg.password || ACCESS_PASSWORD}"></label>
+              <label class="field"><span>Limite de filtro</span><input id="cfgLimit" type="number" min="1" step="1" value="${state.cfg.filterLimit || 30}"></label>
+            </div>
+            <div class="row"><button class="primary-btn" id="saveCfg" type="button">Salvar configuração</button></div>
+          </div>
+
+          <div class="card" style="margin-top:14px;">
+            <div class="card-header"><h2>Status da sincronização</h2></div>
+            <div class="sync-box">
+              <div class="sync-item">
+                <div><strong>Semanas</strong><div class="note">Sincronização do painel semanal</div></div>
+                <div class="sync-status ${state.sync.weeks === 'good' ? 'good' : state.sync.weeks === 'error' ? 'error' : 'none'}">
+                  ${state.sync.weeks === 'good' ? 'Sucesso' : state.sync.weeks === 'error' ? 'Erro' : 'Não sincronizado'}
+                </div>
+              </div>
+              <div class="sync-item">
+                <div><strong>Consultas</strong><div class="note">Sincronização das consultas</div></div>
+                <div class="sync-status ${state.sync.appointments === 'good' ? 'good' : state.sync.appointments === 'error' ? 'error' : 'none'}">
+                  ${state.sync.appointments === 'good' ? 'Sucesso' : state.sync.appointments === 'error' ? 'Erro' : 'Não sincronizado'}
+                </div>
+              </div>
+            </div>
+            <div class="row"><button class="primary-btn" id="retrySync" type="button">Nova tentativa de sincronização</button></div>
+          </div>
+        `;
+
+        document.getElementById('saveCfg')?.addEventListener('click', saveConfig);
+        document.getElementById('retrySync')?.addEventListener('click', retrySync);
+      }
+
+      function saveConfig() {
+        const title = document.getElementById('cfgTitle')?.value.trim() || 'Painel KOMMO';
+        const pass = document.getElementById('cfgPass')?.value.trim() || ACCESS_PASSWORD;
+        const limit = Number(document.getElementById('cfgLimit')?.value || 30);
+        state.cfg.title = title;
+        state.cfg.password = pass;
+        state.cfg.filterLimit = Number.isFinite(limit) && limit > 0 ? limit : 30;
+        saveData();
+        applyTitle();
+        renderAll();
+        toast('Configuração salva.');
+      }
+
       async function postJSON(url, payload) {
         const response = await fetch(url, {
           method: 'POST',
@@ -1500,7 +1527,7 @@
       }
 
       function syncWeeksToSheetDB(date, payload) {
-        const toSend = {
+        const data = {
           source: 'painel-kommo',
           updated_at: new Date().toISOString(),
           data_semana: date,
@@ -1522,7 +1549,7 @@
           tcap: safeNumber(payload.tcap)
         };
 
-        postJSON(SHEETDB_WEEK_URL, toSend)
+        postJSON(SHEETDB_WEEK_URL, data)
           .then(() => {
             state.sync.weeks = 'good';
             saveData();
@@ -1538,7 +1565,7 @@
       }
 
       function syncAppointmentsToSheetDB(item) {
-        const toSend = {
+        const data = {
           source: 'painel-kommo',
           updated_at: new Date().toISOString(),
           paciente: String(item.paciente || ''),
@@ -1548,7 +1575,7 @@
           status: String(item.status || 'agendada')
         };
 
-        postJSON(SHEETDB_CONSULTA_URL, toSend)
+        postJSON(SHEETDB_CONSULTA_URL, data)
           .then(() => {
             state.sync.appointments = 'good';
             saveData();
@@ -1579,6 +1606,7 @@
           toast('Nada para sincronizar no momento.');
           return;
         }
+
         toast('Tentativa de sincronização iniciada.');
       }
 
@@ -1590,7 +1618,7 @@
         renderConfig();
       }
 
-      function bindEvents() {
+      function bindGlobalEvents() {
         document.querySelectorAll('[data-tab]').forEach(button => {
           button.addEventListener('click', () => {
             const target = button.dataset.tab;
@@ -1644,7 +1672,7 @@
 
         if (!lockForm || !passwordInput || !lockMessage || !lockScreen || !appShell) return;
 
-        lockForm.addEventListener('submit', (event) => {
+        lockForm.addEventListener('submit', function (event) {
           event.preventDefault();
           const password = passwordInput.value.trim();
           if (password === (state.cfg.password || ACCESS_PASSWORD)) {
@@ -1655,6 +1683,7 @@
             lockMessage.textContent = '';
             return;
           }
+
           lockMessage.textContent = 'Senha Incorreta';
           passwordInput.value = '';
           passwordInput.focus();
@@ -1669,7 +1698,7 @@
         state.sync = loaded.sync || { ...state.sync };
 
         initializeLock();
-        bindEvents();
+        bindGlobalEvents();
         renderAll();
       }
 
