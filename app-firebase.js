@@ -18,6 +18,7 @@ let db = null;
 let auth = null;
 let unsubWeeks = null;
 let unsubAppts = null;
+let unsubCfg = null;
 
 function stopListeners() {
   if (typeof unsubWeeks === 'function') {
@@ -27,6 +28,10 @@ function stopListeners() {
   if (typeof unsubAppts === 'function') {
     try { unsubAppts(); } catch(e){}
     unsubAppts = null;
+  }
+  if (typeof unsubCfg === 'function') {
+    try { unsubCfg(); } catch(e){}
+    unsubCfg = null;
   }
 }
 
@@ -54,6 +59,15 @@ function startListeners() {
     }
   }, err => {
     console.warn("Aviso ao escutar consultas no Firestore:", err);
+  });
+
+  // Escuta configurações gerais em tempo real
+  unsubCfg = onSnapshot(doc(db, "config", "general"), snap => {
+    if (snap.exists() && typeof window.setCfg === 'function') {
+      window.setCfg(snap.data());
+    }
+  }, err => {
+    console.warn("Aviso ao escutar configurações no Firestore:", err);
   });
 }
 
