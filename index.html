@@ -176,25 +176,68 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 <section id="cfg" class="hide"></section>
 </main>
 
-<div id="msg"></div><div id="sv" role="status" aria-live="polite"></div><div id="ov"></div>
-<div id="chart_tip" role="tooltip" aria-hidden="true"></div>
 <div id="lg">
   <form id="lf" autocomplete="on">
     <h1>Painel KOMMO</h1>
     <p class="note" style="margin:0">Acesso restrito da equipe autorizada.</p>
-    
-    <label>Email da clínica
-      <input id="lu" type="email" autocomplete="email" value="preoperatoriodr.lucasmendes@gmail.com" placeholder="preoperatoriodr.lucasmendes@gmail.com" required>
-    </label>
-    
-    <label>Senha
-      <input id="lp" type="password" autocomplete="current-password" placeholder="Digite sua senha" required>
-    </label>
-    
+    <label>Email da clínica<input id="lu" type="email" autocomplete="username" placeholder="Digite seu email" required></label>
+    <label>Senha<input id="lp" type="password" autocomplete="current-password" placeholder="Digite sua senha" required></label>
     <p id="le" class="note" style="color:var(--r);margin:0;min-height:1.2em"></p>
     <button class="b" id="lb" type="submit">Entrar no painel</button>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;display:flex;flex-direction:column;gap:6px">
+      <button type="button" class="b s" id="btn_open_files" style="font-size:12px;font-weight:600;padding:7px 10px">📁 Baixar arquivos individuais ou copiar códigos para o GitHub</button>
+    </div>
   </form>
 </div>
+
+<div id="files_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.4)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h2 style="margin:0;font-size:17px">Arquivos Prontos para o GitHub</h2>
+      <button class="x" id="btn_close_files" style="font-size:24px;line-height:1">×</button>
+    </div>
+    <p class="note" style="margin:0 0 14px">Baixe os arquivos individualmente (.html, .js, .json) ou clique em <b>Copiar código</b> para colar direto no GitHub:</p>
+    
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)">
+        <div style="font-weight:700;font-size:14px">1. index.html <span class="tag" style="font-weight:normal;font-size:11px">Principal</span></div>
+        <p class="note" style="margin:4px 0 8px;font-size:12px">Arquivo do painel com todas as correções, sem SheetDB e com recálculo automático.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="/index.html" download="index.html" class="b" style="font-size:12px;text-decoration:none;padding:6px 12px">💾 Baixar index.html</a>
+          <button class="b s" style="font-size:12px;padding:6px 12px" onclick="copyFileCode('index.html', this)">📋 Copiar código</button>
+        </div>
+      </div>
+
+      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)">
+        <div style="font-weight:700;font-size:14px">2. vercel.json</div>
+        <p class="note" style="margin:4px 0 8px;font-size:12px">Configuração para a Vercel publicar sem erros com HTTPS.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="/vercel.json" download="vercel.json" class="b" style="font-size:12px;text-decoration:none;padding:6px 12px">💾 Baixar vercel.json</a>
+          <button class="b s" style="font-size:12px;padding:6px 12px" onclick="copyFileCode('vercel.json', this)">📋 Copiar código</button>
+        </div>
+      </div>
+
+      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)">
+        <div style="font-weight:700;font-size:14px">3. firestore.rules</div>
+        <p class="note" style="margin:4px 0 8px;font-size:12px">Regras de segurança que protegem o banco no Firebase.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="/firestore.rules" download="firestore.rules" class="b" style="font-size:12px;text-decoration:none;padding:6px 12px">💾 Baixar firestore.rules</a>
+          <button class="b s" style="font-size:12px;padding:6px 12px" onclick="copyFileCode('firestore.rules', this)">📋 Copiar código</button>
+        </div>
+      </div>
+
+      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)">
+        <div style="font-weight:700;font-size:14px">4. app-firebase.js</div>
+        <p class="note" style="margin:4px 0 8px;font-size:12px">Conector complementar do Firebase.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="/app-firebase.js" download="app-firebase.js" class="b" style="font-size:12px;text-decoration:none;padding:6px 12px">💾 Baixar app-firebase.js</a>
+          <button class="b s" style="font-size:12px;padding:6px 12px" onclick="copyFileCode('app-firebase.js', this)">📋 Copiar código</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana']];
 const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-26":[100,2,473,346,0,0,0,20,3,326,33,3,9,13,6,2,5],"2026-10-03":[52,2,513,33,375,0,0,25,6,350,31,0,14,7,4,0,11],"2026-10-10":[27,0,514,14,163,290,0,70,3,397,45,6,26,10,9,1,11]};
@@ -259,31 +302,75 @@ function addDays(isoDate, days) {
 
 function getWeekWindow(id, keys, i) {
   const start = id;
-  // A semana considera de sábado até a próxima sexta (7 dias)
-  // Se houver próxima semana cadastrada, o limite é o início da próxima; senão, start + 7 dias
   const end = (i < keys.length - 1 && keys[i + 1]) ? keys[i + 1] : addDays(id, 7);
   return { start, end };
 }
 
-// Remove semanas estranhas que tenham sido criadas indevidamente por datas isoladas de consultas
+function getSaturdayOfWeek(isoDate) {
+  if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return today();
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  const day = dt.getDay(); // 0: Dom, 1: Seg, ..., 6: Sab
+  const diff = day === 6 ? 0 : -(day + 1);
+  dt.setDate(dt.getDate() + diff);
+  const ry = dt.getFullYear();
+  const rm = String(dt.getMonth() + 1).padStart(2, '0');
+  const rd = String(dt.getDate()).padStart(2, '0');
+  return `${ry}-${rm}-${rd}`;
+}
+
+function findWeekIdForDate(isoDate, keys) {
+  if (!isoDate) return null;
+  for (let i = 0; i < keys.length; i++) {
+    const { start, end } = getWeekWindow(keys[i], keys, i);
+    if (isoDate >= start && isoDate < end) {
+      return keys[i];
+    }
+  }
+  return null;
+}
+
+function ensureWeeksForAppts() {
+  const allAppts = Object.values(appts || {});
+  let created = false;
+  allAppts.forEach(a => {
+    const dAgend = a.schedOn || a.consult;
+    const dConsult = (a.status === 'reagendada' && a.newDate) ? a.newDate : (a.consult || a.schedOn);
+    [dAgend, dConsult].forEach(d => {
+      if (!d) return;
+      const currentKeys = Object.keys(weeks || {}).sort();
+      let wId = findWeekIdForDate(d, currentKeys);
+      if (!wId) {
+        wId = getSaturdayOfWeek(d);
+        if (!weeks[wId]) {
+          const o = {};
+          FIELDS.forEach(([k]) => { o[k] = 0; });
+          o.id = wId;
+          o.auto = true;
+          weeks[wId] = o;
+          created = true;
+        }
+      }
+    });
+  });
+  if (created) {
+    try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
+  }
+}
+
 function cleanupStrayWeeks() {
   const ks = Object.keys(weeks || {});
   ks.forEach(k => {
-    const raw = weeks[k];
-    if (!raw) return;
-    const isSeed = SEED[k];
-    const parts = k.split('-').map(Number);
-    const isSaturday = (parts.length === 3) && (new Date(parts[0], parts[1] - 1, parts[2]).getDay() === 6);
-    // Se não for sábado nem seed, e estiver sem dados lançados de leads, remove o resíduo
-    if (!isSeed && !isSaturday && !raw.manualCagend && (raw.novos === 0 || raw.novos == null) && (raw.ativas === 0 || raw.ativas == null)) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) {
       delete weeks[k];
       try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
     }
   });
 }
 
-/* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE (SÁBADO A SEXTA) ===== */
+/* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE (CONSULTAS, AGENDAMENTOS E REAGENDAMENTOS) ===== */
 function W() {
+  ensureWeeksForAppts();
   cleanupStrayWeeks();
   const keys = Object.keys(weeks || {}).sort();
   const allAppts = Object.values(appts || {});
@@ -293,35 +380,30 @@ function W() {
     const w = { ...raw, id };
     const { start, end } = getWeekWindow(id, keys, i);
 
-    // Considera ESTRITAMENTE a data presente em "Agendada em" (schedOn)
-    // De sábado até a próxima sexta
+    // 1. Consultas agendadas nesta semana
     const schedInWeek = allAppts.filter(a => {
-      const s = a.schedOn || '';
+      const s = a.schedOn || a.consult || '';
       return s >= start && s < end;
     });
 
-    // Se houver consultas agendadas cadastradas:
-    if (schedInWeek.length > 0) {
-      if (!raw.manualCagend || !raw.cagend || raw.cagend === 0 || schedInWeek.length >= raw.cagend) {
-        w.cagend = Math.max(raw.cagend || 0, schedInWeek.length);
-        w.auto = true;
-      }
-    } else if (!w.manualCagend && (w.auto === true || w.cagend === undefined)) {
-      w.cagend = 0;
-      w.auto = true;
-    }
+    // 2. Consultas que tiveram atendimento nesta semana (ou reagendadas para esta semana)
+    const attendInWeek = allAppts.filter(a => {
+      const d = (a.status === 'reagendada' && a.newDate) ? a.newDate : (a.consult || a.schedOn || '');
+      return d >= start && d < end;
+    });
 
-    // Status da agenda das consultas desta semana (check-in / realizada, cancelada, reagendada)
-    if (schedInWeek.length > 0) {
-      const numReal = schedInWeek.filter(a => a.status === 'realizada').length;
-      const numCanc = schedInWeek.filter(a => a.status === 'cancelada').length;
-      const numReag = schedInWeek.filter(a => a.status === 'reagendada').length;
+    const numReal = attendInWeek.filter(a => a.status === 'realizada').length;
+    const numCanc = attendInWeek.filter(a => a.status === 'cancelada').length;
+    const numReag = allAppts.filter(a => {
+      const d = a.consult || a.schedOn || '';
+      return a.status === 'reagendada' && d >= start && d < end;
+    }).length;
 
-      w.creal = (raw.creal != null && raw.creal > numReal && !raw.autoS) ? raw.creal : numReal;
-      w.ccanc = (raw.ccanc != null && raw.ccanc > numCanc && !raw.autoS) ? raw.ccanc : numCanc;
-      w.creag = (raw.creag != null && raw.creag > numReag && !raw.autoS) ? raw.creag : numReag;
-      w.autoS = true;
-    }
+    // Recálculo dinâmico sempre mantido:
+    w.cagend = schedInWeek.length;
+    w.creal = numReal;
+    w.ccanc = numCanc;
+    w.creag = numReag;
 
     return w;
   });
@@ -329,6 +411,7 @@ function W() {
 
 /* Sincronização automática entre Consultas registradas e Semanas lançadas */
 async function syncWeekMetricsWithAppts(persist = true) {
+  ensureWeeksForAppts();
   cleanupStrayWeeks();
   const allAppts = Object.values(appts || {});
   const keys = Object.keys(weeks || {}).sort();
@@ -342,40 +425,35 @@ async function syncWeekMetricsWithAppts(persist = true) {
     const raw = weeks[id] || {};
     let weekChanged = false;
 
-    // Considera ESTRITAMENTE a data presente em "Agendada em" (schedOn)
-    // De sábado até a próxima sexta
     const schedInWeek = allAppts.filter(a => {
-      const s = a.schedOn || '';
+      const s = a.schedOn || a.consult || '';
       return s >= start && s < end;
     });
 
-    // 1. Atualizar consultas agendadas (cagend)
-    if (schedInWeek.length > 0) {
-      const newCagend = Math.max(raw.cagend || 0, schedInWeek.length);
-      if (raw.cagend !== newCagend) {
-        raw.cagend = newCagend;
-        raw.auto = true;
-        weekChanged = true;
-      }
-    }
+    const attendInWeek = allAppts.filter(a => {
+      const d = (a.status === 'reagendada' && a.newDate) ? a.newDate : (a.consult || a.schedOn || '');
+      return d >= start && d < end;
+    });
 
-    // 2. Atualizar status (creal, ccanc, creag)
-    if (schedInWeek.length > 0) {
-      const numReal = schedInWeek.filter(a => a.status === 'realizada').length;
-      const numCanc = schedInWeek.filter(a => a.status === 'cancelada').length;
-      const numReag = schedInWeek.filter(a => a.status === 'reagendada').length;
+    const numReal = attendInWeek.filter(a => a.status === 'realizada').length;
+    const numCanc = attendInWeek.filter(a => a.status === 'cancelada').length;
+    const numReag = allAppts.filter(a => {
+      const d = a.consult || a.schedOn || '';
+      return a.status === 'reagendada' && d >= start && d < end;
+    }).length;
 
-      const calcReal = (raw.creal != null && raw.creal > numReal && !raw.autoS) ? raw.creal : numReal;
-      const calcCanc = (raw.ccanc != null && raw.ccanc > numCanc && !raw.autoS) ? raw.ccanc : numCanc;
-      const calcReag = (raw.creag != null && raw.creag > numReag && !raw.autoS) ? raw.creag : numReag;
+    const newCagend = schedInWeek.length;
+    const newCreal = numReal;
+    const newCcanc = numCanc;
+    const newCreag = numReag;
 
-      if (raw.creal !== calcReal || raw.ccanc !== calcCanc || raw.creag !== calcReag) {
-        raw.creal = calcReal;
-        raw.ccanc = calcCanc;
-        raw.creag = calcReag;
-        raw.autoS = true;
-        weekChanged = true;
-      }
+    if (raw.cagend !== newCagend || raw.creal !== newCreal || raw.ccanc !== newCcanc || raw.creag !== newCreag) {
+      raw.cagend = newCagend;
+      raw.creal = newCreal;
+      raw.ccanc = newCcanc;
+      raw.creag = newCreag;
+      raw.auto = true;
+      weekChanged = true;
     }
 
     if (weekChanged) {
@@ -464,473 +542,24 @@ async function saveCfg(p) {
   }
 }
 
-/* ---------- SheetDB Oficial com Validação Inteligente ---------- */
-let syncing=false;
-const SDB={semanas:'https://sheetdb.io/api/v1/sk39abnekybca',consultas:'https://sheetdb.io/api/v1/bvqe5doucg58z'};
-const SHN={semanas:'Lançar Semanas',consultas:'Consultas'};
-const WCOLS=['semana','novos','antigas','ativas','fu2','fu3','fu4','fu5','resp','agend','semresp','pensando','aguard','nao','cagend','ccanc','creag','creal'];
-const ACOLS=['id','paciente','origem','agendada_em','consulta','status','reagendou','nova_data'];
-
-function cleanKey(str){
-  return String(str||'')
-    .replace(/^\uFEFF/,'')
-    .replace(/[\u200B-\u200D\uFEFF]/g,'')
-    .replace(/\u00A0/g,' ')
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'');
-}
-
-function extractKeysFromResponse(data){
-  if(!data)return [];
-  if(Array.isArray(data)){
-    if(!data.length)return [];
-    if(typeof data[0]==='string')return data.map(s=>String(s).trim());
-    if(typeof data[0]==='object'&&data[0]!==null){
-      if('name' in data[0]&&typeof data[0].name==='string')return data.map(item=>String(item.name||'').trim());
-      if('key' in data[0]&&typeof data[0].key==='string')return data.map(item=>String(item.key||'').trim());
-      const s=new Set();
-      data.forEach(r=>{if(r&&typeof r==='object')Object.keys(r).forEach(k=>s.add(k.trim()))});
-      return Array.from(s);
-    }
-  }
-  if(typeof data==='object'&&data!==null){
-    if(Array.isArray(data.keys))return data.keys.map(s=>String(s).trim());
-    if(Array.isArray(data.columns))return data.columns.map(s=>String(s).trim());
-    return Object.keys(data).map(s=>s.trim());
-  }
-  return [];
-}
-
-function buildSheetDbUrl(baseUrl,path='',query=''){
-  const [base,existingQuery]=baseUrl.split('?');
-  const fullPath=base.replace(/\/+$/,'')+(path?'/'+path.replace(/^\/+/,''):'');
-  const params=new URLSearchParams(existingQuery||'');
-  if(query){
-    const extra=new URLSearchParams(query);
-    for(const [k,v] of extra.entries())params.set(k,v);
-  }
-  const qStr=params.toString();
-  return fullPath+(qStr?'?'+qStr:'');
-}
-
-async function sdb(url,opt){
-  const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);
-  try{return await fetch(url,{...opt,signal:c.signal,cache:'no-store'})}
-  catch(e){throw new Error(e&&e.name==='AbortError'?'Tempo esgotado (25s) sem resposta do SheetDB':(navigator.onLine===false?'Sem conexão com a internet':'Bloqueio de rede ou CORS ao conectar no SheetDB'))}
-  finally{clearTimeout(t)}
-}
-
-async function httpErr(r,what){
-  let b='';try{b=(await r.text()).replace(/\s+/g,' ').slice(0,140)}catch(e){}
-  const dica=r.status===402||r.status===429?' (limite de requisições do plano SheetDB atingido)':r.status===404?' (link da API não encontrado)':r.status===401||r.status===403?' (autenticação exigida ou negada)':'';
-  return new Error(what+': HTTP '+r.status+dica+(b?' – '+b:''));
-}
-
-async function resolveSheetEndpoint(sh,cols){
-  const baseUrl=SDB[sh];
-  const sheetName=SHN[sh];
-  const candidateUrls=[
-    baseUrl,
-    buildSheetDbUrl(baseUrl,'','sheet='+encodeURIComponent(sheetName)),
-    buildSheetDbUrl(baseUrl,'','sheet='+encodeURIComponent(sh))
-  ];
-
-  let lastKeys=[];
-  let lastError=null;
-
-  for(const testUrl of candidateUrls){
-    try{
-      const keysUrl=buildSheetDbUrl(testUrl,'keys');
-      let r=await sdb(keysUrl);
-      let data=null;
-      if(r.ok){
-        data=await r.json();
-      }else{
-        const rootUrl=buildSheetDbUrl(testUrl,'','limit=1');
-        r=await sdb(rootUrl);
-        if(r.ok)data=await r.json();
-      }
-
-      if(data){
-        const extracted=extractKeysFromResponse(data);
-        if(extracted.length>0){
-          lastKeys=extracted;
-          const normExtracted=extracted.map(cleanKey);
-          const miss=cols.filter(c=>!normExtracted.includes(cleanKey(c)));
-          if(miss.length===0){
-            return {url:testUrl,keys:extracted,ok:true};
-          }
-        }
-      }
-    }catch(e){
-      lastError=e.message||String(e);
-    }
-  }
-
-  return {url:baseUrl,keys:lastKeys,ok:false,error:lastError};
-}
-
-function persistSync(){
-  try{localStorage.setItem('kommo_sync_v3',JSON.stringify(sync));return true}catch(e){return false}
-}
-
-function initSyncState(){
-  try{
-    const x=JSON.parse(localStorage.getItem('kommo_sync_v3')||localStorage.getItem('kommo_sync_v2')||'null');
-    if(x){
-      sync={
-        general:{lastAttempt:0,lastSuccess:0,lastSuccessSlot:'',lastAttemptSlot:'',status:'idle',retryAt:0,retryCount:0,...(x.general||{})},
-        semanas:{lastAttempt:0,lastSuccess:0,status:'idle',error:'',rowsTotal:0,rowsUpdated:0,rowsAdded:0,...(x.semanas||{})},
-        consultas:{lastAttempt:0,lastSuccess:0,status:'idle',error:'',rowsTotal:0,rowsUpdated:0,rowsAdded:0,...(x.consultas||{})},
-        hist:Array.isArray(x.hist)?x.hist:[]
-      };
-      return;
-    }
-  }catch(e){}
-  sync={
-    general:{lastAttempt:0,lastSuccess:0,lastSuccessSlot:'',lastAttemptSlot:'',status:'idle',retryAt:0,retryCount:0},
-    semanas:{lastAttempt:0,lastSuccess:0,status:'idle',error:'',rowsTotal:0,rowsUpdated:0,rowsAdded:0},
-    consultas:{lastAttempt:0,lastSuccess:0,status:'idle',error:'',rowsTotal:0,rowsUpdated:0,rowsAdded:0},
-    hist:[]
-  };
-}
-
-function getSaoPauloParts(d=new Date()){
-  const f=new Intl.DateTimeFormat('en-US',{
-    timeZone:'America/Sao_Paulo',
-    year:'numeric',month:'numeric',day:'numeric',
-    hour:'numeric',minute:'numeric',second:'numeric',
-    weekday:'short',hour12:false
-  });
-  const parts=f.formatToParts(d),p={};
-  for(const {type,value} of parts)p[type]=value;
-  const wMap={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
-  return {
-    year:parseInt(p.year),month:parseInt(p.month),day:parseInt(p.day),
-    hour:parseInt(p.hour==='24'?'0':p.hour),minute:parseInt(p.minute),second:parseInt(p.second),
-    weekday:wMap[p.weekday]??0
-  };
-}
-
-function getLastSlotInfo(now=new Date()){
-  for(let i=0;i<=7;i++){
-    const d=new Date(now.getTime()-i*86400000);
-    const sp=getSaoPauloParts(d);
-    if(sp.weekday>=1&&sp.weekday<=5){
-      const h=sp.weekday===5?16:17,m=sp.weekday===5?50:53;
-      const spNow=getSaoPauloParts(now);
-      const diffMins=(spNow.hour*60+spNow.minute)-(h*60+m)+(i*1440);
-      if(diffMins>=0){
-        const slotDateStr=`${sp.year}-${String(sp.month).padStart(2,'0')}-${String(sp.day).padStart(2,'0')}`;
-        return {id:`${slotDateStr}_${h}h${m}`,dateStr:slotDateStr,hour:h,minute:m,timestamp:now.getTime()-diffMins*60000};
-      }
-    }
-  }
-  return null;
-}
-
-function getNextSlotString(now=new Date()){
-  const sp=getSaoPauloParts(now);
-  for(let i=0;i<=7;i++){
-    const dayOffset=(sp.weekday+i)%7;
-    if(dayOffset>=1&&dayOffset<=5){
-      const h=dayOffset===5?16:17,m=dayOffset===5?50:53;
-      if(i===0){
-        if(sp.hour<h||(sp.hour===h&&sp.minute<m)){
-          return `Hoje às ${h}:${String(m).padStart(2,'0')} (horário de Brasília)`;
-        }
-      }else{
-        const nomeDia=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][dayOffset];
-        return `${nomeDia} às ${h}:${String(m).padStart(2,'0')} (horário de Brasília)`;
-      }
-    }
-  }
-  return 'Segunda-feira às 17:53 (horário de Brasília)';
-}
-
-function addSyncHistory(sh,ok,msg){
-  const item={t:Date.now(),sh,ok,m:String(msg).slice(0,180)};
-  sync.hist=[item,...(sync.hist||[])].slice(0,12);
-}
-
-async function syncSingleSheet(sh){
-  const isSem=sh==='semanas';
-  const cols=isSem?WCOLS:ACOLS;
-  const kc=isSem?'semana':'id';
-  const hd={'Content-Type':'application/json',Accept:'application/json'};
-
-  sync[sh].status='syncing';
-  sync[sh].lastAttempt=Date.now();
-  paintSync();
-
-  try{
-    const check=await resolveSheetEndpoint(sh,cols);
-    if(!check.ok){
-      const foundNorm=(check.keys||[]).map(cleanKey);
-      const miss=cols.filter(c=>!foundNorm.includes(cleanKey(c)));
-      let detail=`Aba "${SHN[sh]}": cabeçalhos ausentes: ${miss.join(', ')}.`;
-      if(check.keys&&check.keys.length){
-        detail+=` Encontrados na planilha: ${check.keys.join(', ')}.`;
-        if(!isSem&&check.keys.some(k=>cleanKey(k)==='semana')){
-          detail+=` (Aviso: foram detectados cabeçalhos da aba 'Lançar Semanas'. Confirme se a aba no Google Sheets está nomeada exatamente como 'Consultas').`;
-        }
-      }
-      if(check.error)detail+=` Erro: ${check.error}`;
-      throw new Error(detail);
-    }
-
-    const resolvedUrl=check.url;
-    const rows=isSem
-      ? W().map(w=>({semana:String(w.id||''),novos:Number(w.novos||0),antigas:Number(w.antigas||0),ativas:Number(w.ativas||0),fu2:Number(w.fu2||0),fu3:Number(w.fu3||0),fu4:Number(w.fu4||0),fu5:Number(w.fu5||0),resp:Number(w.resp||0),agend:Number(w.agend||0),semresp:Number(w.semresp||0),pensando:Number(w.pensando||0),aguard:Number(w.aguard||0),nao:Number(w.nao||0),cagend:Number(w.cagend||0),ccanc:Number(w.ccanc||0),creag:Number(w.creag||0),creal:Number(w.creal||0)}))
-      : Object.entries(appts).map(([id,a])=>({id:String(id||''),paciente:String(a.patient||''),origem:String(ORIG[a.origin]||a.origin||''),agendada_em:String(a.schedOn||''),consulta:String(a.consult||''),status:String(STAT[a.status]||a.status||''),reagendou:String(REG[a.regained||'']||a.regained||''),nova_data:String(a.newDate||'')}));
-
-    const r=await sdb(resolvedUrl);
-    if(!r.ok)throw await httpErr(r,'Ler aba "'+SHN[sh]+'"');
-    const ex=await r.json();
-    if(!Array.isArray(ex))throw new Error('Resposta inválida do SheetDB ao consultar "'+SHN[sh]+'"');
-
-    const have=new Map();
-    ex.forEach(x=>{
-      const val=String(x[kc]||'').trim();
-      if(val)have.set(val.toLowerCase(),val);
-    });
-
-    const toUpdate=[];
-    const toAdd=[];
-    rows.forEach(x=>{
-      const keyVal=String(x[kc]||'').trim();
-      if(have.has(keyVal.toLowerCase()))toUpdate.push(x);
-      else toAdd.push(x);
-    });
-
-    for(const x of toUpdate){
-      const keyVal=String(x[kc]||'').trim();
-      const patchUrl=buildSheetDbUrl(resolvedUrl,`${kc}/${encodeURIComponent(keyVal)}`);
-      const patchRes=await sdb(patchUrl,{method:'PATCH',headers:hd,body:JSON.stringify({data:x})});
-      if(!patchRes.ok)throw await httpErr(patchRes,'Atualizar linha na aba "'+SHN[sh]+'"');
-    }
-
-    if(toAdd.length){
-      const postUrl=buildSheetDbUrl(resolvedUrl);
-      const postRes=await sdb(postUrl,{method:'POST',headers:hd,body:JSON.stringify({data:toAdd})});
-      if(!postRes.ok)throw await httpErr(postRes,'Acrescentar linhas na aba "'+SHN[sh]+'"');
-    }
-
-    sync[sh]={
-      ...sync[sh],
-      status:'success',
-      lastSuccess:Date.now(),
-      error:'',
-      rowsTotal:rows.length,
-      rowsUpdated:toUpdate.length,
-      rowsAdded:toAdd.length
-    };
-    addSyncHistory(sh,true,`Enviado: ${rows.length} total (${toUpdate.length} atualizados, ${toAdd.length} novos)`);
-    return true;
-  }catch(err){
-    const msg=String(err.message||err);
-    sync[sh]={...sync[sh],status:'error',error:msg};
-    addSyncHistory(sh,false,msg);
-    return false;
-  }
-}
-
-async function sheetSync(trigger='manual'){
-  if(syncing)return;
-  syncing=true;
-  const bt=$('#sy_now');if(bt){bt.disabled=true;bt.textContent='Sincronizando…'}
-  sync.general.status='syncing';
-  sync.general.lastAttempt=Date.now();
-  paintSync();
-
-  const lastSlot=getLastSlotInfo();
-  if(lastSlot)sync.general.lastAttemptSlot=lastSlot.id;
-
-  const resSem=await syncSingleSheet('semanas');
-  const resApp=await syncSingleSheet('consultas');
-
-  if(resSem&&resApp){
-    sync.general.status='success';
-    sync.general.lastSuccess=Date.now();
-    sync.general.retryCount=0;
-    sync.general.retryAt=0;
-    if(lastSlot)sync.general.lastSuccessSlot=lastSlot.id;
-    toast('SheetDB: sincronização completa com sucesso!');
-  }else if(resSem||resApp){
-    sync.general.status='partial_error';
-    sync.general.retryCount=(sync.general.retryCount||0)+1;
-    sync.general.retryAt=Date.now()+600000;
-    toast('SheetDB: sincronização parcial');
-  }else{
-    sync.general.status='error';
-    sync.general.retryCount=(sync.general.retryCount||0)+1;
-    sync.general.retryAt=Date.now()+600000;
-    toast('SheetDB: erro na sincronização');
-  }
-
-  syncing=false;
-  persistSync();
-  paintSync();
-  stLine();
-  if(bt){bt.disabled=false;bt.textContent='Sincronizar agora'}
-}
-
-async function sheetTest(){
-  const bt=$('#sy_test');if(bt){bt.disabled=true;bt.textContent='Testando…'}
-  for(const sh of ['semanas','consultas']){
-    try{
-      const cols=sh==='semanas'?WCOLS:ACOLS;
-      const check=await resolveSheetEndpoint(sh,cols);
-      if(!check.ok){
-        const foundNorm=(check.keys||[]).map(cleanKey);
-        const miss=cols.filter(c=>!foundNorm.includes(cleanKey(c)));
-        let detail=`Aba "${SHN[sh]}": `;
-        if(miss.length)detail+=`cabeçalhos ausentes: ${miss.join(', ')}. `;
-        if(check.keys&&check.keys.length)detail+=`Encontrados na planilha: ${check.keys.join(', ')}. `;
-        if(check.error)detail+=`Erro: ${check.error}`;
-        throw new Error(detail);
-      }
-      sync[sh].error='';
-      toast(`Planilha "${SHN[sh]}": conexão e cabeçalhos OK!`);
-    }catch(err){
-      sync[sh].error=err.message;
-      alert(`Teste na planilha "${SHN[sh]}":\n`+err.message);
-    }
-  }
-  if(bt){bt.disabled=false;bt.textContent='Testar conexão'}
-  paintSync();
-}
-
-function tickSync(){
-  if(syncing)return;
-  if(sync.general.retryAt&&Date.now()>=sync.general.retryAt){
-    sync.general.retryAt=0;
-    sheetSync('retry');
-    return;
-  }
-  const lastSlot=getLastSlotInfo();
-  if(lastSlot&&sync.general.lastSuccessSlot!==lastSlot.id&&sync.general.lastAttemptSlot!==lastSlot.id){
-    sheetSync('slot_pending');
-  }
-}
-
-function syncInner(){
-  const g=sync.general;
-  const sem=sync.semanas;
-  const app=sync.consultas;
-
-  const tagG=g.status==='success'
-    ?'<span class="tag" style="background:var(--g);color:#fff">Sucesso total</span>'
-    :g.status==='partial_error'
-    ?'<span class="tag" style="background:var(--a);color:#fff">Falha parcial</span>'
-    :g.status==='error'
-    ?'<span class="tag" style="background:var(--r);color:#fff">Erro</span>'
-    :g.status==='syncing'
-    ?'<span class="tag" style="background:var(--b);color:#fff">Sincronizando…</span>'
-    :'<span class="tag">Aguardando</span>';
-
-  const tagSh=st=>st==='success'
-    ?'<span class="tag" style="background:var(--g);color:#fff">Sucesso</span>'
-    :st==='error'
-    ?'<span class="tag" style="background:var(--r);color:#fff">Erro</span>'
-    :st==='syncing'
-    ?'<span class="tag" style="background:var(--b);color:#fff">Enviando…</span>'
-    :'<span class="tag">Aguardando</span>';
-
-  return `
-    <h2>Sincronização com o SheetDB</h2>
-    <p class="note">O Firebase é a fonte oficial dos dados. A sincronização automática ocorre de <b>segunda a quinta às 17h53</b> e na <b>sexta às 16h50</b> (horário de Brasília). <i>O navegador precisa estar aberto no horário para executar; caso esteja fechado, a sincronização é executada assim que o painel for aberto.</i></p>
-
-    <div style="background:var(--bg);padding:12px;border-radius:10px;margin:12px 0">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-        <b>Status Geral: ${tagG}</b>
-        <span class="note">Próximo envio: <b>${getNextSlotString()}</b></span>
-      </div>
-      <p style="margin:4px 0" class="note">Última sincronização completa bem-sucedida: <b>${fdt(g.lastSuccess)}</b></p>
-      <p style="margin:4px 0" class="note">Última tentativa geral: <b>${fdt(g.lastAttempt)}</b></p>
-      ${g.retryAt?`<p class="note" style="color:var(--a);margin:4px 0">Nova tentativa agendada para <b>${new Date(g.retryAt).toLocaleTimeString('pt-BR',{timeStyle:'short'})}</b> (tentativa #${g.retryCount})</p>`:''}
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:12px 0">
-      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--card)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <b>Planilha: Lançar Semanas</b>
-          ${tagSh(sem.status)}
-        </div>
-        <p class="note" style="margin:6px 0 2px">Último sucesso: <b>${fdt(sem.lastSuccess)}</b></p>
-        <p class="note" style="margin:2px 0 2px">Última tentativa: <b>${fdt(sem.lastAttempt)}</b></p>
-        <p class="note" style="margin:2px 0">Linhas: ${sem.rowsTotal||0} total · <b>${sem.rowsUpdated||0} atualizadas</b> · <b>${sem.rowsAdded||0} novas</b></p>
-        ${sem.error?`<p class="note" style="color:var(--r);margin-top:6px;word-break:break-word">${esc(sem.error)}</p>`:''}
-      </div>
-
-      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--card)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <b>Planilha: Consultas</b>
-          ${tagSh(app.status)}
-        </div>
-        <p class="note" style="margin:6px 0 2px">Último sucesso: <b>${fdt(app.lastSuccess)}</b></p>
-        <p class="note" style="margin:2px 0 2px">Última tentativa: <b>${fdt(app.lastAttempt)}</b></p>
-        <p class="note" style="margin:2px 0">Linhas: ${app.rowsTotal||0} total · <b>${app.rowsUpdated||0} atualizadas</b> · <b>${app.rowsAdded||0} novas</b></p>
-        ${app.error?`<p class="note" style="color:var(--r);margin-top:6px;word-break:break-word">${esc(app.error)}</p>`:''}
-      </div>
-    </div>
-
-    <details style="margin:8px 0">
-      <summary class="note" style="cursor:pointer">Cabeçalhos oficiais exigidos na Linha 1 de cada planilha</summary>
-      <div style="background:var(--bg);padding:10px;border-radius:8px;margin-top:6px;font-size:12px">
-        <p style="margin:0 0 4px"><b>Lançar Semanas:</b> <code>${WCOLS.join(', ')}</code></p>
-        <p style="margin:0"><b>Consultas:</b> <code>${ACOLS.join(', ')}</code></p>
-      </div>
-    </details>
-
-    ${(sync.hist||[]).length?`
-      <details style="margin:8px 0">
-        <summary class="note" style="cursor:pointer">Histórico de tentativas recentes</summary>
-        <div style="max-height:160px;overflow-y:auto;margin-top:6px">
-          ${sync.hist.map(x=>`<p class="note" style="margin:3px 0">${fdt(x.t)} · <b>${SHN[x.sh]||x.sh}</b>: ${x.ok?'<span style="color:var(--g)">sucesso</span>':'<span style="color:var(--r)">erro</span>'} – ${esc(x.m)}</p>`).join('')}
-        </div>
-      </details>
-    `:''}
-
-    <div class="row">
-      <button class="b" id="sy_now">Sincronizar agora</button>
-      <button class="b s" id="sy_test">Testar conexão</button>
-    </div>
-  `;
-}
-
-function paintSync(){
-  const c=$('#sy_card');
-  if(c&&!c.contains(document.activeElement))c.innerHTML=syncInner();
-  stLine();
-}
+/* ---------- Status e Sincronização Firebase Firestore Oficial ---------- */
+const WCOLS=["semana","novos","antigas","ativas","fu2","fu3","fu4","fu5","resp","agend","semresp","pensando","aguard","nao","cagend","ccanc","creag","creal"];
+const ACOLS=["id","paciente","origem","agendada_em","consulta","status","reagendou","nova_data"];
 
 function stLine(){
   const fbOk=window.DATA&&DATA.ready;
   const lastReadStr=window.DATA&&window.DATA.lastRead
-    ? new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}).format(new Date(window.DATA.lastRead))
-    : '';
-  const sText=sync.general.status==='success'
-    ?'SheetDB: sincronizado'
-    :sync.general.status==='partial_error'
-    ?'SheetDB: parcial'
-    :sync.general.status==='error'
-    ?'SheetDB: erro'
-    :'SheetDB: aguardando';
-  $('#st').textContent=`Firebase: ${fbOk?'conectado'+(lastReadStr?' (às '+lastReadStr+')':''):'modo local ativo'} · ${sText}${sync.general.lastSuccess?' ('+fdt(sync.general.lastSuccess)+')':''}`;
+    ? new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit"}).format(new Date(window.DATA.lastRead))
+    : "";
+  $("#st").textContent="● Firebase Firestore: " + (fbOk ? "Conectado em nuvem" + (lastReadStr ? " (atualizado às " + lastReadStr + ")" : "") : "Modo local ativo com persistência");
 }
 
 async function init(){
-  initSyncState();
   applyCfg();
   stLine();
   await syncWeekMetricsWithAppts(false);
   render();
   setupChartTooltips();
-  tickSync();
-  setInterval(tickSync,30000);
 }
 
 /* ---------- Configuração ---------- */
@@ -957,11 +586,11 @@ function renderCfg(){
     <div class="card"><h2>Nome do painel</h2><div class="row" style="margin:0"><input id="c_t" value="${esc(cfg.title||'Painel KOMMO')}" style="flex:1;max-width:420px"><button class="b s" id="c_ts">Salvar</button></div></div>
     <div class="card" id="fb_card" style="margin-top:14px">${window.DATA?DATA.cardHtml():'<h3>Armazenamento Ativo</h3><p class="note">Dados salvos com persistência local e prontos para sincronização.</p>'}</div>
     <div class="card" id="mg_card" style="margin-top:14px">${window.DATA&&DATA.migHtml?DATA.migHtml():''}</div>
-    <div class="card" id="sy_card" style="margin-top:14px">${syncInner()}</div>
+    
     <div class="card" style="margin-top:14px"><h2>Nomes dos campos semanais</h2><p class="note">Renomeie como preferir, adicione campos novos ou exclua os que não usa.</p>${fr}<h2 style="font-size:14px;margin-top:16px">Adicionar novo campo</h2><div class="row" style="margin-top:6px"><input id="f_n" placeholder="Nome do novo campo" style="flex:1;min-width:220px"><select id="f_t"><option value="0">Da semana</option><option value="1">Total atual</option></select><button class="b" id="f_add">Adicionar campo</button></div><div class="row"><button class="b s" id="c_rl">Restaurar nomes originais</button></div></div>
     <div class="card" style="margin-top:14px"><h2>Origem das consultas</h2><p class="note">Opções do campo “Veio de”.</p>${or}<div class="row"><input id="c_on" placeholder="Nova origem" style="flex:1;min-width:200px"><button class="b" id="c_oa">Adicionar origem</button></div><div class="row"><button class="b s" id="c_or">Restaurar origens originais</button></div></div>
     ${viewHtml()}${metricHtml()}
-    <div class="card" style="margin-top:14px"><h2>Backup dos dados</h2><p class="note">Baixe em CSV para abrir no Excel ou no Google Sheets.</p><div class="row"><button class="b s" id="c_ew">Baixar semanas</button><button class="b s" id="c_ea">Baixar consultas</button></div></div>
+    <div class="card" style="margin-top:14px"><h2>Backup e Restauração dos dados</h2><p class="note">Exporte relatórios em CSV para o Excel ou gere uma cópia de segurança completa em JSON para restauração.</p><div class="row" style="margin-bottom:8px"><button class="b s" id="c_ew">Baixar semanas (CSV)</button><button class="b s" id="c_ea">Baixar consultas (CSV)</button></div><div class="row"><button class="b" id="c_bkj">Exportar Backup Completo (JSON)</button><button class="b s" id="c_rsj">Restaurar Backup (JSON)</button><input type="file" id="f_rsj" accept=".json" style="display:none"></div></div>
     ${themeHtml()}
   `;
 }
@@ -1640,14 +1269,14 @@ function dash(){
 function buildForm(){const o=$('#w_novos')?readForm():null;$('#wf').innerHTML=FIELDS.map(([k])=>`<label>${esc(lab(k))}<input type="number" min="0" id="w_${k}" value="0"></label>`).join('');if(o)fillForm(o)}
 function fillForm(v){FIELDS.forEach(([k])=>{const el=$('#w_'+k);if(el)el.value=v?(v[k]||0):0})}
 function loadWeek(){const id=$('#wd').value;fillForm(W().find(w=>w.id===id)||weeks[id])}
-function readForm(){const w0=weeks[$('#wd').value]||{},o={...w0};FIELDS.forEach(([k])=>{const el=$('#w_'+k);o[k]=el?Math.max(0,parseInt(el.value)||0):(w0[k]||0)});if($('#w_cagend')){o.manualCagend=true;o.auto=false;}return o}
+function readForm(){const w0=weeks[$('#wd').value]||{},o={...w0};FIELDS.forEach(([k])=>{const el=$('#w_'+k);o[k]=el?Math.max(0,parseInt(el.value)||0):(w0[k]||0)});// Recálculo automático de consultas mantidoreturn o}
 
 function weekList(){
   const all=W().reverse();if(!all.length)return '<p class="note">Nenhuma semana lançada.</p>';
   const ws=all.filter(w=>(!wFilt.from||w.id>=wFilt.from)&&(!wFilt.to||w.id<=wFilt.to));
   const fb=`<div class="row" style="margin:0 0 10px"><label class="note">Período de<br><input type="date" data-wf="from" value="${wFilt.from}"></label><label class="note">até<br><input type="date" data-wf="to" value="${wFilt.to}"></label><button class="b s" data-wfc="1">Limpar filtro</button><span class="note">Mostrando ${ws.length} de ${all.length} semanas</span></div>`;
   if(!ws.length)return fb+'<p class="note">Nenhuma semana neste período.</p>';
-  return fb+`<div class="wrap"><table><tr><th>Semana</th>${FIELDS.map(f=>`<th>${esc(lab(f[0]))}</th>`).join('')}<th></th></tr>${ws.map(w=>{const ed=editRow===w.id;return `<tr><td><a href="#" data-e="${w.id}">${fdf(w.id)}</a></td>${FIELDS.map(([k])=>`<td>${ed?`<input type="number" min="0" data-ek="${k}" value="${w[k]||0}">`:(w[k]||0)+(k==='cagend'&&w.auto&&!w.manualCagend?' <span class="tag">auto</span>':'')}</td>`).join('')}<td><button class="b s" data-we="${w.id}">Editar</button><button class="b" data-ws="${w.id}"${ed?'':' disabled'}>Salvar</button><button class="b s" data-wx="${w.id}" style="color:var(--r)">Excluir</button></td></tr>`}).join('')}</table></div>`;
+  return fb+`<div class="wrap"><table><tr><th>Semana</th>${FIELDS.map(f=>`<th>${esc(lab(f[0]))}</th>`).join('')}<th></th></tr>${ws.map(w=>{const ed=editRow===w.id;return `<tr><td><a href="#" data-e="${w.id}">${fdf(w.id)}</a></td>${FIELDS.map(([k])=>`<td>${ed?`<input type="number" min="0" data-ek="${k}" value="${w[k]||0}">`:(w[k]||0)+(k==='cagend'?' <span class="tag">auto</span>':'')}</td>`).join('')}<td><button class="b s" data-we="${w.id}">Editar</button><button class="b" data-ws="${w.id}"${ed?'':' disabled'}>Salvar</button><button class="b s" data-wx="${w.id}" style="color:var(--r)">Excluir</button></td></tr>`}).join('')}</table></div>`;
 }
 
 async function importRows(rows){
@@ -1784,8 +1413,7 @@ $('#ps_preview_box').addEventListener('click',e=>{
 
 $('#cfg').onclick=async e=>{
   const t=e.target,id=t.id;
-  if(id==='sy_now'){t.blur();return sheetSync('manual')}
-  if(id==='sy_test'){t.blur();return sheetTest()}
+  // SheetDB descontinuado
   if(id==='c_ts'){await saveCfg({title:$('#c_t').value.trim()||'Painel KOMMO'});return toast('Nome salvo')}
   if(t.dataset.ls||t.dataset.os){const i=document.querySelector(t.dataset.ls?'[data-lk="'+t.dataset.ls+'"]':'[data-ok="'+t.dataset.os+'"]');i.dispatchEvent(new Event('change',{bubbles:true}));return toast('Salvo')}
   if(id==='f_add'){const n=$('#f_n').value.trim();if(!n)return toast('Informe o nome do campo');await saveCfg({extra:[...(cfg.extra||[]),{k:'x'+Date.now().toString(36),n,snap:$('#f_t').value==='1'}]});renderCfg();return toast('Campo adicionado')}
@@ -1826,58 +1454,81 @@ $('#dash').onchange=e=>{
 $('#wl').addEventListener('click',async e=>{
   const t=e.target,d=t.dataset;
   if(d.we){editRow=d.we;$('#wl').innerHTML=weekList();return}
-  if(d.ws){const id=d.ws,o={...weeks[id]};document.querySelectorAll('#wl [data-ek]').forEach(i=>{o[i.dataset.ek]=Math.max(0,parseInt(i.value)||0)});o.manualCagend=true;o.auto=false;editRow=null;await saveDoc('weeks/'+id,o);toast('Semana salva com sucesso!');return}
+  if(d.ws){const id=d.ws,o={...weeks[id]};document.querySelectorAll('#wl [data-ek]').forEach(i=>{o[i.dataset.ek]=Math.max(0,parseInt(i.value)||0)});editRow=null;await saveDoc('weeks/'+id,o);toast('Semana salva com sucesso!');return}
   if(d.wx){if(confirm('Excluir a semana de '+fdf(d.wx)+'?')){if(editRow===d.wx)editRow=null;await delDoc('weeks/'+d.wx);toast('Semana excluída')}return}
   if(d.wfc){wFilt={from:'',to:''};$('#wl').innerHTML=weekList()}
 });
 $('#wl').addEventListener('change',e=>{const k=e.target.dataset.wf;if(k){wFilt[k]=e.target.value;$('#wl').innerHTML=weekList()}});
 
 /* Sistema de Autenticação Oficial Firebase Auth */
-const lf = $("#lf");
-if (lf) {
-  lf.onsubmit = async e => {
+const lf=$("#lf");
+if(lf){
+  lf.onsubmit=async e=>{
     e.preventDefault();
-    const u = ($("#lu") ? $("#lu").value : "").trim();
-    const p = ($("#lp") ? $("#lp").value : "").trim();
-    const lb = $("#lb");
-    const le = $("#le");
-
-    if (!u || !p) {
-      if (le) le.textContent = "Informe seu email e senha.";
+    const u=($("#lu")?$("#lu").value:"").trim();
+    const p=($("#lp")?$("#lp").value:"").trim();
+    const lb=$("#lb");
+    const le=$("#le");
+    if(!u||!p){
+      if(le)le.textContent="Informe seu email e senha.";
       return;
     }
-    if (lb) { lb.disabled = true; lb.textContent = "Autenticando…"; }
-    if (le) le.textContent = "";
+    if(lb){lb.disabled=true;lb.textContent="Autenticando…";}
+    if(le)le.textContent="";
 
-    try {
-      if (window.DATA && typeof window.DATA.login === "function") {
+    try{
+      if(window.DATA && typeof window.DATA.login === "function"){
         await window.DATA.login(u, p);
       } else {
         throw new Error("Módulo de autenticação ainda conectando...");
       }
-    } catch (err) {
+    }catch(err){
       console.warn("Falha no login:", err);
       let msg = "Falha ao acessar: verifique os dados.";
-      if (err.code === "auth/invalid-credential" || err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
+      if(err.code === "auth/invalid-credential" || err.code === "auth/user-not-found" || err.code === "auth/wrong-password"){
         msg = "Email ou senha incorretos.";
-      } else if (err.code === "auth/too-many-requests") {
+      }else if(err.code === "auth/too-many-requests"){
         msg = "Muitas tentativas. Tente novamente em alguns minutos.";
-      } else if (err.code === "auth/network-request-failed") {
+      }else if(err.code === "auth/network-request-failed"){
         msg = "Sem conexão com a internet ou bloqueio de rede.";
-      } else if (err.message) {
+      }else if(err.message){
         msg = err.message;
       }
-      if (le) le.textContent = msg;
-    } finally {
-      if (lb) { lb.disabled = false; lb.textContent = "Entrar no painel"; }
+      if(le)le.textContent = msg;
+    }finally{
+      if(lb){lb.disabled=false;lb.textContent="Entrar no painel";}
     }
   };
 }
 
+const btnOpenFiles = $("#btn_open_files");
+const btnCloseFiles = $("#btn_close_files");
+const filesModal = $("#files_modal");
+if (btnOpenFiles && filesModal) {
+  btnOpenFiles.onclick = () => { filesModal.style.display = "flex"; };
+}
+if (btnCloseFiles && filesModal) {
+  btnCloseFiles.onclick = () => { filesModal.style.display = "none"; };
+}
+window.copyFileCode = async (filename, btn) => {
+  try {
+    const res = await fetch("/" + filename);
+    if (!res.ok) throw new Error("Erro ao carregar");
+    const txt = await res.text();
+    await navigator.clipboard.writeText(txt);
+    const orig = btn.textContent;
+    btn.textContent = "✓ Código copiado!";
+    btn.style.color = "var(--g)";
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ""; }, 2500);
+  } catch(e) {
+    alert("Dica: você também pode baixar o arquivo diretamente pelo botão azul 'Baixar'!");
+  }
+};
+
 // Callback executado quando o Firebase Auth confirma login
 window.onAuthSuccess = user => {
   document.body.classList.remove("locked");
-  const lg = $("#lg"); if (lg) lg.style.display = "none";
+  const lg=$("#lg"); if(lg)lg.style.display="none";
   toast("Acesso liberado: " + (user.email || "Usuário"));
   render();
 };
@@ -1885,13 +1536,17 @@ window.onAuthSuccess = user => {
 // Callback executado quando o usuário está desconectado
 window.onAuthRequired = () => {
   document.body.classList.add("locked");
-  const lg = $("#lg"); if (lg) lg.style.display = "flex";
+  const lg=$("#lg"); if(lg)lg.style.display="flex";
+  const lu=$("#lu"); if(lu)lu.value="";
+  const lp=$("#lp"); if(lp)lp.value="";
 };
 
 // Limpa dados confidenciais da memória do navegador ao sair
 window.clearDataOnLogout = () => {
   weeks = {};
   appts = {};
+  const lu=$("#lu"); if(lu)lu.value="";
+  const lp=$("#lp"); if(lp)lp.value="";
   try {
     localStorage.removeItem("kommo_weeks_v3");
     localStorage.removeItem("kommo_appts_v3");
@@ -1900,14 +1555,13 @@ window.clearDataOnLogout = () => {
   render();
 };
 
-// Botão Sair
-const lo = $("#lo");
-if (lo) {
-  lo.onclick = async () => {
-    if (confirm("Deseja realmente sair da conta?")) {
-      if (window.DATA && typeof window.DATA.logout === "function") {
+const lo=$("#lo");
+if(lo){
+  lo.onclick=async ()=>{
+    if(confirm("Deseja realmente sair da conta?")){
+      if(window.DATA && typeof window.DATA.logout === "function"){
         await window.DATA.logout();
-      } else {
+      }else{
         window.clearDataOnLogout();
         window.onAuthRequired();
       }
@@ -1916,8 +1570,202 @@ if (lo) {
   };
 }
 
+// Backup JSON Completo e Restaurador
+async function exportFullBackupJson() {
+  const payload = {
+    app: "Painel KOMMO",
+    version: "3.2.0",
+    exportedAt: new Date().toISOString(),
+    weeks,
+    appts,
+    cfg
+  };
+  const str = JSON.stringify(payload, null, 2);
+  const blob = new Blob([str], { type: "application/json;charset=utf-8" });
+  const a = document.createElement("a");
+  const dStr = new Date().toISOString().slice(0, 10);
+  a.href = URL.createObjectURL(blob);
+  a.download = "backup_kommo_" + dStr + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  toast("Backup completo gerado com sucesso!");
+}
+
+function triggerRestoreJson() {
+  const fi = $("#f_rsj");
+  if (fi) {
+    fi.value = "";
+    fi.click();
+  }
+}
+
+async function handleRestoreFile(file) {
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+
+    if (!data || typeof data !== "object" || !data.weeks || !data.appts) {
+      alert("Arquivo de backup inválido ou com formato não reconhecido.");
+      return;
+    }
+
+    const nW = Object.keys(data.weeks).length;
+    const nA = Object.keys(data.appts).length;
+
+    if (!confirm("Restaurar este backup substituindo os dados atuais?\n\n- " + nW + " semanas\n- " + nA + " consultas\n- Gerado em: " + (data.exportedAt || "desconhecido") + "\n\nRecomendamos exportar um backup antes.")) {
+      return;
+    }
+
+    weeks = { ...data.weeks };
+    appts = { ...data.appts };
+    if (data.cfg) cfg = { ...data.cfg };
+
+    try {
+      localStorage.setItem("kommo_weeks_v3", JSON.stringify(weeks));
+      localStorage.setItem("kommo_appts_v3", JSON.stringify(appts));
+      if (data.cfg) localStorage.setItem("kommo_cfg_v3", JSON.stringify(cfg));
+    } catch(e){}
+
+    // Persiste no Firebase Firestore se conectado
+    if (window.DATA && typeof window.DATA.write === "function") {
+      for (const [k, v] of Object.entries(weeks)) {
+        await window.DATA.write("weeks", k, v);
+      }
+      for (const [k, v] of Object.entries(appts)) {
+        await window.DATA.write("appts", k, v);
+      }
+      if (data.cfg && typeof window.DATA.saveCfg === "function") {
+        await window.DATA.saveCfg(cfg);
+      }
+    }
+
+    await syncWeekMetricsWithAppts(false);
+    render();
+    renderCfg();
+    alert("Backup restaurado com sucesso! (" + nW + " semanas e " + nA + " consultas carregadas).");
+  } catch(err) {
+    alert("Erro ao ler o arquivo de backup: " + err.message);
+  }
+}
+
+// Handlers no #cfg para backup JSON
+document.addEventListener("click", e => {
+  if (e.target && e.target.id === "c_bkj") exportFullBackupJson();
+  if (e.target && e.target.id === "c_rsj") triggerRestoreJson();
+});
+
+document.addEventListener("change", e => {
+  if (e.target && e.target.id === "f_rsj" && e.target.files && e.target.files[0]) {
+    handleRestoreFile(e.target.files[0]);
+  }
+});
+
 init();
 </script>
-<script type="module" src="app-firebase.js"></script>
+
+
+<script type="module">
+const firebaseConfig = {
+  apiKey: "AIzaSyDzfLT0LTgFQYW-DWOPmpuu-kq9bYTjFSE",
+  authDomain: "clinica-dr-lucas-mendes.firebaseapp.com",
+  projectId: "clinica-dr-lucas-mendes",
+  storageBucket: "clinica-dr-lucas-mendes.firebasestorage.app",
+  messagingSenderId: "1079458841545",
+  appId: "1:1079458841545:web:f987226f9e3b85c5a21e18",
+  measurementId: "G-YLDFD3J8YY"
+};
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let unsubWeeks = null;
+let unsubAppts = null;
+
+function stopListeners() {
+  if (typeof unsubWeeks === "function") { try { unsubWeeks(); } catch(e){} unsubWeeks = null; }
+  if (typeof unsubAppts === "function") { try { unsubAppts(); } catch(e){} unsubAppts = null; }
+}
+
+function startListeners() {
+  stopListeners();
+  if (!db) return;
+  unsubWeeks = onSnapshot(collection(db, "weeks"), snap => {
+    const w = {};
+    snap.forEach(d => { w[d.id] = d.data(); });
+    if (typeof window.setWeeks === "function") window.setWeeks(w);
+  }, err => console.warn("Aviso Firestore weeks:", err));
+
+  unsubAppts = onSnapshot(collection(db, "appts"), snap => {
+    const a = {};
+    snap.forEach(d => { a[d.id] = d.data(); });
+    if (typeof window.setAppts === "function") window.setAppts(a);
+  }, err => console.warn("Aviso Firestore appts:", err));
+}
+
+try {
+  setPersistence(auth, browserSessionPersistence);
+} catch(e){}
+
+window.DATA = {
+  ready: true,
+  authenticated: false,
+  user: null,
+  lastRead: Date.now(),
+  async login(email, password) {
+    if (!auth) throw new Error("Firebase Auth não carregado.");
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    return cred.user;
+  },
+  async logout() {
+    stopListeners();
+    if (typeof window.clearDataOnLogout === "function") window.clearDataOnLogout();
+    if (auth) await signOut(auth);
+  },
+  async write(col, id, data) {
+    if (!db) throw new Error("Banco de dados não conectado.");
+    const ref = doc(db, col, id);
+    if (data === null) await deleteDoc(ref);
+    else await setDoc(ref, data, { merge: true });
+  },
+  async saveCfg(patch) {
+    if (!db) throw new Error("Banco de dados não conectado.");
+    await setDoc(doc(db, "config", "general"), patch, { merge: true });
+  },
+  cardHtml: () => `
+    <h2>Status do Firebase Firestore</h2>
+    <p class="note" style="color:var(--g);font-weight:600;font-size:14px">● Conectado ao projeto: <code>${firebaseConfig.projectId}</code></p>
+    <p class="note">Autenticação: ${window.DATA && window.DATA.user ? `<b>${window.DATA.user.email}</b> (UID: <code>${window.DATA.user.uid}</code>)` : "Não autenticado"}</p>
+    <p class="note">As gravações são persistidas no Firestore em nuvem e sincronizadas em tempo real entre abas e dispositivos.</p>
+  `,
+  migHtml: () => ""
+};
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    window.DATA.user = user;
+    window.DATA.authenticated = true;
+    window.DATA.lastRead = Date.now();
+    console.log("Firebase Auth conectado:", user.email, user.uid);
+    startListeners();
+    if (typeof window.onAuthSuccess === "function") window.onAuthSuccess(user);
+  } else {
+    window.DATA.user = null;
+    window.DATA.authenticated = false;
+    stopListeners();
+    if (typeof window.onAuthRequired === "function") window.onAuthRequired();
+  }
+  if (typeof window.stLine === "function") window.stLine();
+});
+
+if (typeof window.stLine === "function") window.stLine();
+</script>
 </body>
 </html>
