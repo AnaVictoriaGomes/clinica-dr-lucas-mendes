@@ -122,7 +122,6 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
   <div><h1 id="ttl">Painel KOMMO</h1><div class="note" id="st">Carregando…</div></div>
   <nav id="nav"><button data-t="dash" class="on">Painel</button><button data-t="sem">Lançar semana</button><button data-t="cons">Consultas</button><button data-t="cfg">Configuração</button></nav>
   <div style="display:flex;gap:6px;align-items:center">
-    <button class="b s" id="hdr_copy_index" title="Copiar código index.html completo para o GitHub" style="font-size:12.5px;padding:6px 12px;font-weight:600;display:flex;align-items:center;gap:4px">📋 Copiar index.html</button>
     <button class="b s" id="lo">Sair</button>
   </div>
 </header>
@@ -193,26 +192,6 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 
 <div id="chart_tip" role="tooltip" aria-hidden="true"></div>
 
-<!-- Modal para Copiar ou Baixar index.html Completo -->
-<div id="code_modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)">
-  <div style="background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:22px;width:100%;max-width:880px;max-height:90vh;display:flex;flex-direction:column;gap:12px;box-shadow:0 16px 48px rgba(0,0,0,.5)">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2 style="margin:0;font-size:17px;font-weight:700">📋 Código Completo: index.html</h2>
-      <button class="b s" id="btn_close_code_modal" style="padding:4px 10px;font-size:13px">✕ Fechar</button>
-    </div>
-    <p class="note" style="margin:0">
-      Este é o código 100% completo e atualizado do arquivo <code>index.html</code> com todas as correções de métricas, metas, gráficos, sincronização e segurança. Clique em <b>“Copiar tudo”</b> ou copie o texto abaixo para atualizar seu repositório no GitHub.
-    </p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="b" id="btn_modal_copy">📋 Copiar tudo (1 clique)</button>
-      <button class="b s" id="btn_modal_select">🔍 Selecionar todo o texto</button>
-      <button class="b s" id="btn_modal_download">💾 Baixar index.html (.html)</button>
-      <span id="modal_copy_status" style="font-size:12px;font-weight:600;color:var(--g)"></span>
-    </div>
-    <textarea id="code_modal_text" readonly spellcheck="false" style="width:100%;flex:1;min-height:360px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.45;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;resize:vertical;white-space:pre"></textarea>
-  </div>
-</div>
-
 <script>
 let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana']];
 const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-26":[100,2,473,346,0,0,0,20,3,326,33,3,9,13,6,2,5],"2026-10-03":[52,2,513,33,375,0,0,25,6,350,31,0,14,7,4,0,11],"2026-10-10":[27,0,514,14,163,290,0,70,3,397,45,6,26,10,9,1,11]};
@@ -234,30 +213,24 @@ window.DATA = window.DATA || {
 };
 var db=null,sync={},editRow=null,wFilt={from:'',to:''},weeks={},appts={},cur='dash',cfg={},selWeek='',pFrom='',pTo='',pAuto=true,pSel='all',aFilt={week:'',from:'',to:'',origin:'',status:'',q:''};
 
-// Carregamento de segurança de dados em cache local (para nunca perder alterações)
-try {
-  const cw = localStorage.getItem('kommo_weeks_v3') || localStorage.getItem('kommo_weeks_cache');
-  if (cw) {
-    weeks = JSON.parse(cw);
-  } else {
-    // Se ainda não há semanas no cache, inicializa com as semanas base
-    for (const [id, v] of Object.entries(SEED)) {
-      const o = {};
-      FIELDS.forEach(([k], i) => { o[k] = v[i] || 0; });
-      weeks[id] = o;
+// Carregamento protegido: dados clínicos e métricas são carregados exclusivamente após autenticação
+function loadStoredDataIfAuthenticated() {
+  if (!window.DATA || !window.DATA.authenticated) return;
+  try {
+    const cw = localStorage.getItem('kommo_weeks_v3') || localStorage.getItem('kommo_weeks_cache');
+    if (cw && !Object.keys(weeks).length) {
+      weeks = JSON.parse(cw);
     }
-  }
-  const ca = localStorage.getItem('kommo_appts_v3') || localStorage.getItem('kommo_appts_cache');
-  if (ca) appts = JSON.parse(ca);
-  const cc = localStorage.getItem('kommo_cfg_v3');
-  if (cc) {
-    cfg = JSON.parse(cc);
-    if (cfg && cfg.deletedWeeks) {
-      delete cfg.deletedWeeks['2026-10-17'];
-      Object.keys(weeks || {}).forEach(k => { delete cfg.deletedWeeks[k]; });
+    const ca = localStorage.getItem('kommo_appts_v3') || localStorage.getItem('kommo_appts_cache');
+    if (ca && !Object.keys(appts).length) {
+      appts = JSON.parse(ca);
     }
-  }
-} catch(e) {}
+    const cc = localStorage.getItem('kommo_cfg_v3');
+    if (cc && !Object.keys(cfg).length) {
+      cfg = JSON.parse(cc);
+    }
+  } catch(e) {}
+}
 
 window.setWeeks = w => { 
   if (w && typeof w === 'object' && Object.keys(w).length) {
@@ -351,8 +324,6 @@ function extractAllDates(text, defaultYear) {
 }
 
 function getWeekWindow(id, keys, i) {
-  // A semana começa no sábado e termina na sexta-feira seguinte.
-  // O ID representa o sábado de início da semana.
   const start = id;
   const end = addDays(id, 6);
   return { start, end };
@@ -363,9 +334,8 @@ function getSaturdayOfWeek(isoDate) {
 
   const [y, m, d] = isoDate.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
-  const day = dt.getDay(); // 0: Dom, 1: Seg, 2: Ter, 3: Qua, 4: Qui, 5: Sex, 6: Sab
+  const day = dt.getDay();
 
-  // Encontra o sábado de início da semana (sábado é o início da semana no painel)
   const diff = day === 6 ? 0 : -(day + 1);
   dt.setDate(dt.getDate() + diff);
 
@@ -385,7 +355,6 @@ function ensureWeeksForAppts() {
     const d = a.schedOn || a.consult;
     if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
 
-    // Verifica se d já pertence a alguma semana existente
     const covered = keys.some(id => {
       const { start, end } = getWeekWindow(id, keys, 0);
       return d >= start && d <= end;
@@ -415,7 +384,7 @@ function cleanupStrayWeeks() {
   }
 }
 
-/* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE (CONSULTAS, AGENDAMENTOS E REAGENDAMENTOS) ===== */
+/* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE ===== */
 function W() {
   ensureWeeksForAppts();
   cleanupStrayWeeks();
@@ -427,13 +396,11 @@ function W() {
     const w = { ...raw, id };
     const { start, end } = getWeekWindow(id, keys, i);
 
-    // 1. Consultas agendadas nesta semana: considerado ESTRITAMENTE o campo "Agendada em" (schedOn)
     const schedInWeek = allAppts.filter(a => {
       const s = a.schedOn || '';
       return s >= start && s <= end;
     });
 
-    // 2. Consultas desta semana (realizada / cancelada / reagendada): considerado ESTRITAMENTE o campo "Consulta" (consult)
     const consultInWeek = allAppts.filter(a => {
       const c = a.consult || '';
       return c >= start && c <= end;
@@ -443,7 +410,6 @@ function W() {
     const numCanc = consultInWeek.filter(a => a.status === 'cancelada').length;
     const numReag = consultInWeek.filter(a => a.status === 'reagendada').length;
 
-    // Permite lançar e editar manualmente, e atualiza dinamicamente conforme consultas da aba de consultas
     w.cagend = (raw.cagend !== undefined && raw.cagend !== null && raw.cagend !== '') ? Number(raw.cagend) : schedInWeek.length;
     w.creal = (raw.creal !== undefined && raw.creal !== null && raw.creal !== '') ? Number(raw.creal) : numReal;
     w.ccanc = (raw.ccanc !== undefined && raw.ccanc !== null && raw.ccanc !== '') ? Number(raw.ccanc) : numCanc;
@@ -469,13 +435,11 @@ async function syncWeekMetricsWithAppts(persist = true) {
     const raw = weeks[id] || {};
     let weekChanged = false;
 
-    // Agendadas na semana: estritamente por "Agendada em"
     const schedInWeek = allAppts.filter(a => {
       const s = a.schedOn || '';
       return s >= start && s <= end;
     });
 
-    // Desfechos: estritamente pelo campo "Consulta"
     const consultInWeek = allAppts.filter(a => {
       const c = a.consult || '';
       return c >= start && c <= end;
@@ -518,7 +482,7 @@ async function syncWeekMetricsWithAppts(persist = true) {
 
 const BASEF=FIELDS.slice(),BASE=FIELDS.map(f=>f[1]),ORIG0={...ORIG};
 const $=s=>document.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fd=iso=>iso?iso.split('-').reverse().slice(0,2).join('/'):'—';
 const fdf=iso=>iso?iso.split('-').reverse().join('/'):'—';
 const pct=(a,b)=>b?(a/b*100):0;
@@ -534,6 +498,9 @@ function toast(t){
 
 /* ===== SALVAMENTO RESILIENTE (Gravação imediata local + Firebase) ===== */
 async function saveDoc(path, data) {
+  if (!window.DATA || !window.DATA.authenticated) {
+    throw new Error("Ação não autorizada.");
+  }
   const [col, id] = path.split('/');
   if (col === 'weeks') {
     weeks[id] = { ...(weeks[id] || {}), ...data };
@@ -555,6 +522,9 @@ async function saveDoc(path, data) {
 }
 
 async function delDoc(path) {
+  if (!window.DATA || !window.DATA.authenticated) {
+    throw new Error("Ação não autorizada.");
+  }
   const [col, id] = path.split('/');
   if (col === 'weeks') {
     delete weeks[id];
@@ -575,6 +545,9 @@ async function delDoc(path) {
 }
 
 async function saveCfg(p) {
+  if (!window.DATA || !window.DATA.authenticated) {
+    throw new Error("Ação não autorizada.");
+  }
   cfg = { ...cfg, ...p };
   try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(e){}
   applyCfg();
@@ -601,8 +574,13 @@ function stLine(){
 }
 
 async function init(){
-  applyCfg();
   stLine();
+  if (!window.DATA || !window.DATA.authenticated) {
+    render();
+    return;
+  }
+  loadStoredDataIfAuthenticated();
+  applyCfg();
   await syncWeekMetricsWithAppts(false);
   render();
   setupChartTooltips();
@@ -636,15 +614,6 @@ function renderCfg(){
     <div class="card" style="margin-top:14px"><h2>Nomes dos campos semanais</h2><p class="note">Renomeie como preferir, adicione campos novos ou exclua os que não usa.</p>${fr}<h2 style="font-size:14px;margin-top:16px">Adicionar novo campo</h2><div class="row" style="margin-top:6px"><input id="f_n" placeholder="Nome do novo campo" style="flex:1;min-width:220px"><select id="f_t"><option value="0">Da semana</option><option value="1">Total atual</option></select><button class="b" id="f_add">Adicionar campo</button></div><div class="row"><button class="b s" id="c_rl">Restaurar nomes originais</button></div></div>
     <div class="card" style="margin-top:14px"><h2>Origem das consultas</h2><p class="note">Opções do campo “Veio de”.</p>${or}<div class="row"><input id="c_on" placeholder="Nova origem" style="flex:1;min-width:200px"><button class="b" id="c_oa">Adicionar origem</button></div><div class="row"><button class="b s" id="c_or">Restaurar origens originais</button></div></div>
     ${viewHtml()}${metricHtml()}
-    <div class="card" style="margin-top:14px;border:1px solid var(--b)">
-      <h2>Código do Painel (index.html) para o GitHub</h2>
-      <p class="note">Copie o código completo atualizado do <code>index.html</code> ou baixe o arquivo para atualizar diretamente no seu repositório do GitHub (ou Vercel).</p>
-      <div class="row" style="margin-top:10px">
-        <button class="b" id="btn_copy_index_cfg">📋 Copiar código index.html completo</button>
-        <button class="b s" id="btn_view_index_cfg">👁️ Visualizar código em janela</button>
-        <button class="b s" id="btn_download_index_cfg">💾 Baixar index.html</button>
-      </div>
-    </div>
     <div class="card" style="margin-top:14px"><h2>Backup e Restauração dos dados</h2><p class="note">Exporte relatórios em CSV para o Excel ou gere uma cópia de segurança completa em JSON para restauração.</p><div class="row" style="margin-bottom:8px"><button class="b s" id="c_ew">Baixar semanas (CSV)</button><button class="b s" id="c_ea">Baixar consultas (CSV)</button></div><div class="row"><button class="b" id="c_bkj">Exportar Backup Completo (JSON)</button><button class="b s" id="c_rsj">Restaurar Backup (JSON)</button><input type="file" id="f_rsj" accept=".json" style="display:none"></div></div>
     ${themeHtml()}
   `;
@@ -809,12 +778,10 @@ function parsePatientLine(l,defaultYear){
 
   const allDates=extractAllDates(raw,curY);
 
-  // Ignora cabeçalhos óbvios apenas se não tiver dados/datas reais
   if(allDates.length===0&&/(^|\b)(paciente|nome)\b/i.test(low)&&/(origem|veio de|agendad|consulta|status)\b/i.test(low)){
     return null;
   }
 
-  // Detecta origem
   let origin='novo';
   const RX_ORIG={
     c5:/5[ºoª]?\s*(contato|fu)|fu\s*5|quint/i,
@@ -833,7 +800,6 @@ function parsePatientLine(l,defaultYear){
     }
   }
 
-  // Detecta status
   let status='agendada';
   if(/cancelad/i.test(low))status='cancelada';
   else if(/reagend/i.test(low))status='reagendada';
@@ -844,7 +810,6 @@ function parsePatientLine(l,defaultYear){
   let newDate='';
   let name='';
 
-  // Verifica se é tabular (separado por \t, ;, |)
   const isTabular=/[\t;|]/.test(raw);
   if(isTabular){
     const cols=raw.split(/[\t;|]/).map(c=>c.trim());
@@ -867,7 +832,6 @@ function parsePatientLine(l,defaultYear){
     }
   }
 
-  // Se não foi tabular ou faltaram datas, extrai do texto contextual
   if(!schedOn||!consult){
     if(allDates.length>=2){
       const d0=allDates[0];
@@ -888,7 +852,6 @@ function parsePatientLine(l,defaultYear){
     }
   }
 
-  // Limpeza robusta do nome do paciente
   if(!name||normalizeDateStr(name,curY)){
     let clean=raw;
     clean=clean.replace(/^(paciente|nome)\s*:\s*/i,'');
@@ -1621,7 +1584,6 @@ async function importRows(rows){
       continue;
     }
     
-    // Tenta interpretar como consulta de paciente
     const apptItem = parsePatientLine(line, curY);
     if(apptItem && apptItem.patient){
       const newId = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -1650,7 +1612,7 @@ async function importRows(rows){
   }
 }
 
-const opts=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${k}"${k===sel?' selected':''}>${v}</option>`).join('');
+const opts=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${esc(k)}"${k===sel?' selected':''}>${esc(v)}</option>`).join('');
 
 function fbarA(ids){const f=aFilt,tot=Object.keys(appts).length,WS=W().slice().reverse();
   return `<div class="f" style="margin-bottom:10px"><label style="grid-column:1/-1">Pesquisar paciente<input type="search" data-af="q" placeholder="Digite o nome ou iniciais do paciente..." value="${esc(f.q||'')}"></label><label>Semana em que foi criada<select data-af="week"><option value="">Todas</option>${WS.map(w=>`<option value="${w.id}"${f.week===w.id?' selected':''}>Semana de ${fdf(w.id)}</option>`).join('')}</select></label><label>Consulta a partir de<input type="date" data-af="from" value="${f.from}"></label><label>Consulta até<input type="date" data-af="to" value="${f.to}"></label><label>Veio de<select data-af="origin"><option value="">Todas</option>${opts(ORIG,f.origin)}</select></label><label>Status<select data-af="status"><option value="">Todos</option>${opts(STAT,f.status)}</select></label></div><div class="row" style="margin:0 0 10px"><button class="b s" data-afc="1">Limpar filtros e pesquisa</button><span class="note">Mostrando ${ids.length} de ${tot} consultas</span></div>`}
@@ -1678,6 +1640,12 @@ function apptList(){
 }
 
 function render(){
+  if (!window.DATA || !window.DATA.authenticated) {
+    const d = $('#dash'); if (d) d.innerHTML = '';
+    const wl = $('#wl'); if (wl) wl.innerHTML = '';
+    const al = $('#al'); if (al) al.innerHTML = '';
+    return;
+  }
   const ae=document.activeElement;if(ae&&ae.matches&&ae.matches('[data-id],[data-af="q"]')&&cur==='cons')return;
   $('#dash').innerHTML=dash();
   if(!editRow)$('#wl').innerHTML=weekList();
@@ -1853,11 +1821,11 @@ $('#ps_preview_box').addEventListener('click',e=>{
 });
 
 $('#cfg').onclick=async e=>{
-  const t=e.target,id=t.id;
+  const t=e.target,id=t.id,d=t.dataset||{};
   if(id==='c_ts'){await saveCfg({title:$('#c_t').value.trim()||'Painel KOMMO'});return toast('Nome salvo')}
-  if(t.dataset.ls||t.dataset.os){const i=document.querySelector(t.dataset.ls?'[data-lk="'+t.dataset.ls+'"]':'[data-ok="'+t.dataset.os+'"]');i.dispatchEvent(new Event('change',{bubbles:true}));return toast('Salvo')}
+  if(d.ls||d.os){const i=document.querySelector(d.ls?'[data-lk="'+d.ls+'"]':'[data-ok="'+d.os+'"]');i.dispatchEvent(new Event('change',{bubbles:true}));return toast('Salvo')}
   if(id==='f_add'){const n=$('#f_n').value.trim();if(!n)return toast('Informe o nome do campo');await saveCfg({extra:[...(cfg.extra||[]),{k:'x'+Date.now().toString(36),n,snap:$('#f_t').value==='1'}]});renderCfg();return toast('Campo adicionado')}
-  if(t.dataset.lx){const k=t.dataset.lx;if(!confirm('Excluir o campo “'+lab(k)+'”? Os números já lançados continuam guardados.'))return;const l={...(cfg.labels||{})};delete l[k];
+  if(d.lx){const k=d.lx;if(!confirm('Excluir o campo “'+lab(k)+'”? Os números já lançados continuam guardados.'))return;const l={...(cfg.labels||{})};delete l[k];
     if((cfg.extra||[]).some(x=>x.k===k))await saveCfg({extra:cfg.extra.filter(x=>x.k!==k),labels:l});else await saveCfg({removed:[...(cfg.removed||[]),k],labels:l});renderCfg();return toast('Campo excluído')}
   if(id==='c_or'){await saveCfg({origins:[]});renderCfg();return toast('Origens restauradas')}
   if(id==='c_wipe'){if(confirm('Apagar TODAS as semanas e consultas? Isso não pode ser desfeito.')&&confirm('Tem certeza? Baixe o backup antes.')){for(const k of Object.keys(weeks))await delDoc('weeks/'+k);for(const k of Object.keys(appts))await delDoc('appts/'+k);toast('Dados apagados')}return}
@@ -1866,16 +1834,16 @@ $('#cfg').onclick=async e=>{
   if(id==='m_man')return showM({title:'',expr:'',fmt:'num',where:'kpi'});
   if(id==='m_pre')return prevM();
   if(id==='m_add')return addM();
-  if(t.dataset.md){await saveCfg({metrics:(cfg.metrics||[]).filter((_,i)=>i!==+t.dataset.md)});return renderCfg()}
+  if(d.md){await saveCfg({metrics:(cfg.metrics||[]).filter((_,i)=>i!==+d.md)});return renderCfg()}
   if(id==='c_rl'){await saveCfg({labels:{},removed:[]});renderCfg();return toast('Nomes e campos originais restaurados')}
   if(id==='c_oa'){const n=$('#c_on').value.trim();if(!n)return;const os=Object.entries(ORIG).map(([k,v])=>({k,n:v}));os.push({k:'o'+Date.now().toString(36),n});await saveCfg({origins:os});return renderCfg()}
-  if(t.dataset.od){const k=t.dataset.od;if(Object.values(appts).some(a=>a.origin===k))return toast('Há consultas com esta origem. Mude a origem antes.');if(Object.keys(ORIG).length<2)return toast('Mantenha ao menos uma origem');const os=Object.entries(ORIG).filter(([x])=>x!==k).map(([x,n])=>({k:x,n}));await saveCfg({origins:os});return renderCfg()}
+  if(d.od){const k=d.od;if(Object.values(appts).some(a=>a.origin===k))return toast('Há consultas com esta origem. Mude a origem antes.');if(Object.keys(ORIG).length<2)return toast('Mantenha ao menos uma origem');const os=Object.entries(ORIG).filter(([x])=>x!==k).map(([x,n])=>({k:x,n}));await saveCfg({origins:os});return renderCfg()}
   if(id==='c_ew')return exp('semanas.csv',['Data',...WCOLS.slice(1)],W().map(w=>[fdf(w.id),...WCOLS.slice(1).map(c=>w[c]||0)]));
   if(id==='c_ea')return exp('consultas.csv',['ID','Paciente','Veio de','Agendada em','Consulta','Status','Reagendou?','Nova data'],Object.entries(appts).map(([id,a])=>[id,a.patient,ORIG[a.origin]||a.origin,fdf(a.schedOn),fdf(a.consult),STAT[a.status]||a.status,REG[a.regained||'']||a.regained,fdf(a.newDate)]));
   // Gerenciador de Metas
   if(id==='g_save_btn'){
     const m=$('#g_metric').value;
-    const opt=$('#g_metric').selectedOptions[0];
+    const opt=($('#g_metric')&&$('#g_metric').selectedOptions)?$('#g_metric').selectedOptions[0]:null;
     const label=opt?opt.textContent.replace(/\(.*?\)/g,'').trim():m;
     const week=$('#g_week').value;
     const target=parseFloat($('#g_target').value);
@@ -1907,8 +1875,8 @@ $('#cfg').onclick=async e=>{
     $('#g_cancel_btn').classList.add('hide');
     return;
   }
-  if(t.dataset.ge){
-    const g=(cfg.goalsList||[]).find(x=>x.id===t.dataset.ge);
+  if(d.ge){
+    const g=(cfg.goalsList||[]).find(x=>x.id===d.ge);
     if(g){
       $('#g_edit_id').value=g.id;
       $('#g_metric').value=g.metric;
@@ -1922,8 +1890,8 @@ $('#cfg').onclick=async e=>{
     }
     return;
   }
-  if(t.dataset.gx){
-    const list=(cfg.goalsList||[]).filter(x=>x.id!==t.dataset.gx);
+  if(d.gx){
+    const list=(cfg.goalsList||[]).filter(x=>x.id!==d.gx);
     await saveCfg({goalsList:list});
     renderCfg();
     return toast('Meta excluída');
@@ -2053,8 +2021,12 @@ if(lf){
 window.onAuthSuccess = user => {
   document.body.classList.remove("locked");
   const lg=$("#lg"); if(lg)lg.style.display="none";
-  toast("Acesso liberado: " + (user.email || "Usuário"));
+  loadStoredDataIfAuthenticated();
+  applyCfg();
+  syncWeekMetricsWithAppts(false);
   render();
+  setupChartTooltips();
+  toast("Acesso liberado: " + (user.email || "Usuário"));
 };
 
 // Callback executado quando o usuário está desconectado
@@ -2063,6 +2035,9 @@ window.onAuthRequired = () => {
   const lg=$("#lg"); if(lg)lg.style.display="flex";
   const lu=$("#lu"); if(lu)lu.value="";
   const lp=$("#lp"); if(lp)lp.value="";
+  weeks = {};
+  appts = {};
+  render();
 };
 
 // Limpa dados confidenciais da memória do navegador ao sair
@@ -2153,7 +2128,6 @@ async function handleRestoreFile(file) {
       if (data.cfg) localStorage.setItem("kommo_cfg_v3", JSON.stringify(cfg));
     } catch(e){}
 
-    // Persiste no Firebase Firestore se conectado
     if (window.DATA && typeof window.DATA.write === "function") {
       for (const [k, v] of Object.entries(weeks)) {
         await window.DATA.write("weeks", k, v);
@@ -2175,7 +2149,6 @@ async function handleRestoreFile(file) {
   }
 }
 
-// Handlers no #cfg para backup JSON
 document.addEventListener("click", e => {
   if (e.target && e.target.id === "c_bkj") exportFullBackupJson();
   if (e.target && e.target.id === "c_rsj") triggerRestoreJson();
@@ -2184,123 +2157,6 @@ document.addEventListener("click", e => {
 document.addEventListener("change", e => {
   if (e.target && e.target.id === "f_rsj" && e.target.files && e.target.files[0]) {
     handleRestoreFile(e.target.files[0]);
-  }
-});
-
-// Funções para Obtenção, Cópia, Download e Visualização do index.html Completo
-async function getIndexHtmlContent() {
-  try {
-    const res = await fetch('/index.html', { cache: 'no-store' });
-    if (res.ok) {
-      const txt = await res.text();
-      if (txt && txt.includes('<!DOCTYPE html>')) return txt;
-    }
-  } catch(e) {}
-  try {
-    const res2 = await fetch(window.location.href, { cache: 'no-store' });
-    if (res2.ok) {
-      const txt2 = await res2.text();
-      if (txt2 && txt2.includes('<!DOCTYPE html>')) return txt2;
-    }
-  } catch(e) {}
-  return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-}
-
-let cachedIndexCode = '';
-async function loadOrGetIndexCode() {
-  if (!cachedIndexCode) {
-    cachedIndexCode = await getIndexHtmlContent();
-  }
-  return cachedIndexCode;
-}
-
-async function copyIndexHtmlToClipboard() {
-  toast('Copiando código index.html...');
-  try {
-    const code = await loadOrGetIndexCode();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(code);
-      toast('✓ Código index.html copiado com sucesso! Cole no GitHub.');
-      const st = $('#modal_copy_status');
-      if (st) {
-        st.textContent = '✓ Código copiado com sucesso!';
-        setTimeout(() => { if (st) st.textContent = ''; }, 4000);
-      }
-      return code;
-    }
-    await openCodeModal(code);
-    toast('Código aberto na janela. Use Ctrl+C para copiar.');
-    return code;
-  } catch(err) {
-    console.warn('Erro ao copiar diretamente:', err);
-    const code = await loadOrGetIndexCode();
-    await openCodeModal(code);
-    toast('Código aberto na janela para cópia.');
-    return code;
-  }
-}
-
-async function downloadIndexHtmlFile() {
-  const code = await loadOrGetIndexCode();
-  const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'index.html';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
-  toast('✓ Download do index.html iniciado!');
-}
-
-async function openCodeModal(preloadedCode) {
-  const m = $('#code_modal');
-  if (!m) return;
-  m.style.display = 'flex';
-  const ta = $('#code_modal_text');
-  if (ta) {
-    if (!preloadedCode) {
-      ta.value = 'Carregando código index.html completo...';
-      const code = await loadOrGetIndexCode();
-      ta.value = code;
-    } else {
-      ta.value = preloadedCode;
-    }
-    setTimeout(() => {
-      ta.focus();
-      ta.select();
-    }, 50);
-  }
-}
-
-function closeCodeModal() {
-  const m = $('#code_modal');
-  if (m) m.style.display = 'none';
-}
-
-// Event listeners para cópia do código index.html
-document.addEventListener('click', e => {
-  const t = e.target;
-  if (!t) return;
-  const id = t.id;
-  if (id === 'hdr_copy_index' || id === 'btn_copy_index_cfg' || id === 'btn_modal_copy') {
-    e.preventDefault();
-    copyIndexHtmlToClipboard();
-  } else if (id === 'btn_view_index_cfg') {
-    e.preventDefault();
-    openCodeModal();
-  } else if (id === 'btn_download_index_cfg' || id === 'btn_modal_download') {
-    e.preventDefault();
-    downloadIndexHtmlFile();
-  } else if (id === 'btn_modal_select') {
-    e.preventDefault();
-    const ta = $('#code_modal_text');
-    if (ta) { ta.focus(); ta.select(); toast('Todo o código foi selecionado!'); }
-  } else if (id === 'btn_close_code_modal') {
-    e.preventDefault();
-    closeCodeModal();
-  } else if (t.id === 'code_modal') {
-    closeCodeModal();
   }
 });
 
