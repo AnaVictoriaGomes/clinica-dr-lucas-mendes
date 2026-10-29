@@ -219,6 +219,18 @@ const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-2
 const ORIG={novo:'Novo lead',c2:'2º contato (FU 2)',c3:'3º contato (FU 3)',c4:'4º contato (FU 4)',c5:'5º contato (FU 5)',sem:'Sem retorno no follow-up'};
 const STAT={agendada:'Agendada',realizada:'Realizada',cancelada:'Cancelada',reagendada:'Reagendada'};
 const REG={'':'—',sim:'Sim, reagendado',contato:'Em contato',nao:'Não conseguiu'};
+window.DATA = window.DATA || {
+  ready: false,
+  authenticated: false,
+  user: null,
+  lastRead: Date.now(),
+  async login() { throw new Error("Aguardando inicialização do Firebase..."); },
+  async logout() {},
+  async write() {},
+  async saveCfg() {},
+  cardHtml: () => '<h2>Status do Firebase Firestore</h2><p class="note">Carregando conector em nuvem...</p>',
+  migHtml: () => ''
+};
 var db=null,sync={},editRow=null,wFilt={from:'',to:''},weeks={},appts={},cur='dash',cfg={},selWeek='',pFrom='',pTo='',pAuto=true,pSel='all',aFilt={week:'',from:'',to:'',origin:'',status:'',q:''};
 
 // Carregamento de segurança de dados em cache local (para nunca perder alterações)
@@ -353,8 +365,8 @@ function getSaturdayOfWeek(isoDate) {
   const dt = new Date(y, m - 1, d);
   const day = dt.getDay(); // 0: Dom, 1: Seg, 2: Ter, 3: Qua, 4: Qui, 5: Sex, 6: Sab
 
-  // Encontra o sábado de início da semana.
-  const diff = day === 6 ? 0 : (day === 0 ? -1 : 6 - day);
+  // Encontra o sábado de início da semana (sábado é o início da semana no painel)
+  const diff = day === 6 ? 0 : -(day + 1);
   dt.setDate(dt.getDate() + diff);
 
   const ry = dt.getFullYear();
@@ -362,6 +374,45 @@ function getSaturdayOfWeek(isoDate) {
   const rd = String(dt.getDate()).padStart(2, '0');
 
   return `${ry}-${rm}-${rd}`;
+}
+
+function ensureWeeksForAppts() {
+  if (!appts || typeof appts !== 'object') return;
+  const allAppts = Object.values(appts);
+  const keys = Object.keys(weeks || {});
+
+  allAppts.forEach(a => {
+    const d = a.schedOn || a.consult;
+    if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+
+    // Verifica se d já pertence a alguma semana existente
+    const covered = keys.some(id => {
+      const { start, end } = getWeekWindow(id, keys, 0);
+      return d >= start && d <= end;
+    });
+
+    if (!covered) {
+      const sat = getSaturdayOfWeek(d);
+      if (cfg && cfg.deletedWeeks && cfg.deletedWeeks[sat]) return;
+      if (!weeks[sat]) {
+        const o = { id: sat };
+        BASEF.forEach(([k]) => { o[k] = 0; });
+        weeks[sat] = o;
+        keys.push(sat);
+      }
+    }
+  });
+}
+
+function cleanupStrayWeeks() {
+  if (!weeks || typeof weeks !== 'object') return;
+  if (cfg && cfg.deletedWeeks) {
+    Object.keys(cfg.deletedWeeks).forEach(id => {
+      if (cfg.deletedWeeks[id] && weeks[id]) {
+        delete weeks[id];
+      }
+    });
+  }
 }
 
 
@@ -435,17 +486,20 @@ async function syncWeekMetricsWithAppts(persist = true) {
     const numCanc = consultInWeek.filter(a => a.status === 'cancelada').length;
     const numReag = consultInWeek.filter(a => a.status === 'reagendada').length;
 
-    const newCagend = schedInWeek.length;
-    const newCreal = numReal;
-    const newCcanc = numCanc;
-    const newCreag = numReag;
-
-    if (raw.cagend !== newCagend || raw.creal !== newCreal || raw.ccanc !== newCcanc || raw.creag !== newCreag) {
-      raw.cagend = newCagend;
-      raw.creal = newCreal;
-      raw.ccanc = newCcanc;
-      raw.creag = newCreag;
-      weekChanged = true;
+    const hasApptsInWeek = schedInWeek.length > 0 || consultInWeek.length > 0;
+    if (hasApptsInWeek) {
+      if (raw.cagend !== schedInWeek.length || raw.creal !== numReal || raw.ccanc !== numCanc || raw.creag !== numReag) {
+        raw.cagend = schedInWeek.length;
+        raw.creal = numReal;
+        raw.ccanc = numCanc;
+        raw.creag = numReag;
+        weekChanged = true;
+      }
+    } else {
+      if (raw.cagend == null) { raw.cagend = 0; weekChanged = true; }
+      if (raw.creal == null) { raw.creal = 0; weekChanged = true; }
+      if (raw.ccanc == null) { raw.ccanc = 0; weekChanged = true; }
+      if (raw.creag == null) { raw.creag = 0; weekChanged = true; }
     }
 
     if (weekChanged) {
@@ -496,6 +550,7 @@ async function saveDoc(path, data) {
       await window.DATA.write(col, id, data);
     } catch (err) {
       console.warn("Aviso: Falha ao enviar para Firebase, mantido em cache local:", err);
+      toast("Salvo no navegador (sincronização em nuvem pendente)");
     }
   }
 }
@@ -1734,7 +1789,7 @@ $('#al').onchange=async e=>{
   if(t.dataset.k==='newDate'&&t.value&&(!a.regained||a.regained==='contato'))a.regained='sim';
   await saveDoc('appts/'+id,a);
   await syncWeekMetricsWithAppts(true);
-  document.activeElement.blur();
+  if(document.activeElement&&typeof document.activeElement.blur==='function')document.activeElement.blur();
   render();
 };
 
@@ -2278,10 +2333,12 @@ const auth = getAuth(app);
 
 let unsubWeeks = null;
 let unsubAppts = null;
+let unsubCfg = null;
 
 function stopListeners() {
   if (typeof unsubWeeks === "function") { try { unsubWeeks(); } catch(e){} unsubWeeks = null; }
   if (typeof unsubAppts === "function") { try { unsubAppts(); } catch(e){} unsubAppts = null; }
+  if (typeof unsubCfg === "function") { try { unsubCfg(); } catch(e){} unsubCfg = null; }
 }
 
 function startListeners() {
@@ -2298,6 +2355,12 @@ function startListeners() {
     snap.forEach(d => { a[d.id] = d.data(); });
     if (typeof window.setAppts === "function") window.setAppts(a);
   }, err => console.warn("Aviso Firestore appts:", err));
+
+  unsubCfg = onSnapshot(doc(db, "config", "general"), snap => {
+    if (snap.exists() && typeof window.setCfg === "function") {
+      window.setCfg(snap.data());
+    }
+  }, err => console.warn("Aviso Firestore config:", err));
 }
 
 try {
