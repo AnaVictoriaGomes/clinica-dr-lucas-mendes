@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     function autorizado() {
-      return request.auth != null && request.auth.uid == 'mOGkv4yJZ1f7HlzOZPT8qqNRDdF3';
+      return request.auth != null;
     }
 
     function versaoOk() {
@@ -25,7 +25,7 @@ service cloud.firestore {
         && versaoOk()
         && request.resource.data.patient is string 
         && request.resource.data.patient.size() <= 200
-        && request.resource.data.size() <= 25;
+        && request.resource.data.size() <= 30;
       allow delete: if autorizado();
     }
 
@@ -34,7 +34,7 @@ service cloud.firestore {
       allow create, update: if autorizado() 
         && (id == 'general' || id == 'main')
         && versaoOk() 
-        && request.resource.data.size() <= 60;
+        && request.resource.data.size() <= 100;
       allow delete: if autorizado();
     }
 
