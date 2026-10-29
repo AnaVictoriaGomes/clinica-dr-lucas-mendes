@@ -67,7 +67,7 @@ async function initFirebase() {
     db = getFirestore(app);
     auth = getAuth(app);
 
-    // Persistência segura vinculada à sessão do navegador
+    // Persistência na sessão da aba para segurança
     try {
       await setPersistence(auth, browserSessionPersistence);
     } catch(pErr) {
@@ -120,13 +120,13 @@ async function initFirebase() {
       migHtml: () => ''
     };
 
-    // Monitoramento oficial de autenticação
+    // Monitoramento oficial do estado de autenticação
     onAuthStateChanged(auth, user => {
       if (user) {
         window.DATA.user = user;
         window.DATA.authenticated = true;
         window.DATA.lastRead = Date.now();
-        console.log("Firebase Auth: autenticado com sucesso:", user.email, user.uid);
+        console.log("Firebase Auth: usuário logado com sucesso:", user.email, user.uid);
         startListeners();
         if (typeof window.onAuthSuccess === 'function') {
           window.onAuthSuccess(user);
@@ -134,7 +134,7 @@ async function initFirebase() {
       } else {
         window.DATA.user = null;
         window.DATA.authenticated = false;
-        console.log("Firebase Auth: sessão encerrada ou não autenticado");
+        console.log("Firebase Auth: nenhum usuário autenticado");
         stopListeners();
         if (typeof window.onAuthRequired === 'function') {
           window.onAuthRequired();
