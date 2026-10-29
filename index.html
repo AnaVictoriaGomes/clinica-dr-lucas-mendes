@@ -337,75 +337,33 @@ function extractAllDates(text, defaultYear) {
   return dates;
 }
 
+
 function getWeekWindow(id, keys, i) {
-  // id representa o sábado de encerramento da semana da clínica.
-  // A semana começa no domingo (dia seguinte ao sábado anterior) e vai até o sábado id.
-  const start = (i > 0 && keys[i - 1]) ? addDays(keys[i - 1], 1) : addDays(id, -6);
-  const end = id;
+  // A semana começa no sábado e termina na sexta-feira seguinte.
+  // O ID representa o sábado de início da semana.
+  const start = id;
+  const end = addDays(id, 6);
   return { start, end };
 }
 
 function getSaturdayOfWeek(isoDate) {
   if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return today();
+
   const [y, m, d] = isoDate.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
   const day = dt.getDay(); // 0: Dom, 1: Seg, 2: Ter, 3: Qua, 4: Qui, 5: Sex, 6: Sab
-  const diff = day === 6 ? 0 : (6 - day);
+
+  // Encontra o sábado de início da semana.
+  const diff = day === 6 ? 0 : (day === 0 ? -1 : 6 - day);
   dt.setDate(dt.getDate() + diff);
+
   const ry = dt.getFullYear();
   const rm = String(dt.getMonth() + 1).padStart(2, '0');
   const rd = String(dt.getDate()).padStart(2, '0');
+
   return `${ry}-${rm}-${rd}`;
 }
 
-function findWeekIdForDate(isoDate, keys) {
-  if (!isoDate) return null;
-  for (let i = 0; i < keys.length; i++) {
-    const { start, end } = getWeekWindow(keys[i], keys, i);
-    if (isoDate >= start && isoDate <= end) {
-      return keys[i];
-    }
-  }
-  return null;
-}
-
-function ensureWeeksForAppts() {
-  const allAppts = Object.values(appts || {});
-  let created = false;
-  allAppts.forEach(a => {
-    const dAgend = a.schedOn;
-    const dConsult = a.consult;
-    [dAgend, dConsult].forEach(d => {
-      if (!d) return;
-      const currentKeys = Object.keys(weeks || {}).sort();
-      let wId = findWeekIdForDate(d, currentKeys);
-      if (!wId) {
-        wId = getSaturdayOfWeek(d);
-        if (cfg.deletedWeeks && cfg.deletedWeeks[wId] && !weeks[wId]) return;
-        if (!weeks[wId]) {
-          const o = {};
-          FIELDS.forEach(([k]) => { o[k] = 0; });
-          o.id = wId;
-          weeks[wId] = o;
-          created = true;
-        }
-      }
-    });
-  });
-  if (created) {
-    try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
-  }
-}
-
-function cleanupStrayWeeks() {
-  const ks = Object.keys(weeks || {});
-  ks.forEach(k => {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) {
-      delete weeks[k];
-      try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
-    }
-  });
-}
 
 /* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE (CONSULTAS, AGENDAMENTOS E REAGENDAMENTOS) ===== */
 function W() {
