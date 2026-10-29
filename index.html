@@ -245,13 +245,6 @@ try {
       const o = {};
       FIELDS.forEach(([k], i) => { o[k] = v[i] || 0; });
       weeks[id] = o;
-// Carregamento protegido: dados clínicos e métricas são carregados exclusivamente após autenticação
-function loadStoredDataIfAuthenticated() {
-  if (!window.DATA || !window.DATA.authenticated) return;
-  try {
-    const cw = localStorage.getItem('kommo_weeks_v3') || localStorage.getItem('kommo_weeks_cache');
-    if (cw && !Object.keys(weeks).length) {
-      weeks = JSON.parse(cw);
     }
   }
   const ca = localStorage.getItem('kommo_appts_v3') || localStorage.getItem('kommo_appts_cache');
@@ -262,18 +255,9 @@ function loadStoredDataIfAuthenticated() {
     if (cfg && cfg.deletedWeeks) {
       delete cfg.deletedWeeks['2026-10-17'];
       Object.keys(weeks || {}).forEach(k => { delete cfg.deletedWeeks[k]; });
-    const ca = localStorage.getItem('kommo_appts_v3') || localStorage.getItem('kommo_appts_cache');
-    if (ca && !Object.keys(appts).length) {
-      appts = JSON.parse(ca);
     }
   }
 } catch(e) {}
-    const cc = localStorage.getItem('kommo_cfg_v3');
-    if (cc && !Object.keys(cfg).length) {
-      cfg = JSON.parse(cc);
-    }
-  } catch(e) {}
-}
 
 window.setWeeks = w => { 
   if (w && typeof w === 'object' && Object.keys(w).length) {
@@ -380,7 +364,6 @@ function getSaturdayOfWeek(isoDate) {
   const [y, m, d] = isoDate.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
   const day = dt.getDay(); // 0: Dom, 1: Seg, 2: Ter, 3: Qua, 4: Qui, 5: Sex, 6: Sab
-  const day = dt.getDay();
 
   // Encontra o sábado de início da semana (sábado é o início da semana no painel)
   const diff = day === 6 ? 0 : -(day + 1);
@@ -433,7 +416,6 @@ function cleanupStrayWeeks() {
 }
 
 /* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE (CONSULTAS, AGENDAMENTOS E REAGENDAMENTOS) ===== */
-/* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE ===== */
 function W() {
   ensureWeeksForAppts();
   cleanupStrayWeeks();
@@ -537,7 +519,6 @@ async function syncWeekMetricsWithAppts(persist = true) {
 const BASEF=FIELDS.slice(),BASE=FIELDS.map(f=>f[1]),ORIG0={...ORIG};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fd=iso=>iso?iso.split('-').reverse().slice(0,2).join('/'):'—';
 const fdf=iso=>iso?iso.split('-').reverse().join('/'):'—';
 const pct=(a,b)=>b?(a/b*100):0;
@@ -553,9 +534,6 @@ function toast(t){
 
 /* ===== SALVAMENTO RESILIENTE (Gravação imediata local + Firebase) ===== */
 async function saveDoc(path, data) {
-  if (!window.DATA || !window.DATA.authenticated) {
-    throw new Error("Ação não autorizada.");
-  }
   const [col, id] = path.split('/');
   if (col === 'weeks') {
     weeks[id] = { ...(weeks[id] || {}), ...data };
@@ -577,9 +555,6 @@ async function saveDoc(path, data) {
 }
 
 async function delDoc(path) {
-  if (!window.DATA || !window.DATA.authenticated) {
-    throw new Error("Ação não autorizada.");
-  }
   const [col, id] = path.split('/');
   if (col === 'weeks') {
     delete weeks[id];
@@ -600,9 +575,6 @@ async function delDoc(path) {
 }
 
 async function saveCfg(p) {
-  if (!window.DATA || !window.DATA.authenticated) {
-    throw new Error("Ação não autorizada.");
-  }
   cfg = { ...cfg, ...p };
   try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(e){}
   applyCfg();
@@ -631,12 +603,6 @@ function stLine(){
 async function init(){
   applyCfg();
   stLine();
-  if (!window.DATA || !window.DATA.authenticated) {
-    render();
-    return;
-  }
-  loadStoredDataIfAuthenticated();
-  applyCfg();
   await syncWeekMetricsWithAppts(false);
   render();
   setupChartTooltips();
@@ -1634,10 +1600,10 @@ async function importRows(rows){
     if(!line)continue;
     let c = line.includes('\t') ? line.split('\t') : (line.includes(';') ? line.split(';') : (line.includes(',') ? line.split(',') : [line]));
     c = c.map(s => s.trim());
-
+    
     const weekDate = normalizeDateStr(c[0], curY);
     const hasMetricNumbers = c.slice(1).some(v => /^\d+$/.test(v.replace(/[\s\u00a0.]/g,'')));
-
+    
     if(weekDate && hasMetricNumbers){
       const id = weekDate;
       const o = {};
@@ -1654,7 +1620,7 @@ async function importRows(rows){
       nWeeks++;
       continue;
     }
-
+    
     // Tenta interpretar como consulta de paciente
     const apptItem = parsePatientLine(line, curY);
     if(apptItem && apptItem.patient){
@@ -1671,7 +1637,7 @@ async function importRows(rows){
       nAppts++;
     }
   }
-
+  
   if (nWeeks > 0 || nAppts > 0) {
     await syncWeekMetricsWithAppts(true);
     render();
@@ -1685,7 +1651,6 @@ async function importRows(rows){
 }
 
 const opts=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${k}"${k===sel?' selected':''}>${v}</option>`).join('');
-const opts=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${esc(k)}"${k===sel?' selected':''}>${esc(v)}</option>`).join('');
 
 function fbarA(ids){const f=aFilt,tot=Object.keys(appts).length,WS=W().slice().reverse();
   return `<div class="f" style="margin-bottom:10px"><label style="grid-column:1/-1">Pesquisar paciente<input type="search" data-af="q" placeholder="Digite o nome ou iniciais do paciente..." value="${esc(f.q||'')}"></label><label>Semana em que foi criada<select data-af="week"><option value="">Todas</option>${WS.map(w=>`<option value="${w.id}"${f.week===w.id?' selected':''}>Semana de ${fdf(w.id)}</option>`).join('')}</select></label><label>Consulta a partir de<input type="date" data-af="from" value="${f.from}"></label><label>Consulta até<input type="date" data-af="to" value="${f.to}"></label><label>Veio de<select data-af="origin"><option value="">Todas</option>${opts(ORIG,f.origin)}</select></label><label>Status<select data-af="status"><option value="">Todos</option>${opts(STAT,f.status)}</select></label></div><div class="row" style="margin:0 0 10px"><button class="b s" data-afc="1">Limpar filtros e pesquisa</button><span class="note">Mostrando ${ids.length} de ${tot} consultas</span></div>`}
@@ -1713,12 +1678,6 @@ function apptList(){
 }
 
 function render(){
-  if (!window.DATA || !window.DATA.authenticated) {
-    const d = $('#dash'); if (d) d.innerHTML = '';
-    const wl = $('#wl'); if (wl) wl.innerHTML = '';
-    const al = $('#al'); if (al) al.innerHTML = '';
-    return;
-  }
   const ae=document.activeElement;if(ae&&ae.matches&&ae.matches('[data-id],[data-af="q"]')&&cur==='cons')return;
   $('#dash').innerHTML=dash();
   if(!editRow)$('#wl').innerHTML=weekList();
@@ -1895,13 +1854,10 @@ $('#ps_preview_box').addEventListener('click',e=>{
 
 $('#cfg').onclick=async e=>{
   const t=e.target,id=t.id;
-  const t=e.target,id=t.id,d=t.dataset||{};
   if(id==='c_ts'){await saveCfg({title:$('#c_t').value.trim()||'Painel KOMMO'});return toast('Nome salvo')}
   if(t.dataset.ls||t.dataset.os){const i=document.querySelector(t.dataset.ls?'[data-lk="'+t.dataset.ls+'"]':'[data-ok="'+t.dataset.os+'"]');i.dispatchEvent(new Event('change',{bubbles:true}));return toast('Salvo')}
-  if(d.ls||d.os){const i=document.querySelector(d.ls?'[data-lk="'+d.ls+'"]':'[data-ok="'+d.os+'"]');i.dispatchEvent(new Event('change',{bubbles:true}));return toast('Salvo')}
   if(id==='f_add'){const n=$('#f_n').value.trim();if(!n)return toast('Informe o nome do campo');await saveCfg({extra:[...(cfg.extra||[]),{k:'x'+Date.now().toString(36),n,snap:$('#f_t').value==='1'}]});renderCfg();return toast('Campo adicionado')}
   if(t.dataset.lx){const k=t.dataset.lx;if(!confirm('Excluir o campo “'+lab(k)+'”? Os números já lançados continuam guardados.'))return;const l={...(cfg.labels||{})};delete l[k];
-  if(d.lx){const k=d.lx;if(!confirm('Excluir o campo “'+lab(k)+'”? Os números já lançados continuam guardados.'))return;const l={...(cfg.labels||{})};delete l[k];
     if((cfg.extra||[]).some(x=>x.k===k))await saveCfg({extra:cfg.extra.filter(x=>x.k!==k),labels:l});else await saveCfg({removed:[...(cfg.removed||[]),k],labels:l});renderCfg();return toast('Campo excluído')}
   if(id==='c_or'){await saveCfg({origins:[]});renderCfg();return toast('Origens restauradas')}
   if(id==='c_wipe'){if(confirm('Apagar TODAS as semanas e consultas? Isso não pode ser desfeito.')&&confirm('Tem certeza? Baixe o backup antes.')){for(const k of Object.keys(weeks))await delDoc('weeks/'+k);for(const k of Object.keys(appts))await delDoc('appts/'+k);toast('Dados apagados')}return}
@@ -1911,18 +1867,15 @@ $('#cfg').onclick=async e=>{
   if(id==='m_pre')return prevM();
   if(id==='m_add')return addM();
   if(t.dataset.md){await saveCfg({metrics:(cfg.metrics||[]).filter((_,i)=>i!==+t.dataset.md)});return renderCfg()}
-  if(d.md){await saveCfg({metrics:(cfg.metrics||[]).filter((_,i)=>i!==+d.md)});return renderCfg()}
   if(id==='c_rl'){await saveCfg({labels:{},removed:[]});renderCfg();return toast('Nomes e campos originais restaurados')}
   if(id==='c_oa'){const n=$('#c_on').value.trim();if(!n)return;const os=Object.entries(ORIG).map(([k,v])=>({k,n:v}));os.push({k:'o'+Date.now().toString(36),n});await saveCfg({origins:os});return renderCfg()}
   if(t.dataset.od){const k=t.dataset.od;if(Object.values(appts).some(a=>a.origin===k))return toast('Há consultas com esta origem. Mude a origem antes.');if(Object.keys(ORIG).length<2)return toast('Mantenha ao menos uma origem');const os=Object.entries(ORIG).filter(([x])=>x!==k).map(([x,n])=>({k:x,n}));await saveCfg({origins:os});return renderCfg()}
-  if(d.od){const k=d.od;if(Object.values(appts).some(a=>a.origin===k))return toast('Há consultas com esta origem. Mude a origem antes.');if(Object.keys(ORIG).length<2)return toast('Mantenha ao menos uma origem');const os=Object.entries(ORIG).filter(([x])=>x!==k).map(([x,n])=>({k:x,n}));await saveCfg({origins:os});return renderCfg()}
   if(id==='c_ew')return exp('semanas.csv',['Data',...WCOLS.slice(1)],W().map(w=>[fdf(w.id),...WCOLS.slice(1).map(c=>w[c]||0)]));
   if(id==='c_ea')return exp('consultas.csv',['ID','Paciente','Veio de','Agendada em','Consulta','Status','Reagendou?','Nova data'],Object.entries(appts).map(([id,a])=>[id,a.patient,ORIG[a.origin]||a.origin,fdf(a.schedOn),fdf(a.consult),STAT[a.status]||a.status,REG[a.regained||'']||a.regained,fdf(a.newDate)]));
   // Gerenciador de Metas
   if(id==='g_save_btn'){
     const m=$('#g_metric').value;
     const opt=$('#g_metric').selectedOptions[0];
-    const opt=($('#g_metric')&&$('#g_metric').selectedOptions)?$('#g_metric').selectedOptions[0]:null;
     const label=opt?opt.textContent.replace(/\(.*?\)/g,'').trim():m;
     const week=$('#g_week').value;
     const target=parseFloat($('#g_target').value);
@@ -1956,8 +1909,6 @@ $('#cfg').onclick=async e=>{
   }
   if(t.dataset.ge){
     const g=(cfg.goalsList||[]).find(x=>x.id===t.dataset.ge);
-  if(d.ge){
-    const g=(cfg.goalsList||[]).find(x=>x.id===d.ge);
     if(g){
       $('#g_edit_id').value=g.id;
       $('#g_metric').value=g.metric;
@@ -1973,8 +1924,6 @@ $('#cfg').onclick=async e=>{
   }
   if(t.dataset.gx){
     const list=(cfg.goalsList||[]).filter(x=>x.id!==t.dataset.gx);
-  if(d.gx){
-    const list=(cfg.goalsList||[]).filter(x=>x.id!==d.gx);
     await saveCfg({goalsList:list});
     renderCfg();
     return toast('Meta excluída');
@@ -2105,12 +2054,7 @@ window.onAuthSuccess = user => {
   document.body.classList.remove("locked");
   const lg=$("#lg"); if(lg)lg.style.display="none";
   toast("Acesso liberado: " + (user.email || "Usuário"));
-  loadStoredDataIfAuthenticated();
-  applyCfg();
-  syncWeekMetricsWithAppts(false);
   render();
-  setupChartTooltips();
-  toast("Acesso liberado: " + (user.email || "Usuário"));
 };
 
 // Callback executado quando o usuário está desconectado
@@ -2119,9 +2063,6 @@ window.onAuthRequired = () => {
   const lg=$("#lg"); if(lg)lg.style.display="flex";
   const lu=$("#lu"); if(lu)lu.value="";
   const lp=$("#lp"); if(lp)lp.value="";
-  weeks = {};
-  appts = {};
-  render();
 };
 
 // Limpa dados confidenciais da memória do navegador ao sair
