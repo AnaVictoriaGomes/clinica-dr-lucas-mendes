@@ -219,6 +219,7 @@ const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-2
 const ORIG={novo:'Novo lead',c2:'2º contato (FU 2)',c3:'3º contato (FU 3)',c4:'4º contato (FU 4)',c5:'5º contato (FU 5)',sem:'Sem retorno no follow-up'};
 const STAT={agendada:'Agendada',realizada:'Realizada',cancelada:'Cancelada',reagendada:'Reagendada'};
 const REG={'':'—',sim:'Sim, reagendado',contato:'Em contato',nao:'Não conseguiu'};
+
 window.DATA = window.DATA || {
   ready: false,
   authenticated: false,
@@ -349,7 +350,6 @@ function extractAllDates(text, defaultYear) {
   return dates;
 }
 
-
 function getWeekWindow(id, keys, i) {
   // A semana começa no sábado e termina na sexta-feira seguinte.
   // O ID representa o sábado de início da semana.
@@ -414,7 +414,6 @@ function cleanupStrayWeeks() {
     });
   }
 }
-
 
 /* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE (CONSULTAS, AGENDAMENTOS E REAGENDAMENTOS) ===== */
 function W() {
@@ -1855,7 +1854,6 @@ $('#ps_preview_box').addEventListener('click',e=>{
 
 $('#cfg').onclick=async e=>{
   const t=e.target,id=t.id;
-  // SheetDB descontinuado
   if(id==='c_ts'){await saveCfg({title:$('#c_t').value.trim()||'Painel KOMMO'});return toast('Nome salvo')}
   if(t.dataset.ls||t.dataset.os){const i=document.querySelector(t.dataset.ls?'[data-lk="'+t.dataset.ls+'"]':'[data-ok="'+t.dataset.os+'"]');i.dispatchEvent(new Event('change',{bubbles:true}));return toast('Salvo')}
   if(id==='f_add'){const n=$('#f_n').value.trim();if(!n)return toast('Informe o nome do campo');await saveCfg({extra:[...(cfg.extra||[]),{k:'x'+Date.now().toString(36),n,snap:$('#f_t').value==='1'}]});renderCfg();return toast('Campo adicionado')}
@@ -2050,8 +2048,6 @@ if(lf){
     }
   };
 }
-
-
 
 // Callback executado quando o Firebase Auth confirma login
 window.onAuthSuccess = user => {
@@ -2310,7 +2306,6 @@ document.addEventListener('click', e => {
 
 init();
 </script>
-
 
 <script type="module">
 const firebaseConfig = {
