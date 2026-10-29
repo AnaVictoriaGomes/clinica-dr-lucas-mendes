@@ -237,12 +237,27 @@ try {
   const ca = localStorage.getItem('kommo_appts_v3') || localStorage.getItem('kommo_appts_cache');
   if (ca) appts = JSON.parse(ca);
   const cc = localStorage.getItem('kommo_cfg_v3');
-  if (cc) cfg = JSON.parse(cc);
+  if (cc) {
+    cfg = JSON.parse(cc);
+    if (cfg && cfg.deletedWeeks) {
+      delete cfg.deletedWeeks['2026-10-17'];
+      Object.keys(weeks || {}).forEach(k => { delete cfg.deletedWeeks[k]; });
+    }
+  }
 } catch(e) {}
 
 window.setWeeks = w => { 
   if (w && typeof w === 'object' && Object.keys(w).length) {
     weeks = w; 
+    if (cfg && cfg.deletedWeeks) {
+      let cleaned = false;
+      Object.keys(weeks).forEach(k => {
+        if (cfg.deletedWeeks[k]) { delete cfg.deletedWeeks[k]; cleaned = true; }
+      });
+      if (cleaned) {
+        try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(e){}
+      }
+    }
     try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
     render(); 
   }
@@ -258,6 +273,9 @@ window.setAppts = async a => {
 window.setCfg = c => { 
   if (c && typeof c === 'object') {
     cfg = c; 
+    if (cfg && cfg.deletedWeeks) {
+      Object.keys(weeks || {}).forEach(k => { delete cfg.deletedWeeks[k]; });
+    }
     try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(e){}
     applyCfg(); 
     render(); 
@@ -275,9 +293,55 @@ function addDays(isoDate, days) {
   return `${ry}-${rm}-${rd}`;
 }
 
+function normalizeDateStr(str, defaultYear) {
+  if (!str) return '';
+  str = String(str).trim();
+  const mIso = str.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if (mIso) return `${mIso[1]}-${mIso[2].padStart(2, '0')}-${mIso[3].padStart(2, '0')}`;
+  const mFull = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (mFull) return `${mFull[3]}-${mFull[2].padStart(2, '0')}-${mFull[1].padStart(2, '0')}`;
+  const mShort = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})$/);
+  if (mShort) return `20${mShort[3]}-${mShort[2].padStart(2, '0')}-${mShort[1].padStart(2, '0')}`;
+  const mDayMon = str.match(/^(\d{1,2})[\/\-](\d{1,2})$/);
+  if (mDayMon) return `${defaultYear || new Date().getFullYear()}-${mDayMon[2].padStart(2, '0')}-${mDayMon[1].padStart(2, '0')}`;
+  return '';
+}
+
+function extractAllDates(text, defaultYear) {
+  const curY = defaultYear || new Date().getFullYear();
+  const dates = [];
+  const rx = /(?:(\d{4})[-\/](\d{1,2})[-\/](\d{1,2}))|(?:\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b)/g;
+  let match;
+  while ((match = rx.exec(text)) !== null) {
+    let iso = '';
+    if (match[1]) {
+      iso = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+    } else {
+      const d = match[4].padStart(2, '0'), m = match[5].padStart(2, '0');
+      let y = match[6];
+      if (!y) y = String(curY);
+      else if (y.length === 2) y = '20' + y;
+      if (Number(m) >= 1 && Number(m) <= 12 && Number(d) >= 1 && Number(d) <= 31) {
+        iso = `${y}-${m}-${d}`;
+      }
+    }
+    if (iso) {
+      dates.push({
+        raw: match[0],
+        iso,
+        index: match.index,
+        contextBefore: text.slice(Math.max(0, match.index - 35), match.index).toLowerCase()
+      });
+    }
+  }
+  return dates;
+}
+
 function getWeekWindow(id, keys, i) {
-  const start = id;
-  const end = (i < keys.length - 1 && keys[i + 1]) ? keys[i + 1] : addDays(id, 7);
+  // id representa o sábado de encerramento da semana da clínica.
+  // A semana começa no domingo (dia seguinte ao sábado anterior) e vai até o sábado id.
+  const start = (i > 0 && keys[i - 1]) ? addDays(keys[i - 1], 1) : addDays(id, -6);
+  const end = id;
   return { start, end };
 }
 
@@ -285,8 +349,8 @@ function getSaturdayOfWeek(isoDate) {
   if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return today();
   const [y, m, d] = isoDate.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
-  const day = dt.getDay(); // 0: Dom, 1: Seg, ..., 6: Sab
-  const diff = day === 6 ? 0 : -(day + 1);
+  const day = dt.getDay(); // 0: Dom, 1: Seg, 2: Ter, 3: Qua, 4: Qui, 5: Sex, 6: Sab
+  const diff = day === 6 ? 0 : (6 - day);
   dt.setDate(dt.getDate() + diff);
   const ry = dt.getFullYear();
   const rm = String(dt.getMonth() + 1).padStart(2, '0');
@@ -298,7 +362,7 @@ function findWeekIdForDate(isoDate, keys) {
   if (!isoDate) return null;
   for (let i = 0; i < keys.length; i++) {
     const { start, end } = getWeekWindow(keys[i], keys, i);
-    if (isoDate >= start && isoDate < end) {
+    if (isoDate >= start && isoDate <= end) {
       return keys[i];
     }
   }
@@ -317,7 +381,7 @@ function ensureWeeksForAppts() {
       let wId = findWeekIdForDate(d, currentKeys);
       if (!wId) {
         wId = getSaturdayOfWeek(d);
-        if (cfg.deletedWeeks && cfg.deletedWeeks[wId]) return; // Não recria semanas excluídas intencionalmente
+        if (cfg.deletedWeeks && cfg.deletedWeeks[wId] && !weeks[wId]) return;
         if (!weeks[wId]) {
           const o = {};
           FIELDS.forEach(([k]) => { o[k] = 0; });
@@ -336,7 +400,7 @@ function ensureWeeksForAppts() {
 function cleanupStrayWeeks() {
   const ks = Object.keys(weeks || {});
   ks.forEach(k => {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || (cfg.deletedWeeks && cfg.deletedWeeks[k])) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) {
       delete weeks[k];
       try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
     }
@@ -358,13 +422,13 @@ function W() {
     // 1. Consultas agendadas nesta semana: considerado ESTRITAMENTE o campo "Agendada em" (schedOn)
     const schedInWeek = allAppts.filter(a => {
       const s = a.schedOn || '';
-      return s >= start && s < end;
+      return s >= start && s <= end;
     });
 
     // 2. Consultas desta semana (realizada / cancelada / reagendada): considerado ESTRITAMENTE o campo "Consulta" (consult)
     const consultInWeek = allAppts.filter(a => {
       const c = a.consult || '';
-      return c >= start && c < end;
+      return c >= start && c <= end;
     });
 
     const numReal = consultInWeek.filter(a => a.status === 'realizada').length;
@@ -400,13 +464,13 @@ async function syncWeekMetricsWithAppts(persist = true) {
     // Agendadas na semana: estritamente por "Agendada em"
     const schedInWeek = allAppts.filter(a => {
       const s = a.schedOn || '';
-      return s >= start && s < end;
+      return s >= start && s <= end;
     });
 
     // Desfechos: estritamente pelo campo "Consulta"
     const consultInWeek = allAppts.filter(a => {
       const c = a.consult || '';
-      return c >= start && c < end;
+      return c >= start && c <= end;
     });
 
     const numReal = consultInWeek.filter(a => a.status === 'realizada').length;
@@ -726,39 +790,113 @@ let pastePreview=[];
 let isSavingPaste=false;
 
 function parsePatientLine(l,defaultYear){
-  const low=l.toLowerCase();
-  const dm=l.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
-  let consult='';
-  if(dm){
-    const yy=dm[3]?(dm[3].length===2?'20'+dm[3]:dm[3]):defaultYear;
-    consult=`${yy}-${dm[2].padStart(2,'0')}-${dm[1].padStart(2,'0')}`;
+  const curY=defaultYear||new Date().getFullYear();
+  const raw=(l||'').trim();
+  if(!raw)return null;
+  const low=raw.toLowerCase();
+
+  const allDates=extractAllDates(raw,curY);
+
+  // Ignora cabeçalhos óbvios apenas se não tiver dados/datas reais
+  if(allDates.length===0&&/(^|\b)(paciente|nome)\b/i.test(low)&&/(origem|veio de|agendad|consulta|status)\b/i.test(low)){
+    return null;
   }
 
-  const RX={c5:/5º|5o contato|fu ?5|quint/,c4:/4º|4o contato|fu ?4|quart/,c3:/3º|3o contato|fu ?3|terc/,c2:/2º|2o contato|fu ?2|segund/,sem:/sem retorno|sem resposta/,novo:/novo lead|\blead\b/};
+  // Detecta origem
   let origin='novo';
-  const kx=Object.keys(ORIG).find(k=>low.includes(String(ORIG[k]).toLowerCase()));
-  if(kx)origin=kx;else{const k2=['c5','c4','c3','c2','sem','novo'].find(k=>RX[k]&&RX[k].test(low)&&ORIG[k]);if(k2)origin=k2}
-
-  let status='agendada';
-  if(/cancel/.test(low))status='cancelada';
-  else if(/reagend/.test(low))status='reagendada';
-  else if(/realiz|compareceu|check/.test(low))status='realizada';
-
-  let name='';
-  if(l.includes(';')||l.includes('\t')||l.includes('|')||l.includes(' - ')){
-    const parts=l.split(/[\t;|]|\s-\s/).map(p=>p.trim()).filter(Boolean);
-    if(parts.length)name=parts[0].replace(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/g,'').trim();
-  }else{
-    const mName=l.match(/(?:paciente|agendad[oa]\s+(?:a\s+)?|consulta\s+(?:da\s+|do\s+)?)([A-ZÀ-ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-ÿ][a-zà-ÿ]+)+)/i);
-    if(mName&&mName[1]){
-      name=mName[1].trim();
-    }else{
-      name=l.replace(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/g,'')
-            .replace(/\b(?:novo lead|2º contato|3º contato|4º contato|5º contato|sem retorno|realizada|agendada|cancelada|reagendada|confirmada|paciente|consulta)\b/gi,'')
-            .replace(/[;,\-–—|:]/g,' ')
-            .replace(/\s+/g,' ')
-            .trim();
+  const RX_ORIG={
+    c5:/5[ºoª]?\s*(contato|fu)|fu\s*5|quint/i,
+    c4:/4[ºoª]?\s*(contato|fu)|fu\s*4|quart/i,
+    c3:/3[ºoª]?\s*(contato|fu)|fu\s*3|terc/i,
+    c2:/2[ºoª]?\s*(contato|fu)|fu\s*2|segund/i,
+    sem:/sem\s*(retorno|resposta)/i,
+    novo:/novo\s*lead|\blead\b/i
+  };
+  for(const [k,v] of Object.entries(ORIG)){
+    if(low.includes(v.toLowerCase())){origin=k;break;}
+  }
+  if(origin==='novo'){
+    for(const [k,rx] of Object.entries(RX_ORIG)){
+      if(rx.test(low)){origin=k;break;}
     }
+  }
+
+  // Detecta status
+  let status='agendada';
+  if(/cancelad/i.test(low))status='cancelada';
+  else if(/reagend/i.test(low))status='reagendada';
+  else if(/realiz|comparec|atendid|check/i.test(low))status='realizada';
+
+  let schedOn='';
+  let consult='';
+  let newDate='';
+  let name='';
+
+  // Verifica se é tabular (separado por \t, ;, |)
+  const isTabular=/[\t;|]/.test(raw);
+  if(isTabular){
+    const cols=raw.split(/[\t;|]/).map(c=>c.trim());
+    const cleanCol0=cols[0].replace(/^(paciente|nome)\s*:\s*/i,'').trim();
+    name=cleanCol0;
+
+    const dateCols=[];
+    cols.forEach((col,idx)=>{
+      const dIso=normalizeDateStr(col,curY);
+      if(dIso)dateCols.push({idx,iso:dIso,col});
+    });
+
+    if(dateCols.length>=2){
+      schedOn=dateCols[0].iso;
+      consult=dateCols[1].iso;
+      if(dateCols.length>=3)newDate=dateCols[2].iso;
+    }else if(dateCols.length===1){
+      schedOn=dateCols[0].iso;
+      consult=dateCols[0].iso;
+    }
+  }
+
+  // Se não foi tabular ou faltaram datas, extrai do texto contextual
+  if(!schedOn||!consult){
+    if(allDates.length>=2){
+      const d0=allDates[0];
+      const d1=allDates[1];
+      const d0IsConsult=/consulta|para\s*(o\s*dia)?|atend/i.test(d0.contextBefore);
+      const d1IsSched=/agendad|marcad|feita/i.test(d1.contextBefore);
+      if(d0IsConsult&&d1IsSched){
+        consult=d0.iso;
+        schedOn=d1.iso;
+      }else{
+        schedOn=d0.iso;
+        consult=d1.iso;
+      }
+      if(allDates.length>=3)newDate=allDates[2].iso;
+    }else if(allDates.length===1){
+      schedOn=allDates[0].iso;
+      consult=allDates[0].iso;
+    }
+  }
+
+  // Limpeza robusta do nome do paciente
+  if(!name||normalizeDateStr(name,curY)){
+    let clean=raw;
+    clean=clean.replace(/^(paciente|nome)\s*:\s*/i,'');
+    allDates.forEach(d=>{
+      clean=clean.replace(d.raw,' ');
+    });
+    clean=clean.replace(/(?:(\d{4})[-\/](\d{1,2})[-\/](\d{1,2}))|(?:\b\d{1,2}[\/\-]\d{1,2}(?:[\/\-](\d{2,4}))?\b)/g,' ');
+    clean=clean.replace(/\b(paciente|nome|novo lead|lead|2º contato|3º contato|4º contato|5º contato|sem retorno|sem resposta|realizada|agendada|cancelada|reagendada|confirmada|consulta|atendimento|para o dia|para dia|no dia|dia|para|agendado|agendou|marcado|marcou|marcada|marcada em|agendada em|em)\b/gi,' ');
+    clean=clean.replace(/[;,\-–—|:()\[\]]/g,' ').replace(/\s+/g,' ').trim();
+    name=clean;
+  }else{
+    name=name.replace(/^(paciente|nome)\s*:\s*/i,'');
+    allDates.forEach(d=>{
+      name=name.replace(d.raw,' ');
+    });
+    name=name.replace(/(?:(\d{4})[-\/](\d{1,2})[-\/](\d{1,2}))|(?:\b\d{1,2}[\/\-]\d{1,2}(?:[\/\-](\d{2,4}))?\b)/g,' ')
+             .replace(/\b(paciente|nome|novo lead|lead|2º contato|3º contato|4º contato|5º contato|sem retorno|realizada|agendada|cancelada|reagendada|confirmada|consulta)\b/gi,' ')
+             .replace(/[;,\-–—|:()\[\]]/g,' ')
+             .replace(/\s+/g,' ')
+             .trim();
   }
 
   name=name.replace(/^[,\-–—:\s]+|[,\-–—:\s]+$/g,'').trim();
@@ -767,11 +905,11 @@ function parsePatientLine(l,defaultYear){
   return {
     patient:name.slice(0,200),
     origin,
-    schedOn:today(),
-    consult,
+    schedOn:schedOn||consult,
+    consult:consult||schedOn,
     status,
     regained:status==='reagendada'?'sim':'',
-    newDate:''
+    newDate:newDate||''
   };
 }
 
@@ -814,8 +952,8 @@ function updatePastePreviewUI(){
           <tr>
             <td><input type="text" data-pidx="${idx}" data-pk="patient" value="${esc(item.patient)}" style="min-width:140px"></td>
             <td><select data-pidx="${idx}" data-pk="origin">${opts(ORIG,item.origin)}</select></td>
-            <td><input type="date" data-pidx="${idx}" data-pk="schedOn" value="${item.schedOn||today()}"></td>
-            <td><input type="date" data-pidx="${idx}" data-pk="consult" value="${item.consult||''}"></td>
+            <td><input type="date" data-pidx="${idx}" data-pk="schedOn" value="${item.schedOn||item.consult||''}"></td>
+            <td><input type="date" data-pidx="${idx}" data-pk="consult" value="${item.consult||item.schedOn||''}"></td>
             <td><select data-pidx="${idx}" data-pk="status">${opts(STAT,item.status)}</select></td>
             <td><button class="x" type="button" data-pdel="${idx}" title="Remover da prévia" aria-label="Remover">×</button></td>
           </tr>
@@ -861,14 +999,15 @@ async function savePreviewAppts(isExplicitUserClick){
   try{
     for(const item of validItems){
       const p=item.patient.trim();
-      const c=/^\d{4}-\d{2}-\d{2}$/.test(item.consult||'')?item.consult:'';
+      const c=/^\d{4}-\d{2}-\d{2}$/.test(item.consult||'')?item.consult:(item.schedOn||'');
+      const s=/^\d{4}-\d{2}-\d{2}$/.test(item.schedOn||'')?item.schedOn:(c||today());
       if(Object.values(appts).some(a=>a.patient===p&&(a.consult||'')===c))continue;
 
       const newId='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
       await saveDoc('appts/'+newId,{
         patient:p.slice(0,200),
         origin:ORIG[item.origin]?item.origin:'novo',
-        schedOn:item.schedOn||today(),
+        schedOn:s,
         consult:c,
         status:STAT[item.status]?item.status:'agendada',
         regained:item.regained||(item.status==='reagendada'?'sim':''),
@@ -1419,9 +1558,16 @@ function dash(){
 
 function buildForm(){const o=$('#w_novos')?readForm():null;$('#wf').innerHTML=FIELDS.map(([k])=>`<label>${esc(lab(k))}<input type="number" min="0" id="w_${k}" value="0"></label>`).join('');if(o)fillForm(o)}
 function fillForm(v){FIELDS.forEach(([k])=>{const el=$('#w_'+k);if(el)el.value=v?(v[k]||0):0})}
-function loadWeek(){const id=$('#wd').value;fillForm(W().find(w=>w.id===id)||weeks[id])}
+function loadWeek(){
+  let id=($('#wd').value||'').trim();
+  id=normalizeDateStr(id,new Date().getFullYear());
+  if(!id)return;
+  fillForm(W().find(w=>w.id===id)||weeks[id]);
+}
 function readForm(){
-  const w0=weeks[$('#wd').value]||{},o={...w0};
+  let id=($('#wd').value||'').trim();
+  id=normalizeDateStr(id,new Date().getFullYear());
+  const w0=weeks[id]||{},o={...w0};
   FIELDS.forEach(([k])=>{const el=$('#w_'+k);o[k]=el?Math.max(0,parseInt(el.value)||0):(w0[k]||0)});
   return o;
 }
@@ -1435,11 +1581,61 @@ function weekList(){
 }
 
 async function importRows(rows){
-  let n=0;for(const r of rows){const c=r.split('\t');const m=(c[0]||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(!m)continue;
-    const id=`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`,o={};
-    BASEF.forEach(([k],i)=>{o[k]=parseInt(String(c[i+1]||'0').replace(/[\s\u00a0.]/g,''))||0});
-    await saveDoc('weeks/'+id,{...(weeks[id]||{}),...o});n++}
-  toast(n?n+' semana(s) importada(s)':'Nenhuma linha reconhecida');
+  let nWeeks=0, nAppts=0;
+  const curY=new Date().getFullYear();
+  for(const r of rows){
+    const line=r.trim();
+    if(!line)continue;
+    let c = line.includes('\t') ? line.split('\t') : (line.includes(';') ? line.split(';') : (line.includes(',') ? line.split(',') : [line]));
+    c = c.map(s => s.trim());
+    
+    const weekDate = normalizeDateStr(c[0], curY);
+    const hasMetricNumbers = c.slice(1).some(v => /^\d+$/.test(v.replace(/[\s\u00a0.]/g,'')));
+    
+    if(weekDate && hasMetricNumbers){
+      const id = weekDate;
+      const o = {};
+      BASEF.forEach(([k], i) => {
+        const val = c[i + 1];
+        o[k] = parseInt(String(val || '0').replace(/[\s\u00a0.]/g, '')) || 0;
+      });
+      if (cfg.deletedWeeks && cfg.deletedWeeks[id]) {
+        delete cfg.deletedWeeks[id];
+        await saveCfg({ deletedWeeks: cfg.deletedWeeks });
+      }
+      weeks[id] = { ...(weeks[id] || {}), ...o, id };
+      await saveDoc('weeks/' + id, weeks[id]);
+      nWeeks++;
+      continue;
+    }
+    
+    // Tenta interpretar como consulta de paciente
+    const apptItem = parsePatientLine(line, curY);
+    if(apptItem && apptItem.patient){
+      const newId = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      await saveDoc('appts/' + newId, {
+        patient: apptItem.patient.slice(0, 200),
+        origin: ORIG[apptItem.origin] ? apptItem.origin : 'novo',
+        schedOn: apptItem.schedOn || apptItem.consult || today(),
+        consult: apptItem.consult || '',
+        status: STAT[apptItem.status] ? apptItem.status : 'agendada',
+        regained: apptItem.regained || (apptItem.status === 'reagendada' ? 'sim' : ''),
+        newDate: apptItem.newDate || ''
+      });
+      nAppts++;
+    }
+  }
+  
+  if (nWeeks > 0 || nAppts > 0) {
+    await syncWeekMetricsWithAppts(true);
+    render();
+    const parts = [];
+    if (nWeeks) parts.push(nWeeks + ' semana(s)');
+    if (nAppts) parts.push(nAppts + ' consulta(s)');
+    toast(parts.join(' e ') + ' importada(s) com sucesso!');
+  } else {
+    toast('Nenhuma linha reconhecida.');
+  }
 }
 
 const opts=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${k}"${k===sel?' selected':''}>${v}</option>`).join('');
@@ -1448,13 +1644,21 @@ function fbarA(ids){const f=aFilt,tot=Object.keys(appts).length,WS=W().slice().r
   return `<div class="f" style="margin-bottom:10px"><label style="grid-column:1/-1">Pesquisar paciente<input type="search" data-af="q" placeholder="Digite o nome ou iniciais do paciente..." value="${esc(f.q||'')}"></label><label>Semana em que foi criada<select data-af="week"><option value="">Todas</option>${WS.map(w=>`<option value="${w.id}"${f.week===w.id?' selected':''}>Semana de ${fdf(w.id)}</option>`).join('')}</select></label><label>Consulta a partir de<input type="date" data-af="from" value="${f.from}"></label><label>Consulta até<input type="date" data-af="to" value="${f.to}"></label><label>Veio de<select data-af="origin"><option value="">Todas</option>${opts(ORIG,f.origin)}</select></label><label>Status<select data-af="status"><option value="">Todos</option>${opts(STAT,f.status)}</select></label></div><div class="row" style="margin:0 0 10px"><button class="b s" data-afc="1">Limpar filtros e pesquisa</button><span class="note">Mostrando ${ids.length} de ${tot} consultas</span></div>`}
 
 function apptList(){
-  const f=aFilt,WS=W(),wr=f.week?(()=>{const i=WS.findIndex(w=>w.id===f.week);return i<0?null:[f.week,WS[i+1]?WS[i+1].id:addDays(f.week,7)]})():null;
+  const f=aFilt,WS=W();
+  let wr=null;
+  if(f.week){
+    const i=WS.findIndex(w=>w.id===f.week);
+    if(i>=0){
+      const {start,end}=getWeekWindow(f.week,WS.map(w=>w.id),i);
+      wr=[start,end];
+    }
+  }
   const qClean=(f.q||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const ids=Object.keys(appts).filter(k=>{
     const a=appts[k],s=a.schedOn||'',c=a.consult||'';
     const pName=String(a.patient||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const matchesQ=!qClean||pName.includes(qClean);
-    return matchesQ&&(!wr||(s>=wr[0]&&s<wr[1]))&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status);
+    return matchesQ&&(!wr||(s>=wr[0]&&s<=wr[1]))&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status);
   }).sort((a,b)=>(appts[b].consult||'').localeCompare(appts[a].consult||''));
   if(!ids.length)return fbarA(ids)+'<p class="note">'+(Object.keys(appts).length?'Nenhuma consulta encontrada com estes filtros ou pesquisa.':'Nenhuma consulta registrada ainda.')+'</p>';
   return fbarA(ids)+`<div class="wrap"><table><tr><th>Paciente</th><th>Veio de</th><th>Agendada em</th><th>Consulta</th><th>Status</th><th>Conseguiu reagendar?</th><th>Nova data</th><th></th></tr>${ids.map(id=>{const a=appts[id];
@@ -1474,14 +1678,37 @@ function go(t){cur=t;['dash','sem','cons','cfg'].forEach(s=>$('#'+s).classList.t
 $('#nav').onclick=e=>{if(e.target.dataset.t)go(e.target.dataset.t)};
 buildForm();
 $('#wd').value=today();
-$('#cp_s').value=today();
+$('#cp_s').value='';
 $('#cp_o').innerHTML=opts(ORIG,'novo');
 $('#wd').onchange=loadWeek;
-$('#cp').onclick=()=>{const id=$('#wd').value,ks=Object.keys(weeks).sort().filter(k=>k<id),p=ks.length?weeks[ks[ks.length-1]]:null;if(p){fillForm(p);toast('Valores copiados de '+fdf(ks[ks.length-1]))}else toast('Não há semana anterior')};
-$('#ws').onclick=async()=>{const id=$('#wd').value;if(!id)return toast('Escolha a data da semana');await saveDoc('weeks/'+id,readForm());toast('Semana salva com sucesso!')};
+$('#cp').onclick=()=>{
+  let id=($('#wd').value||'').trim();
+  id=normalizeDateStr(id,new Date().getFullYear());
+  const ks=Object.keys(weeks).sort().filter(k=>k<id);
+  const p=ks.length?weeks[ks[ks.length-1]]:null;
+  if(p){fillForm(p);toast('Valores copiados de '+fdf(ks[ks.length-1]))}
+  else toast('Não há semana anterior');
+};
+$('#ws').onclick=async()=>{
+  let id=($('#wd').value||'').trim();
+  id=normalizeDateStr(id,new Date().getFullYear());
+  if(!id)return toast('Escolha a data da semana');
+  if(cfg.deletedWeeks && cfg.deletedWeeks[id]){
+    delete cfg.deletedWeeks[id];
+    await saveCfg({deletedWeeks:cfg.deletedWeeks});
+  }
+  const formData=readForm();
+  weeks[id]={...(weeks[id]||{}),...formData,id};
+  try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
+  await saveDoc('weeks/'+id,weeks[id]);
+  await syncWeekMetricsWithAppts(true);
+  render();
+  toast('Semana '+fdf(id)+' salva com sucesso!');
+};
 $('#wdel').onclick=async function(){
-  const id=$('#wd').value;
-  if(!id||!weeks[id])return toast('Selecione uma semana existente para excluir.');
+  let id=($('#wd').value||'').trim();
+  id=normalizeDateStr(id,new Date().getFullYear());
+  if(!id||(!weeks[id]&&!W().some(w=>w.id===id)))return toast('Selecione uma semana existente para excluir.');
   const btn=this;
   if(!btn.dataset.confirming){
     btn.dataset.confirming='1';
@@ -1503,18 +1730,38 @@ $('#wdel').onclick=async function(){
   cfg.deletedWeeks=cfg.deletedWeeks||{};
   cfg.deletedWeeks[id]=true;
   await saveCfg({deletedWeeks:cfg.deletedWeeks});
+  delete weeks[id];
+  try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
   await delDoc('weeks/'+id);
   fillForm(null);
+  render();
   toast('Semana excluída com sucesso!');
 };
 $('#imp').onclick=()=>importRows($('#paste').value.split(/\r?\n/));
 $('#seed').onclick=async()=>{for(const [id,v] of Object.entries(SEED)){const o={};BASEF.forEach(([k],i)=>o[k]=v[i]);await saveDoc('weeks/'+id,{...(weeks[id]||{}),...o})}toast('Semanas carregadas')};
 $('#wl').onclick=e=>{const id=e.target.dataset.e;if(id){e.preventDefault();$('#wd').value=id;loadWeek();window.scrollTo({top:0,behavior:'smooth'})}};
 
+if($('#cp_c')){
+  $('#cp_c').onchange=()=>{
+    const c=$('#cp_c').value;
+    if(!$('#cp_s').value||!$('#cp_s').dataset.userTouched){
+      $('#cp_s').value=c;
+    }
+  };
+}
+if($('#cp_s')){
+  $('#cp_s').oninput=()=>{
+    $('#cp_s').dataset.userTouched='1';
+  };
+}
+
 $('#cp_add').onclick=async()=>{
   const n=$('#cp_n').value.trim();if(!n)return toast('Informe o paciente');
-  const id='a'+Date.now().toString(36);
-  await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:$('#cp_s').value||today(),consult:$('#cp_c').value,status:'agendada',regained:'',newDate:''});
+  const c=normalizeDateStr($('#cp_c').value, new Date().getFullYear());
+  let s=normalizeDateStr($('#cp_s').value, new Date().getFullYear());
+  if(!s)s=c||today();
+  const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:s,consult:c,status:'agendada',regained:'',newDate:''});
   $('#cp_n').value='';
   await syncWeekMetricsWithAppts(true);
   toast('Consulta adicionada com sucesso!');
@@ -1700,7 +1947,22 @@ $('#dash').onchange=e=>{
 $('#wl').addEventListener('click',async e=>{
   const t=e.target,d=t.dataset;
   if(d.we){editRow=d.we;$('#wl').innerHTML=weekList();return}
-  if(d.ws){const id=d.ws,o={...weeks[id]};document.querySelectorAll('#wl [data-ek]').forEach(i=>{o[i.dataset.ek]=Math.max(0,parseInt(i.value)||0)});editRow=null;await saveDoc('weeks/'+id,o);toast('Semana salva com sucesso!');return}
+  if(d.ws){
+    const id=d.ws,o={...weeks[id]};
+    document.querySelectorAll('#wl [data-ek]').forEach(i=>{o[i.dataset.ek]=Math.max(0,parseInt(i.value)||0)});
+    editRow=null;
+    if(cfg.deletedWeeks && cfg.deletedWeeks[id]){
+      delete cfg.deletedWeeks[id];
+      await saveCfg({deletedWeeks:cfg.deletedWeeks});
+    }
+    weeks[id]={...(weeks[id]||{}),...o,id};
+    try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
+    await saveDoc('weeks/'+id,weeks[id]);
+    await syncWeekMetricsWithAppts(true);
+    render();
+    toast('Semana salva com sucesso!');
+    return;
+  }
   if(d.wx){
     const btn=t;
     if(!btn.dataset.confirming){
@@ -1724,7 +1986,10 @@ $('#wl').addEventListener('click',async e=>{
     cfg.deletedWeeks=cfg.deletedWeeks||{};
     cfg.deletedWeeks[id]=true;
     await saveCfg({deletedWeeks:cfg.deletedWeeks});
+    delete weeks[id];
+    try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
     await delDoc('weeks/'+id);
+    render();
     toast('Semana excluída com sucesso!');
     return;
   }
