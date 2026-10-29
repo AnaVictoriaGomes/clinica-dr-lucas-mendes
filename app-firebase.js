@@ -39,6 +39,7 @@ function startListeners() {
   stopListeners();
   if (!db) return;
 
+  // Escuta semanas em tempo real apenas quando autenticado
   unsubWeeks = onSnapshot(collection(db, "weeks"), snap => {
     const w = {};
     snap.forEach(d => { w[d.id] = d.data(); });
@@ -49,6 +50,7 @@ function startListeners() {
     console.warn("Aviso ao escutar semanas no Firestore:", err);
   });
 
+  // Escuta consultas em tempo real apenas quando autenticado
   unsubAppts = onSnapshot(collection(db, "appts"), snap => {
     const a = {};
     snap.forEach(d => { a[d.id] = d.data(); });
@@ -59,6 +61,7 @@ function startListeners() {
     console.warn("Aviso ao escutar consultas no Firestore:", err);
   });
 
+  // Escuta configurações gerais em tempo real
   unsubCfg = onSnapshot(doc(db, "config", "general"), snap => {
     if (snap.exists() && typeof window.setCfg === 'function') {
       window.setCfg(snap.data());
@@ -135,7 +138,7 @@ async function initFirebase() {
         window.DATA.user = user;
         window.DATA.authenticated = true;
         window.DATA.lastRead = Date.now();
-        console.log("Firebase Auth: usuário logado com sucesso:", user.email, user.uid);
+        console.log("Firebase Auth: usuário conectado:", user.email);
         startListeners();
         if (typeof window.onAuthSuccess === 'function') {
           window.onAuthSuccess(user);
@@ -152,7 +155,7 @@ async function initFirebase() {
       if (typeof window.stLine === 'function') window.stLine();
     });
 
-    console.log("Firebase Firestore e Auth configurados:", firebaseConfig.projectId);
+    console.log("Firebase Firestore e Auth configurados com sucesso");
     if (typeof window.stLine === 'function') window.stLine();
     return;
   } catch (err) {
