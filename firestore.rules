@@ -2,48 +2,23 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Função de autorização flexível:
-    // Permite se estiver autenticado com seu UID OU se o painel estiver acessando diretamente
+    // Permite acesso SOMENTE com autenticação válida do UID autorizado
     function autorizado() {
-      return request.auth == null || request.auth.uid == 'mOGkv4yJZ1f7HlzOZPT8qqNRDdF3';
+      return request.auth != null && request.auth.uid == 'mOGkv4yJZ1f7HlzOZPT8qqNRDdF3';
     }
 
-    // Validação opcional de versão (não obrigatória caso o documento não envie _v)
-    function versaoOk() {
-      return !('_v' in request.resource.data) || request.resource.data._v is int;
-    }
-
-    // 1. Coleção de Semanas Lançadas
     match /weeks/{id} {
-      allow read: if autorizado();
-      allow create, update: if autorizado() 
-        && id.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
-        && versaoOk() 
-        && request.resource.data.size() <= 80;
-      allow delete: if autorizado();
+      allow read, write: if autorizado();
     }
 
-    // 2. Coleção de Consultas
     match /appts/{id} {
-      allow read: if autorizado();
-      allow create, update: if autorizado() 
-        && versaoOk()
-        && request.resource.data.patient is string 
-        && request.resource.data.patient.size() <= 200
-        && request.resource.data.size() <= 25;
-      allow delete: if autorizado();
+      allow read, write: if autorizado();
     }
 
-    // 3. Coleção de Configurações (aceita tanto 'general' quanto 'main')
     match /config/{id} {
-      allow read: if autorizado();
-      allow create, update: if autorizado() 
-        && (id == 'general' || id == 'main')
-        && versaoOk();
-      allow delete: if false;
+      allow read, write: if autorizado();
     }
 
-    // Bloqueia qualquer outra coleção não prevista
     match /{document=**} { 
       allow read, write: if false; 
     }
