@@ -81,6 +81,7 @@ async function initFirebase() {
     db = getFirestore(app);
     auth = getAuth(app);
 
+    // Persistência na sessão da aba para segurança
     try {
       await setPersistence(auth, browserSessionPersistence);
     } catch(pErr) {
@@ -133,12 +134,13 @@ async function initFirebase() {
       migHtml: () => ''
     };
 
+    // Monitoramento oficial do estado de autenticação
     onAuthStateChanged(auth, user => {
       if (user) {
         window.DATA.user = user;
         window.DATA.authenticated = true;
         window.DATA.lastRead = Date.now();
-        console.log("Firebase Auth: usuário conectado:", user.email);
+        console.log("Firebase Auth: usuário logado com sucesso:", user.email, user.uid);
         startListeners();
         if (typeof window.onAuthSuccess === 'function') {
           window.onAuthSuccess(user);
@@ -155,13 +157,14 @@ async function initFirebase() {
       if (typeof window.stLine === 'function') window.stLine();
     });
 
-    console.log("Firebase Firestore e Auth configurados com sucesso");
+    console.log("Firebase Firestore e Auth configurados:", firebaseConfig.projectId);
     if (typeof window.stLine === 'function') window.stLine();
     return;
   } catch (err) {
     console.error("Erro crítico ao inicializar o Firebase:", err);
   }
 
+  // Fallback seguro em caso de indisponibilidade
   window.DATA = {
     ready: false,
     authenticated: false,
