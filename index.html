@@ -178,8 +178,23 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 
 <div id="msg"></div><div id="sv" role="status" aria-live="polite"></div><div id="ov"></div>
 <div id="chart_tip" role="tooltip" aria-hidden="true"></div>
-<div id="lg"><form id="lf" autocomplete="on"><h1>Painel KOMMO</h1><p class="note" style="margin:0">Acesso ao painel.</p><label>Nome de usuário<input id="lu" autocomplete="username" placeholder="Digite seu usuário" required></label><label>Senha<input id="lp" type="password" autocomplete="current-password" placeholder="Digite sua senha" required></label><p id="le" class="note" style="color:var(--r);margin:0;min-height:1.2em"></p><button class="b" id="lb" type="submit">Entrar</button></form></div>
-
+<div id="lg">
+  <form id="lf" autocomplete="on">
+    <h1>Painel KOMMO</h1>
+    <p class="note" style="margin:0">Acesso restrito da equipe autorizada.</p>
+    
+    <label>Email da clínica
+      <input id="lu" type="email" autocomplete="email" value="preoperatoriodr.lucasmendes@gmail.com" placeholder="preoperatoriodr.lucasmendes@gmail.com" required>
+    </label>
+    
+    <label>Senha
+      <input id="lp" type="password" autocomplete="current-password" placeholder="Digite sua senha" required>
+    </label>
+    
+    <p id="le" class="note" style="color:var(--r);margin:0;min-height:1.2em"></p>
+    <button class="b" id="lb" type="submit">Entrar no painel</button>
+  </form>
+</div>
 <script>
 let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana']];
 const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-26":[100,2,473,346,0,0,0,20,3,326,33,3,9,13,6,2,5],"2026-10-03":[52,2,513,33,375,0,0,25,6,350,31,0,14,7,4,0,11],"2026-10-10":[27,0,514,14,163,290,0,70,3,397,45,6,26,10,9,1,11]};
