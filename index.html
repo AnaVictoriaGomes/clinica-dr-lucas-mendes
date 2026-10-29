@@ -116,7 +116,7 @@ svg [data-tip-series]{cursor:pointer;transition:transform .1s ease,filter .15s e
 svg rect[data-tip-series]:hover{filter:brightness(1.18);opacity:.96}
 svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 </style>
-<script src="/_aistudio-iframe.js?v=1f94f900"></script></head>
+</head>
 <body class="locked">
 <header>
   <div><h1 id="ttl">Painel KOMMO</h1><div class="note" id="st">Carregando…</div></div>
@@ -176,67 +176,7 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 <section id="cfg" class="hide"></section>
 </main>
 
-<div id="lg">
-  <form id="lf" autocomplete="on">
-    <h1>Painel KOMMO</h1>
-    <p class="note" style="margin:0">Acesso restrito da equipe autorizada.</p>
-    <label>Email da clínica<input id="lu" type="email" autocomplete="username" placeholder="Digite seu email" required></label>
-    <label>Senha<input id="lp" type="password" autocomplete="current-password" placeholder="Digite sua senha" required></label>
-    <p id="le" class="note" style="color:var(--r);margin:0;min-height:1.2em"></p>
-    <button class="b" id="lb" type="submit">Entrar no painel</button>
-    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);text-align:center;display:flex;flex-direction:column;gap:6px">
-      <button type="button" class="b s" id="btn_open_files" style="font-size:12px;font-weight:600;padding:7px 10px">📁 Baixar arquivos individuais ou copiar códigos para o GitHub</button>
-    </div>
-  </form>
-</div>
-
-<div id="files_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:16px">
-  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.4)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <h2 style="margin:0;font-size:17px">Arquivos Prontos para o GitHub</h2>
-      <button class="x" id="btn_close_files" style="font-size:24px;line-height:1">×</button>
-    </div>
-    <p class="note" style="margin:0 0 14px">Baixe os arquivos individualmente (.html, .js, .json) ou clique em <b>Copiar código</b> para colar direto no GitHub:</p>
-    
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)">
-        <div style="font-weight:700;font-size:14px">1. index.html <span class="tag" style="font-weight:normal;font-size:11px">Principal</span></div>
-        <p class="note" style="margin:4px 0 8px;font-size:12px">Arquivo do painel com todas as correções, sem SheetDB e com recálculo automático.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="/index.html" download="index.html" class="b" style="font-size:12px;text-decoration:none;padding:6px 12px">💾 Baixar index.html</a>
-          <button class="b s" style="font-size:12px;padding:6px 12px" onclick="copyFileCode('index.html', this)">📋 Copiar código</button>
-        </div>
-      </div>
-
-      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)">
-        <div style="font-weight:700;font-size:14px">2. vercel.json</div>
-        <p class="note" style="margin:4px 0 8px;font-size:12px">Configuração para a Vercel publicar sem erros com HTTPS.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="/vercel.json" download="vercel.json" class="b" style="font-size:12px;text-decoration:none;padding:6px 12px">💾 Baixar vercel.json</a>
-          <button class="b s" style="font-size:12px;padding:6px 12px" onclick="copyFileCode('vercel.json', this)">📋 Copiar código</button>
-        </div>
-      </div>
-
-      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)">
-        <div style="font-weight:700;font-size:14px">3. firestore.rules</div>
-        <p class="note" style="margin:4px 0 8px;font-size:12px">Regras de segurança que protegem o banco no Firebase.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="/firestore.rules" download="firestore.rules" class="b" style="font-size:12px;text-decoration:none;padding:6px 12px">💾 Baixar firestore.rules</a>
-          <button class="b s" style="font-size:12px;padding:6px 12px" onclick="copyFileCode('firestore.rules', this)">📋 Copiar código</button>
-        </div>
-      </div>
-
-      <div style="border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg)">
-        <div style="font-weight:700;font-size:14px">4. app-firebase.js</div>
-        <p class="note" style="margin:4px 0 8px;font-size:12px">Conector complementar do Firebase.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="/app-firebase.js" download="app-firebase.js" class="b" style="font-size:12px;text-decoration:none;padding:6px 12px">💾 Baixar app-firebase.js</a>
-          <button class="b s" style="font-size:12px;padding:6px 12px" onclick="copyFileCode('app-firebase.js', this)">📋 Copiar código</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<div id="lg"><form id="lf" autocomplete="on"><h1>Painel KOMMO</h1><p class="note" style="margin:0">Acesso restrito da equipe autorizada.</p><label>Email da clínica<input id="lu" type="email" autocomplete="username" placeholder="Digite seu email" required></label><label>Senha<input id="lp" type="password" autocomplete="current-password" placeholder="Digite sua senha" required></label><p id="le" class="note" style="color:var(--r);margin:0;min-height:1.2em"></p><button class="b" id="lb" type="submit">Entrar no painel</button><div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);text-align:center"><a href="/painel-kommo-completo.zip" download="painel-kommo-completo.zip" style="font-size:12.5px;color:var(--b);text-decoration:none;font-weight:600">📥 Baixar arquivos atualizados para o GitHub (.ZIP)</a></div></form></div>
 
 <script>
 let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana']];
@@ -1269,11 +1209,7 @@ function dash(){
 function buildForm(){const o=$('#w_novos')?readForm():null;$('#wf').innerHTML=FIELDS.map(([k])=>`<label>${esc(lab(k))}<input type="number" min="0" id="w_${k}" value="0"></label>`).join('');if(o)fillForm(o)}
 function fillForm(v){FIELDS.forEach(([k])=>{const el=$('#w_'+k);if(el)el.value=v?(v[k]||0):0})}
 function loadWeek(){const id=$('#wd').value;fillForm(W().find(w=>w.id===id)||weeks[id])}
-function readForm(){
-  const w0=weeks[$('#wd').value]||{},o={...w0};
-  FIELDS.forEach(([k])=>{const el=$('#w_'+k);o[k]=el?Math.max(0,parseInt(el.value)||0):(w0[k]||0)});
-  return o;
-}
+function readForm(){const w0=weeks[$('#wd').value]||{},o={...w0};FIELDS.forEach(([k])=>{const el=$('#w_'+k);o[k]=el?Math.max(0,parseInt(el.value)||0):(w0[k]||0)});// Recálculo automático de consultas mantidoreturn o}
 
 function weekList(){
   const all=W().reverse();if(!all.length)return '<p class="note">Nenhuma semana lançada.</p>';
@@ -1504,30 +1440,6 @@ if(lf){
     }
   };
 }
-
-const btnOpenFiles = $("#btn_open_files");
-const btnCloseFiles = $("#btn_close_files");
-const filesModal = $("#files_modal");
-if (btnOpenFiles && filesModal) {
-  btnOpenFiles.onclick = () => { filesModal.style.display = "flex"; };
-}
-if (btnCloseFiles && filesModal) {
-  btnCloseFiles.onclick = () => { filesModal.style.display = "none"; };
-}
-window.copyFileCode = async (filename, btn) => {
-  try {
-    const res = await fetch("/" + filename);
-    if (!res.ok) throw new Error("Erro ao carregar");
-    const txt = await res.text();
-    await navigator.clipboard.writeText(txt);
-    const orig = btn.textContent;
-    btn.textContent = "✓ Código copiado!";
-    btn.style.color = "var(--g)";
-    setTimeout(() => { btn.textContent = orig; btn.style.color = ""; }, 2500);
-  } catch(e) {
-    alert("Dica: você também pode baixar o arquivo diretamente pelo botão azul 'Baixar'!");
-  }
-};
 
 // Callback executado quando o Firebase Auth confirma login
 window.onAuthSuccess = user => {
