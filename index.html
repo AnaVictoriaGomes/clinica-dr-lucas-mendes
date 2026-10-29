@@ -1832,38 +1832,87 @@ $('#wl').addEventListener('click',async e=>{
 });
 $('#wl').addEventListener('change',e=>{const k=e.target.dataset.wf;if(k){wFilt[k]=e.target.value;$('#wl').innerHTML=weekList()}});
 
-/* Sistema de Login Local e Desbloqueio */
-const lf=$('#lf');
-if(lf){
-  lf.onsubmit=e=>{
+/* Sistema de Autenticação Oficial Firebase Auth */
+const lf = $("#lf");
+if (lf) {
+  lf.onsubmit = async e => {
     e.preventDefault();
-    const u=($('#lu')?$('#lu').value:'').trim();
-    const p=($('#lp')?$('#lp').value:'').trim();
-    if(u&&p){
-      document.body.classList.remove('locked');
-      const lg=$('#lg');if(lg)lg.style.display='none';
-      try{sessionStorage.setItem('kommo_auth','1')}catch(err){}
-      toast('Acesso liberado');
-      render();
-    }else{
-      const le=$('#le');if(le)le.textContent='Informe usuário e senha para acessar.';
+    const u = ($("#lu") ? $("#lu").value : "").trim();
+    const p = ($("#lp") ? $("#lp").value : "").trim();
+    const lb = $("#lb");
+    const le = $("#le");
+
+    if (!u || !p) {
+      if (le) le.textContent = "Informe seu email e senha.";
+      return;
+    }
+    if (lb) { lb.disabled = true; lb.textContent = "Autenticando…"; }
+    if (le) le.textContent = "";
+
+    try {
+      if (window.DATA && typeof window.DATA.login === "function") {
+        await window.DATA.login(u, p);
+      } else {
+        throw new Error("Módulo de autenticação ainda conectando...");
+      }
+    } catch (err) {
+      console.warn("Falha no login:", err);
+      let msg = "Falha ao acessar: verifique os dados.";
+      if (err.code === "auth/invalid-credential" || err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
+        msg = "Email ou senha incorretos.";
+      } else if (err.code === "auth/too-many-requests") {
+        msg = "Muitas tentativas. Tente novamente em alguns minutos.";
+      } else if (err.code === "auth/network-request-failed") {
+        msg = "Sem conexão com a internet ou bloqueio de rede.";
+      } else if (err.message) {
+        msg = err.message;
+      }
+      if (le) le.textContent = msg;
+    } finally {
+      if (lb) { lb.disabled = false; lb.textContent = "Entrar no painel"; }
     }
   };
 }
 
-try{
-  if(sessionStorage.getItem('kommo_auth')==='1'){
-    document.body.classList.remove('locked');
-    const lg=$('#lg');if(lg)lg.style.display='none';
-  }
-}catch(e){}
+// Callback executado quando o Firebase Auth confirma login
+window.onAuthSuccess = user => {
+  document.body.classList.remove("locked");
+  const lg = $("#lg"); if (lg) lg.style.display = "none";
+  toast("Acesso liberado: " + (user.email || "Usuário"));
+  render();
+};
 
-const lo=$('#lo');
-if(lo){
-  lo.onclick=()=>{
-    try{sessionStorage.removeItem('kommo_auth')}catch(err){}
-    document.body.classList.add('locked');
-    const lg=$('#lg');if(lg)lg.style.display='flex';
+// Callback executado quando o usuário está desconectado
+window.onAuthRequired = () => {
+  document.body.classList.add("locked");
+  const lg = $("#lg"); if (lg) lg.style.display = "flex";
+};
+
+// Limpa dados confidenciais da memória do navegador ao sair
+window.clearDataOnLogout = () => {
+  weeks = {};
+  appts = {};
+  try {
+    localStorage.removeItem("kommo_weeks_v3");
+    localStorage.removeItem("kommo_appts_v3");
+    sessionStorage.removeItem("kommo_auth");
+  } catch(e){}
+  render();
+};
+
+// Botão Sair
+const lo = $("#lo");
+if (lo) {
+  lo.onclick = async () => {
+    if (confirm("Deseja realmente sair da conta?")) {
+      if (window.DATA && typeof window.DATA.logout === "function") {
+        await window.DATA.logout();
+      } else {
+        window.clearDataOnLogout();
+        window.onAuthRequired();
+      }
+      toast("Você saiu do painel");
+    }
   };
 }
 
