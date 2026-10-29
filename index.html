@@ -116,7 +116,7 @@ svg [data-tip-series]{cursor:pointer;transition:transform .1s ease,filter .15s e
 svg rect[data-tip-series]:hover{filter:brightness(1.18);opacity:.96}
 svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 </style>
-</head>
+<script src="/_aistudio-iframe.js?v=1f94f900"></script></head>
 <body class="locked">
 <header>
   <div><h1 id="ttl">Painel KOMMO</h1><div class="note" id="st">Carregando…</div></div>
@@ -1269,7 +1269,11 @@ function dash(){
 function buildForm(){const o=$('#w_novos')?readForm():null;$('#wf').innerHTML=FIELDS.map(([k])=>`<label>${esc(lab(k))}<input type="number" min="0" id="w_${k}" value="0"></label>`).join('');if(o)fillForm(o)}
 function fillForm(v){FIELDS.forEach(([k])=>{const el=$('#w_'+k);if(el)el.value=v?(v[k]||0):0})}
 function loadWeek(){const id=$('#wd').value;fillForm(W().find(w=>w.id===id)||weeks[id])}
-function readForm(){const w0=weeks[$('#wd').value]||{},o={...w0};FIELDS.forEach(([k])=>{const el=$('#w_'+k);o[k]=el?Math.max(0,parseInt(el.value)||0):(w0[k]||0)});// Recálculo automático de consultas mantidoreturn o}
+function readForm(){
+  const w0=weeks[$('#wd').value]||{},o={...w0};
+  FIELDS.forEach(([k])=>{const el=$('#w_'+k);o[k]=el?Math.max(0,parseInt(el.value)||0):(w0[k]||0)});
+  return o;
+}
 
 function weekList(){
   const all=W().reverse();if(!all.length)return '<p class="note">Nenhuma semana lançada.</p>';
