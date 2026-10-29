@@ -39,7 +39,6 @@ function startListeners() {
   stopListeners();
   if (!db) return;
 
-  // Escuta semanas em tempo real apenas quando autenticado
   unsubWeeks = onSnapshot(collection(db, "weeks"), snap => {
     const w = {};
     snap.forEach(d => { w[d.id] = d.data(); });
@@ -50,7 +49,6 @@ function startListeners() {
     console.warn("Aviso ao escutar semanas no Firestore:", err);
   });
 
-  // Escuta consultas em tempo real apenas quando autenticado
   unsubAppts = onSnapshot(collection(db, "appts"), snap => {
     const a = {};
     snap.forEach(d => { a[d.id] = d.data(); });
@@ -61,7 +59,6 @@ function startListeners() {
     console.warn("Aviso ao escutar consultas no Firestore:", err);
   });
 
-  // Escuta configurações gerais em tempo real
   unsubCfg = onSnapshot(doc(db, "config", "general"), snap => {
     if (snap.exists() && typeof window.setCfg === 'function') {
       window.setCfg(snap.data());
@@ -81,7 +78,6 @@ async function initFirebase() {
     db = getFirestore(app);
     auth = getAuth(app);
 
-    // Persistência na sessão da aba para segurança
     try {
       await setPersistence(auth, browserSessionPersistence);
     } catch(pErr) {
@@ -134,7 +130,6 @@ async function initFirebase() {
       migHtml: () => ''
     };
 
-    // Monitoramento oficial do estado de autenticação
     onAuthStateChanged(auth, user => {
       if (user) {
         window.DATA.user = user;
@@ -164,7 +159,6 @@ async function initFirebase() {
     console.error("Erro crítico ao inicializar o Firebase:", err);
   }
 
-  // Fallback seguro em caso de indisponibilidade
   window.DATA = {
     ready: false,
     authenticated: false,
