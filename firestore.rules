@@ -2,25 +2,44 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Permite acesso SOMENTE com autenticação válida do UID autorizado
     function autorizado() {
       return request.auth != null && request.auth.uid == 'mOGkv4yJZ1f7HlzOZPT8qqNRDdF3';
     }
 
+    function versaoOk() {
+      return !('_v' in request.resource.data) || request.resource.data._v is int;
+    }
+
     match /weeks/{id} {
-      allow read, write: if autorizado();
+      allow read: if autorizado();
+      allow create, update: if autorizado() 
+        && id.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && versaoOk() 
+        && request.resource.data.size() <= 80;
+      allow delete: if autorizado();
     }
 
     match /appts/{id} {
-      allow read, write: if autorizado();
+      allow read: if autorizado();
+      allow create, update: if autorizado() 
+        && versaoOk()
+        && request.resource.data.patient is string 
+        && request.resource.data.patient.size() <= 200
+        && request.resource.data.size() <= 25;
+      allow delete: if autorizado();
     }
 
     match /config/{id} {
-      allow read, write: if autorizado();
+      allow read: if autorizado();
+      allow create, update: if autorizado() 
+        && (id == 'general' || id == 'main')
+        && versaoOk() 
+        && request.resource.data.size() <= 60;
+      allow delete: if autorizado();
     }
 
-    match /{document=**} { 
-      allow read, write: if false; 
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
