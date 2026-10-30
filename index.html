@@ -8,101 +8,85 @@
 <meta property="og:title" content="Painel KOMMO – Follow-up e Agenda">
 <meta property="og:description" content="Painel de controle para acompanhamento de follow-up, taxa de resposta, agenda e sincronização de consultas.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
 <style>
 :root{--bg:#f4f6f3;--card:#fff;--ink:#16302c;--mut:#5f7571;--line:#dbe3df;--g:#1f7a6d;--a:#d99a1c;--b:#3d6fa8;--r:#c2455a;--k:#9aa8a4;--p:#7a5aa6;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a18;--card:#182623;--ink:#e6efec;--mut:#9bb0ab;--line:#2a3d39;--g:#4cc2ae;--a:#eab94a;--b:#74a3dd;--r:#ec7a8d;--k:#6f817d;--p:#b095dc;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#101a18;--card:#182623;--ink:#e6efec;--mut:#9bb0ab;--line:#2a3d39;--g:#4cc2ae;--a:#eab94a;--b:#74a3dd;--r:#ec7a8d;--k:#6f817d;--p:#b095dc;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Figtree,system-ui,sans-serif}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:18px 22px 6px;max-width:1180px;margin:auto}
-h1{font-size:22px;margin:0}
-h2{font-size:16px;margin:0 0 10px}
-nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px}
-nav button{border:0;background:none;color:var(--mut);font:inherit;font-weight:500;padding:7px 14px;border-radius:7px;cursor:pointer}
-nav button.on{background:var(--g);color:#fff}
-main{max-width:1180px;margin:auto;padding:12px 22px 40px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Figtree,system-ui,sans-serif;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;max-width:none;margin:0;padding:12px max(22px,calc((100% - 1180px)/2));background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(0,0,0,.02),0 6px 18px -12px rgba(0,0,0,.25);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
+#st{font-size:12px;margin-top:1px;color:var(--mut)}
+#st::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--g);margin-right:6px;vertical-align:1px}
+nav{display:flex;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
+nav button{border:0;background:none;color:var(--mut);font:inherit;font-weight:500;font-size:13.5px;padding:7px 13px;border-radius:8px;cursor:pointer;transition:background .15s,color .15s}
+nav button:hover:not(.on){background:var(--line);color:var(--ink)}
+nav button.on{background:var(--g);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+main{max-width:1180px;margin:auto;padding:20px 22px 40px}
 .grid{display:grid;gap:14px}
-.kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:14px}
 .charts{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
-.kpi b{display:block;font-size:30px;line-height:1.1;margin-top:4px}
-.kpi span{color:var(--mut);font-size:13px}
-.kpi small{display:block;color:var(--mut);font-size:12px;margin-top:2px}
-.lg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--mut);margin-bottom:6px}
-.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0;box-shadow:0 1px 2px rgba(16,40,36,.05),0 6px 20px -10px rgba(16,40,36,.12)}
+.kpi{position:relative;overflow:hidden;padding:16px 16px 14px 19px}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--g)}
+.kpi span{display:block;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+.kpi b{display:block;font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.02em;margin-top:6px}
+.kpi small{display:block;color:var(--mut);font-size:12px;line-height:1.35;margin-top:4px}
+.lg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--mut);margin-bottom:8px;align-items:center}
+.lg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;flex-shrink:0}
+.lg span{display:inline-flex;align-items:center;color:var(--ink)}
+
+/* Barra de rolagem suave e interativa para todos os gráficos */
+.chart-scroll-wrap{width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:6px;cursor:grab;user-select:none;scrollbar-width:thin;scrollbar-color:var(--k) color-mix(in srgb,var(--line) 40%,transparent)}
+.chart-scroll-wrap:active{cursor:grabbing}
+.chart-scroll-wrap::-webkit-scrollbar{height:8px}
+.chart-scroll-wrap::-webkit-scrollbar-track{background:color-mix(in srgb,var(--line) 40%,transparent);border-radius:99px}
+.chart-scroll-wrap::-webkit-scrollbar-thumb{background:var(--k);border-radius:99px;border:2px solid transparent;background-clip:padding-box}
+.chart-scroll-wrap::-webkit-scrollbar-thumb:hover{background:var(--g)}
+
 svg{width:100%;height:auto;display:block;overflow:visible}
-svg text{fill:var(--mut);font-size:10px;font-family:inherit}
-.ins{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--a);border-radius:10px;padding:14px 18px;margin-bottom:14px;font-size:14px;line-height:1.55}
+svg text{fill:var(--mut);font-size:10.5px;font-family:inherit}
+.ins{background:color-mix(in srgb,var(--a) 9%,var(--card));border:1px solid color-mix(in srgb,var(--a) 30%,var(--line));border-left:4px solid var(--a);border-radius:12px;padding:14px 18px;margin-bottom:14px;font-size:14px;line-height:1.55}
+#dynamic_summary{max-height:235px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--k) color-mix(in srgb,var(--line) 40%,transparent);padding-right:12px}
+#dynamic_summary::-webkit-scrollbar{width:7px}
+#dynamic_summary::-webkit-scrollbar-track{background:color-mix(in srgb,var(--line) 30%,transparent);border-radius:99px}
+#dynamic_summary::-webkit-scrollbar-thumb{background:var(--k);border-radius:99px}
+#dynamic_summary::-webkit-scrollbar-thumb:hover{background:var(--g)}
 .ins p{margin:6px 0}
 .wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13px}
-th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
-th{color:var(--mut);font-weight:500}
-input,select,textarea,button.b{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 9px}
-input[type=number]{width:100%}
-button.b{cursor:pointer;background:var(--g);color:#fff;border-color:var(--g);font-weight:500}
-button.b.s{background:none;color:var(--ink);border-color:var(--line)}
-button.x{border:0;background:none;color:var(--r);cursor:pointer;font-size:16px}
-:focus-visible{outline:2px solid var(--b);outline-offset:2px}
-.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
-.f label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-top:12px}
-.tag{padding:2px 8px;border-radius:99px;font-size:12px;background:var(--line);display:inline-block}
-.note{color:var(--mut);font-size:13px}
-.hide{display:none}
-#msg{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:90}
-#msg.on{opacity:1}
-body{font-feature-settings:"tnum";-webkit-font-smoothing:antialiased}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;max-width:none;margin:0;padding:12px max(22px,calc((100% - 1180px)/2));background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(0,0,0,.02),0 6px 18px -12px rgba(0,0,0,.25)}
-h1{font-size:19px;font-weight:700;letter-spacing:-.01em}
-#st{font-size:12px;margin-top:1px}
-#st::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--g);margin-right:6px;vertical-align:1px}
-nav{background:var(--bg);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
-nav button{font-size:13.5px;padding:7px 13px;border-radius:8px;transition:background .15s,color .15s}
-nav button:hover:not(.on){background:var(--line);color:var(--ink)}
-nav button.on{box-shadow:0 1px 3px rgba(0,0,0,.2)}
-main{padding-top:20px}
-h2{font-size:15px;font-weight:600;letter-spacing:-.005em;margin-bottom:12px}
-.card{border-radius:14px;padding:18px;box-shadow:0 1px 2px rgba(16,40,36,.05),0 6px 20px -10px rgba(16,40,36,.12)}
-.kpis{grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px}
-.kpi{position:relative;overflow:hidden;padding:16px 16px 14px 19px}
-.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--g)}
-.kpi span{display:block;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.kpi b{font-size:30px;font-weight:700;letter-spacing:-.02em;margin-top:6px}
-.kpi small{line-height:1.35;margin-top:4px}
-.ins{border-radius:12px;background:color-mix(in srgb,var(--a) 9%,var(--card));border-color:color-mix(in srgb,var(--a) 30%,var(--line))}
-.lg{font-size:12px;margin-bottom:8px}
-svg text{font-size:10.5px}
-th{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;background:var(--bg);position:sticky;top:0}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--mut);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;background:var(--bg);position:sticky;top:0}
 th:first-child{border-radius:8px 0 0 8px}th:last-child{border-radius:0 8px 8px 0}
-td{padding:9px 8px}
 tr:hover td{background:color-mix(in srgb,var(--g) 6%,transparent)}
-input,select,textarea,button.b{border-radius:9px;transition:border-color .15s,box-shadow .15s,background .15s,filter .15s}
-input,select,textarea{background:var(--card);min-height:36px}
+input,select,textarea,button.b{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px 10px;min-height:36px;transition:border-color .15s,box-shadow .15s,background .15s,filter .15s}
+input[type=number]{width:100%}
 input:hover,select:hover,textarea:hover{border-color:var(--k)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 3px color-mix(in srgb,var(--g) 22%,transparent)}
-button.b{padding:8px 15px;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+button.b{cursor:pointer;background:var(--g);color:#fff;border-color:var(--g);font-weight:500;padding:8px 15px;box-shadow:0 1px 2px rgba(0,0,0,.12)}
 button.b:hover{filter:brightness(1.07)}
-button.b.s{box-shadow:none}button.b.s:hover{background:var(--bg);filter:none;border-color:var(--k)}
+button.b.s{background:none;color:var(--ink);border-color:var(--line);box-shadow:none}
+button.b.s:hover{background:var(--bg);filter:none;border-color:var(--k)}
 button.b:disabled{opacity:.55;cursor:not-allowed}
-button.x{border-radius:6px;padding:2px 7px;transition:background .15s}button.x:hover{background:color-mix(in srgb,var(--r) 12%,transparent)}
-.f label{font-weight:500}
-.tag{font-weight:500}
-#msg{border-radius:10px;box-shadow:0 8px 24px -8px rgba(0,0,0,.4);font-weight:500}
+button.x{border:0;background:none;color:var(--r);cursor:pointer;font-size:16px;border-radius:6px;padding:2px 7px;transition:background .15s}
+button.x:hover{background:color-mix(in srgb,var(--r) 12%,transparent)}
+:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.f label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px;font-weight:500}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-top:12px}
+.tag{padding:2px 8px;border-radius:99px;font-size:12px;background:var(--line);display:inline-block;font-weight:500}
+.note{color:var(--mut);font-size:13px}
+.hide{display:none!important}
+#msg{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;z-index:90;box-shadow:0 8px 24px -8px rgba(0,0,0,.4)}
+#msg.on{opacity:1}
 @media (max-width:640px){header{padding:10px 14px}main{padding:14px 14px 32px}.card{padding:14px}.kpi b{font-size:26px}.charts{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-.lg{align-items:center}.lg i{width:12px;height:12px;border-radius:3px}.lg span{display:inline-flex;align-items:center;color:var(--ink)}
-td button.b{padding:5px 10px;font-size:12.5px;margin-right:4px}td input[type=number]{min-width:72px}
 body.locked>header,body.locked>main{display:none}
-#lg,#ov{position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(4px)}
-#lg{display:flex}#ov{display:none}
-#lf,#ov .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px -12px rgba(0,0,0,.4)}
-#ov .box{max-width:480px}#ov .box h2{margin:0;font-size:18px}#ov .box p{margin:0}
+#lg{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(4px)}
+#lf{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px -12px rgba(0,0,0,.4)}
 #lf label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mut)}
-#sv{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--g);color:#fff;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}#sv.on{opacity:1;transform:none}
 
 /* Tooltip profissional para gráficos */
 #chart_tip{position:fixed;z-index:999;pointer-events:none;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:12px;line-height:1.45;box-shadow:0 6px 22px rgba(0,0,0,.2);opacity:0;transform:translate(-50%,-100%) translateY(-10px);transition:opacity .15s ease,transform .15s ease;min-width:140px;max-width:260px;font-feature-settings:"tnum"}
@@ -120,9 +104,13 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 <body class="locked">
 <header>
   <div><h1 id="ttl">Painel KOMMO</h1><div class="note" id="st">Carregando…</div></div>
-  <nav id="nav"><button data-t="dash" class="on">Painel</button><button data-t="sem">Lançar semana</button><button data-t="cons">Consultas</button><button data-t="cfg">Configuração</button></nav>
+  <nav id="nav">
+    <button data-t="dash" class="on">Painel</button>
+    <button data-t="sem">Lançar semana</button>
+    <button data-t="cons">Consultas</button>
+    <button data-t="cfg">Configuração</button>
+  </nav>
   <div style="display:flex;gap:6px;align-items:center">
-    <button class="b s" id="hdr_copy_index" title="Copiar código index.html completo para o GitHub" style="font-size:12.5px;padding:6px 12px;font-weight:600;display:flex;align-items:center;gap:4px">📋 Copiar index.html</button>
     <button class="b s" id="lo">Sair</button>
   </div>
 </header>
@@ -192,26 +180,7 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 </div>
 
 <div id="chart_tip" role="tooltip" aria-hidden="true"></div>
-
-<!-- Modal para Copiar ou Baixar index.html Completo -->
-<div id="code_modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)">
-  <div style="background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:22px;width:100%;max-width:880px;max-height:90vh;display:flex;flex-direction:column;gap:12px;box-shadow:0 16px 48px rgba(0,0,0,.5)">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2 style="margin:0;font-size:17px;font-weight:700">📋 Código Completo: index.html</h2>
-      <button class="b s" id="btn_close_code_modal" style="padding:4px 10px;font-size:13px">✕ Fechar</button>
-    </div>
-    <p class="note" style="margin:0">
-      Este é o código 100% completo e atualizado do arquivo <code>index.html</code> com todas as correções de métricas, metas, gráficos, sincronização e segurança. Clique em <b>“Copiar tudo”</b> ou copie o texto abaixo para atualizar seu repositório no GitHub.
-    </p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="b" id="btn_modal_copy">📋 Copiar tudo (1 clique)</button>
-      <button class="b s" id="btn_modal_select">🔍 Selecionar todo o texto</button>
-      <button class="b s" id="btn_modal_download">💾 Baixar index.html (.html)</button>
-      <span id="modal_copy_status" style="font-size:12px;font-weight:600;color:var(--g)"></span>
-    </div>
-    <textarea id="code_modal_text" readonly spellcheck="false" style="width:100%;flex:1;min-height:360px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.45;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;resize:vertical;white-space:pre"></textarea>
-  </div>
-</div>
+<div id="msg"></div>
 
 <script>
 let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana']];
@@ -232,7 +201,7 @@ window.DATA = window.DATA || {
   cardHtml: () => '<h2>Status do Firebase Firestore</h2><p class="note">Carregando conector em nuvem...</p>',
   migHtml: () => ''
 };
-var db=null,sync={},editRow=null,wFilt={from:'',to:''},weeks={},appts={},cur='dash',cfg={},selWeek='',pFrom='',pTo='',pAuto=true,pSel='all',aFilt={week:'',from:'',to:'',origin:'',status:'',q:''};
+var db=null,sync={},editRow=null,wFilt={from:'',to:''},weeks={},appts={},cur='dash',cfg={},selWeek='',pFrom='',pTo='',pAuto=true,pSel='all',aFilt={week:'',from:'',to:'',origin:'',status:'',q:''},aSort={col:'consult',dir:'desc'};
 
 // Carregamento de segurança de dados em cache local (para nunca perder alterações)
 try {
@@ -240,7 +209,6 @@ try {
   if (cw) {
     weeks = JSON.parse(cw);
   } else {
-    // Se ainda não há semanas no cache, inicializa com as semanas base
     for (const [id, v] of Object.entries(SEED)) {
       const o = {};
       FIELDS.forEach(([k], i) => { o[k] = v[i] || 0; });
@@ -351,8 +319,6 @@ function extractAllDates(text, defaultYear) {
 }
 
 function getWeekWindow(id, keys, i) {
-  // A semana começa no sábado e termina na sexta-feira seguinte.
-  // O ID representa o sábado de início da semana.
   const start = id;
   const end = addDays(id, 6);
   return { start, end };
@@ -360,80 +326,86 @@ function getWeekWindow(id, keys, i) {
 
 function getSaturdayOfWeek(isoDate) {
   if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return today();
-
   const [y, m, d] = isoDate.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
-  const day = dt.getDay(); // 0: Dom, 1: Seg, 2: Ter, 3: Qua, 4: Qui, 5: Sex, 6: Sab
-
-  // Encontra o sábado de início da semana (sábado é o início da semana no painel)
+  const day = dt.getDay();
   const diff = day === 6 ? 0 : -(day + 1);
   dt.setDate(dt.getDate() + diff);
-
   const ry = dt.getFullYear();
   const rm = String(dt.getMonth() + 1).padStart(2, '0');
   const rd = String(dt.getDate()).padStart(2, '0');
-
   return `${ry}-${rm}-${rd}`;
 }
 
+// Garante semanas para todas as consultas (data de agendamento, consulta ou nova data reagendada)
 function ensureWeeksForAppts() {
   if (!appts || typeof appts !== 'object') return;
   const allAppts = Object.values(appts);
   const keys = Object.keys(weeks || {});
 
   allAppts.forEach(a => {
-    const d = a.schedOn || a.consult;
-    if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+    // Checa schedOn, consult e também a newDate (para semanas futuras reagendadas)
+    const dates = [a.schedOn, a.consult, a.newDate].filter(Boolean);
+    dates.forEach(d => {
+      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+      const covered = keys.some(id => {
+        const { start, end } = getWeekWindow(id, keys, 0);
+        return d >= start && d <= end;
+      });
 
-    // Verifica se d já pertence a alguma semana existente
-    const covered = keys.some(id => {
-      const { start, end } = getWeekWindow(id, keys, 0);
-      return d >= start && d <= end;
-    });
-
-    if (!covered) {
-      const sat = getSaturdayOfWeek(d);
-      if (cfg && cfg.deletedWeeks && cfg.deletedWeeks[sat]) return;
-      if (!weeks[sat]) {
-        const o = { id: sat };
-        BASEF.forEach(([k]) => { o[k] = 0; });
-        weeks[sat] = o;
-        keys.push(sat);
+      if (!covered) {
+        const sat = getSaturdayOfWeek(d);
+        if (cfg && cfg.deletedWeeks && cfg.deletedWeeks[sat]) {
+          delete cfg.deletedWeeks[sat];
+        }
+        if (!weeks[sat]) {
+          const o = { id: sat };
+          BASEF.forEach(([k]) => { o[k] = 0; });
+          weeks[sat] = o;
+          keys.push(sat);
+        }
       }
-    }
+    });
   });
 }
 
 function cleanupStrayWeeks() {
   if (!weeks || typeof weeks !== 'object') return;
   if (cfg && cfg.deletedWeeks) {
+    const allAppts = Object.values(appts || {});
     Object.keys(cfg.deletedWeeks).forEach(id => {
-      if (cfg.deletedWeeks[id] && weeks[id]) {
+      // Só limpa se realmente não tiver consultas nessa semana
+      const hasAppts = allAppts.some(a => {
+        const d = a.schedOn || a.consult || a.newDate || '';
+        return d && getSaturdayOfWeek(d) === id;
+      });
+      if (!hasAppts && cfg.deletedWeeks[id] && weeks[id]) {
         delete weeks[id];
       }
     });
   }
 }
 
-/* ===== FUNÇÃO W() COM SINCRONIZAÇÃO INTELIGENTE (CONSULTAS, AGENDAMENTOS E REAGENDAMENTOS) ===== */
+/* ===== FUNÇÃO W() COM PREVISÃO DE CONSULTAS E SINCRONIZAÇÃO INTELIGENTE ===== */
 function W() {
   ensureWeeksForAppts();
   cleanupStrayWeeks();
   const keys = Object.keys(weeks || {}).sort();
   const allAppts = Object.values(appts || {});
+  const tDay = today();
 
   return keys.map((id, i) => {
     const raw = weeks[id] || {};
     const w = { ...raw, id };
     const { start, end } = getWeekWindow(id, keys, i);
 
-    // 1. Consultas agendadas nesta semana: considerado ESTRITAMENTE o campo "Agendada em" (schedOn)
+    // 1. Consultas agendadas nesta semana (campo "Agendada em")
     const schedInWeek = allAppts.filter(a => {
       const s = a.schedOn || '';
       return s >= start && s <= end;
     });
 
-    // 2. Consultas desta semana (realizada / cancelada / reagendada): considerado ESTRITAMENTE o campo "Consulta" (consult)
+    // 2. Consultas que estavam originalmente marcadas para esta semana (campo "Data da Consulta")
     const consultInWeek = allAppts.filter(a => {
       const c = a.consult || '';
       return c >= start && c <= end;
@@ -443,17 +415,39 @@ function W() {
     const numCanc = consultInWeek.filter(a => a.status === 'cancelada').length;
     const numReag = consultInWeek.filter(a => a.status === 'reagendada').length;
 
-    // Permite lançar e editar manualmente, e atualiza dinamicamente conforme consultas da aba de consultas
-    w.cagend = (raw.cagend !== undefined && raw.cagend !== null && raw.cagend !== '') ? Number(raw.cagend) : schedInWeek.length;
-    w.creal = (raw.creal !== undefined && raw.creal !== null && raw.creal !== '') ? Number(raw.creal) : numReal;
-    w.ccanc = (raw.ccanc !== undefined && raw.ccanc !== null && raw.ccanc !== '') ? Number(raw.ccanc) : numCanc;
-    w.creag = (raw.creag !== undefined && raw.creag !== null && raw.creag !== '') ? Number(raw.creag) : numReag;
+    w.cagend = (schedInWeek.length > 0) ? schedInWeek.length : ((raw.cagend !== undefined && raw.cagend !== null && raw.cagend !== '') ? Number(raw.cagend) : 0);
+    w.creal = (consultInWeek.length > 0) ? numReal : ((raw.creal !== undefined && raw.creal !== null && raw.creal !== '') ? Number(raw.creal) : 0);
+    w.ccanc = (consultInWeek.length > 0) ? numCanc : ((raw.ccanc !== undefined && raw.ccanc !== null && raw.ccanc !== '') ? Number(raw.ccanc) : 0);
+    w.creag = (consultInWeek.length > 0) ? numReag : ((raw.creag !== undefined && raw.creag !== null && raw.creag !== '') ? Number(raw.creag) : 0);
+
+    // Se a semana já passou (anterior ao dia de hoje), não mostra total de previstos (apenas checkin, cancelamento, reagendamento)
+    if (end < tDay) {
+      w.cprev = 0;
+    } else {
+      // Semana atual ou futura: calcula consultas previstas ativas
+      // A) Consultas marcadas para esta semana (canceladas e reagendadas são subtraídas)
+      const ativasNaSemana = consultInWeek.filter(a => {
+        if (a.status === 'cancelada' || a.status === 'reagendada') return false;
+        if (start >= tDay) return true;
+        const cDate = a.consult || '';
+        return !cDate || cDate >= tDay;
+      }).length;
+
+      // B) Consultas reagendadas cuja NOVA data cai nesta semana (contabiliza na nova data)
+      const reagendadasParaEstaSemana = allAppts.filter(a => {
+        if (a.status !== 'reagendada') return false;
+        const nd = a.newDate || '';
+        if (start >= tDay) return nd >= start && nd <= end;
+        return nd >= start && nd <= end && nd >= tDay;
+      }).length;
+
+      w.cprev = ativasNaSemana + reagendadasParaEstaSemana;
+    }
 
     return w;
   });
 }
 
-/* Sincronização automática entre Consultas registradas e Semanas lançadas */
 async function syncWeekMetricsWithAppts(persist = true) {
   ensureWeeksForAppts();
   cleanupStrayWeeks();
@@ -461,6 +455,7 @@ async function syncWeekMetricsWithAppts(persist = true) {
   const keys = Object.keys(weeks || {}).sort();
   if (!keys.length) return;
 
+  const tDay = today();
   let anyChanged = false;
 
   for (let i = 0; i < keys.length; i++) {
@@ -469,13 +464,11 @@ async function syncWeekMetricsWithAppts(persist = true) {
     const raw = weeks[id] || {};
     let weekChanged = false;
 
-    // Agendadas na semana: estritamente por "Agendada em"
     const schedInWeek = allAppts.filter(a => {
       const s = a.schedOn || '';
       return s >= start && s <= end;
     });
 
-    // Desfechos: estritamente pelo campo "Consulta"
     const consultInWeek = allAppts.filter(a => {
       const c = a.consult || '';
       return c >= start && c <= end;
@@ -485,13 +478,33 @@ async function syncWeekMetricsWithAppts(persist = true) {
     const numCanc = consultInWeek.filter(a => a.status === 'cancelada').length;
     const numReag = consultInWeek.filter(a => a.status === 'reagendada').length;
 
+    let numPrev = 0;
+    if (end >= tDay) {
+      const ativasNaSemana = consultInWeek.filter(a => {
+        if (a.status === 'cancelada' || a.status === 'reagendada') return false;
+        if (start >= tDay) return true;
+        const cDate = a.consult || '';
+        return !cDate || cDate >= tDay;
+      }).length;
+
+      const reagendadasParaEstaSemana = allAppts.filter(a => {
+        if (a.status !== 'reagendada') return false;
+        const nd = a.newDate || '';
+        if (start >= tDay) return nd >= start && nd <= end;
+        return nd >= start && nd <= end && nd >= tDay;
+      }).length;
+
+      numPrev = ativasNaSemana + reagendadasParaEstaSemana;
+    }
+
     const hasApptsInWeek = schedInWeek.length > 0 || consultInWeek.length > 0;
     if (hasApptsInWeek) {
-      if (raw.cagend !== schedInWeek.length || raw.creal !== numReal || raw.ccanc !== numCanc || raw.creag !== numReag) {
+      if (raw.cagend !== schedInWeek.length || raw.creal !== numReal || raw.ccanc !== numCanc || raw.creag !== numReag || raw.cprev !== numPrev) {
         raw.cagend = schedInWeek.length;
         raw.creal = numReal;
         raw.ccanc = numCanc;
         raw.creag = numReag;
+        raw.cprev = numPrev;
         weekChanged = true;
       }
     } else {
@@ -499,6 +512,7 @@ async function syncWeekMetricsWithAppts(persist = true) {
       if (raw.creal == null) { raw.creal = 0; weekChanged = true; }
       if (raw.ccanc == null) { raw.ccanc = 0; weekChanged = true; }
       if (raw.creag == null) { raw.creag = 0; weekChanged = true; }
+      if (raw.cprev == null) { raw.cprev = numPrev; weekChanged = true; }
     }
 
     if (weekChanged) {
@@ -529,10 +543,9 @@ const fdt=t=>t?new Date(t).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'
 function toast(t){
   const m=$('#msg');if(!m)return;
   m.textContent=t;m.classList.add('on');
-  setTimeout(()=>m.classList.remove('on'),2400);
+  setTimeout(()=>m.classList.remove('on'),2600);
 }
 
-/* ===== SALVAMENTO RESILIENTE (Gravação imediata local + Firebase) ===== */
 async function saveDoc(path, data) {
   const [col, id] = path.split('/');
   if (col === 'weeks') {
@@ -549,7 +562,6 @@ async function saveDoc(path, data) {
       await window.DATA.write(col, id, data);
     } catch (err) {
       console.warn("Aviso: Falha ao enviar para Firebase, mantido em cache local:", err);
-      toast("Salvo no navegador (sincronização em nuvem pendente)");
     }
   }
 }
@@ -562,6 +574,7 @@ async function delDoc(path) {
   } else if (col === 'appts') {
     delete appts[id];
     try { localStorage.setItem('kommo_appts_v3', JSON.stringify(appts)); } catch(e){}
+    await syncWeekMetricsWithAppts(false);
   }
   render();
 
@@ -588,7 +601,6 @@ async function saveCfg(p) {
   }
 }
 
-/* ---------- Status e Sincronização Firebase Firestore Oficial ---------- */
 const WCOLS=["semana","novos","antigas","ativas","fu2","fu3","fu4","fu5","resp","agend","semresp","pensando","aguard","nao","cagend","ccanc","creag","creal"];
 const ACOLS=["id","paciente","origem","agendada_em","consulta","status","reagendou","nova_data"];
 
@@ -608,13 +620,16 @@ async function init(){
   setupChartTooltips();
 }
 
-/* ---------- Configuração ---------- */
 const SNAP=['semresp','pensando','aguard','nao'];
-function lab(k){return (cfg.labels&&cfg.labels[k])||((BASEF.find(f=>f[0]===k)||(cfg.extra||[]).map(e=>[e.k,e.n]).find(f=>f[0]===k)||[])[1])||k}
+function lab(k){
+  if (k === 'cprev') return 'Consultas previstas da semana';
+  if (k === 'convNovos') return 'Conversão de Novos Leads em Agendamento (%)';
+  return (cfg.labels&&cfg.labels[k])||((BASEF.find(f=>f[0]===k)||(cfg.extra||[]).map(e=>[e.k,e.n]).find(f=>f[0]===k)||[])[1])||k;
+}
 function isSn(k){return SNAP.includes(k)||(cfg.extra||[]).some(e=>e.k===k&&e.snap)}
 function applyCfg(){
   applyTheme();
-  {const rm=cfg.removed||[],ex=cfg.extra||[];FIELDS=BASEF.filter(f=>!rm.includes(f[0])).concat(ex.map(e=>[e.k,e.n]));FK=FIELDS.map(f=>f[0]).concat(['msgs','tot'])}
+  {const rm=cfg.removed||[],ex=cfg.extra||[];FIELDS=BASEF.filter(f=>!rm.includes(f[0])).concat(ex.map(e=>[e.k,e.n]));FK=FIELDS.map(f=>f[0]).concat(['msgs','tot','cprev'])}
   if(!applyCfg.d&&cfg.defP){pSel=cfg.defP;applyCfg.d=1}
   const t=cfg.title||'Painel KOMMO';$('#ttl').textContent=t;document.title=t;
   Object.keys(ORIG).forEach(k=>delete ORIG[k]);
@@ -631,23 +646,15 @@ function renderCfg(){
   $('#cfg').innerHTML=`
     <div class="card"><h2>Nome do painel</h2><div class="row" style="margin:0"><input id="c_t" value="${esc(cfg.title||'Painel KOMMO')}" style="flex:1;max-width:420px"><button class="b s" id="c_ts">Salvar</button></div></div>
     <div class="card" id="fb_card" style="margin-top:14px">${window.DATA?DATA.cardHtml():'<h3>Armazenamento Ativo</h3><p class="note">Dados salvos com persistência local e prontos para sincronização.</p>'}</div>
-    <div class="card" id="mg_card" style="margin-top:14px">${window.DATA&&DATA.migHtml?DATA.migHtml():''}</div>
     
     <div class="card" style="margin-top:14px"><h2>Nomes dos campos semanais</h2><p class="note">Renomeie como preferir, adicione campos novos ou exclua os que não usa.</p>${fr}<h2 style="font-size:14px;margin-top:16px">Adicionar novo campo</h2><div class="row" style="margin-top:6px"><input id="f_n" placeholder="Nome do novo campo" style="flex:1;min-width:220px"><select id="f_t"><option value="0">Da semana</option><option value="1">Total atual</option></select><button class="b" id="f_add">Adicionar campo</button></div><div class="row"><button class="b s" id="c_rl">Restaurar nomes originais</button></div></div>
     <div class="card" style="margin-top:14px"><h2>Origem das consultas</h2><p class="note">Opções do campo “Veio de”.</p>${or}<div class="row"><input id="c_on" placeholder="Nova origem" style="flex:1;min-width:200px"><button class="b" id="c_oa">Adicionar origem</button></div><div class="row"><button class="b s" id="c_or">Restaurar origens originais</button></div></div>
-    ${viewHtml()}${metricHtml()}
-    <div class="card" style="margin-top:14px;border:1px solid var(--b)">
-      <h2>Código do Painel (index.html) para o GitHub</h2>
-      <p class="note">Copie o código completo atualizado do <code>index.html</code> ou baixe o arquivo para atualizar diretamente no seu repositório do GitHub (ou Vercel).</p>
-      <div class="row" style="margin-top:10px">
-        <button class="b" id="btn_copy_index_cfg">📋 Copiar código index.html completo</button>
-        <button class="b s" id="btn_view_index_cfg">👁️ Visualizar código em janela</button>
-        <button class="b s" id="btn_download_index_cfg">💾 Baixar index.html</button>
-      </div>
-    </div>
+    ${viewHtml()}
+    ${metricHtml()}
     <div class="card" style="margin-top:14px"><h2>Backup e Restauração dos dados</h2><p class="note">Exporte relatórios em CSV para o Excel ou gere uma cópia de segurança completa em JSON para restauração.</p><div class="row" style="margin-bottom:8px"><button class="b s" id="c_ew">Baixar semanas (CSV)</button><button class="b s" id="c_ea">Baixar consultas (CSV)</button></div><div class="row"><button class="b" id="c_bkj">Exportar Backup Completo (JSON)</button><button class="b s" id="c_rsj">Restaurar Backup (JSON)</button><input type="file" id="f_rsj" accept=".json" style="display:none"></div></div>
     ${themeHtml()}
   `;
+  attachMetricBuilderEvents();
 }
 
 async function exp(name,head,rows){
@@ -660,10 +667,333 @@ function applyTheme(){const t=cfg.theme||{},r=document.documentElement;['g','b',
 function themeHtml(){const t=cfg.theme||{},c=(k,l,d)=>`<label>${l}<input type="color" data-tk="${k}" value="${t[k]||d}"></label>`;
   return `<div class="card" style="margin-top:14px"><h2>Tema</h2><div class="f"><label>Modo<select data-tk="mode">${[['auto','Automático'],['light','Claro'],['dark','Escuro']].map(([v,l])=>`<option value="${v}"${(t.mode||'auto')===v?' selected':''}>${l}</option>`).join('')}</select></label>${c('g','Cor principal','#1f7a6d')}${c('b','Cor secundária','#3d6fa8')}${c('a','Cor de destaque','#d99a1c')}${c('bg','Cor de fundo','#f4f6f3')}</div><div class="row"><button class="b s" id="c_tr">Restaurar tema</button></div></div>`}
 
-function metricHtml(){const ms=cfg.metrics||[],ow={kpi:'card no quadro geral',line:'gráfico de linha',bar:'gráfico de barras'};
-  return `<div class="card" style="margin-top:14px"><h2>Métricas e cards personalizados</h2><label class="note" style="display:block">O que você quer medir?<textarea id="m_q" rows="2" style="width:100%" placeholder="Ex.: % de pacientes que não vão seguir sobre o total de conversas ativas"></textarea></label><div class="row"><label class="note">Onde mostrar<br><select id="m_w"><option value="">Automático</option><option value="kpi">Card no quadro geral</option><option value="line">Gráfico de linha</option><option value="bar">Gráfico de barras</option></select></label><button class="b" id="m_go">Sugerir fórmula</button><button class="b s" id="m_man">Criar manualmente</button></div><div id="m_pv" class="hide" style="margin-top:12px"><div class="f"><label>Título<input id="m_t"></label><label>Fórmula<input id="m_e"></label><label>Formato<select id="m_f"><option value="num">Número</option><option value="pct">Porcentagem</option></select></label><label>Onde<select id="m_w2"><option value="kpi">Card no quadro geral</option><option value="line">Gráfico de linha</option><option value="bar">Gráfico de barras</option></select></label></div><p class="note" id="m_r"></p><p class="note">Funções: SUM, LAST, AVG, MAX, MIN e DIV(a,b). Campos: ${FK.join(', ')}</p><div class="row"><button class="b s" id="m_pre">Pré-visualizar</button><button class="b" id="m_add">Adicionar ao painel</button></div></div><h2 style="margin-top:18px">Já adicionadas</h2>${ms.length?ms.map((m,i)=>`<div class="row" style="margin-top:6px"><span style="flex:1;min-width:200px"><b>${esc(m.title)}</b><br><span class="note">${esc(m.expr)} · ${ow[m.where]||''}</span></span><button class="x" data-md="${i}" aria-label="Remover" title="Remover">×</button></div>`).join(''):'<p class="note">Nenhuma ainda.</p>'}</div>`}
+/* ===== CONSTRUTOR VISUAL E REAL DE MÉTRICAS E CARDS PERSONALIZADOS (SEM DEPENDER DE IA) ===== */
+const METRIC_FIELDS = [
+  ['novos','Novos leads'],
+  ['antigas','Conversas antigas retomadas'],
+  ['ativas','Total de conversas ativas'],
+  ['fu2','Contatados no FU 2'],
+  ['fu3','Contatados no FU 3'],
+  ['fu4','Contatados no FU 4'],
+  ['fu5','Contatados no FU 5'],
+  ['msgs','Total de mensagens de follow-up'],
+  ['resp','Respostas recebidas no follow-up'],
+  ['agend','Agendamentos gerados pelo follow-up'],
+  ['semresp','Sem resposta no follow-up'],
+  ['pensando','Pensando ou pesquisando'],
+  ['aguard','Aguardando dados de cadastro'],
+  ['nao','Não vão seguir'],
+  ['cagend','Consultas agendadas na semana'],
+  ['cprev','Consultas previstas da semana'],
+  ['creal','Consultas realizadas'],
+  ['ccanc','Consultas canceladas'],
+  ['creag','Consultas reagendadas'],
+  ['tot','Total de consultas da agenda']
+];
 
-const KL=['Total de conversas ativas','Taxa Geral de Agendamento (%)','Conversão do FU em Agendamento (%)','Novos leads','Consultas agendadas','Mensagens de follow-up','Taxa de resposta do FU','Comparecimento (check-in)','Cancelamento','Reagendamento','Cancelados recuperados','Reagendamentos em andamento'],CL=['Mensagens de follow-up por tentativa','Resposta e conversão do follow-up','Status dos pacientes (total acumulado em cada semana)','Agenda: realizadas, canceladas e reagendadas','Funil: leads, respostas e agendamentos'];
+function metricHtml(){
+  const ms=cfg.metrics||[];
+  const ow={kpi:'Card no quadro geral',line:'Gráfico de linha',bar:'Gráfico de barras'};
+  const fOpts = METRIC_FIELDS.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('');
+
+  return `
+    <div class="card" style="margin-top:14px">
+      <h2>Métricas e Cards Personalizados</h2>
+      <p class="note">Crie cards e gráficos sob medida para a sua clínica com cálculo instantâneo e seguro, sem depender de inteligência artificial. Selecione a operação desejada, os campos e onde deseja exibir no painel.</p>
+
+      <div style="background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px">
+        <h3 id="mb_title" style="margin:0 0 12px;font-size:15px;font-weight:600">➕ Criar nova métrica / card</h3>
+        <input type="hidden" id="mb_edit_id" value="">
+
+        <div class="f">
+          <label style="grid-column:1/-1">Título do card ou gráfico
+            <input id="mb_name" placeholder="Ex.: Taxa de cancelamento sobre previstas, Total de conversas quentes...">
+          </label>
+          <label>Modelo de cálculo
+            <select id="mb_calc_type">
+              <option value="pct_a_b">Porcentagem / Proporção (Campo A ÷ Campo B × 100)</option>
+              <option value="sum_a_b">Soma (Campo A + Campo B)</option>
+              <option value="sub_a_b">Diferença / Saldo (Campo A - Campo B)</option>
+              <option value="avg_a">Média semanal (Média do Campo A)</option>
+              <option value="total_a">Total acumulado (Soma do Campo A)</option>
+              <option value="last_a">Último valor registrado (Campo A da última semana)</option>
+              <option value="custom">Fórmula livre avançada</option>
+            </select>
+          </label>
+
+          <label id="mb_wrap_a">Campo principal (A)
+            <select id="mb_field_a">${fOpts}</select>
+          </label>
+
+          <label id="mb_wrap_b">Campo comparador (B)
+            <select id="mb_field_b">${fOpts}</select>
+          </label>
+
+          <label id="mb_wrap_expr" class="hide" style="grid-column:1/-1">Fórmula personalizada
+            <input id="mb_custom_expr" placeholder="Ex.: DIV(SUM(ccanc), SUM(cprev)) * 100">
+            <span class="note" style="font-size:11px;margin-top:2px">Funções: SUM, LAST, AVG, MAX, MIN e DIV(a,b). Campos: ${METRIC_FIELDS.map(f=>f[0]).join(', ')}</span>
+          </label>
+
+          <label>Formato do resultado
+            <select id="mb_fmt">
+              <option value="pct">Porcentagem (%)</option>
+              <option value="num">Número absoluto (1.234)</option>
+            </select>
+          </label>
+
+          <label>Onde exibir no painel
+            <select id="mb_where">
+              <option value="kpi">Card no quadro geral (KPI)</option>
+              <option value="line">Gráfico de linha</option>
+              <option value="bar">Gráfico de barras</option>
+            </select>
+          </label>
+        </div>
+
+        <div style="margin-top:12px;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:8px">
+          <div style="font-size:12px;color:var(--mut);font-weight:600">PRÉ-VISUALIZAÇÃO AO VIVO</div>
+          <div id="mb_live_preview" style="font-size:14px;font-weight:700;color:var(--ink);margin-top:3px">—</div>
+          <div id="mb_live_formula" style="font-size:11px;color:var(--mut);margin-top:2px">Fórmula gerada: —</div>
+        </div>
+
+        <div class="row" style="margin-top:14px">
+          <button class="b" id="mb_btn_save">Salvar métrica no painel</button>
+          <button class="b s hide" id="mb_btn_cancel">Cancelar edição</button>
+        </div>
+      </div>
+
+      <h2 style="margin-top:22px;font-size:15px">Métricas adicionadas ao seu painel</h2>
+      <div id="mb_list">
+        ${ms.length ? ms.map((m, i) => {
+          let valStr = '—';
+          try {
+            const v = ev(m.expr, W());
+            valStr = fmtM(v, m.fmt);
+          } catch(e) {}
+          return `
+            <div class="row" style="margin-top:8px;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:10px;justify-content:space-between;align-items:center">
+              <div style="flex:1;min-width:220px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <b>${esc(m.title)}</b>
+                  <span class="tag">${ow[m.where] || m.where}</span>
+                  <span style="font-weight:700;color:var(--g)">${valStr}</span>
+                </div>
+                <div class="note" style="font-size:11.5px;margin-top:2px">Fórmula: <code>${esc(m.expr)}</code> · Formato: ${m.fmt === 'pct' ? 'Porcentagem' : 'Número'}</div>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <button class="b s" data-me="${i}" style="padding:4px 9px;font-size:12px">Editar</button>
+                <button class="x" data-md="${i}" title="Remover métrica" aria-label="Remover">×</button>
+              </div>
+            </div>
+          `;
+        }).join('') : '<p class="note">Nenhuma métrica personalizada ainda. Crie a sua no formulário acima!</p>'}
+      </div>
+    </div>
+  `;
+}
+
+function getMetricFormulaFromBuilder() {
+  const type = $('#mb_calc_type')?.value || 'pct_a_b';
+  const a = $('#mb_field_a')?.value || 'novos';
+  const b = $('#mb_field_b')?.value || 'ativas';
+  const custom = $('#mb_custom_expr')?.value.trim() || '';
+
+  const isSnA = isSn(a), isSnB = isSn(b);
+  const fnA = (a === 'msgs' || a === 'tot') ? `SUM(${a})` : (isSnA ? `LAST(${a})` : `SUM(${a})`);
+  const fnB = (b === 'msgs' || b === 'tot') ? `SUM(${b})` : (isSnB ? `LAST(${b})` : `SUM(${b})`);
+
+  switch(type) {
+    case 'pct_a_b':
+      return `DIV(${fnA}, ${fnB}) * 100`;
+    case 'sum_a_b':
+      return `${fnA} + ${fnB}`;
+    case 'sub_a_b':
+      return `${fnA} - ${fnB}`;
+    case 'avg_a':
+      return `AVG(${a})`;
+    case 'total_a':
+      return `SUM(${a})`;
+    case 'last_a':
+      return `LAST(${a})`;
+    case 'custom':
+      return custom;
+    default:
+      return fnA;
+  }
+}
+
+function updateMetricLivePreview() {
+  const type = $('#mb_calc_type')?.value || 'pct_a_b';
+  const wrapA = $('#mb_wrap_a');
+  const wrapB = $('#mb_wrap_b');
+  const wrapExpr = $('#mb_wrap_expr');
+  const fmt = $('#mb_fmt')?.value || 'num';
+
+  if (wrapA && wrapB && wrapExpr) {
+    if (type === 'custom') {
+      wrapA.classList.add('hide');
+      wrapB.classList.add('hide');
+      wrapExpr.classList.remove('hide');
+    } else if (type === 'avg_a' || type === 'total_a' || type === 'last_a') {
+      wrapA.classList.remove('hide');
+      wrapB.classList.add('hide');
+      wrapExpr.classList.add('hide');
+    } else {
+      wrapA.classList.remove('hide');
+      wrapB.classList.remove('hide');
+      wrapExpr.classList.add('hide');
+    }
+  }
+
+  const expr = getMetricFormulaFromBuilder();
+  const lblFormula = $('#mb_live_formula');
+  const lblRes = $('#mb_live_preview');
+
+  if (lblFormula) lblFormula.textContent = 'Fórmula gerada: ' + (expr || '—');
+
+  if (!expr) {
+    if (lblRes) lblRes.textContent = '—';
+    return;
+  }
+
+  try {
+    const val = ev(expr, W());
+    if (lblRes) {
+      lblRes.textContent = 'Resultado atual: ' + fmtM(val, fmt);
+      lblRes.style.color = 'var(--ink)';
+    }
+  } catch(e) {
+    if (lblRes) {
+      lblRes.textContent = 'Fórmula incompleta ou inválida';
+      lblRes.style.color = 'var(--r)';
+    }
+  }
+}
+
+function attachMetricBuilderEvents() {
+  const cType = $('#mb_calc_type');
+  if (cType) {
+    cType.onchange = () => {
+      const type = cType.value;
+      if (type === 'pct_a_b') {
+        if ($('#mb_fmt')) $('#mb_fmt').value = 'pct';
+      } else if (type === 'sum_a_b' || type === 'sub_a_b' || type === 'total_a' || type === 'last_a' || type === 'avg_a') {
+        if ($('#mb_fmt')) $('#mb_fmt').value = 'num';
+      }
+      updateMetricLivePreview();
+    };
+  }
+  ['#mb_field_a', '#mb_field_b', '#mb_fmt', '#mb_custom_expr'].forEach(sel => {
+    const el = $(sel);
+    if (el) el.oninput = el.onchange = updateMetricLivePreview;
+  });
+
+  const btnSave = $('#mb_btn_save');
+  if (btnSave) {
+    btnSave.onclick = async () => {
+      const title = ($('#mb_name')?.value || '').trim();
+      const expr = getMetricFormulaFromBuilder();
+      const fmt = $('#mb_fmt')?.value || 'num';
+      const where = $('#mb_where')?.value || 'kpi';
+      const editIdx = $('#mb_edit_id')?.value;
+
+      if (!title) return toast('Informe o título da métrica');
+      if (!expr) return toast('Defina os campos ou a fórmula');
+
+      try {
+        ev(expr, W());
+      } catch(e) {
+        return toast('Fórmula inválida');
+      }
+
+      const list = [...(cfg.metrics || [])];
+      const metricObj = {
+        id: editIdx !== '' && list[editIdx] ? list[editIdx].id : 'm' + Date.now().toString(36),
+        title,
+        expr,
+        fmt,
+        where,
+        calcType: $('#mb_calc_type')?.value || 'custom',
+        fieldA: $('#mb_field_a')?.value || '',
+        fieldB: $('#mb_field_b')?.value || ''
+      };
+
+      if (editIdx !== '' && !isNaN(editIdx) && list[editIdx]) {
+        list[editIdx] = metricObj;
+      } else {
+        list.push(metricObj);
+      }
+
+      await saveCfg({ metrics: list });
+      renderCfg();
+      toast('Métrica salva com sucesso no painel!');
+    };
+  }
+
+  const btnCancel = $('#mb_btn_cancel');
+  if (btnCancel) {
+    btnCancel.onclick = () => {
+      $('#mb_edit_id').value = '';
+      $('#mb_name').value = '';
+      $('#mb_calc_type').value = 'pct_a_b';
+      $('#mb_title').textContent = '➕ Criar nova métrica / card';
+      btnCancel.classList.add('hide');
+      updateMetricLivePreview();
+    };
+  }
+
+  document.querySelectorAll('[data-me]').forEach(b => {
+    b.onclick = () => {
+      const idx = b.dataset.me;
+      const m = (cfg.metrics || [])[idx];
+      if (!m) return;
+      $('#mb_edit_id').value = idx;
+      $('#mb_name').value = m.title || '';
+      $('#mb_fmt').value = m.fmt || 'num';
+      $('#mb_where').value = m.where || 'kpi';
+
+      if (m.calcType && m.calcType !== 'custom') {
+        $('#mb_calc_type').value = m.calcType;
+        if (m.fieldA && $('#mb_field_a')) $('#mb_field_a').value = m.fieldA;
+        if (m.fieldB && $('#mb_field_b')) $('#mb_field_b').value = m.fieldB;
+      } else {
+        $('#mb_calc_type').value = 'custom';
+        $('#mb_custom_expr').value = m.expr || '';
+      }
+      $('#mb_title').textContent = '✏️ Editar métrica: ' + m.title;
+      $('#mb_btn_cancel').classList.remove('hide');
+      updateMetricLivePreview();
+      window.scrollTo({ top: $('#mb_title').offsetTop - 80, behavior: 'smooth' });
+    };
+  });
+
+  updateMetricLivePreview();
+}
+
+const KL=[
+  'Total de conversas ativas',
+  'Taxa Geral de Agendamento (%)',
+  'Conversão do FU em Agendamento (%)',
+  'Conversão de Novos Leads em Agendamento (%)',
+  'Novos leads',
+  'Consultas agendadas',
+  'Mensagens de follow-up',
+  'Taxa de resposta do FU',
+  'Comparecimento (check-in)',
+  'Cancelamento',
+  'Reagendamento',
+  'Pacientes sem retorno',
+  'Cancelados recuperados',
+  'Reagendamentos em andamento'
+];
+const CL=[
+  'Mensagens de follow-up por tentativa',
+  'Resposta e conversão do follow-up',
+  'Status dos pacientes (total acumulado em cada semana)',
+  'Agenda da semana: realizadas, canceladas e reagendadas',
+  'Funil: leads, respostas e agendamentos'
+];
+
 function goalsHtml(){
   const gl = cfg.goalsList || [];
   const WA = W();
@@ -671,8 +1001,10 @@ function goalsHtml(){
 
   const metricOpts = [
     ['cagend','Consultas agendadas na semana','num','min'],
+    ['cprev','Consultas previstas da semana','num','min'],
     ['tg','Taxa Geral de Agendamento (%)','pct','min'],
     ['conv','Conversão do FU em Agendamento (%)','pct','min'],
+    ['convNovos','Conversão de Novos Leads em Agendamento (%)','pct','min'],
     ['novos','Novos leads','num','min'],
     ['resp','Taxa de resposta do FU (%)','pct','min'],
     ['comp','Comparecimento (check-in) (%)','pct','min'],
@@ -682,7 +1014,7 @@ function goalsHtml(){
     ['creag','Consultas reagendadas (número)','num','max'],
     ['antigas','Conversas antigas retomadas','num','min'],
     ['ativas','Total de conversas ativas','num','min'],
-    ...FIELDS.filter(([k])=>!['cagend','novos','creal','ccanc','creag','antigas','ativas'].includes(k)).map(([k,n])=>[k,lab(k),'num','min'])
+    ...FIELDS.filter(([k])=>!['cagend','cprev','novos','creal','ccanc','creag','antigas','ativas'].includes(k)).map(([k,n])=>[k,lab(k),'num','min'])
   ];
 
   const mOptsHtml = metricOpts.map(([k,l,u,d])=>`<option value="${k}" data-u="${u}" data-d="${d}">${esc(l)}</option>`).join('');
@@ -760,42 +1092,65 @@ function viewHtml(){
   const h=cfg.hide||{},sel=(k,v,o)=>`<select data-dk="${k}">${o.map(([x,l])=>`<option value="${x}"${String(v)===String(x)?' selected':''}>${l}</option>`).join('')}</select>`;
   const ck=(p,l)=>`<label style="flex-direction:row;align-items:center;gap:6px;color:var(--ink);font-size:13px"><input type="checkbox" style="width:auto" data-hk="${p}:${esc(l)}"${h[p+':'+l]?'':' checked'}>${esc(l)}</label>`;
 
-  return `<div class="card" style="margin-top:14px"><h2>Exibição do painel</h2><h2 style="font-size:14px">Cards do quadro geral</h2><div class="f">${KL.map(l=>ck('k',l)).join('')}</div><h2 style="font-size:14px;margin-top:14px">Gráficos</h2><div class="f">${CL.map(l=>ck('c',l)).join('')}</div><div class="f" style="margin-top:14px"><label>Período ao abrir${sel('defP',cfg.defP||'all',[['all','Todas as semanas'],['last4','Últimas 4 semanas'],['last','Última semana lançada']])}</label><label>Casas decimais das taxas principais${sel('dec',cfg.dec??2,[[0,'0'],[1,'1'],[2,'2']])}</label></div></div>
-  ${goalsHtml()}
-  <div class="card" style="margin-top:14px"><h2>Zona de risco</h2><div class="row"><button class="b s" id="c_wipe" style="color:var(--r)">Apagar todos os dados</button></div></div>`;
+  // Inclui cards e gráficos padrão E os personalizados adicionados pelo usuário
+  const customKpis = (cfg.metrics || []).filter(m => m.where === 'kpi').map(m => m.title);
+  const customCharts = (cfg.metrics || []).filter(m => m.where !== 'kpi').map(m => m.title);
+
+  const allKpis = [...new Set([...KL, ...customKpis])];
+  const allCharts = [...new Set([...CL, ...customCharts])];
+
+  return `
+    <div class="card" style="margin-top:14px">
+      <h2>Exibição do painel</h2>
+      <h2 style="font-size:14px">Cards do quadro geral</h2>
+      <div class="f">${allKpis.map(l=>ck('k',l)).join('')}</div>
+      <h2 style="font-size:14px;margin-top:14px">Gráficos</h2>
+      <div class="f">${allCharts.map(l=>ck('c',l)).join('')}</div>
+      <div class="f" style="margin-top:14px">
+        <label>Período ao abrir${sel('defP',cfg.defP||'all',[['all','Todas as semanas'],['last4','Últimas 4 semanas'],['last','Última semana lançada']])}</label>
+        <label>Casas decimais das taxas principais${sel('dec',cfg.dec??2,[[0,'0'],[1,'1'],[2,'2']])}</label>
+      </div>
+    </div>
+    ${goalsHtml()}
+  `;
 }
 
-let FK=FIELDS.map(f=>f[0]).concat(['msgs','tot']);const FNS=['SUM','LAST','AVG','MAX','MIN','DIV'];
+let FK=FIELDS.map(f=>f[0]).concat(['msgs','tot','cprev']);
+const FNS=['SUM','LAST','AVG','MAX','MIN','DIV'];
 function ev(expr,ws){
-  if(!/^[\w\s+\-*/().,]*$/.test(expr))throw 0;
-  if((expr.match(/[A-Za-z_]\w*/g)||[]).some(i=>!FNS.includes(i)&&!FK.includes(i)))throw 0;
-  const g=(f,w)=>f==='msgs'?msgs(w):f==='tot'?(w.creal||0)+(w.creag||0)+(w.ccanc||0):(w[f]||0),col=f=>ws.map(w=>g(f,w)),sm=a=>a.reduce((x,y)=>x+y,0);
-  const fn={SUM:f=>sm(col(f)),LAST:f=>ws.length?g(f,ws[ws.length-1]):0,AVG:f=>ws.length?sm(col(f))/ws.length:0,MAX:f=>Math.max(0,...col(f)),MIN:f=>ws.length?Math.min(...col(f)):0,DIV:(a,b)=>b?a/b:0};
-  const r=new Function(...FNS,...FK,'return ('+expr+')')(...FNS.map(k=>fn[k]),...FK);
-  return isFinite(r)?r:0;
+  if(!expr || typeof expr !== 'string') return 0;
+  if(!/^[\w\s+\-*/().,]*$/.test(expr)) throw new Error('Caracteres inválidos na fórmula');
+  const allowed = [...FNS, ...FK];
+  const tokens = expr.match(/[A-Za-z_]\w*/g) || [];
+  if(tokens.some(i => !allowed.includes(i))) throw new Error('Token desconhecido na fórmula');
+
+  const g = (f, w) => {
+    if (f === 'msgs') return msgs(w);
+    if (f === 'tot') return (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0);
+    if (f === 'cprev') return w.cprev || ((w.creal || 0) + (w.ccanc || 0) + (w.creag || 0));
+    return w[f] || 0;
+  };
+  const col = f => ws.map(w => g(f, w));
+  const sm = a => a.reduce((x, y) => x + y, 0);
+
+  const fn = {
+    SUM: f => sm(col(f)),
+    LAST: f => ws.length ? g(f, ws[ws.length - 1]) : 0,
+    AVG: f => ws.length ? sm(col(f)) / ws.length : 0,
+    MAX: f => ws.length ? Math.max(0, ...col(f)) : 0,
+    MIN: f => ws.length ? Math.min(...col(f)) : 0,
+    DIV: (a, b) => b ? (a / b) : 0
+  };
+
+  try {
+    const fnEvaluator = new Function(...FNS, ...FK, 'return (' + expr + ')');
+    const r = fnEvaluator(...FNS.map(k => fn[k]), ...FK);
+    return isFinite(r) ? r : 0;
+  } catch(err) {
+    return 0;
+  }
 }
-const fmtM=(v,f)=>f==='pct'?v.toFixed(2).replace('.',',')+'%':(Math.round(v*100)/100).toLocaleString('pt-BR');
-function showM(m){$('#m_pv').classList.remove('hide');$('#m_t').value=m.title||'';$('#m_e').value=m.expr||'';$('#m_f').value=m.fmt==='pct'?'pct':'num';$('#m_w2').value=['kpi','line','bar'].includes(m.where)?m.where:'kpi';prevM()}
-function prevM(){try{$('#m_r').textContent='Resultado com todas as semanas: '+fmtM(ev($('#m_e').value,W()),$('#m_f').value)}catch(e){$('#m_r').textContent='Fórmula inválida.'}}
-function aiMetric(){
-  const q=$('#m_q').value.trim();if(!q)return toast('Descreva a métrica');
-  const nz=x=>String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),nq=nz(q);
-  const AL={ativas:['conversas ativas'],novos:['novos leads','leads'],nao:['nao vao seguir','nao seguem'],pensando:['pensando'],aguard:['aguardando'],semresp:['sem resposta'],resp:['respostas'],agend:['agendamentos gerados','agendamentos'],cagend:['consultas agendadas'],ccanc:['cancelad'],creag:['reagendad'],creal:['realizad','check-in'],msgs:['mensagens'],tot:['consultas da agenda']};
-  const T=[];FK.forEach(k=>{const t=nz(k==='msgs'?'mensagens':k==='tot'?'consultas da agenda':lab(k)).replace(/\(.*?\)/g,'').trim();if(t)T.push([k,t]);(AL[k]||[]).forEach(a=>T.push([k,a]))});
-  T.sort((a,b)=>b[1].length-a[1].length);const used=[],hit=[];
-  T.forEach(([k,t])=>{if(hit.some(h=>h.k===k))return;const i=nq.indexOf(t);if(i<0||used.some(u=>i<u[1]&&i+t.length>u[0]))return;used.push([i,i+t.length]);hit.push({k,i})});
-  hit.sort((a,b)=>a.i-b.i);const f=k=>(k==='msgs'||k==='tot')?`SUM(${k})`:`${isSn(k)?'LAST':'SUM'}(${k})`,isP=/%|porcent|taxa|sobre|propor/.test(nq);
-  const title=q.charAt(0).toUpperCase()+q.slice(1,70);
-  if(!hit.length){toast('Não reconheci campos no texto. Edite a fórmula à mão.');return showM({title,expr:'',fmt:'num',where:$('#m_w').value||'kpi'})}
-  const two=hit.length>=2,pc=two&&isP;
-  showM({title,expr:two?(pc?`DIV(${f(hit[0].k)},${f(hit[1].k)})*100`:`DIV(${f(hit[0].k)},${f(hit[1].k)})`):f(hit[0].k),fmt:pc?'pct':'num',where:$('#m_w').value||'kpi'});
-}
-async function addM(){
-  const m={id:'m'+Date.now().toString(36),title:$('#m_t').value.trim(),expr:$('#m_e').value.trim(),fmt:$('#m_f').value,where:$('#m_w2').value};
-  if(!m.title||!m.expr)return toast('Preencha título e fórmula');
-  try{ev(m.expr,W())}catch(e){return toast('Fórmula inválida')}
-  await saveCfg({metrics:[...(cfg.metrics||[]),m]});renderCfg();toast('Adicionado ao painel');
-}
+const fmtM=(v,f)=>f==='pct'?(Number(v||0).toFixed(2).replace('.',',')+'%'):(Math.round(Number(v||0)*100)/100).toLocaleString('pt-BR');
 
 /* ---------- Importação Manual de Consultas ---------- */
 let pastePreview=[];
@@ -808,13 +1163,10 @@ function parsePatientLine(l,defaultYear){
   const low=raw.toLowerCase();
 
   const allDates=extractAllDates(raw,curY);
-
-  // Ignora cabeçalhos óbvios apenas se não tiver dados/datas reais
   if(allDates.length===0&&/(^|\b)(paciente|nome)\b/i.test(low)&&/(origem|veio de|agendad|consulta|status)\b/i.test(low)){
     return null;
   }
 
-  // Detecta origem
   let origin='novo';
   const RX_ORIG={
     c5:/5[ºoª]?\s*(contato|fu)|fu\s*5|quint/i,
@@ -833,7 +1185,6 @@ function parsePatientLine(l,defaultYear){
     }
   }
 
-  // Detecta status
   let status='agendada';
   if(/cancelad/i.test(low))status='cancelada';
   else if(/reagend/i.test(low))status='reagendada';
@@ -844,7 +1195,6 @@ function parsePatientLine(l,defaultYear){
   let newDate='';
   let name='';
 
-  // Verifica se é tabular (separado por \t, ;, |)
   const isTabular=/[\t;|]/.test(raw);
   if(isTabular){
     const cols=raw.split(/[\t;|]/).map(c=>c.trim());
@@ -867,7 +1217,6 @@ function parsePatientLine(l,defaultYear){
     }
   }
 
-  // Se não foi tabular ou faltaram datas, extrai do texto contextual
   if(!schedOn||!consult){
     if(allDates.length>=2){
       const d0=allDates[0];
@@ -888,7 +1237,6 @@ function parsePatientLine(l,defaultYear){
     }
   }
 
-  // Limpeza robusta do nome do paciente
   if(!name||normalizeDateStr(name,curY)){
     let clean=raw;
     clean=clean.replace(/^(paciente|nome)\s*:\s*/i,'');
@@ -1103,16 +1451,11 @@ function calculatePeriodMetrics(ws,ap,allWeeks){
       ? wsWithMsgs.reduce((min,w)=>pct(w.resp||0,msgs(w))<pct(min.resp||0,msgs(min))?w:min,wsWithMsgs[0])
       : null;
 
-    const bestAgend=ws.reduce((max,w)=>(w.agend||0)>(max.agend||0)?w:max,ws[0]);
-    const worstAgend=ws.reduce((min,w)=>(w.agend||0)<(min.agend||0)?w:min,ws[0]);
-
     multiData={
       bestLeads,
       worstLeads,
       bestResp,
       worstResp,
-      bestAgend,
-      worstAgend,
       deltaLeads:(lastW.novos||0)-(firstW.novos||0),
       deltaMsgs:msgs(lastW)-msgs(firstW),
       deltaRespRate:pct(lastW.resp||0,msgs(lastW))-pct(firstW.resp||0,msgs(firstW)),
@@ -1222,35 +1565,51 @@ function generateDynamicSummary(m){
     </div>
   `;
 
-  return secA+secB+secC+secD;
+  return secA + secB + secC + secD;
 }
 
-/* ---------- Gráficos SVG com Tooltip Completo ---------- */
+/* ---------- Gráficos SVG com Largura Garantida, Tooltip e Rolagem Horizontal ---------- */
 const NICE=m=>{const p=Math.pow(10,Math.floor(Math.log10(m))),r=m/p;return (r<=1?1:r<=2?2:r<=5?5:10)*p};
 
-function chart(labels,series,mode,isPct,categories){
-  const Wd=480,H=200,L=34,R=8,T=10,B=24,iw=Wd-L-R,ih=H-T-B,n=labels.length;
-  let mx=mode==='stack'?Math.max(1,...labels.map((_,i)=>series.reduce((a,s)=>a+s.v[i],0))):Math.max(1,...series.flatMap(s=>s.v));
-  mx=NICE(mx);const y=v=>T+ih-v/mx*ih,bw=iw/n;let o='';
+function chart(labels, series, mode, isPct, categories){
+  const n = labels.length || 1;
+  // Largura confortável mínima para cada semana: nunca espreme nem reduz zoom
+  const minColWidth = mode === 'group' ? Math.max(86, (series.length * 20) + 26) : 76;
+  const L = 38, R = 18, T = 14, B = 28;
+  const contentW = n * minColWidth;
+  const Wd = Math.max(520, L + R + contentW);
+  const H = 220; // Altura otimizada para leitura limpa
+  const iw = Wd - L - R, ih = H - T - B;
+  const bw = iw / n;
 
-  for(let i=0;i<=4;i++){
-    const v=mx*i/4,yy=y(v);
-    o+=`<line x1="${L}" x2="${Wd-R}" y1="${yy}" y2="${yy}" stroke="var(--line)"/><text x="${L-5}" y="${yy+3}" text-anchor="end">${isPct?Math.round(v)+'%':Math.round(v)}</text>`;
+  let mx = mode === 'stack'
+    ? Math.max(1, ...labels.map((_, i) => series.reduce((a, s) => a + (s.v[i] || 0), 0)))
+    : Math.max(1, ...series.flatMap(s => s.v));
+  mx = NICE(mx);
+  const y = v => T + ih - (v / mx) * ih;
+  let o = '';
+
+  for (let i = 0; i <= 4; i++) {
+    const v = mx * i / 4, yy = y(v);
+    o += `<line x1="${L}" x2="${Wd - R}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-dasharray="${i === 0 ? '' : '3 3'}" opacity="${i === 0 ? 1 : 0.8}"/><text x="${L - 6}" y="${yy + 3.5}" text-anchor="end">${isPct ? Math.round(v) + '%' : Math.round(v)}</text>`;
   }
-  labels.forEach((l,i)=>{o+=`<text x="${L+bw*i+bw/2}" y="${H-7}" text-anchor="middle">${l}</text>`});
 
-  if(mode==='stack'){
-    labels.forEach((l,i)=>{
-      let acc=0;
-      const stackTotal=series.reduce((a,s)=>a+(s.v[i]||0),0);
-      const cat=categories&&categories[i]?categories[i]:('Semana '+l);
-      series.forEach(s=>{
-        const v=s.v[i];
-        if(!v)return;
-        const h=v/mx*ih;
-        const valStr=isPct?pf(v):v.toLocaleString('pt-BR');
-        const totalStr=isPct?pf(stackTotal):stackTotal.toLocaleString('pt-BR');
-        o+=`<rect x="${L+bw*i+bw*.2}" y="${y(acc+v)}" width="${bw*.6}" height="${h}" fill="${s.c}" rx="2"
+  labels.forEach((l, i) => {
+    o += `<text x="${L + bw * i + bw / 2}" y="${H - 8}" text-anchor="middle" font-weight="600" fill="var(--ink)">${l}</text>`;
+  });
+
+  if (mode === 'stack') {
+    labels.forEach((l, i) => {
+      let acc = 0;
+      const stackTotal = series.reduce((a, s) => a + (s.v[i] || 0), 0);
+      const cat = categories && categories[i] ? categories[i] : ('Semana ' + l);
+      series.forEach(s => {
+        const v = s.v[i] || 0;
+        if (!v) return;
+        const h = (v / mx) * ih;
+        const valStr = isPct ? pf(v) : v.toLocaleString('pt-BR');
+        const totalStr = isPct ? pf(stackTotal) : stackTotal.toLocaleString('pt-BR');
+        o += `<rect x="${L + bw * i + bw * 0.18}" y="${y(acc + v)}" width="${bw * 0.64}" height="${h}" fill="${s.c}" rx="3"
               data-tip-series="${esc(s.n)}"
               data-tip-color="${s.c}"
               data-tip-cat="${esc(cat)}"
@@ -1259,43 +1618,48 @@ function chart(labels,series,mode,isPct,categories){
               role="graphics-symbol"
               aria-label="${esc(s.n)}: ${valStr} (${esc(cat)})">
             </rect>`;
-        if(h>=13){
-          o+=`<text x="${L+bw*i+bw*.5}" y="${y(acc+v)+h/2+3.5}" text-anchor="middle" fill="#fff" font-size="9px" font-weight="600">${valStr}</text>`;
+        if (h >= 14) {
+          o += `<text x="${L + bw * i + bw * 0.5}" y="${y(acc + v) + h / 2 + 3.5}" text-anchor="middle" fill="#fff" font-size="9.5px" font-weight="700">${valStr}</text>`;
         }
-        acc+=v;
+        acc += v;
       });
-      if(stackTotal>0){
-        const totStr=isPct?pf(stackTotal):stackTotal.toLocaleString('pt-BR');
-        o+=`<text x="${L+bw*i+bw*.5}" y="${Math.max(12,y(stackTotal)-4)}" text-anchor="middle" font-weight="700" fill="var(--ink)" font-size="10px">${totStr}</text>`;
+      if (stackTotal > 0) {
+        const totStr = isPct ? pf(stackTotal) : stackTotal.toLocaleString('pt-BR');
+        o += `<text x="${L + bw * i + bw * 0.5}" y="${Math.max(12, y(stackTotal) - 5)}" text-anchor="middle" font-weight="700" fill="var(--ink)" font-size="10.5px">${totStr}</text>`;
       }
     });
-  }else if(mode==='group'){
-    const k=series.length,w=bw*.76/k;
-    labels.forEach((l,i)=>{
-      const cat=categories&&categories[i]?categories[i]:('Semana '+l);
-      series.forEach((s,j)=>{
-        const v=s.v[i],h=v/mx*ih;
-        const valStr=isPct?pf(v):(v||0).toLocaleString('pt-BR');
-        o+=`<rect x="${L+bw*i+bw*.12+w*j}" y="${y(v)}" width="${w-2}" height="${h}" fill="${s.c}" rx="2"
-              data-tip-series="${esc(s.n)}"
-              data-tip-color="${s.c}"
-              data-tip-cat="${esc(cat)}"
-              data-tip-val="${valStr}"
-              role="graphics-symbol"
-              aria-label="${esc(s.n)}: ${valStr} (${esc(cat)})">
-            </rect>`;
-        if(v)o+=`<text x="${L+bw*i+bw*.12+w*j+(w-2)/2}" y="${Math.max(11,y(v)-4)}" text-anchor="middle" font-weight="600" font-size="9.5px">${valStr}</text>`;
+  } else if (mode === 'group') {
+    const k = series.length;
+    const w = (bw * 0.78) / k;
+    labels.forEach((l, i) => {
+      const cat = categories && categories[i] ? categories[i] : ('Semana ' + l);
+      series.forEach((s, j) => {
+        const v = s.v[i] || 0;
+        const h = (v / mx) * ih;
+        if (v > 0) {
+          const valStr = isPct ? pf(v) : (v || 0).toLocaleString('pt-BR');
+          o += `<rect x="${L + bw * i + bw * 0.11 + w * j}" y="${y(v)}" width="${Math.max(2, w - 3)}" height="${h}" fill="${s.c}" rx="3"
+                data-tip-series="${esc(s.n)}"
+                data-tip-color="${s.c}"
+                data-tip-cat="${esc(cat)}"
+                data-tip-val="${valStr}"
+                role="graphics-symbol"
+                aria-label="${esc(s.n)}: ${valStr} (${esc(cat)})">
+              </rect>`;
+          o += `<text x="${L + bw * i + bw * 0.11 + w * j + (w - 3) / 2}" y="${Math.max(12, y(v) - 5)}" text-anchor="middle" font-weight="700" font-size="9.5px">${valStr}</text>`;
+        }
       });
     });
-  }else{
-    series.forEach(s=>{
-      const pts=s.v.map((v,i)=>[L+bw*i+bw/2,y(v)]);
-      o+=`<polyline fill="none" stroke="${s.c}" stroke-width="2.5" points="${pts.map(p=>p.join(',')).join(' ')}"/>`;
-      pts.forEach((p,i)=>{
-        const v=s.v[i];
-        const valStr=isPct?pf(v):(v||0).toLocaleString('pt-BR');
-        const cat=categories&&categories[i]?categories[i]:('Semana '+labels[i]);
-        o+=`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${s.c}" stroke="var(--card)" stroke-width="1.5"
+  } else {
+    // Linha
+    series.forEach(s => {
+      const pts = s.v.map((v, i) => [L + bw * i + bw / 2, y(v || 0)]);
+      o += `<polyline fill="none" stroke="${s.c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
+      pts.forEach((p, i) => {
+        const v = s.v[i] || 0;
+        const valStr = isPct ? pf(v) : (v || 0).toLocaleString('pt-BR');
+        const cat = categories && categories[i] ? categories[i] : ('Semana ' + labels[i]);
+        o += `<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="${s.c}" stroke="var(--card)" stroke-width="2"
               data-tip-series="${esc(s.n)}"
               data-tip-color="${s.c}"
               data-tip-cat="${esc(cat)}"
@@ -1303,21 +1667,34 @@ function chart(labels,series,mode,isPct,categories){
               role="graphics-symbol"
               aria-label="${esc(s.n)}: ${valStr} (${esc(cat)})">
             </circle>`;
-        o+=`<circle cx="${p[0]}" cy="${p[1]}" r="14" fill="transparent"
+        o += `<circle cx="${p[0]}" cy="${p[1]}" r="16" fill="transparent"
               data-tip-series="${esc(s.n)}"
               data-tip-color="${s.c}"
               data-tip-cat="${esc(cat)}"
               data-tip-val="${valStr}">
             </circle>`;
-        o+=`<text x="${p[0]}" y="${p[1]-8}" text-anchor="middle">${isPct?s.v[i].toFixed(1).replace('.',',')+'%':s.v[i]}</text>`;
+        o += `<text x="${p[0]}" y="${p[1] - 8}" text-anchor="middle" font-weight="600" font-size="9.5px">${isPct ? (v).toFixed(1).replace('.', ',') + '%' : v}</text>`;
       });
     });
   }
-  return `<svg viewBox="0 0 ${Wd} ${H}" role="img">${o}</svg>`;
+
+  return `
+    <div class="chart-scroll-wrap" title="Arraste para os lados para visualizar todas as semanas">
+      <div style="min-width:${Wd}px;width:100%">
+        <svg viewBox="0 0 ${Wd} ${H}" role="img" style="width:100%;height:auto;min-height:220px;display:block">${o}</svg>
+      </div>
+    </div>
+  `;
 }
 
 const leg=s=>`<div class="lg" role="list" aria-label="Legenda"><b style="color:var(--ink)">Legenda:</b>${s.map(x=>`<span role="listitem"><i style="background:${x.c}"></i>${x.n}</span>`).join('')}</div>`;
-const TT={'Mensagens de follow-up por tentativa':['Mensagens de follow-up enviadas por tentativa (FU 2 a FU 5)','Cada barra soma as mensagens da semana.'],'Resposta e conversão do follow-up':['Taxa de resposta e conversão do follow-up (%)','Resposta = respostas ÷ mensagens. Conversão = agendamentos ÷ respostas.'],'Status dos pacientes (total acumulado em cada semana)':['Situação dos pacientes ao fim de cada semana','Total de pacientes em cada fase naquele momento.'],'Agenda: realizadas, canceladas e reagendadas':['Agenda da semana: realizadas, canceladas e reagendadas','Consultas por desfecho, semana a semana.'],'Funil: leads, respostas e agendamentos':['Funil: leads, respostas e agendamentos','Novos leads, respostas e agendamentos pelo follow-up.']};
+const TT={
+  'Mensagens de follow-up por tentativa':['Mensagens de follow-up enviadas por tentativa (FU 2 a FU 5)','Cada barra soma as mensagens da semana.'],
+  'Resposta e conversão do follow-up':['Taxa de resposta e conversão do follow-up (%)','Resposta = respostas ÷ mensagens. Conversão = agendamentos ÷ respostas.'],
+  'Status dos pacientes (total acumulado em cada semana)':['Situação dos pacientes ao fim de cada semana','Total de pacientes em cada fase naquele momento.'],
+  'Agenda da semana: realizadas, canceladas e reagendadas':['Agenda da semana: previstas, realizadas, canceladas e reagendadas','Consultas por desfecho e previsão da agenda, semana a semana.'],
+  'Funil: leads, respostas e agendamentos':['Funil: leads, respostas e agendamentos','Novos leads, respostas e agendamentos pelo follow-up.']
+};
 const card=(t,s,svg)=>(cfg.hide&&cfg.hide['c:'+t])?'':`<div class="card"><h2>${(TT[t]||[t])[0]}</h2>${TT[t]?`<p class="note" style="margin:-6px 0 8px">${TT[t][1]}</p>`:''}${leg(s)}${svg}</div>`;
 const css=n=>`var(--${n})`;
 
@@ -1403,6 +1780,29 @@ function setupChartTooltips(){
   },{passive:true});
 }
 
+function enableChartScrollDragging() {
+  document.querySelectorAll('.chart-scroll-wrap').forEach(el => {
+    if (el.dataset.dragAttached) return;
+    el.dataset.dragAttached = '1';
+    let isDown = false, startX, scrollLeft;
+    el.addEventListener('mousedown', e => {
+      if (e.target.closest('[data-tip-series]')) return;
+      isDown = true;
+      startX = e.pageX - el.offsetLeft;
+      scrollLeft = el.scrollLeft;
+    });
+    el.addEventListener('mouseleave', () => { isDown = false; });
+    el.addEventListener('mouseup', () => { isDown = false; });
+    el.addEventListener('mousemove', e => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      el.scrollLeft = scrollLeft - walk;
+    });
+  });
+}
+
 function dash(){
   const WA=W();
   const nW=WA.length;
@@ -1427,7 +1827,8 @@ function dash(){
 
   const L=ws.map(w=>fd(w.id));
   const fullCats=ws.map(w=>'Semana de '+fdf(w.id));
-  const last=ws[ws.length-1];
+  // Identifica a última semana lançada com dados de topo de funil para não zerar cards informativos
+  const last=[...ws].reverse().find(w=>(w.ativas||0)>0||(w.novos||0)>0)||ws[ws.length-1];
 
   const tm=sum(ws,msgs),tr=sum(ws,'resp'),ta=sum(ws,'agend'),tl=sum(ws,'novos');
   const real=sum(ws,'creal'),cag=sum(ws,'cagend'),can=sum(ws,'ccanc'),rea=sum(ws,'creag'),tot=real+rea+can;
@@ -1436,6 +1837,10 @@ function dash(){
   const rec=perd.filter(a=>a.regained==='sim').length;
   const andam=Object.values(appts).filter(a=>a.regained==='contato').length;
 
+  // Conversão de novos leads em consultas agendadas
+  const agendDeNovosLeads = ap.filter(a => a.origin === 'novo').length;
+  const convNovosLeadsRate = tl > 0 ? (agendDeNovosLeads / tl * 100) : 0;
+
   let stgMode = window._stgMode || 'semana';
   window.setStgMode = function(m) { window._stgMode = m; render(); };
 
@@ -1443,13 +1848,16 @@ function dash(){
     'Total de conversas ativas': 'ativas',
     'Taxa Geral de Agendamento (%)': 'tg',
     'Conversão do FU em Agendamento (%)': 'conv',
+    'Conversão de Novos Leads em Agendamento (%)': 'convNovos',
     'Novos leads': 'novos',
     'Consultas agendadas': 'cagend',
+    'Consultas previstas da semana': 'cprev',
     'Mensagens de follow-up': 'msgs',
     'Taxa de resposta do FU': 'resp',
     'Comparecimento (check-in)': 'comp',
     'Cancelamento': 'canc',
     'Reagendamento': 'creag',
+    'Pacientes sem retorno': 'semresp',
     'Cancelados recuperados': 'rec',
     'Reagendamentos em andamento': 'andam'
   };
@@ -1461,7 +1869,7 @@ function dash(){
     const ga = list.find(g => (g.metric === mKey || g.label === mKey) && (g.week === 'all' || !g.week));
     if (ga) return ga;
     if (cfg.goals && cfg.goals[mKey] != null) {
-      return { metric: mKey, label: mKey, week: 'all', target: cfg.goals[mKey], unit: ['tg','conv','resp','comp','canc'].includes(mKey)?'pct':'num', dir: mKey==='canc'?'max':'min' };
+      return { metric: mKey, label: mKey, week: 'all', target: cfg.goals[mKey], unit: ['tg','conv','convNovos','resp','comp','canc'].includes(mKey)?'pct':'num', dir: ['canc','semresp'].includes(mKey)?'max':'min' };
     }
     return null;
   };
@@ -1486,7 +1894,7 @@ function dash(){
       goalLegend = `
         <div style="margin-top:6px;padding:6px 9px;border-radius:8px;font-size:11.5px;font-weight:600;background:color-mix(in srgb,${ok ? 'var(--g)' : 'var(--r)'} 12%,var(--card));color:${ok ? 'var(--g)' : 'var(--r)'};border:1px solid color-mix(in srgb,${ok ? 'var(--g)' : 'var(--r)'} 25%,var(--line))">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:4px">
-            <span>🎯 Meta: <b>${tgt.toLocaleString('pt-BR')}${unit}</b> | Atual: <b>${v}</b></span>
+            <span>🎯 Meta: <b>${tgt.toLocaleString('pt-BR')}${unit}</b></span>
             <span>${ok ? '✓ Meta atingida (' + diffStr + ')' : (isMax ? '⚠️ Acima limite (' + diffStr + ')' : '⚠️ Abaixo da meta (' + diffStr + ')')}</span>
           </div>
           <div style="font-size:10.5px;margin-top:2px;opacity:0.85">
@@ -1505,7 +1913,26 @@ function dash(){
 
   const st=[{n:'Sem resposta',c:css('k'),v:ws.map(w=>w.semresp||0)},{n:'Pensando ou pesquisando',c:css('a'),v:ws.map(w=>w.pensando||0)},{n:'Aguardando cadastro',c:css('g'),v:ws.map(w=>w.aguard||0)},{n:'Não vão seguir',c:css('r'),v:ws.map(w=>w.nao||0)}];
   const fu=[2,3,4,5].map((k,i)=>({n:'FU '+k,c:css(['b','g','a','p'][i]),v:ws.map(w=>w['fu'+k]||0)}));
-  const ag=[{n:'Realizadas',c:css('g'),v:ws.map(w=>w.creal||0)},{n:'Canceladas',c:css('r'),v:ws.map(w=>w.ccanc||0)},{n:'Reagendadas',c:css('a'),v:ws.map(w=>w.creag||0)}];
+
+  /* ===== GRÁFICO AGENDA COM PREVISÃO E SUPORTE A SEMANAS FUTURAS ===== */
+  // Assegura que todas as semanas futuras com consultas agendadas apareçam sempre no gráfico da agenda
+  const curSat = getSaturdayOfWeek(today());
+  const upcomingWeeksWithAppts = WA.filter(w => (w.id >= curSat || w.id > pTo) && (w.cprev || 0) > 0);
+  const wsAgendaMap = new Map();
+  ws.forEach(w => wsAgendaMap.set(w.id, w));
+  upcomingWeeksWithAppts.forEach(w => wsAgendaMap.set(w.id, w));
+  const wsAgenda = Array.from(wsAgendaMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+
+  const LAgenda = wsAgenda.map(w => fd(w.id));
+  const fullCatsAgenda = wsAgenda.map(w => 'Semana de ' + fdf(w.id) + (w.id >= curSat ? ' (Previsão Futura)' : ''));
+
+  const ag=[
+    {n:'Previstas',c:css('b'),v:wsAgenda.map(w=>w.cprev||0)},
+    {n:'Realizadas',c:css('g'),v:wsAgenda.map(w=>w.creal||0)},
+    {n:'Canceladas',c:css('r'),v:wsAgenda.map(w=>w.ccanc||0)},
+    {n:'Reagendadas',c:css('a'),v:wsAgenda.map(w=>w.creag||0)}
+  ];
+
   const rs=[{n:'Taxa de resposta',c:css('b'),v:ws.map(rt)},{n:'Respostas que viraram agendamento',c:css('g'),v:ws.map(w=>pct(w.agend||0,w.resp||0))}];
   const fl=[{n:'Novos leads',c:css('g'),v:ws.map(w=>w.novos||0)},{n:'Respostas no follow-up',c:css('b'),v:ws.map(w=>w.resp||0)},{n:'Agendamentos pelo follow-up',c:css('a'),v:ws.map(w=>w.agend||0)}];
 
@@ -1514,7 +1941,7 @@ function dash(){
   const orig=ap.length?oc.map(o=>`<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${ORIG[o.k]}</span><span class="note">${o.t} agendadas · ${o.r} realizadas · ${o.c} canceladas</span></div><div style="height:9px;background:var(--line);border-radius:5px;margin-top:3px"><div style="height:9px;width:${o.t/omax*100}%;background:var(--g);border-radius:5px"></div></div></div>`).join(''):'<p class="note">Registre consultas para analisar origens.</p>';
 
   const p2=v=>v.toFixed(cfg.dec??2).replace('.',',')+'%',ta2=sum(ws,'ativas');
-  const sw=ws.some(w=>w.id===selWeek)?selWeek:last.id,wi=ws.findIndex(w=>w.id===sw),wk=ws[wi],wend=ws[wi+1]?ws[wi+1].id:addDays(sw,7);
+  const sw=ws.some(w=>w.id===selWeek)?selWeek:last.id,wi=ws.findIndex(w=>w.id===sw),wk=ws[wi]||last,wend=ws[wi+1]?ws[wi+1].id:addDays(sw,7);
   const apw=ap.filter(a=>(a.schedOn||'')>=sw&&(a.schedOn||'')<wend);
   const stg=(list,d)=>{const D={novo:d.novos,c2:d.fu2,c3:d.fu3,c4:d.fu4,c5:d.fu5};const rows=Object.keys(ORIG).map(k=>{const n=list.filter(a=>a.origin===k).length,x=D[k];return {k,n,x,r:x?pct(n,x):null}});const m=Math.max(1,...rows.map(e=>e.r||0));
     return list.length?`<div class="wrap"><table><tr><th>Etapa</th><th>Contatados</th><th>Agendadas</th><th>Taxa</th><th></th></tr>${rows.map(e=>`<tr><td>${esc(ORIG[e.k])}</td><td>${e.x==null?'—':(e.x||0).toLocaleString('pt-BR')}</td><td>${e.n}</td><td><b>${e.r==null?'—':pf(e.r)}</b></td><td style="width:90px"><div style="height:8px;background:var(--line);border-radius:4px"><div style="height:8px;width:${(e.r||0)/m*100}%;background:var(--g);border-radius:4px"></div></div></td></tr>`).join('')}</table></div>`:'<p class="note">Nenhuma consulta registrada neste período.</p>'};
@@ -1528,17 +1955,21 @@ function dash(){
   const cCh=cm.filter(m=>m.where!=='kpi').map(m=>{const v=ws.map(w=>{try{return Math.round(ev(m.expr,[w])*100)/100}catch(e){return 0}}),ser=[{n:m.title,c:css('p'),v}];return card(esc(m.title),ser,chart(L,ser,m.where==='bar'?'group':'line',m.fmt==='pct',fullCats))}).join('');
   const fbar=`<div class="card" style="margin-bottom:14px"><div class="row" style="margin:0"><label class="note">Período Selecionado<br><select id="pp">${po}</select></label></div><p class="note" style="margin:8px 0 0">Mostrando ${ws.length} semana(s): de ${fdf(pFrom)} a ${fdf(pTo)}.</p></div>`;
 
+  setTimeout(enableChartScrollDragging, 50);
+
   return fbar+`<div class="grid kpis">
     ${kp('Total de conversas ativas',(last.ativas||0).toLocaleString('pt-BR'),'na semana de '+fd(last.id),'ativas')}
     ${kp('Taxa Geral de Agendamento (%)',p2(pct(cag,ta2/ws.length)),cag+' consultas ÷ '+Math.round(ta2/ws.length).toLocaleString('pt-BR')+' ativas médias','tg')}
-    ${kp('Conversão do FU em Agendamento (%)',p2(pct(ta,tr)),ta+' agendamentos ÷ '+tr.toLocaleString('pt-BR')+' respostas','conv')}
+    ${kp('Conversão do FU em Agendamento (%)',tr?p2(pct(ta,tr)):'—',ta+' agendamentos ÷ '+tr.toLocaleString('pt-BR')+' respostas','conv')}
+    ${kp('Conversão de Novos Leads em Agendamento (%)',p2(convNovosLeadsRate),agendDeNovosLeads+' agendadas de novos leads ÷ '+tl.toLocaleString('pt-BR')+' novos leads','convNovos')}
     ${kp('Novos leads',tl,ws.length+' semanas','novos')}
     ${kp('Consultas agendadas',cag.toLocaleString('pt-BR'),'no período','cagend')}
     ${kp('Mensagens de follow-up',tm.toLocaleString('pt-BR'),'','msgs')}
-    ${kp('Taxa de resposta do FU',pf(pct(tr,tm)),tr+' respostas','resp')}
-    ${kp('Comparecimento (check-in)',pf(pct(real,tot)),real+' de '+tot+' consultas','comp')}
-    ${kp('Cancelamento',pf(pct(can,tot)),can+' de '+tot+' consultas','canc')}
-    ${kp('Reagendamento',pf(pct(rea,tot)),rea+' de '+tot+' consultas','creag')}
+    ${kp('Taxa de resposta do FU',tm?pf(pct(tr,tm)):'—',tr+' respostas','resp')}
+    ${kp('Comparecimento (check-in)',tot?pf(pct(real,tot)):'—',real+' de '+tot+' consultas','comp')}
+    ${kp('Cancelamento',tot?pf(pct(can,tot)):'—',can+' de '+tot+' consultas','canc')}
+    ${kp('Reagendamento',tot?pf(pct(rea,tot)):'—',rea+' de '+tot+' consultas','creag')}
+    ${kp('Pacientes sem retorno',(last.semresp||0).toLocaleString('pt-BR'),(last.ativas?pf(pct(last.semresp||0,last.ativas||0))+' das conversas ativas':'na semana de '+fd(last.id)),'semresp')}
     ${kp('Cancelados recuperados',perd.length?pf(pct(rec,perd.length)):'—',rec+' de '+perd.length,'rec')}
     ${kp('Reagendamentos em andamento',andam,'pacientes com “Em contato”','andam')}
     ${cKpi}
@@ -1548,7 +1979,7 @@ function dash(){
     ${card('Mensagens de follow-up por tentativa',fu,chart(L,fu,'stack',false,fullCats))}
     ${card('Resposta e conversão do follow-up',rs,chart(L,rs,'line',true,fullCats))}
     ${card('Status dos pacientes (total acumulado em cada semana)',st,chart(L,st,'stack',false,fullCats))}
-    ${card('Agenda: realizadas, canceladas e reagendadas',ag,chart(L,ag,'group',false,fullCats))}
+    ${card('Agenda da semana: realizadas, canceladas e reagendadas',ag,chart(LAgenda,ag,'group',false,fullCatsAgenda))}
     ${card('Funil: leads, respostas e agendamentos',fl,chart(L,fl,'group',false,fullCats))}
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
@@ -1621,7 +2052,6 @@ async function importRows(rows){
       continue;
     }
     
-    // Tenta interpretar como consulta de paciente
     const apptItem = parsePatientLine(line, curY);
     if(apptItem && apptItem.patient){
       const newId = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -1653,7 +2083,27 @@ async function importRows(rows){
 const opts=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${k}"${k===sel?' selected':''}>${v}</option>`).join('');
 
 function fbarA(ids){const f=aFilt,tot=Object.keys(appts).length,WS=W().slice().reverse();
-  return `<div class="f" style="margin-bottom:10px"><label style="grid-column:1/-1">Pesquisar paciente<input type="search" data-af="q" placeholder="Digite o nome ou iniciais do paciente..." value="${esc(f.q||'')}"></label><label>Semana em que foi criada<select data-af="week"><option value="">Todas</option>${WS.map(w=>`<option value="${w.id}"${f.week===w.id?' selected':''}>Semana de ${fdf(w.id)}</option>`).join('')}</select></label><label>Consulta a partir de<input type="date" data-af="from" value="${f.from}"></label><label>Consulta até<input type="date" data-af="to" value="${f.to}"></label><label>Veio de<select data-af="origin"><option value="">Todas</option>${opts(ORIG,f.origin)}</select></label><label>Status<select data-af="status"><option value="">Todos</option>${opts(STAT,f.status)}</select></label></div><div class="row" style="margin:0 0 10px"><button class="b s" data-afc="1">Limpar filtros e pesquisa</button><span class="note">Mostrando ${ids.length} de ${tot} consultas</span></div>`}
+  return `<div class="f" style="margin-bottom:10px">
+    <label style="grid-column:1/-1">Pesquisar paciente<input type="search" data-af="q" placeholder="Digite o nome ou iniciais do paciente..." value="${esc(f.q||'')}"></label>
+    <label>Semana em que foi criada<select data-af="week"><option value="">Todas</option>${WS.map(w=>`<option value="${w.id}"${f.week===w.id?' selected':''}>Semana de ${fdf(w.id)}</option>`).join('')}</select></label>
+    <label>Consulta a partir de<input type="date" data-af="from" value="${f.from}"></label>
+    <label>Consulta até<input type="date" data-af="to" value="${f.to}"></label>
+    <label>Veio de<select data-af="origin"><option value="">Todas</option>${opts(ORIG,f.origin)}</select></label>
+    <label>Status<select data-af="status"><option value="">Todos</option>${opts(STAT,f.status)}</select></label>
+    <label>Ordenar lista por
+      <select data-af="sort_order">
+        <option value="consult_desc"${aSort.col==='consult'&&aSort.dir==='desc'?' selected':''}>Consulta (mais recente primeiro)</option>
+        <option value="consult_asc"${aSort.col==='consult'&&aSort.dir==='asc'?' selected':''}>Consulta (mais antiga primeiro)</option>
+        <option value="patient_asc"${aSort.col==='patient'&&aSort.dir==='asc'?' selected':''}>Paciente (A → Z)</option>
+        <option value="patient_desc"${aSort.col==='patient'&&aSort.dir==='desc'?' selected':''}>Paciente (Z → A)</option>
+        <option value="schedOn_desc"${aSort.col==='schedOn'&&aSort.dir==='desc'?' selected':''}>Agendada em (mais recente)</option>
+        <option value="schedOn_asc"${aSort.col==='schedOn'&&aSort.dir==='asc'?' selected':''}>Agendada em (mais antiga)</option>
+        <option value="newDate_desc"${aSort.col==='newDate'&&aSort.dir==='desc'?' selected':''}>Nova data (mais recente)</option>
+        <option value="newDate_asc"${aSort.col==='newDate'&&aSort.dir==='asc'?' selected':''}>Nova data (mais antiga)</option>
+      </select>
+    </label>
+  </div>
+  <div class="row" style="margin:0 0 10px"><button class="b s" data-afc="1">Limpar filtros e pesquisa</button><span class="note">Mostrando ${ids.length} de ${tot} consultas</span></div>`}
 
 function apptList(){
   const f=aFilt,WS=W();
@@ -1671,10 +2121,39 @@ function apptList(){
     const pName=String(a.patient||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const matchesQ=!qClean||pName.includes(qClean);
     return matchesQ&&(!wr||(s>=wr[0]&&s<=wr[1]))&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status);
-  }).sort((a,b)=>(appts[b].consult||'').localeCompare(appts[a].consult||''));
+  });
+
+  ids.sort((a, b) => {
+    const apA = appts[a] || {}, apB = appts[b] || {};
+    let valA = '', valB = '';
+    if (aSort.col === 'patient') {
+      valA = String(apA.patient || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      valB = String(apB.patient || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return aSort.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    } else {
+      valA = apA[aSort.col] || '';
+      valB = apB[aSort.col] || '';
+      if (!valA && valB) return 1;
+      if (valA && !valB) return -1;
+      if (!valA && !valB) return 0;
+      return aSort.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    }
+  });
+
+  const sortInd = col => aSort.col === col ? (aSort.dir === 'asc' ? ' ▲' : ' ▼') : ' <span style="opacity:0.35">↕</span>';
+
   if(!ids.length)return fbarA(ids)+'<p class="note">'+(Object.keys(appts).length?'Nenhuma consulta encontrada com estes filtros ou pesquisa.':'Nenhuma consulta registrada ainda.')+'</p>';
-  return fbarA(ids)+`<div class="wrap"><table><tr><th>Paciente</th><th>Veio de</th><th>Agendada em</th><th>Consulta</th><th>Status</th><th>Conseguiu reagendar?</th><th>Nova data</th><th></th></tr>${ids.map(id=>{const a=appts[id];
-    return `<tr><td>${esc(a.patient)}</td><td><select data-id="${id}" data-k="origin">${opts(ORIG,a.origin)}</select></td><td><input type="date" data-id="${id}" data-k="schedOn" value="${a.schedOn||''}"></td><td><input type="date" data-id="${id}" data-k="consult" value="${a.consult||''}"></td><td><select data-id="${id}" data-k="status">${opts(STAT,a.status)}</select></td><td><select data-id="${id}" data-k="regained">${opts(REG,a.regained||'')}</select></td><td><input type="date" data-id="${id}" data-k="newDate" value="${a.newDate||''}"></td><td><button class="x" data-del="${id}" title="Excluir" aria-label="Excluir">×</button></td></tr>`}).join('')}</table></div>`;
+  return fbarA(ids)+`<div class="wrap"><table><tr>
+    <th style="cursor:pointer;user-select:none" data-asort="patient" title="Clique para ordenar por Paciente (A-Z ou Z-A)">Paciente${sortInd('patient')}</th>
+    <th>Veio de</th>
+    <th style="cursor:pointer;user-select:none" data-asort="schedOn" title="Clique para ordenar por data de agendamento">Agendada em${sortInd('schedOn')}</th>
+    <th style="cursor:pointer;user-select:none" data-asort="consult" title="Clique para ordenar por data da consulta">Consulta${sortInd('consult')}</th>
+    <th>Status</th>
+    <th>Conseguiu reagendar?</th>
+    <th style="cursor:pointer;user-select:none" data-asort="newDate" title="Clique para ordenar por nova data">Nova data${sortInd('newDate')}</th>
+    <th></th>
+  </tr>${ids.map(id=>{const a=appts[id];
+    return `<tr><td>${esc(a.patient)}</td><td><select data-id="${id}" data-k="origin">${opts(ORIG,a.origin)}</select></td><td><input type="date" data-id="${id}" data-k="schedOn" value="${a.schedOn||''}"></td><td><input type="date" data-id="${id}" data-k="consult" value="${a.consult||''}"></td><td><select data-id="${id}" data-k="status">${opts(STAT,a.status)}</select></td><td><select data-id="${id}" data-k="regained">${opts(REG,a.regained||'')}</select></td><td><input type="date" data-id="${id}" data-k="newDate" value="${a.newDate||''}"></td><td><button class="x" data-del="${id}" title="Excluir consulta" aria-label="Excluir">×</button></td></tr>`}).join('')}</table></div>`;
 }
 
 function render(){
@@ -1776,11 +2255,19 @@ $('#cp_add').onclick=async()=>{
   await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:s,consult:c,status:'agendada',regained:'',newDate:''});
   $('#cp_n').value='';
   await syncWeekMetricsWithAppts(true);
+  render();
   toast('Consulta adicionada com sucesso!');
 };
 
 $('#al').onchange=async e=>{
   const t=e.target,id=t.dataset.id;
+  if(t.dataset.af==='sort_order'){
+    const parts = t.value.split('_');
+    aSort.col = parts[0];
+    aSort.dir = parts[1];
+    $('#al').innerHTML=apptList();
+    return;
+  }
   if(t.dataset.af){aFilt[t.dataset.af]=t.value;$('#al').innerHTML=apptList();return}
   if(!id)return;
   const a={...appts[id],[t.dataset.k]:t.value};
@@ -1809,11 +2296,42 @@ $('#al').addEventListener('input',e=>{
 
 $('#al').onclick=async e=>{
   if(e.target.dataset.afc){aFilt={week:'',from:'',to:'',origin:'',status:'',q:''};$('#al').innerHTML=apptList();return}
-  const id=e.target.dataset.del;
-  if(id&&confirm('Excluir esta consulta?')){
+  const th=e.target.closest('[data-asort]');
+  if(th){
+    const col=th.dataset.asort;
+    if(aSort.col===col){
+      aSort.dir=aSort.dir==='asc'?'desc':'asc';
+    }else{
+      aSort.col=col;
+      aSort.dir=col==='patient'?'asc':'desc';
+    }
+    $('#al').innerHTML=apptList();
+    return;
+  }
+  const delBtn=e.target.closest('[data-del]');
+  if(delBtn){
+    const id=delBtn.dataset.del;
+    if(!delBtn.dataset.confirming){
+      delBtn.dataset.confirming='1';
+      delBtn.textContent='Confirma?';
+      delBtn.style.color='var(--r)';
+      delBtn.style.fontWeight='700';
+      setTimeout(()=>{
+        if(delBtn&&delBtn.dataset){
+          delete delBtn.dataset.confirming;
+          delBtn.textContent='×';
+          delBtn.style.fontWeight='';
+          delBtn.style.color='';
+        }
+      },3500);
+      return;
+    }
+    delete delBtn.dataset.confirming;
     await delDoc('appts/'+id);
     await syncWeekMetricsWithAppts(true);
-    toast('Consulta excluída');
+    render();
+    toast('Consulta excluída com sucesso!');
+    return;
   }
 };
 
@@ -1860,18 +2378,14 @@ $('#cfg').onclick=async e=>{
   if(t.dataset.lx){const k=t.dataset.lx;if(!confirm('Excluir o campo “'+lab(k)+'”? Os números já lançados continuam guardados.'))return;const l={...(cfg.labels||{})};delete l[k];
     if((cfg.extra||[]).some(x=>x.k===k))await saveCfg({extra:cfg.extra.filter(x=>x.k!==k),labels:l});else await saveCfg({removed:[...(cfg.removed||[]),k],labels:l});renderCfg();return toast('Campo excluído')}
   if(id==='c_or'){await saveCfg({origins:[]});renderCfg();return toast('Origens restauradas')}
-  if(id==='c_wipe'){if(confirm('Apagar TODAS as semanas e consultas? Isso não pode ser desfeito.')&&confirm('Tem certeza? Baixe o backup antes.')){for(const k of Object.keys(weeks))await delDoc('weeks/'+k);for(const k of Object.keys(appts))await delDoc('appts/'+k);toast('Dados apagados')}return}
   if(id==='c_tr'){await saveCfg({theme:{}});return renderCfg()}
-  if(id==='m_go')return aiMetric();
-  if(id==='m_man')return showM({title:'',expr:'',fmt:'num',where:'kpi'});
-  if(id==='m_pre')return prevM();
-  if(id==='m_add')return addM();
   if(t.dataset.md){await saveCfg({metrics:(cfg.metrics||[]).filter((_,i)=>i!==+t.dataset.md)});return renderCfg()}
   if(id==='c_rl'){await saveCfg({labels:{},removed:[]});renderCfg();return toast('Nomes e campos originais restaurados')}
   if(id==='c_oa'){const n=$('#c_on').value.trim();if(!n)return;const os=Object.entries(ORIG).map(([k,v])=>({k,n:v}));os.push({k:'o'+Date.now().toString(36),n});await saveCfg({origins:os});return renderCfg()}
   if(t.dataset.od){const k=t.dataset.od;if(Object.values(appts).some(a=>a.origin===k))return toast('Há consultas com esta origem. Mude a origem antes.');if(Object.keys(ORIG).length<2)return toast('Mantenha ao menos uma origem');const os=Object.entries(ORIG).filter(([x])=>x!==k).map(([x,n])=>({k:x,n}));await saveCfg({origins:os});return renderCfg()}
   if(id==='c_ew')return exp('semanas.csv',['Data',...WCOLS.slice(1)],W().map(w=>[fdf(w.id),...WCOLS.slice(1).map(c=>w[c]||0)]));
   if(id==='c_ea')return exp('consultas.csv',['ID','Paciente','Veio de','Agendada em','Consulta','Status','Reagendou?','Nova data'],Object.entries(appts).map(([id,a])=>[id,a.patient,ORIG[a.origin]||a.origin,fdf(a.schedOn),fdf(a.consult),STAT[a.status]||a.status,REG[a.regained||'']||a.regained,fdf(a.newDate)]));
+  
   // Gerenciador de Metas
   if(id==='g_save_btn'){
     const m=$('#g_metric').value;
@@ -2049,7 +2563,6 @@ if(lf){
   };
 }
 
-// Callback executado quando o Firebase Auth confirma login
 window.onAuthSuccess = user => {
   document.body.classList.remove("locked");
   const lg=$("#lg"); if(lg)lg.style.display="none";
@@ -2057,7 +2570,6 @@ window.onAuthSuccess = user => {
   render();
 };
 
-// Callback executado quando o usuário está desconectado
 window.onAuthRequired = () => {
   document.body.classList.add("locked");
   const lg=$("#lg"); if(lg)lg.style.display="flex";
@@ -2065,7 +2577,6 @@ window.onAuthRequired = () => {
   const lp=$("#lp"); if(lp)lp.value="";
 };
 
-// Limpa dados confidenciais da memória do navegador ao sair
 window.clearDataOnLogout = () => {
   weeks = {};
   appts = {};
@@ -2081,24 +2592,38 @@ window.clearDataOnLogout = () => {
 
 const lo=$("#lo");
 if(lo){
-  lo.onclick=async ()=>{
-    if(confirm("Deseja realmente sair da conta?")){
-      if(window.DATA && typeof window.DATA.logout === "function"){
-        await window.DATA.logout();
-      }else{
-        window.clearDataOnLogout();
-        window.onAuthRequired();
-      }
-      toast("Você saiu do painel");
+  lo.onclick=async function(){
+    const btn = this;
+    if(!btn.dataset.confirming){
+      btn.dataset.confirming = '1';
+      btn.textContent = 'Confirmar saída?';
+      btn.style.color = 'var(--r)';
+      setTimeout(() => {
+        if(btn && btn.dataset){
+          delete btn.dataset.confirming;
+          btn.textContent = 'Sair';
+          btn.style.color = '';
+        }
+      }, 3500);
+      return;
     }
+    delete btn.dataset.confirming;
+    btn.textContent = 'Sair';
+    btn.style.color = '';
+    if(window.DATA && typeof window.DATA.logout === "function"){
+      await window.DATA.logout();
+    }else{
+      window.clearDataOnLogout();
+      window.onAuthRequired();
+    }
+    toast("Você saiu do painel");
   };
 }
 
-// Backup JSON Completo e Restaurador
 async function exportFullBackupJson() {
   const payload = {
     app: "Painel KOMMO",
-    version: "3.2.0",
+    version: "3.3.0",
     exportedAt: new Date().toISOString(),
     weeks,
     appts,
@@ -2153,7 +2678,6 @@ async function handleRestoreFile(file) {
       if (data.cfg) localStorage.setItem("kommo_cfg_v3", JSON.stringify(cfg));
     } catch(e){}
 
-    // Persiste no Firebase Firestore se conectado
     if (window.DATA && typeof window.DATA.write === "function") {
       for (const [k, v] of Object.entries(weeks)) {
         await window.DATA.write("weeks", k, v);
@@ -2175,7 +2699,6 @@ async function handleRestoreFile(file) {
   }
 }
 
-// Handlers no #cfg para backup JSON
 document.addEventListener("click", e => {
   if (e.target && e.target.id === "c_bkj") exportFullBackupJson();
   if (e.target && e.target.id === "c_rsj") triggerRestoreJson();
@@ -2184,123 +2707,6 @@ document.addEventListener("click", e => {
 document.addEventListener("change", e => {
   if (e.target && e.target.id === "f_rsj" && e.target.files && e.target.files[0]) {
     handleRestoreFile(e.target.files[0]);
-  }
-});
-
-// Funções para Obtenção, Cópia, Download e Visualização do index.html Completo
-async function getIndexHtmlContent() {
-  try {
-    const res = await fetch('/index.html', { cache: 'no-store' });
-    if (res.ok) {
-      const txt = await res.text();
-      if (txt && txt.includes('<!DOCTYPE html>')) return txt;
-    }
-  } catch(e) {}
-  try {
-    const res2 = await fetch(window.location.href, { cache: 'no-store' });
-    if (res2.ok) {
-      const txt2 = await res2.text();
-      if (txt2 && txt2.includes('<!DOCTYPE html>')) return txt2;
-    }
-  } catch(e) {}
-  return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-}
-
-let cachedIndexCode = '';
-async function loadOrGetIndexCode() {
-  if (!cachedIndexCode) {
-    cachedIndexCode = await getIndexHtmlContent();
-  }
-  return cachedIndexCode;
-}
-
-async function copyIndexHtmlToClipboard() {
-  toast('Copiando código index.html...');
-  try {
-    const code = await loadOrGetIndexCode();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(code);
-      toast('✓ Código index.html copiado com sucesso! Cole no GitHub.');
-      const st = $('#modal_copy_status');
-      if (st) {
-        st.textContent = '✓ Código copiado com sucesso!';
-        setTimeout(() => { if (st) st.textContent = ''; }, 4000);
-      }
-      return code;
-    }
-    await openCodeModal(code);
-    toast('Código aberto na janela. Use Ctrl+C para copiar.');
-    return code;
-  } catch(err) {
-    console.warn('Erro ao copiar diretamente:', err);
-    const code = await loadOrGetIndexCode();
-    await openCodeModal(code);
-    toast('Código aberto na janela para cópia.');
-    return code;
-  }
-}
-
-async function downloadIndexHtmlFile() {
-  const code = await loadOrGetIndexCode();
-  const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'index.html';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
-  toast('✓ Download do index.html iniciado!');
-}
-
-async function openCodeModal(preloadedCode) {
-  const m = $('#code_modal');
-  if (!m) return;
-  m.style.display = 'flex';
-  const ta = $('#code_modal_text');
-  if (ta) {
-    if (!preloadedCode) {
-      ta.value = 'Carregando código index.html completo...';
-      const code = await loadOrGetIndexCode();
-      ta.value = code;
-    } else {
-      ta.value = preloadedCode;
-    }
-    setTimeout(() => {
-      ta.focus();
-      ta.select();
-    }, 50);
-  }
-}
-
-function closeCodeModal() {
-  const m = $('#code_modal');
-  if (m) m.style.display = 'none';
-}
-
-// Event listeners para cópia do código index.html
-document.addEventListener('click', e => {
-  const t = e.target;
-  if (!t) return;
-  const id = t.id;
-  if (id === 'hdr_copy_index' || id === 'btn_copy_index_cfg' || id === 'btn_modal_copy') {
-    e.preventDefault();
-    copyIndexHtmlToClipboard();
-  } else if (id === 'btn_view_index_cfg') {
-    e.preventDefault();
-    openCodeModal();
-  } else if (id === 'btn_download_index_cfg' || id === 'btn_modal_download') {
-    e.preventDefault();
-    downloadIndexHtmlFile();
-  } else if (id === 'btn_modal_select') {
-    e.preventDefault();
-    const ta = $('#code_modal_text');
-    if (ta) { ta.focus(); ta.select(); toast('Todo o código foi selecionado!'); }
-  } else if (id === 'btn_close_code_modal') {
-    e.preventDefault();
-    closeCodeModal();
-  } else if (t.id === 'code_modal') {
-    closeCodeModal();
   }
 });
 
@@ -2318,102 +2724,110 @@ const firebaseConfig = {
   measurementId: "G-YLDFD3J8YY"
 };
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+async function initFirebaseModule() {
+  try {
+    const { initializeApp } = await import(/* @vite-ignore */ "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
+    const { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } = await import(/* @vite-ignore */ "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+    const { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } = await import(/* @vite-ignore */ "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-let unsubWeeks = null;
-let unsubAppts = null;
-let unsubCfg = null;
+    let unsubWeeks = null;
+    let unsubAppts = null;
+    let unsubCfg = null;
 
-function stopListeners() {
-  if (typeof unsubWeeks === "function") { try { unsubWeeks(); } catch(e){} unsubWeeks = null; }
-  if (typeof unsubAppts === "function") { try { unsubAppts(); } catch(e){} unsubAppts = null; }
-  if (typeof unsubCfg === "function") { try { unsubCfg(); } catch(e){} unsubCfg = null; }
-}
-
-function startListeners() {
-  stopListeners();
-  if (!db) return;
-  unsubWeeks = onSnapshot(collection(db, "weeks"), snap => {
-    const w = {};
-    snap.forEach(d => { w[d.id] = d.data(); });
-    if (typeof window.setWeeks === "function") window.setWeeks(w);
-  }, err => console.warn("Aviso Firestore weeks:", err));
-
-  unsubAppts = onSnapshot(collection(db, "appts"), snap => {
-    const a = {};
-    snap.forEach(d => { a[d.id] = d.data(); });
-    if (typeof window.setAppts === "function") window.setAppts(a);
-  }, err => console.warn("Aviso Firestore appts:", err));
-
-  unsubCfg = onSnapshot(doc(db, "config", "general"), snap => {
-    if (snap.exists() && typeof window.setCfg === "function") {
-      window.setCfg(snap.data());
+    function stopListeners() {
+      if (typeof unsubWeeks === "function") { try { unsubWeeks(); } catch(e){} unsubWeeks = null; }
+      if (typeof unsubAppts === "function") { try { unsubAppts(); } catch(e){} unsubAppts = null; }
+      if (typeof unsubCfg === "function") { try { unsubCfg(); } catch(e){} unsubCfg = null; }
     }
-  }, err => console.warn("Aviso Firestore config:", err));
+
+    function startListeners() {
+      stopListeners();
+      if (!db) return;
+      unsubWeeks = onSnapshot(collection(db, "weeks"), snap => {
+        const w = {};
+        snap.forEach(d => { w[d.id] = d.data(); });
+        if (typeof window.setWeeks === "function") window.setWeeks(w);
+      }, err => console.warn("Aviso Firestore weeks:", err));
+
+      unsubAppts = onSnapshot(collection(db, "appts"), snap => {
+        const a = {};
+        snap.forEach(d => { a[d.id] = d.data(); });
+        if (typeof window.setAppts === "function") window.setAppts(a);
+      }, err => console.warn("Aviso Firestore appts:", err));
+
+      unsubCfg = onSnapshot(doc(db, "config", "general"), snap => {
+        if (snap.exists() && typeof window.setCfg === "function") {
+          window.setCfg(snap.data());
+        }
+      }, err => console.warn("Aviso Firestore config:", err));
+    }
+
+    try {
+      await setPersistence(auth, browserSessionPersistence);
+    } catch(e){}
+
+    window.DATA = {
+      ready: true,
+      authenticated: false,
+      user: null,
+      lastRead: Date.now(),
+      async login(email, password) {
+        if (!auth) throw new Error("Firebase Auth não carregado.");
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        return cred.user;
+      },
+      async logout() {
+        stopListeners();
+        if (typeof window.clearDataOnLogout === "function") window.clearDataOnLogout();
+        if (auth) await signOut(auth);
+      },
+      async write(col, id, data) {
+        if (!db) throw new Error("Banco de dados não conectado.");
+        const ref = doc(db, col, id);
+        if (data === null) await deleteDoc(ref);
+        else await setDoc(ref, data, { merge: true });
+      },
+      async saveCfg(patch) {
+        if (!db) throw new Error("Banco de dados não conectado.");
+        await setDoc(doc(db, "config", "general"), patch, { merge: true });
+      },
+      cardHtml: () => `
+        <h2>Status do Firebase Firestore</h2>
+        <p class="note" style="color:var(--g);font-weight:600;font-size:14px">● Conectado ao projeto: <code>${firebaseConfig.projectId}</code></p>
+        <p class="note">Autenticação: ${window.DATA && window.DATA.user ? `<b>${window.DATA.user.email}</b> (UID: <code>${window.DATA.user.uid}</code>)` : "Não autenticado"}</p>
+        <p class="note">As gravações são persistidas no Firestore em nuvem e sincronizadas em tempo real entre abas e dispositivos.</p>
+      `,
+      migHtml: () => ""
+    };
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        window.DATA.user = user;
+        window.DATA.authenticated = true;
+        window.DATA.lastRead = Date.now();
+        console.log("Firebase Auth conectado:", user.email, user.uid);
+        startListeners();
+        if (typeof window.onAuthSuccess === "function") window.onAuthSuccess(user);
+      } else {
+        window.DATA.user = null;
+        window.DATA.authenticated = false;
+        stopListeners();
+        if (typeof window.onAuthRequired === "function") window.onAuthRequired();
+      }
+      if (typeof window.stLine === "function") window.stLine();
+    });
+
+    if (typeof window.stLine === "function") window.stLine();
+  } catch(err) {
+    console.error("Erro ao inicializar Firebase:", err);
+  }
 }
 
-try {
-  setPersistence(auth, browserSessionPersistence);
-} catch(e){}
-
-window.DATA = {
-  ready: true,
-  authenticated: false,
-  user: null,
-  lastRead: Date.now(),
-  async login(email, password) {
-    if (!auth) throw new Error("Firebase Auth não carregado.");
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    return cred.user;
-  },
-  async logout() {
-    stopListeners();
-    if (typeof window.clearDataOnLogout === "function") window.clearDataOnLogout();
-    if (auth) await signOut(auth);
-  },
-  async write(col, id, data) {
-    if (!db) throw new Error("Banco de dados não conectado.");
-    const ref = doc(db, col, id);
-    if (data === null) await deleteDoc(ref);
-    else await setDoc(ref, data, { merge: true });
-  },
-  async saveCfg(patch) {
-    if (!db) throw new Error("Banco de dados não conectado.");
-    await setDoc(doc(db, "config", "general"), patch, { merge: true });
-  },
-  cardHtml: () => `
-    <h2>Status do Firebase Firestore</h2>
-    <p class="note" style="color:var(--g);font-weight:600;font-size:14px">● Conectado ao projeto: <code>${firebaseConfig.projectId}</code></p>
-    <p class="note">Autenticação: ${window.DATA && window.DATA.user ? `<b>${window.DATA.user.email}</b> (UID: <code>${window.DATA.user.uid}</code>)` : "Não autenticado"}</p>
-    <p class="note">As gravações são persistidas no Firestore em nuvem e sincronizadas em tempo real entre abas e dispositivos.</p>
-  `,
-  migHtml: () => ""
-};
-
-onAuthStateChanged(auth, user => {
-  if (user) {
-    window.DATA.user = user;
-    window.DATA.authenticated = true;
-    window.DATA.lastRead = Date.now();
-    console.log("Firebase Auth conectado:", user.email, user.uid);
-    startListeners();
-    if (typeof window.onAuthSuccess === "function") window.onAuthSuccess(user);
-  } else {
-    window.DATA.user = null;
-    window.DATA.authenticated = false;
-    stopListeners();
-    if (typeof window.onAuthRequired === "function") window.onAuthRequired();
-  }
-  if (typeof window.stLine === "function") window.stLine();
-});
-
-if (typeof window.stLine === "function") window.stLine();
+initFirebaseModule();
 </script>
 </body>
 </html>
