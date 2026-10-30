@@ -226,27 +226,12 @@ try {
   const ca = localStorage.getItem('kommo_appts_v3') || localStorage.getItem('kommo_appts_cache');
   if (ca) appts = JSON.parse(ca);
   const cc = localStorage.getItem('kommo_cfg_v3');
-  if (cc) {
-    cfg = JSON.parse(cc);
-    if (cfg && cfg.deletedWeeks) {
-      delete cfg.deletedWeeks['2026-10-17'];
-      Object.keys(weeks || {}).forEach(k => { delete cfg.deletedWeeks[k]; });
-    }
-  }
+  if (cc) cfg = JSON.parse(cc);
 } catch(e) {}
 
 window.setWeeks = async w => { 
   if (w && typeof w === 'object' && Object.keys(w).length) {
     weeks = w; 
-    if (cfg && cfg.deletedWeeks) {
-      let cleaned = false;
-      Object.keys(weeks).forEach(k => {
-        if (cfg.deletedWeeks[k]) { delete cfg.deletedWeeks[k]; cleaned = true; }
-      });
-      if (cleaned) {
-        try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(e){}
-      }
-    }
     try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
     await syncWeekMetricsWithAppts(false);
     forceRender(); 
@@ -263,9 +248,6 @@ window.setAppts = async a => {
 window.setCfg = c => { 
   if (c && typeof c === 'object') {
     cfg = c; 
-    if (cfg && cfg.deletedWeeks) {
-      Object.keys(weeks || {}).forEach(k => { delete cfg.deletedWeeks[k]; });
-    }
     try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(e){}
     applyCfg(); 
     forceRender(); 
@@ -346,59 +328,25 @@ function getSaturdayOfWeek(isoDate) {
   return `${ry}-${rm}-${rd}`;
 }
 
-// Garante semanas para todas as consultas (data de agendamento, consulta ou nova data reagendada)
-function ensureWeeksForAppts() {
-  if (!appts || typeof appts !== 'object') return;
-  const allAppts = Object.values(appts);
+// Cria semana automaticamente EXCLUSIVAMENTE quando uma consulta é criada com 'Agendada em' em semana não presente
+async function ensureWeekForCreatedSchedOn(schedDate) {
+  if (!schedDate || !/^\d{4}-\d{2}-\d{2}$/.test(schedDate)) return;
+  const sat = getSaturdayOfWeek(schedDate);
   const keys = Object.keys(weeks || {});
-
-  allAppts.forEach(a => {
-    // Checa schedOn, consult e também a newDate (para semanas futuras reagendadas)
-    const dates = [a.schedOn, a.consult, a.newDate].filter(Boolean);
-    dates.forEach(d => {
-      if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
-      const covered = keys.some(id => {
-        const { start, end } = getWeekWindow(id, keys, 0);
-        return d >= start && d <= end;
-      });
-
-      if (!covered) {
-        const sat = getSaturdayOfWeek(d);
-        if (cfg && cfg.deletedWeeks && cfg.deletedWeeks[sat]) {
-          delete cfg.deletedWeeks[sat];
-        }
-        if (!weeks[sat]) {
-          const o = { id: sat };
-          BASEF.forEach(([k]) => { o[k] = 0; });
-          weeks[sat] = o;
-          keys.push(sat);
-        }
-      }
-    });
+  const exists = keys.some(id => {
+    const { start, end } = getWeekWindow(id, keys, 0);
+    return schedDate >= start && schedDate <= end;
   });
-}
-
-function cleanupStrayWeeks() {
-  if (!weeks || typeof weeks !== 'object') return;
-  if (cfg && cfg.deletedWeeks) {
-    const allAppts = Object.values(appts || {});
-    Object.keys(cfg.deletedWeeks).forEach(id => {
-      // Só limpa se realmente não tiver consultas nessa semana
-      const hasAppts = allAppts.some(a => {
-        const d = a.schedOn || a.consult || a.newDate || '';
-        return d && getSaturdayOfWeek(d) === id;
-      });
-      if (!hasAppts && cfg.deletedWeeks[id] && weeks[id]) {
-        delete weeks[id];
-      }
-    });
+  if (!exists && !weeks[sat]) {
+    const o = { id: sat };
+    BASEF.forEach(([k]) => { o[k] = 0; });
+    weeks[sat] = o;
+    await saveDoc('weeks/' + sat, o);
   }
 }
 
 /* ===== FUNÇÃO W() COM PREVISÃO DE CONSULTAS E SINCRONIZAÇÃO INTELIGENTE ===== */
 function W() {
-  ensureWeeksForAppts();
-  cleanupStrayWeeks();
   const keys = Object.keys(weeks || {}).sort();
   const allAppts = Object.values(appts || {});
   const tDay = today();
@@ -458,8 +406,6 @@ function W() {
 }
 
 async function syncWeekMetricsWithAppts(persist = true) {
-  ensureWeeksForAppts();
-  cleanupStrayWeeks();
   const allAppts = Object.values(appts || {});
   const keys = Object.keys(weeks || {}).sort();
   if (!keys.length) return;
@@ -469,6 +415,7 @@ async function syncWeekMetricsWithAppts(persist = true) {
 
   for (let i = 0; i < keys.length; i++) {
     const id = keys[i];
+
     const { start, end } = getWeekWindow(id, keys, i);
     const raw = weeks[id] || {};
     let weekChanged = false;
@@ -585,8 +532,6 @@ async function delDoc(path) {
     delete appts[id];
     try { localStorage.setItem('kommo_appts_v3', JSON.stringify(appts)); } catch(e){}
   }
-  await syncWeekMetricsWithAppts(false);
-  forceRender();
 
   if (window.DATA && typeof window.DATA.write === 'function') {
     try {
@@ -595,6 +540,9 @@ async function delDoc(path) {
       console.warn("Aviso ao excluir no Firebase:", err);
     }
   }
+
+  await syncWeekMetricsWithAppts(false);
+  forceRender();
 }
 
 async function saveCfg(p) {
@@ -609,6 +557,22 @@ async function saveCfg(p) {
       console.warn("Aviso ao salvar configuração no Firebase:", err);
     }
   }
+}
+
+// Função unificada e definitiva para exclusão de semana
+async function deleteWeek(id) {
+  if (!id) return toast('Selecione uma semana existente para excluir.');
+  id = normalizeDateStr(id, new Date().getFullYear());
+  if (!id) return toast('Data da semana inválida.');
+
+  if (editRow === id) editRow = null;
+  delete weeks[id];
+  try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
+  await delDoc('weeks/' + id);
+
+  fillForm(null);
+  render();
+  toast('Semana ' + fdf(id) + ' excluída com sucesso!');
 }
 
 const WCOLS=["semana","novos","antigas","ativas","fu2","fu3","fu4","fu5","resp","agend","semresp","pensando","aguard","nao","cagend","ccanc","creag","creal"];
@@ -677,39 +641,78 @@ function applyTheme(){const t=cfg.theme||{},r=document.documentElement;['g','b',
 function themeHtml(){const t=cfg.theme||{},c=(k,l,d)=>`<label>${l}<input type="color" data-tk="${k}" value="${t[k]||d}"></label>`;
   return `<div class="card" style="margin-top:14px"><h2>Tema</h2><div class="f"><label>Modo<select data-tk="mode">${[['auto','Automático'],['light','Claro'],['dark','Escuro']].map(([v,l])=>`<option value="${v}"${(t.mode||'auto')===v?' selected':''}>${l}</option>`).join('')}</select></label>${c('g','Cor principal','#1f7a6d')}${c('b','Cor secundária','#3d6fa8')}${c('a','Cor de destaque','#d99a1c')}${c('bg','Cor de fundo','#f4f6f3')}</div><div class="row"><button class="b s" id="c_tr">Restaurar tema</button></div></div>`}
 
-/* ===== CONSTRUTOR VISUAL E REAL DE MÉTRICAS E CARDS PERSONALIZADOS (SEM DEPENDER DE IA) ===== */
-const METRIC_FIELDS = [
-  ['novos','Novos leads'],
-  ['antigas','Conversas antigas retomadas'],
-  ['ativas','Total de conversas ativas'],
-  ['fu2','Contatados no FU 2'],
-  ['fu3','Contatados no FU 3'],
-  ['fu4','Contatados no FU 4'],
-  ['fu5','Contatados no FU 5'],
-  ['msgs','Total de mensagens de follow-up'],
-  ['resp','Respostas recebidas no follow-up'],
-  ['agend','Agendamentos gerados pelo follow-up'],
-  ['semresp','Sem resposta no follow-up'],
-  ['pensando','Pensando ou pesquisando'],
-  ['aguard','Aguardando dados de cadastro'],
-  ['nao','Não vão seguir'],
-  ['cagend','Consultas agendadas na semana'],
-  ['cprev','Consultas previstas da semana'],
-  ['creal','Consultas realizadas'],
-  ['ccanc','Consultas canceladas'],
-  ['creag','Consultas reagendadas'],
-  ['tot','Total de consultas da agenda']
-];
+/* ===== CONSTRUTOR VISUAL E REAL DE MÉTRICAS E CARDS PERSONALIZADOS (ATUALIZADO DINAMICAMENTE) ===== */
+function getAvailableMetricFields() {
+  const fields = [];
+
+  // 1. Campos Semanais (com nomes atualizados e campos extras adicionados pelo usuário)
+  FIELDS.forEach(([k]) => {
+    fields.push({
+      key: k,
+      label: lab(k),
+      group: 'Campos Semanais',
+      isAppt: false
+    });
+  });
+
+  const extraWeekly = [
+    { key: 'msgs', label: 'Mensagens de follow-up (FU 2 a FU 5)', group: 'Campos Semanais', isAppt: false },
+    { key: 'tot', label: 'Total de consultas finalizadas (real + canc + reag)', group: 'Campos Semanais', isAppt: false },
+    { key: 'cprev', label: 'Consultas previstas da semana', group: 'Campos Semanais', isAppt: false }
+  ];
+  extraWeekly.forEach(ew => {
+    if (!fields.some(f => f.key === ew.key)) fields.push(ew);
+  });
+
+  // 2. Parâmetros da Aba de Consultas
+  const apptFields = [
+    { key: 'appts_total', label: 'Total de consultas registradas (Geral)', group: 'Parâmetros da Aba de Consultas', isAppt: true, getter: (w, ap) => ap.length },
+    { key: 'appts_agendada', label: 'Consultas com status "Agendada"', group: 'Parâmetros da Aba de Consultas', isAppt: true, getter: (w, ap) => ap.filter(a => a.status === 'agendada').length },
+    { key: 'appts_realizada', label: 'Consultas com status "Realizada" (Check-in)', group: 'Parâmetros da Aba de Consultas', isAppt: true, getter: (w, ap) => ap.filter(a => a.status === 'realizada').length },
+    { key: 'appts_cancelada', label: 'Consultas com status "Cancelada"', group: 'Parâmetros da Aba de Consultas', isAppt: true, getter: (w, ap) => ap.filter(a => a.status === 'cancelada').length },
+    { key: 'appts_reagendada', label: 'Consultas com status "Reagendada"', group: 'Parâmetros da Aba de Consultas', isAppt: true, getter: (w, ap) => ap.filter(a => a.status === 'reagendada').length },
+    { key: 'appts_recuperadas', label: 'Reagendamentos com sucesso ("Sim, reagendado")', group: 'Parâmetros da Aba de Consultas', isAppt: true, getter: (w, ap) => ap.filter(a => a.regained === 'sim').length },
+    { key: 'appts_em_contato', label: 'Reagendamentos pendentes ("Em contato")', group: 'Parâmetros da Aba de Consultas', isAppt: true, getter: (w, ap) => ap.filter(a => a.regained === 'contato').length },
+    { key: 'appts_perdidas', label: 'Consultas perdidas ("Não conseguiu")', group: 'Parâmetros da Aba de Consultas', isAppt: true, getter: (w, ap) => ap.filter(a => a.regained === 'nao').length }
+  ];
+
+  Object.entries(ORIG).forEach(([k, n]) => {
+    apptFields.push({
+      key: 'appts_orig_' + k,
+      label: `Consultas vindas de "${n}"`,
+      group: 'Parâmetros da Aba de Consultas',
+      isAppt: true,
+      getter: (w, ap) => ap.filter(a => a.origin === k).length
+    });
+  });
+
+  apptFields.forEach(af => fields.push(af));
+  return fields;
+}
+
+function getMetricFieldOptionsHtml(selVal) {
+  const fields = getAvailableMetricFields();
+  const groups = {};
+  fields.forEach(f => {
+    groups[f.group] = groups[f.group] || [];
+    groups[f.group].push(f);
+  });
+  return Object.entries(groups).map(([grp, items]) => {
+    const opts = items.map(f => `<option value="${f.key}"${f.key === selVal ? ' selected' : ''}>${esc(f.label)}</option>`).join('');
+    return `<optgroup label="${esc(grp)}">${opts}</optgroup>`;
+  }).join('');
+}
 
 function metricHtml(){
   const ms=cfg.metrics||[];
   const ow={kpi:'Card no quadro geral',line:'Gráfico de linha',bar:'Gráfico de barras'};
-  const fOpts = METRIC_FIELDS.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('');
+  const fOptsA = getMetricFieldOptionsHtml('novos');
+  const fOptsB = getMetricFieldOptionsHtml('ativas');
 
   return `
     <div class="card" style="margin-top:14px">
       <h2>Métricas e Cards Personalizados</h2>
-      <p class="note">Crie cards e gráficos sob medida para a sua clínica com cálculo instantâneo e seguro, sem depender de inteligência artificial. Selecione a operação desejada, os campos e onde deseja exibir no painel.</p>
+      <p class="note">Crie cards e gráficos sob medida para a sua clínica com cálculo instantâneo e seguro. As opções para Campo A e Campo B incluem automaticamente todos os campos semanais (inclusive novos campos criados) e todos os parâmetros da aba de consultas.</p>
 
       <div style="background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px">
         <h3 id="mb_title" style="margin:0 0 12px;font-size:15px;font-weight:600">➕ Criar nova métrica / card</h3>
@@ -717,7 +720,7 @@ function metricHtml(){
 
         <div class="f">
           <label style="grid-column:1/-1">Título do card ou gráfico
-            <input id="mb_name" placeholder="Ex.: Taxa de cancelamento sobre previstas, Total de conversas quentes...">
+            <input id="mb_name" placeholder="Ex.: Taxa de cancelamento sobre previstas, Consultas de novos leads...">
           </label>
           <label>Modelo de cálculo
             <select id="mb_calc_type">
@@ -732,16 +735,16 @@ function metricHtml(){
           </label>
 
           <label id="mb_wrap_a">Campo principal (A)
-            <select id="mb_field_a">${fOpts}</select>
+            <select id="mb_field_a">${fOptsA}</select>
           </label>
 
           <label id="mb_wrap_b">Campo comparador (B)
-            <select id="mb_field_b">${fOpts}</select>
+            <select id="mb_field_b">${fOptsB}</select>
           </label>
 
           <label id="mb_wrap_expr" class="hide" style="grid-column:1/-1">Fórmula personalizada
-            <input id="mb_custom_expr" placeholder="Ex.: DIV(SUM(ccanc), SUM(cprev)) * 100">
-            <span class="note" style="font-size:11px;margin-top:2px">Funções: SUM, LAST, AVG, MAX, MIN e DIV(a,b). Campos: ${METRIC_FIELDS.map(f=>f[0]).join(', ')}</span>
+            <input id="mb_custom_expr" placeholder="Ex.: DIV(SUM(appts_realizada), SUM(appts_total)) * 100">
+            <span class="note" style="font-size:11px;margin-top:2px">Funções: SUM, LAST, AVG, MAX, MIN e DIV(a,b). Use qualquer campo semanal ou parâmetro de consulta.</span>
           </label>
 
           <label>Formato do resultado
@@ -809,8 +812,11 @@ function getMetricFormulaFromBuilder() {
   const custom = $('#mb_custom_expr')?.value.trim() || '';
 
   const isSnA = isSn(a), isSnB = isSn(b);
-  const fnA = (a === 'msgs' || a === 'tot') ? `SUM(${a})` : (isSnA ? `LAST(${a})` : `SUM(${a})`);
-  const fnB = (b === 'msgs' || b === 'tot') ? `SUM(${b})` : (isSnB ? `LAST(${b})` : `SUM(${b})`);
+  const isApptA = a.startsWith('appts_');
+  const isApptB = b.startsWith('appts_');
+
+  const fnA = (a === 'msgs' || a === 'tot' || isApptA) ? `SUM(${a})` : (isSnA ? `LAST(${a})` : `SUM(${a})`);
+  const fnB = (b === 'msgs' || b === 'tot' || isApptB) ? `SUM(${b})` : (isSnB ? `LAST(${b})` : `SUM(${b})`);
 
   switch(type) {
     case 'pct_a_b':
@@ -1182,14 +1188,30 @@ const FNS=['SUM','LAST','AVG','MAX','MIN','DIV'];
 function ev(expr,ws){
   if(!expr || typeof expr !== 'string') return 0;
   if(!/^[\w\s+\-*/().,]*$/.test(expr)) throw new Error('Caracteres inválidos na fórmula');
-  const allowed = [...FNS, ...FK];
+  const allMetricFields = getAvailableMetricFields();
+  const fieldKeys = allMetricFields.map(f => f.key).concat(['msgs','tot','cprev']);
+  const allowed = [...FNS, ...fieldKeys];
   const tokens = expr.match(/[A-Za-z_]\w*/g) || [];
   if(tokens.some(i => !allowed.includes(i))) throw new Error('Token desconhecido na fórmula');
+
+  const allAppts = Object.values(appts || {});
 
   const g = (f, w) => {
     if (f === 'msgs') return msgs(w);
     if (f === 'tot') return (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0);
     if (f === 'cprev') return w.cprev || ((w.creal || 0) + (w.ccanc || 0) + (w.creag || 0));
+
+    const mf = allMetricFields.find(m => m.key === f);
+    if (mf && mf.isAppt && typeof mf.getter === 'function') {
+      const { start, end } = getWeekWindow(w.id, [], 0);
+      const apptsInWindow = allAppts.filter(a => {
+        const s = a.schedOn || '';
+        const c = a.consult || '';
+        return (s >= start && s <= end) || (c >= start && c <= end);
+      });
+      return mf.getter(w, apptsInWindow);
+    }
+
     return w[f] || 0;
   };
   const col = f => ws.map(w => g(f, w));
@@ -1205,8 +1227,8 @@ function ev(expr,ws){
   };
 
   try {
-    const fnEvaluator = new Function(...FNS, ...FK, 'return (' + expr + ')');
-    const r = fnEvaluator(...FNS.map(k => fn[k]), ...FK);
+    const fnEvaluator = new Function(...FNS, ...fieldKeys, 'return (' + expr + ')');
+    const r = fnEvaluator(...FNS.map(k => fn[k]), ...fieldKeys);
     return isFinite(r) ? r : 0;
   } catch(err) {
     return 0;
@@ -1425,6 +1447,7 @@ async function savePreviewAppts(isExplicitUserClick){
       const s=/^\d{4}-\d{2}-\d{2}$/.test(item.schedOn||'')?item.schedOn:(c||today());
       if(Object.values(appts).some(a=>a.patient===p&&(a.consult||'')===c))continue;
 
+      await ensureWeekForCreatedSchedOn(s);
       const newId='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
       await saveDoc('appts/'+newId,{
         patient:p.slice(0,200),
@@ -1635,12 +1658,11 @@ const NICE=m=>{const p=Math.pow(10,Math.floor(Math.log10(m))),r=m/p;return (r<=1
 
 function chart(labels, series, mode, isPct, categories){
   const n = labels.length || 1;
-  // Largura confortável mínima para cada semana: nunca espreme nem reduz zoom
   const minColWidth = mode === 'group' ? Math.max(86, (series.length * 20) + 26) : 76;
   const L = 38, R = 18, T = 14, B = 28;
   const contentW = n * minColWidth;
   const Wd = Math.max(520, L + R + contentW);
-  const H = 220; // Altura otimizada para leitura limpa
+  const H = 220;
   const iw = Wd - L - R, ih = H - T - B;
   const bw = iw / n;
 
@@ -1713,7 +1735,6 @@ function chart(labels, series, mode, isPct, categories){
       });
     });
   } else {
-    // Linha
     series.forEach(s => {
       const pts = s.v.map((v, i) => [L + bw * i + bw / 2, y(v || 0)]);
       o += `<polyline fill="none" stroke="${s.c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
@@ -1889,7 +1910,6 @@ function dash(){
 
   const L=ws.map(w=>fd(w.id));
   const fullCats=ws.map(w=>'Semana de '+fdf(w.id));
-  // Identifica a última semana lançada com dados de topo de funil para não zerar cards informativos
   const last=[...ws].reverse().find(w=>(w.ativas||0)>0||(w.novos||0)>0)||ws[ws.length-1];
 
   const tm=sum(ws,msgs),tr=sum(ws,'resp'),ta=sum(ws,'agend'),tl=sum(ws,'novos');
@@ -1899,7 +1919,6 @@ function dash(){
   const rec=perd.filter(a=>a.regained==='sim').length;
   const andam=Object.values(appts).filter(a=>a.regained==='contato').length;
 
-  // Conversão de novos leads em consultas agendadas
   const agendDeNovosLeads = ap.filter(a => a.origin === 'novo').length;
   const convNovosLeadsRate = tl > 0 ? (agendDeNovosLeads / tl * 100) : 0;
 
@@ -1958,7 +1977,6 @@ function dash(){
   const fu=[2,3,4,5].map((k,i)=>({n:'FU '+k,c:css(['b','g','a','p'][i]),v:ws.map(w=>w['fu'+k]||0)}));
 
   /* ===== GRÁFICO AGENDA COM PREVISÃO E SUPORTE A SEMANAS FUTURAS ===== */
-  // Assegura que todas as semanas futuras com consultas agendadas apareçam sempre no gráfico da agenda
   const curSat = getSaturdayOfWeek(today());
   const upcomingWeeksWithAppts = WA.filter(w => (w.id >= curSat || w.id > pTo) && (w.cprev || 0) > 0);
   const wsAgendaMap = new Map();
@@ -2048,7 +2066,43 @@ function loadWeek(){
   let id=($('#wd').value||'').trim();
   id=normalizeDateStr(id,new Date().getFullYear());
   if(!id)return;
-  fillForm(W().find(w=>w.id===id)||weeks[id]);
+  const existing = W().find(w=>w.id===id)||weeks[id];
+  if(existing){
+    fillForm(existing);
+  } else {
+    // Semana nova ou re-adicionada: pré-calcula métricas das consultas já existentes no sistema
+    const { start, end } = getWeekWindow(id, [], 0);
+    const allAppts = Object.values(appts || {});
+    const tDay = today();
+    const schedInWeek = allAppts.filter(a => (a.schedOn || '') >= start && (a.schedOn || '') <= end);
+    const consultInWeek = allAppts.filter(a => (a.consult || '') >= start && (a.consult || '') <= end);
+    const numReal = consultInWeek.filter(a => a.status === 'realizada').length;
+    const numCanc = consultInWeek.filter(a => a.status === 'cancelada').length;
+    const numReag = consultInWeek.filter(a => a.status === 'reagendada').length;
+    let numPrev = 0;
+    if (end >= tDay) {
+      const ativasNaSemana = consultInWeek.filter(a => {
+        if (a.status === 'cancelada' || a.status === 'reagendada') return false;
+        if (start >= tDay) return true;
+        const cDate = a.consult || '';
+        return !cDate || cDate >= tDay;
+      }).length;
+      const reagendadasParaEstaSemana = allAppts.filter(a => {
+        if (a.status !== 'reagendada') return false;
+        const nd = a.newDate || '';
+        if (start >= tDay) return nd >= start && nd <= end;
+        return nd >= start && nd <= end && nd >= tDay;
+      }).length;
+      numPrev = ativasNaSemana + reagendadasParaEstaSemana;
+    }
+    fillForm({
+      cagend: schedInWeek.length,
+      creal: numReal,
+      ccanc: numCanc,
+      creag: numReag,
+      cprev: numPrev
+    });
+  }
 }
 function readForm(){
   let id=($('#wd').value||'').trim();
@@ -2073,22 +2127,29 @@ async function importRows(rows){
     const line=r.trim();
     if(!line)continue;
     let c = line.includes('\t') ? line.split('\t') : (line.includes(';') ? line.split(';') : (line.includes(',') ? line.split(',') : [line]));
-    c = c.map(s => s.trim());
+    c = c.map(s => s.trim().replace(/^["']|["']$/g, ''));
     
-    const weekDate = normalizeDateStr(c[0], curY);
-    const hasMetricNumbers = c.slice(1).some(v => /^\d+$/.test(v.replace(/[\s\u00a0.]/g,'')));
+    // Normalização flexível da data na primeira coluna
+    let weekDate = normalizeDateStr(c[0], curY);
+    if (!weekDate) {
+      const found = extractAllDates(c[0], curY);
+      if (found && found.length) weekDate = found[0].iso;
+    }
+    
+    // Verifica se há números métricos na linha
+    const hasMetricNumbers = c.slice(1).some(v => {
+      const clean = String(v || '').replace(/[\s\u00a0.]/g, '').replace(/,/g, '.');
+      return clean !== '' && !isNaN(Number(clean));
+    });
     
     if(weekDate && hasMetricNumbers){
       const id = weekDate;
       const o = {};
       BASEF.forEach(([k], i) => {
         const val = c[i + 1];
-        o[k] = parseInt(String(val || '0').replace(/[\s\u00a0.]/g, '')) || 0;
+        const num = String(val || '0').replace(/[\s\u00a0.]/g, '').replace(/,/g, '.');
+        o[k] = isNaN(parseFloat(num)) ? 0 : Math.round(parseFloat(num));
       });
-      if (cfg.deletedWeeks && cfg.deletedWeeks[id]) {
-        delete cfg.deletedWeeks[id];
-        await saveCfg({ deletedWeeks: cfg.deletedWeeks });
-      }
       weeks[id] = { ...(weeks[id] || {}), ...o, id };
       await saveDoc('weeks/' + id, weeks[id]);
       nWeeks++;
@@ -2097,11 +2158,13 @@ async function importRows(rows){
     
     const apptItem = parsePatientLine(line, curY);
     if(apptItem && apptItem.patient){
+      const s = apptItem.schedOn || apptItem.consult || today();
+      await ensureWeekForCreatedSchedOn(s);
       const newId = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       await saveDoc('appts/' + newId, {
         patient: apptItem.patient.slice(0, 200),
         origin: ORIG[apptItem.origin] ? apptItem.origin : 'novo',
-        schedOn: apptItem.schedOn || apptItem.consult || today(),
+        schedOn: s,
         consult: apptItem.consult || '',
         status: STAT[apptItem.status] ? apptItem.status : 'agendada',
         regained: apptItem.regained || (apptItem.status === 'reagendada' ? 'sim' : ''),
@@ -2160,10 +2223,11 @@ function apptList(){
   }
   const qClean=(f.q||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const ids=Object.keys(appts).filter(k=>{
-    const a=appts[k],s=a.schedOn||'',c=a.consult||'';
+    const a=appts[k],s=a.schedOn||'',c=a.consult||'',nd=a.newDate||'';
     const pName=String(a.patient||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const matchesQ=!qClean||pName.includes(qClean);
-    return matchesQ&&(!wr||(s>=wr[0]&&s<=wr[1]))&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status);
+    const matchesWeek=!wr||(s>=wr[0]&&s<=wr[1])||(c>=wr[0]&&c<=wr[1])||(nd>=wr[0]&&nd<=wr[1]);
+    return matchesQ&&matchesWeek&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status);
   });
 
   ids.sort((a, b) => {
@@ -2243,10 +2307,6 @@ $('#ws').onclick=async()=>{
   let id=($('#wd').value||'').trim();
   id=normalizeDateStr(id,new Date().getFullYear());
   if(!id)return toast('Escolha a data da semana');
-  if(cfg.deletedWeeks && cfg.deletedWeeks[id]){
-    delete cfg.deletedWeeks[id];
-    await saveCfg({deletedWeeks:cfg.deletedWeeks});
-  }
   const formData=readForm();
   weeks[id]={...(weeks[id]||{}),...formData,id};
   try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
@@ -2277,15 +2337,7 @@ $('#wdel').onclick=async function(){
   btn.textContent='Excluir esta semana';
   btn.style.backgroundColor='';
   btn.style.color='';
-  cfg.deletedWeeks=cfg.deletedWeeks||{};
-  cfg.deletedWeeks[id]=true;
-  await saveCfg({deletedWeeks:cfg.deletedWeeks});
-  delete weeks[id];
-  try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
-  await delDoc('weeks/'+id);
-  fillForm(null);
-  render();
-  toast('Semana excluída com sucesso!');
+  await deleteWeek(id);
 };
 $('#imp').onclick=()=>importRows($('#paste').value.split(/\r?\n/));
 $('#seed').onclick=async()=>{for(const [id,v] of Object.entries(SEED)){const o={};BASEF.forEach(([k],i)=>o[k]=v[i]);await saveDoc('weeks/'+id,{...(weeks[id]||{}),...o})}toast('Semanas carregadas')};
@@ -2310,6 +2362,7 @@ $('#cp_add').onclick=async()=>{
   const c=normalizeDateStr($('#cp_c').value, new Date().getFullYear());
   let s=normalizeDateStr($('#cp_s').value, new Date().getFullYear());
   if(!s)s=c||today();
+  await ensureWeekForCreatedSchedOn(s);
   const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:s,consult:c,status:'agendada',regained:'',newDate:''});
   $('#cp_n').value='';
@@ -2576,10 +2629,6 @@ $('#wl').addEventListener('click',async e=>{
     const id=d.ws,o={...weeks[id]};
     document.querySelectorAll('#wl [data-ek]').forEach(i=>{o[i.dataset.ek]=Math.max(0,parseInt(i.value)||0)});
     editRow=null;
-    if(cfg.deletedWeeks && cfg.deletedWeeks[id]){
-      delete cfg.deletedWeeks[id];
-      await saveCfg({deletedWeeks:cfg.deletedWeeks});
-    }
     weeks[id]={...(weeks[id]||{}),...o,id};
     try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
     await saveDoc('weeks/'+id,weeks[id]);
@@ -2607,15 +2656,7 @@ $('#wl').addEventListener('click',async e=>{
     }
     delete btn.dataset.confirming;
     const id=d.wx;
-    if(editRow===id)editRow=null;
-    cfg.deletedWeeks=cfg.deletedWeeks||{};
-    cfg.deletedWeeks[id]=true;
-    await saveCfg({deletedWeeks:cfg.deletedWeeks});
-    delete weeks[id];
-    try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
-    await delDoc('weeks/'+id);
-    render();
-    toast('Semana excluída com sucesso!');
+    await deleteWeek(id);
     return;
   }
   if(d.wfc){wFilt={from:'',to:''};$('#wl').innerHTML=weekList()}
