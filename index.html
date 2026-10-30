@@ -17,7 +17,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Figtree,system-ui,sans-serif;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;max-width:none;margin:0;padding:12px max(22px,calc((100% - 1180px)/2));background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(0,0,0,.02),0 6px 18px -12px rgba(0,0,0,.25);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;max-width:none;margin:0;padding:12px max(22px,calc((100% - 1320px)/2));background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(0,0,0,.02),0 6px 18px -12px rgba(0,0,0,.25);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
 h1{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
 #st{font-size:12px;margin-top:1px;color:var(--mut)}
 #st::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--g);margin-right:6px;vertical-align:1px}
@@ -25,7 +25,7 @@ nav{display:flex;gap:3px;background:var(--bg);border:1px solid var(--line);borde
 nav button{border:0;background:none;color:var(--mut);font:inherit;font-weight:500;font-size:13.5px;padding:7px 13px;border-radius:8px;cursor:pointer;transition:background .15s,color .15s}
 nav button:hover:not(.on){background:var(--line);color:var(--ink)}
 nav button.on{background:var(--g);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-main{max-width:1180px;margin:auto;padding:20px 22px 40px}
+main{max-width:1320px;margin:auto;padding:20px 22px 40px}
 .grid{display:grid;gap:14px}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:14px}
 .charts{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
@@ -57,6 +57,14 @@ svg text{fill:var(--mut);font-size:10.5px;font-family:inherit}
 #dynamic_summary::-webkit-scrollbar-thumb:hover{background:var(--g)}
 .ins p{margin:6px 0}
 .wrap{overflow-x:auto}
+.appt-scroll-box{max-height:480px;overflow-y:auto;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--k) color-mix(in srgb,var(--line) 40%,transparent);border:1px solid var(--line);border-radius:10px}
+.appt-scroll-box::-webkit-scrollbar{width:7px;height:7px}
+.appt-scroll-box::-webkit-scrollbar-track{background:color-mix(in srgb,var(--line) 30%,transparent)}
+.appt-scroll-box::-webkit-scrollbar-thumb{background:var(--k);border-radius:99px}
+.appt-scroll-box table{width:100%;border-collapse:separate;border-spacing:0}
+.appt-scroll-box table th{position:sticky;top:0;z-index:4;background:var(--bg);box-shadow:0 1px 0 var(--line);padding:9px 7px;font-size:11px}
+.appt-scroll-box table td{padding:6px 6px;vertical-align:middle}
+.appt-scroll-box input, .appt-scroll-box select{min-height:31px;padding:4px 6px;font-size:12px;border-radius:7px}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 th{color:var(--mut);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;background:var(--bg);position:sticky;top:0}
@@ -158,7 +166,7 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
     <div id="ps_preview_box" style="margin-top:14px"></div>
   </div>
 
-  <div class="card wrap" style="margin-top:14px">
+  <div class="card" style="margin-top:14px">
     <h2>Consultas registradas</h2>
     <p class="note">Mude o status quando a consulta acontecer (check-in), for cancelada ou reagendada.</p>
     <div id="al"></div>
@@ -227,7 +235,7 @@ try {
   }
 } catch(e) {}
 
-window.setWeeks = w => { 
+window.setWeeks = async w => { 
   if (w && typeof w === 'object' && Object.keys(w).length) {
     weeks = w; 
     if (cfg && cfg.deletedWeeks) {
@@ -240,7 +248,8 @@ window.setWeeks = w => {
       }
     }
     try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
-    render(); 
+    await syncWeekMetricsWithAppts(false);
+    forceRender(); 
   }
 };
 window.setAppts = async a => { 
@@ -248,7 +257,7 @@ window.setAppts = async a => {
     appts = a; 
     try { localStorage.setItem('kommo_appts_v3', JSON.stringify(appts)); } catch(e){}
     await syncWeekMetricsWithAppts(false);
-    render(); 
+    forceRender(); 
   }
 };
 window.setCfg = c => { 
@@ -259,7 +268,7 @@ window.setCfg = c => {
     }
     try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(e){}
     applyCfg(); 
-    render(); 
+    forceRender(); 
   }
 };
 
@@ -555,7 +564,8 @@ async function saveDoc(path, data) {
     appts[id] = { ...(appts[id] || {}), ...data };
     try { localStorage.setItem('kommo_appts_v3', JSON.stringify(appts)); } catch(e){}
   }
-  render();
+  await syncWeekMetricsWithAppts(false);
+  forceRender();
 
   if (window.DATA && typeof window.DATA.write === 'function') {
     try {
@@ -574,9 +584,9 @@ async function delDoc(path) {
   } else if (col === 'appts') {
     delete appts[id];
     try { localStorage.setItem('kommo_appts_v3', JSON.stringify(appts)); } catch(e){}
-    await syncWeekMetricsWithAppts(false);
   }
-  render();
+  await syncWeekMetricsWithAppts(false);
+  forceRender();
 
   if (window.DATA && typeof window.DATA.write === 'function') {
     try {
@@ -591,7 +601,7 @@ async function saveCfg(p) {
   cfg = { ...cfg, ...p };
   try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(e){}
   applyCfg();
-  render();
+  forceRender();
   if (window.DATA && typeof window.DATA.saveCfg === 'function') {
     try {
       await window.DATA.saveCfg(p);
@@ -994,8 +1004,56 @@ const CL=[
   'Funil: leads, respostas e agendamentos'
 ];
 
+const GL_MAP = {
+  'Total de conversas ativas': 'ativas',
+  'Taxa Geral de Agendamento (%)': 'tg',
+  'Conversão do FU em Agendamento (%)': 'conv',
+  'Conversão de Novos Leads em Agendamento (%)': 'convNovos',
+  'Novos leads': 'novos',
+  'Consultas agendadas': 'cagend',
+  'Consultas previstas da semana': 'cprev',
+  'Mensagens de follow-up': 'msgs',
+  'Taxa de resposta do FU': 'resp',
+  'Comparecimento (check-in)': 'comp',
+  'Cancelamento': 'canc',
+  'Reagendamento': 'creag',
+  'Pacientes sem retorno': 'semresp',
+  'Cancelados recuperados': 'rec',
+  'Reagendamentos em andamento': 'andam'
+};
+
+function getUnifiedGoalsList() {
+  const list = [...(cfg.goalsList || [])];
+  if (cfg.goals && typeof cfg.goals === 'object') {
+    Object.entries(cfg.goals).forEach(([k, v]) => {
+      if (v == null || v === '') return;
+      const valNum = parseFloat(v);
+      if (isNaN(valNum)) return;
+      const alreadyInList = list.some(g => g.metric === k || g.label === k || g.id === ('legacy_' + k));
+      if (!alreadyInList) {
+        const isPct = ['tg','conv','convNovos','resp','comp','canc'].includes(k) || String(k).includes('%');
+        const isMax = ['canc','semresp'].includes(k) || String(k).toLowerCase().includes('canc');
+        const baseMatch = BASEF.find(f => f[0] === k);
+        const glEntry = Object.entries(GL_MAP).find(([name, key]) => key === k);
+        const label = (baseMatch && baseMatch[1]) || (glEntry && glEntry[0]) || k;
+        list.push({
+          id: 'legacy_' + k,
+          metric: k,
+          label,
+          week: 'all',
+          target: valNum,
+          unit: isPct ? 'pct' : 'num',
+          dir: isMax ? 'max' : 'min',
+          legacy: true
+        });
+      }
+    });
+  }
+  return list;
+}
+
 function goalsHtml(){
-  const gl = cfg.goalsList || [];
+  const gl = getUnifiedGoalsList();
   const WA = W();
   const allWeeksOpts = `<option value="all">Todas as semanas (Meta Geral)</option>` + WA.slice().reverse().map(w=>`<option value="${w.id}">Semana de ${fdf(w.id)}</option>`).join('');
 
@@ -1009,12 +1067,13 @@ function goalsHtml(){
     ['resp','Taxa de resposta do FU (%)','pct','min'],
     ['comp','Comparecimento (check-in) (%)','pct','min'],
     ['canc','Taxa de Cancelamento (%)','pct','max'],
+    ['semresp','Pacientes sem retorno no follow-up','num','max'],
     ['creal','Consultas realizadas (número)','num','min'],
     ['ccanc','Consultas canceladas (número)','num','max'],
     ['creag','Consultas reagendadas (número)','num','max'],
     ['antigas','Conversas antigas retomadas','num','min'],
     ['ativas','Total de conversas ativas','num','min'],
-    ...FIELDS.filter(([k])=>!['cagend','cprev','novos','creal','ccanc','creag','antigas','ativas'].includes(k)).map(([k,n])=>[k,lab(k),'num','min'])
+    ...FIELDS.filter(([k])=>!['cagend','cprev','novos','creal','ccanc','creag','antigas','ativas','semresp'].includes(k)).map(([k,n])=>[k,lab(k),'num','min'])
   ];
 
   const mOptsHtml = metricOpts.map(([k,l,u,d])=>`<option value="${k}" data-u="${u}" data-d="${d}">${esc(l)}</option>`).join('');
@@ -1033,7 +1092,7 @@ function goalsHtml(){
           const wkLbl = g.week === 'all' || !g.week ? 'Todas as semanas (Geral)' : 'Semana de ' + fdf(g.week);
           const tgtLbl = (g.dir === 'max' ? '≤ ' : '≥ ') + g.target + (g.unit === 'pct' ? '%' : '');
           return `<tr>
-            <td><b>${esc(g.label||g.metric)}</b></td>
+            <td><b>${esc(g.label||g.metric)}</b> ${g.legacy ? '<span class="tag" style="font-size:10px;margin-left:4px">Meta salva anteriormente</span>' : ''}</td>
             <td><span class="tag">${wkLbl}</span></td>
             <td><b>${tgtLbl}</b></td>
             <td><span class="note">${g.dir === 'max' ? 'Máximo tolerado' : 'Mínimo desejado'}</span></td>
@@ -1044,6 +1103,9 @@ function goalsHtml(){
           </tr>`;
         }).join('')}
       </table>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="b s" id="g_clear_all_btn" type="button" style="color:var(--r);font-size:12px">Limpar todas as metas</button>
     </div>
   ` : '<p class="note" style="margin-top:8px">Nenhuma meta configurada ainda. Adicione metas no formulário abaixo.</p>';
 
@@ -1844,33 +1906,14 @@ function dash(){
   let stgMode = window._stgMode || 'semana';
   window.setStgMode = function(m) { window._stgMode = m; render(); };
 
-  const GL = {
-    'Total de conversas ativas': 'ativas',
-    'Taxa Geral de Agendamento (%)': 'tg',
-    'Conversão do FU em Agendamento (%)': 'conv',
-    'Conversão de Novos Leads em Agendamento (%)': 'convNovos',
-    'Novos leads': 'novos',
-    'Consultas agendadas': 'cagend',
-    'Consultas previstas da semana': 'cprev',
-    'Mensagens de follow-up': 'msgs',
-    'Taxa de resposta do FU': 'resp',
-    'Comparecimento (check-in)': 'comp',
-    'Cancelamento': 'canc',
-    'Reagendamento': 'creag',
-    'Pacientes sem retorno': 'semresp',
-    'Cancelados recuperados': 'rec',
-    'Reagendamentos em andamento': 'andam'
-  };
+  const GL = GL_MAP;
 
   const getActiveGoal = (mKey) => {
-    const list = cfg.goalsList || [];
+    const list = getUnifiedGoalsList();
     const gw = list.find(g => (g.metric === mKey || g.label === mKey) && g.week === sw);
     if (gw) return gw;
     const ga = list.find(g => (g.metric === mKey || g.label === mKey) && (g.week === 'all' || !g.week));
     if (ga) return ga;
-    if (cfg.goals && cfg.goals[mKey] != null) {
-      return { metric: mKey, label: mKey, week: 'all', target: cfg.goals[mKey], unit: ['tg','conv','convNovos','resp','comp','canc'].includes(mKey)?'pct':'num', dir: ['canc','semresp'].includes(mKey)?'max':'min' };
-    }
     return null;
   };
 
@@ -2143,21 +2186,37 @@ function apptList(){
   const sortInd = col => aSort.col === col ? (aSort.dir === 'asc' ? ' ▲' : ' ▼') : ' <span style="opacity:0.35">↕</span>';
 
   if(!ids.length)return fbarA(ids)+'<p class="note">'+(Object.keys(appts).length?'Nenhuma consulta encontrada com estes filtros ou pesquisa.':'Nenhuma consulta registrada ainda.')+'</p>';
-  return fbarA(ids)+`<div class="wrap"><table><tr>
-    <th style="cursor:pointer;user-select:none" data-asort="patient" title="Clique para ordenar por Paciente (A-Z ou Z-A)">Paciente${sortInd('patient')}</th>
-    <th>Veio de</th>
-    <th style="cursor:pointer;user-select:none" data-asort="schedOn" title="Clique para ordenar por data de agendamento">Agendada em${sortInd('schedOn')}</th>
-    <th style="cursor:pointer;user-select:none" data-asort="consult" title="Clique para ordenar por data da consulta">Consulta${sortInd('consult')}</th>
-    <th>Status</th>
-    <th>Conseguiu reagendar?</th>
-    <th style="cursor:pointer;user-select:none" data-asort="newDate" title="Clique para ordenar por nova data">Nova data${sortInd('newDate')}</th>
-    <th></th>
+  return fbarA(ids)+`<div class="appt-scroll-box"><table><tr>
+    <th style="cursor:pointer;user-select:none;min-width:140px" data-asort="patient" title="Clique para ordenar por Paciente (A-Z ou Z-A)">Paciente${sortInd('patient')}</th>
+    <th style="min-width:125px">Veio de</th>
+    <th style="cursor:pointer;user-select:none;min-width:120px" data-asort="schedOn" title="Clique para ordenar por data de agendamento">Agendada em${sortInd('schedOn')}</th>
+    <th style="cursor:pointer;user-select:none;min-width:120px" data-asort="consult" title="Clique para ordenar por data da consulta">Consulta${sortInd('consult')}</th>
+    <th style="min-width:115px">Status</th>
+    <th style="min-width:130px">Conseguiu reagendar?</th>
+    <th style="cursor:pointer;user-select:none;min-width:120px" data-asort="newDate" title="Clique para ordenar por nova data">Nova data${sortInd('newDate')}</th>
+    <th style="width:36px;text-align:center"></th>
   </tr>${ids.map(id=>{const a=appts[id];
-    return `<tr><td>${esc(a.patient)}</td><td><select data-id="${id}" data-k="origin">${opts(ORIG,a.origin)}</select></td><td><input type="date" data-id="${id}" data-k="schedOn" value="${a.schedOn||''}"></td><td><input type="date" data-id="${id}" data-k="consult" value="${a.consult||''}"></td><td><select data-id="${id}" data-k="status">${opts(STAT,a.status)}</select></td><td><select data-id="${id}" data-k="regained">${opts(REG,a.regained||'')}</select></td><td><input type="date" data-id="${id}" data-k="newDate" value="${a.newDate||''}"></td><td><button class="x" data-del="${id}" title="Excluir consulta" aria-label="Excluir">×</button></td></tr>`}).join('')}</table></div>`;
+    return `<tr>
+      <td style="font-weight:600;min-width:140px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(a.patient)}">${esc(a.patient)}</td>
+      <td style="width:125px"><select data-id="${id}" data-k="origin" style="width:100%">${opts(ORIG,a.origin)}</select></td>
+      <td style="width:120px"><input type="date" data-id="${id}" data-k="schedOn" value="${a.schedOn||''}" style="width:100%"></td>
+      <td style="width:120px"><input type="date" data-id="${id}" data-k="consult" value="${a.consult||''}" style="width:100%"></td>
+      <td style="width:115px"><select data-id="${id}" data-k="status" style="width:100%">${opts(STAT,a.status)}</select></td>
+      <td style="width:130px"><select data-id="${id}" data-k="regained" style="width:100%">${opts(REG,a.regained||'')}</select></td>
+      <td style="width:120px"><input type="date" data-id="${id}" data-k="newDate" value="${a.newDate||''}" style="width:100%"></td>
+      <td style="width:36px;text-align:center"><button class="x" data-del="${id}" title="Excluir consulta" aria-label="Excluir" style="font-size:17px">×</button></td>
+    </tr>`}).join('')}</table></div>`;
 }
 
 function render(){
   const ae=document.activeElement;if(ae&&ae.matches&&ae.matches('[data-id],[data-af="q"]')&&cur==='cons')return;
+  $('#dash').innerHTML=dash();
+  if(!editRow)$('#wl').innerHTML=weekList();
+  $('#al').innerHTML=apptList();
+  updatePastePreviewUI();
+}
+
+function forceRender(){
   $('#dash').innerHTML=dash();
   if(!editRow)$('#wl').innerHTML=weekList();
   $('#al').innerHTML=apptList();
@@ -2255,7 +2314,7 @@ $('#cp_add').onclick=async()=>{
   await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:s,consult:c,status:'agendada',regained:'',newDate:''});
   $('#cp_n').value='';
   await syncWeekMetricsWithAppts(true);
-  render();
+  forceRender();
   toast('Consulta adicionada com sucesso!');
 };
 
@@ -2273,10 +2332,11 @@ $('#al').onchange=async e=>{
   const a={...appts[id],[t.dataset.k]:t.value};
   if(t.dataset.k==='status'&&a.status==='reagendada'&&!a.regained)a.regained='sim';
   if(t.dataset.k==='newDate'&&t.value&&(!a.regained||a.regained==='contato'))a.regained='sim';
+  appts[id]=a;
   await saveDoc('appts/'+id,a);
   await syncWeekMetricsWithAppts(true);
-  if(document.activeElement&&typeof document.activeElement.blur==='function')document.activeElement.blur();
-  render();
+  forceRender();
+  toast('Alteração salva e métricas recalculadas!');
 };
 
 $('#al').addEventListener('input',e=>{
@@ -2329,7 +2389,7 @@ $('#al').onclick=async e=>{
     delete delBtn.dataset.confirming;
     await delDoc('appts/'+id);
     await syncWeekMetricsWithAppts(true);
-    render();
+    forceRender();
     toast('Consulta excluída com sucesso!');
     return;
   }
@@ -2387,6 +2447,12 @@ $('#cfg').onclick=async e=>{
   if(id==='c_ea')return exp('consultas.csv',['ID','Paciente','Veio de','Agendada em','Consulta','Status','Reagendou?','Nova data'],Object.entries(appts).map(([id,a])=>[id,a.patient,ORIG[a.origin]||a.origin,fdf(a.schedOn),fdf(a.consult),STAT[a.status]||a.status,REG[a.regained||'']||a.regained,fdf(a.newDate)]));
   
   // Gerenciador de Metas
+  if(id==='g_clear_all_btn'){
+    await saveCfg({goalsList:[],goals:{}});
+    renderCfg();
+    forceRender();
+    return toast('Todas as metas foram excluídas com sucesso!');
+  }
   if(id==='g_save_btn'){
     const m=$('#g_metric').value;
     const opt=$('#g_metric').selectedOptions[0];
@@ -2399,19 +2465,32 @@ $('#cfg').onclick=async e=>{
 
     if(isNaN(target))return toast('Informe o valor numérico da meta.');
 
-    let list=[...(cfg.goalsList||[])];
+    let list=getUnifiedGoalsList().map(g=>({
+      id:g.id,
+      metric:g.metric,
+      label:g.label,
+      week:g.week||'all',
+      target:g.target,
+      unit:g.unit||'num',
+      dir:g.dir||'min'
+    }));
     if(editId){
-      list=list.map(g=>g.id===editId?{...g,metric:m,label,week,target,unit,dir}:g);
+      list=list.map(g=>g.id===editId?{...g,id:editId.startsWith('legacy_')?'g'+Date.now().toString(36):g.id,metric:m,label,week,target,unit,dir}:g);
     }else{
       const idx=list.findIndex(g=>g.metric===m && g.week===week);
       const newG={id:'g'+Date.now().toString(36),metric:m,label,week,target,unit,dir};
       if(idx>=0)list[idx]=newG;
       else list.push(newG);
     }
-    const goalsMap={...(cfg.goals||{})};
-    if(week==='all')goalsMap[m]=target;
+    const goalsMap={};
+    list.forEach(g=>{if(g.week==='all'||!g.week)goalsMap[g.metric]=g.target;});
+    $('#g_edit_id').value='';
+    $('#g_target').value='';
+    $('#g_form_title').textContent='Adicionar / Editar meta';
+    $('#g_cancel_btn').classList.add('hide');
     await saveCfg({goalsList:list,goals:goalsMap});
     renderCfg();
+    forceRender();
     return toast('Meta salva com sucesso!');
   }
   if(id==='g_cancel_btn'){
@@ -2422,7 +2501,7 @@ $('#cfg').onclick=async e=>{
     return;
   }
   if(t.dataset.ge){
-    const g=(cfg.goalsList||[]).find(x=>x.id===t.dataset.ge);
+    const g=getUnifiedGoalsList().find(x=>x.id===t.dataset.ge);
     if(g){
       $('#g_edit_id').value=g.id;
       $('#g_metric').value=g.metric;
@@ -2437,10 +2516,31 @@ $('#cfg').onclick=async e=>{
     return;
   }
   if(t.dataset.gx){
-    const list=(cfg.goalsList||[]).filter(x=>x.id!==t.dataset.gx);
-    await saveCfg({goalsList:list});
+    const gId=t.dataset.gx;
+    const all=getUnifiedGoalsList();
+    const itemToDelete=all.find(x=>x.id===gId);
+    const list=all.filter(x=>x.id!==gId).map(g=>({
+      id:g.id.startsWith('legacy_')?'g'+Math.random().toString(36).slice(2,8):g.id,
+      metric:g.metric,
+      label:g.label,
+      week:g.week||'all',
+      target:g.target,
+      unit:g.unit||'num',
+      dir:g.dir||'min'
+    }));
+    const goalsMap={};
+    list.forEach(g=>{if(g.week==='all'||!g.week)goalsMap[g.metric]=g.target;});
+    if(itemToDelete){
+      delete goalsMap[itemToDelete.metric];
+      delete goalsMap[itemToDelete.label];
+    }
+    if(gId.startsWith('legacy_')){
+      delete goalsMap[gId.replace('legacy_','')];
+    }
+    await saveCfg({goalsList:list,goals:goalsMap});
     renderCfg();
-    return toast('Meta excluída');
+    forceRender();
+    return toast('Meta excluída com sucesso!');
   }
 };
 
