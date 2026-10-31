@@ -107,6 +107,44 @@ body.locked>header,body.locked>main{display:none}
 svg [data-tip-series]{cursor:pointer;transition:transform .1s ease,filter .15s ease,opacity .15s ease}
 svg rect[data-tip-series]:hover{filter:brightness(1.18);opacity:.96}
 svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
+
+/* Painel de Filtro Modelo Excel AutoFilter (Janela Flutuante Compacta) */
+.excel-filter-compact-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.excel-trigger-btn{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;font-size:13px;border-radius:9px;background:var(--bg);border:1px solid var(--line);cursor:pointer;font-weight:600;color:var(--ink);transition:all .15s ease}
+.excel-trigger-btn:hover{border-color:var(--g);background:color-mix(in srgb,var(--g) 8%,var(--bg))}
+.excel-popover{position:absolute;top:calc(100% + 6px);left:14px;z-index:99;width:320px;max-width:calc(100vw - 36px);background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.22);padding:14px;animation:fadeIn .15s ease}
+.excel-filter-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.excel-filter-title{font-size:12.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
+.excel-sort-group{display:flex;gap:6px;margin-bottom:8px}
+.excel-sort-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:500;padding:5px 8px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;transition:all .15s ease}
+.excel-sort-btn:hover{border-color:var(--g)}
+.excel-sort-btn.active{background:color-mix(in srgb,var(--g) 15%,var(--card));border-color:var(--g);color:var(--g);font-weight:700}
+.excel-quick-select{width:100%;font-size:12px;padding:5px 8px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin-bottom:8px}
+.excel-search-box{position:relative;margin-bottom:8px}
+.excel-search-input{width:100%;padding:5px 8px 5px 28px;font-size:12px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.excel-search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--mut);pointer-events:none}
+.excel-tree-box{max-height:190px;overflow-y:auto;overflow-x:hidden;border:1px solid var(--line);border-radius:8px;padding:5px 6px;background:var(--bg);scrollbar-width:thin;scrollbar-color:var(--k) transparent}
+.excel-tree-box::-webkit-scrollbar{width:6px}
+.excel-tree-box::-webkit-scrollbar-thumb{background:var(--k);border-radius:99px}
+.ef-node{margin:2px 0;user-select:none}
+.ef-row{display:flex;align-items:center;gap:5px;padding:3px 5px;border-radius:5px;font-size:12px;color:var(--ink);transition:background .12s}
+.ef-row:hover{background:color-mix(in srgb,var(--g) 10%,transparent)}
+.ef-toggle{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;font-size:9.5px;cursor:pointer;color:var(--mut);border-radius:3px}
+.ef-toggle:hover{background:var(--line);color:var(--ink)}
+.ef-children{margin-left:14px;border-left:1px dashed var(--line);padding-left:5px}
+.excel-footer-controls{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+
+/* Mini Filtro Exclusivo do Gráfico da Agenda */
+.agenda-popover{position:absolute;top:calc(100% + 4px);right:0;z-index:90;width:270px;max-width:calc(100vw - 36px);background:var(--card);border:1px solid var(--line);border-radius:11px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:12px;animation:fadeIn .15s ease}
+
+/* Tabela de Semanas Lançadas: Até 10 semanas visíveis com rolagem lateral/vertical */
+.week-scroll-box{max-height:460px;overflow-y:auto;overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card);scrollbar-width:thin;scrollbar-color:var(--k) color-mix(in srgb,var(--line) 40%,transparent)}
+.week-scroll-box::-webkit-scrollbar{width:7px;height:7px}
+.week-scroll-box::-webkit-scrollbar-thumb{background:var(--k);border-radius:99px}
+.week-scroll-box table th{position:sticky;top:0;z-index:3;background:var(--bg);box-shadow:0 1px 0 var(--line)}
+.sticky-week-col{position:sticky;left:0;z-index:2;background:var(--card)}
+.week-scroll-box tr:hover .sticky-week-col{background:color-mix(in srgb,var(--g) 6%,var(--card))}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body class="locked">
@@ -196,6 +234,27 @@ const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-2
 const ORIG={novo:'Novo lead',c2:'2º contato (FU 2)',c3:'3º contato (FU 3)',c4:'4º contato (FU 4)',c5:'5º contato (FU 5)',sem:'Sem retorno no follow-up'};
 const STAT={agendada:'Agendada',realizada:'Realizada',cancelada:'Cancelada',reagendada:'Reagendada'};
 const REG={'':'—',sim:'Sim, reagendado',contato:'Em contato',nao:'Não conseguiu'};
+const STAT_NEW={'':'—',compareceu:'Compareceu',nao_compareceu:'Não compareceu',aguardando:'Aguardando data',reagendou:'Reagendou novamente',cancelou:'Cancelou'};
+const MONTH_NAMES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+window.excelFilter = window.excelFilter || {
+  mode: 'all',
+  sort: 'desc',
+  search: '',
+  expanded: {},
+  selected: null,
+  autoApply: true,
+  isOpen: false
+};
+
+window.agendaFilter = window.agendaFilter || {
+  mode: 'all',
+  year: 'all',
+  month: 'all',
+  search: '',
+  sort: 'asc',
+  isOpen: false
+};
 
 window.DATA = window.DATA || {
   ready: false,
@@ -209,7 +268,7 @@ window.DATA = window.DATA || {
   cardHtml: () => '<h2>Status do Firebase Firestore</h2><p class="note">Carregando conector em nuvem...</p>',
   migHtml: () => ''
 };
-var db=null,sync={},editRow=null,wFilt={from:'',to:''},weeks={},appts={},cur='dash',cfg={},selWeek='',pFrom='',pTo='',pAuto=true,pSel='all',aFilt={week:'',from:'',to:'',origin:'',status:'',q:''},aSort={col:'consult',dir:'desc'};
+var db=null,sync={},editRow=null,wFilt={from:'',to:'',q:'',sort:'data_desc',minLeads:''},weeks={},appts={},cur='dash',cfg={},selWeek='',aFilt={week:'',from:'',to:'',origin:'',status:'',statusNewDate:'',q:''},aSort={col:'consult',dir:'desc'};
 
 // Carregamento de segurança de dados em cache local (para nunca perder alterações)
 try {
@@ -309,9 +368,19 @@ function extractAllDates(text, defaultYear) {
   return dates;
 }
 
+function normIso(d) {
+  if (!d) return '';
+  d = String(d).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  return normalizeDateStr(d, new Date().getFullYear());
+}
+
 function getWeekWindow(id, keys, i) {
   const start = id;
-  const end = addDays(id, 6);
+  let end = addDays(id, 6);
+  if (keys && i != null && keys[i + 1] && keys[i + 1] <= end) {
+    end = addDays(keys[i + 1], -1);
+  }
   return { start, end };
 }
 
@@ -328,24 +397,33 @@ function getSaturdayOfWeek(isoDate) {
   return `${ry}-${rm}-${rd}`;
 }
 
-// Cria semana automaticamente EXCLUSIVAMENTE quando uma consulta é criada com 'Agendada em' em semana não presente
-async function ensureWeekForCreatedSchedOn(schedDate) {
-  if (!schedDate || !/^\d{4}-\d{2}-\d{2}$/.test(schedDate)) return;
-  const sat = getSaturdayOfWeek(schedDate);
-  const keys = Object.keys(weeks || {});
-  const exists = keys.some(id => {
-    const { start, end } = getWeekWindow(id, keys, 0);
-    return schedDate >= start && schedDate <= end;
-  });
-  if (!exists && !weeks[sat]) {
-    const o = { id: sat };
+// Regra: Criação automática de semana na aba de lançamentos APENAS na primeira segunda-feira do mês às 08h
+async function checkAutoCreateFirstMonday() {
+  const now = new Date();
+  if (now.getDay() !== 1) return; // 1 = Segunda-feira
+  if (now.getDate() > 7) return; // Primeira segunda-feira cai entre os dias 1 e 7
+  if (now.getHours() < 8) return; // A partir das 08:00
+
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  const mondayIso = `${y}-${m}-${d}`;
+  const satId = getSaturdayOfWeek(mondayIso);
+
+  if (!weeks[satId] && !weeks[mondayIso]) {
+    const o = { id: satId };
     BASEF.forEach(([k]) => { o[k] = 0; });
-    weeks[sat] = o;
-    await saveDoc('weeks/' + sat, o);
+    weeks[satId] = o;
+    try { localStorage.setItem('kommo_weeks_v3', JSON.stringify(weeks)); } catch(e){}
+    await saveDoc('weeks/' + satId, o);
   }
 }
 
-/* ===== FUNÇÃO W() COM PREVISÃO DE CONSULTAS E SINCRONIZAÇÃO INTELIGENTE ===== */
+async function ensureWeekForCreatedSchedOn(schedDate) {
+  // Desativado: semanas agora são criadas exclusivamente de forma manual ou na 1ª segunda-feira às 08h
+}
+
+/* ===== FUNÇÃO W() DA ABA DE LANÇAMENTO DE SEMANAS (USA EXCLUSIVAMENTE SEMANAS CRIADAS) ===== */
 function W() {
   const keys = Object.keys(weeks || {}).sort();
   const allAppts = Object.values(appts || {});
@@ -358,42 +436,38 @@ function W() {
 
     // 1. Consultas agendadas nesta semana (campo "Agendada em")
     const schedInWeek = allAppts.filter(a => {
-      const s = a.schedOn || '';
+      const s = normIso(a.schedOn);
       return s >= start && s <= end;
     });
 
-    // 2. Consultas que estavam originalmente marcadas para esta semana (campo "Data da Consulta")
+    // 2. Consultas marcadas para esta semana
     const consultInWeek = allAppts.filter(a => {
-      const c = a.consult || '';
+      const c = normIso(a.consult) || normIso(a.schedOn);
       return c >= start && c <= end;
     });
 
-    const numReal = consultInWeek.filter(a => a.status === 'realizada').length;
-    const numCanc = consultInWeek.filter(a => a.status === 'cancelada').length;
-    const numReag = consultInWeek.filter(a => a.status === 'reagendada').length;
+    const numReal = consultInWeek.filter(a => a.status === 'realizada' || a.statusNewDate === 'compareceu').length;
+    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
+    const numReag = consultInWeek.filter(a => a.status === 'reagendada' || a.statusNewDate === 'reagendou').length;
 
     w.cagend = (schedInWeek.length > 0) ? schedInWeek.length : ((raw.cagend !== undefined && raw.cagend !== null && raw.cagend !== '') ? Number(raw.cagend) : 0);
     w.creal = (consultInWeek.length > 0) ? numReal : ((raw.creal !== undefined && raw.creal !== null && raw.creal !== '') ? Number(raw.creal) : 0);
     w.ccanc = (consultInWeek.length > 0) ? numCanc : ((raw.ccanc !== undefined && raw.ccanc !== null && raw.ccanc !== '') ? Number(raw.ccanc) : 0);
     w.creag = (consultInWeek.length > 0) ? numReag : ((raw.creag !== undefined && raw.creag !== null && raw.creag !== '') ? Number(raw.creag) : 0);
 
-    // Se a semana já passou (anterior ao dia de hoje), não mostra total de previstos (apenas checkin, cancelamento, reagendamento)
     if (end < tDay) {
       w.cprev = 0;
     } else {
-      // Semana atual ou futura: calcula consultas previstas ativas
-      // A) Consultas marcadas para esta semana (canceladas e reagendadas são subtraídas)
       const ativasNaSemana = consultInWeek.filter(a => {
-        if (a.status === 'cancelada' || a.status === 'reagendada') return false;
+        if (a.status === 'cancelada' || a.status === 'reagendada' || a.statusNewDate === 'cancelou') return false;
         if (start >= tDay) return true;
-        const cDate = a.consult || '';
+        const cDate = normIso(a.consult) || normIso(a.schedOn);
         return !cDate || cDate >= tDay;
       }).length;
 
-      // B) Consultas reagendadas cuja NOVA data cai nesta semana (contabiliza na nova data)
       const reagendadasParaEstaSemana = allAppts.filter(a => {
         if (a.status !== 'reagendada') return false;
-        const nd = a.newDate || '';
+        const nd = normIso(a.newDate);
         if (start >= tDay) return nd >= start && nd <= end;
         return nd >= start && nd <= end && nd >= tDay;
       }).length;
@@ -404,6 +478,359 @@ function W() {
     return w;
   });
 }
+
+/* ===== GRÁFICO DA AGENDA VINCULADO DIRETAMENTE À ABA DE CONSULTAS (INDEPENDENTE DA ABA DE SEMANAS) ===== */
+function getAgendaWeeksData() {
+  const allAppts = Object.values(appts || {});
+  const tDay = today();
+
+  const weekSet = new Set();
+  allAppts.forEach(a => {
+    [a.consult, a.newDate, a.schedOn].forEach(d => {
+      const iso = normIso(d);
+      if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+        weekSet.add(getSaturdayOfWeek(iso));
+      }
+    });
+  });
+
+  // Também inclui semanas lançadas se existirem
+  Object.keys(weeks || {}).forEach(wid => weekSet.add(wid));
+
+  const keys = Array.from(weekSet).sort();
+
+  return keys.map((id, i) => {
+    const { start, end } = getWeekWindow(id, keys, i);
+
+    const consultInWeek = allAppts.filter(a => {
+      const c = normIso(a.consult) || normIso(a.schedOn);
+      return c >= start && c <= end;
+    });
+
+    const numReal = consultInWeek.filter(a => a.status === 'realizada' || a.statusNewDate === 'compareceu').length;
+    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
+    const numReag = consultInWeek.filter(a => a.status === 'reagendada' || a.statusNewDate === 'reagendou').length;
+
+    let cprev = 0;
+    if (end >= tDay) {
+      const ativas = consultInWeek.filter(a => {
+        if (a.status === 'cancelada' || a.status === 'reagendada' || a.statusNewDate === 'cancelou') return false;
+        if (start >= tDay) return true;
+        const cDate = normIso(a.consult) || normIso(a.schedOn);
+        return !cDate || cDate >= tDay;
+      }).length;
+
+      const reagendadasParaEstaSemana = allAppts.filter(a => {
+        if (a.status !== 'reagendada') return false;
+        const nd = normIso(a.newDate);
+        if (start >= tDay) return nd >= start && nd <= end;
+        return nd >= start && nd <= end && nd >= tDay;
+      }).length;
+
+      cprev = ativas + reagendadasParaEstaSemana;
+    }
+
+    return {
+      id,
+      start,
+      end,
+      cprev,
+      creal: numReal,
+      ccanc: numCanc,
+      creag: numReag
+    };
+  });
+}
+
+function buildExcelTreeData(weekList, sortOrder, searchQuery) {
+  const list = [...weekList].sort((a, b) => {
+    return sortOrder === 'asc' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id);
+  });
+
+  const query = (searchQuery || '').trim().toLowerCase();
+  const tree = {};
+
+  list.forEach(w => {
+    const parts = (w.id || '').split('-');
+    if (parts.length !== 3) return;
+    const year = parts[0];
+    const monthNum = parseInt(parts[1], 10) - 1;
+    const monthName = MONTH_NAMES[monthNum] || parts[1];
+    const day = parts[2];
+    const fullDateStr = fdf(w.id);
+
+    if (query) {
+      const match = year.includes(query) ||
+                    monthName.toLowerCase().includes(query) ||
+                    day.includes(query) ||
+                    fullDateStr.includes(query);
+      if (!match) return;
+    }
+
+    if (!tree[year]) tree[year] = {};
+    if (!tree[year][monthNum]) tree[year][monthNum] = { name: monthName, days: [] };
+    tree[year][monthNum].days.push({ id: w.id, day, fullDateStr });
+  });
+
+  return tree;
+}
+
+function renderExcelFilterBox(weekList, selectedWeekIds) {
+  const sort = window.excelFilter.sort || 'desc';
+  const mode = window.excelFilter.mode || 'all';
+  const query = window.excelFilter.search || '';
+  const isOpen = window.excelFilter.isOpen || false;
+  const tree = buildExcelTreeData(weekList, sort, query);
+
+  const allIds = weekList.map(w => w.id);
+  const totalCount = allIds.length;
+  const selSet = new Set(selectedWeekIds || []);
+  const selectedCount = (mode === 'all') ? totalCount : allIds.filter(id => selSet.has(id)).length;
+  const allSelected = totalCount > 0 && selectedCount === totalCount;
+  const someSelected = selectedCount > 0 && selectedCount < totalCount;
+
+  let modeLabel = 'Todas as semanas';
+  if (mode === 'last4') modeLabel = 'Últimas 4 semanas';
+  else if (mode === 'last') modeLabel = 'Última semana lançada';
+  else if (mode === 'custom') modeLabel = `${selectedCount} semana(s) selecionada(s)`;
+
+  let periodRangeText = '';
+  if (weekList.length) {
+    const sorted = [...weekList].sort((a,b)=>a.id.localeCompare(b.id));
+    periodRangeText = `De ${fdf(sorted[0].id)} a ${fdf(sorted[sorted.length-1].id)}`;
+  }
+
+  let popoverHtml = '';
+  if (isOpen) {
+    let treeHtml = '';
+    const years = Object.keys(tree).sort((a, b) => sort === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
+    if (!years.length) {
+      treeHtml = '<div class="note" style="padding:10px;text-align:center">Nenhuma semana encontrada.</div>';
+    } else {
+      years.forEach(year => {
+        const yearExpKey = 'y_' + year;
+        const isYearExpanded = window.excelFilter.expanded[yearExpKey] !== false;
+        const monthsObj = tree[year];
+        const mKeys = Object.keys(monthsObj).map(Number).sort((a, b) => sort === 'asc' ? a - b : b - a);
+
+        let allYearDays = [];
+        mKeys.forEach(mNum => {
+          allYearDays = allYearDays.concat(monthsObj[mNum].days.map(d => d.id));
+        });
+
+        const yearSelCount = (mode === 'all') ? allYearDays.length : allYearDays.filter(id => selSet.has(id)).length;
+        const isYearAllChecked = allYearDays.length > 0 && yearSelCount === allYearDays.length;
+        const isYearSomeChecked = yearSelCount > 0 && yearSelCount < allYearDays.length;
+
+        let monthsHtml = '';
+        mKeys.forEach(mNum => {
+          const monthExpKey = 'm_' + year + '_' + mNum;
+          const isMonthExpanded = window.excelFilter.expanded[monthExpKey] !== false;
+          const monthData = monthsObj[mNum];
+          const monthDays = monthData.days;
+
+          const mSelCount = (mode === 'all') ? monthDays.length : monthDays.filter(d => selSet.has(d.id)).length;
+          const isMonthAllChecked = monthDays.length > 0 && mSelCount === monthDays.length;
+          const isMonthSomeChecked = mSelCount > 0 && mSelCount < monthDays.length;
+
+          const daysHtml = monthDays.map(d => {
+            const isDayChecked = (mode === 'all') || selSet.has(d.id);
+            return `
+              <div class="ef-node ef-day">
+                <label class="ef-row" style="cursor:pointer">
+                  <input type="checkbox" data-ef-type="day" data-ef-id="${d.id}" ${isDayChecked ? 'checked' : ''} style="width:auto;margin:0">
+                  <span style="font-weight:600">${d.day}</span>
+                  <span class="note" style="font-size:11px">(${d.fullDateStr})</span>
+                </label>
+              </div>
+            `;
+          }).join('');
+
+          monthsHtml += `
+            <div class="ef-node ef-month">
+              <div class="ef-row">
+                <span class="ef-toggle" data-ef-toggle="${monthExpKey}">${isMonthExpanded ? '▼' : '▶'}</span>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex:1">
+                  <input type="checkbox" data-ef-type="month" data-ef-year="${year}" data-ef-month="${mNum}" ${isMonthAllChecked ? 'checked' : ''} ${isMonthSomeChecked ? 'data-indeterminate="1"' : ''} style="width:auto;margin:0">
+                  <span style="text-transform:capitalize">${monthData.name}</span>
+                </label>
+              </div>
+              <div class="ef-children ${isMonthExpanded ? '' : 'hide'}" id="ef_children_${monthExpKey}">
+                ${daysHtml}
+              </div>
+            </div>
+          `;
+        });
+
+        treeHtml += `
+          <div class="ef-node ef-year">
+            <div class="ef-row">
+              <span class="ef-toggle" data-ef-toggle="${yearExpKey}">${isYearExpanded ? '▼' : '▶'}</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex:1">
+                <input type="checkbox" data-ef-type="year" data-ef-year="${year}" ${isYearAllChecked ? 'checked' : ''} ${isYearSomeChecked ? 'data-indeterminate="1"' : ''} style="width:auto;margin:0">
+                <span style="font-weight:700">${year}</span>
+              </label>
+            </div>
+            <div class="ef-children ${isYearExpanded ? '' : 'hide'}" id="ef_children_${yearExpKey}">
+              ${monthsHtml}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    popoverHtml = `
+      <div class="excel-popover" id="ef_popover">
+        <div class="excel-filter-header">
+          <div class="excel-filter-title">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g)"></span>
+            <span>Filtro de Semanas (Excel)</span>
+          </div>
+          <button type="button" class="x" id="ef_popover_close" title="Fechar janela" style="font-size:16px;padding:1px 5px">×</button>
+        </div>
+
+        <div style="font-size:11.5px;font-weight:700;color:var(--ink);margin-bottom:4px">Classificar</div>
+        <div class="excel-sort-group">
+          <button type="button" class="excel-sort-btn ${sort === 'asc' ? 'active' : ''}" id="ef_sort_asc">
+            <span>🔤↓</span> <span>Crescente</span>
+          </button>
+          <button type="button" class="excel-sort-btn ${sort === 'desc' ? 'active' : ''}" id="ef_sort_desc">
+            <span>🔤↓</span> <span>Decrescente</span>
+          </button>
+        </div>
+
+        <label class="note" style="display:block;margin-bottom:3px;font-size:11px;font-weight:600">Opções rápidas</label>
+        <select class="excel-quick-select" id="ef_quick_sel">
+          <option value="all" ${mode === 'all' ? 'selected' : ''}>Todas as semanas</option>
+          <option value="last4" ${mode === 'last4' ? 'selected' : ''}>Últimas 4 semanas</option>
+          <option value="last" ${mode === 'last' ? 'selected' : ''}>Última semana lançada</option>
+          <option value="custom" ${mode === 'custom' ? 'selected' : ''}>Personalizado (seleção na árvore)</option>
+        </select>
+
+        <hr style="border:0;border-top:1px solid var(--line);margin:8px 0 6px">
+
+        <div class="excel-search-box">
+          <span class="excel-search-icon">🔍</span>
+          <input type="search" class="excel-search-input" id="ef_search" placeholder="Pesquisar data..." value="${esc(query)}">
+        </div>
+
+        <div class="excel-tree-box" id="ef_tree_box">
+          <div class="ef-row" style="font-weight:600;border-bottom:1px solid var(--line);margin-bottom:3px;padding-bottom:4px">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex:1">
+              <input type="checkbox" id="ef_sel_all" ${allSelected ? 'checked' : ''} ${someSelected ? 'data-indeterminate="1"' : ''} style="width:auto;margin:0">
+              <span>(Selecionar Tudo)</span>
+            </label>
+            <span class="note" style="font-size:10.5px">(${selectedCount}/${totalCount})</span>
+          </div>
+          ${treeHtml}
+        </div>
+
+        <div class="excel-footer-controls">
+          <label style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;cursor:pointer;user-select:none">
+            <input type="checkbox" id="ef_auto_apply" ${window.excelFilter.autoApply !== false ? 'checked' : ''} style="width:auto;margin:0">
+            <span>Aplicar Auto</span>
+          </label>
+          <div style="display:flex;gap:4px">
+            <button type="button" class="b s" id="ef_btn_clear" style="font-size:11.5px;padding:4px 7px">Limpar</button>
+            <button type="button" class="b" id="ef_btn_apply" style="font-size:11.5px;padding:4px 9px">Aplicar</button>
+            <button type="button" class="b s" id="ef_btn_set_def" style="font-size:11.5px;padding:4px 7px;border-color:var(--g);color:var(--g)" title="Salvar como padrão">⭐ Padrão</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="card" style="margin-bottom:14px;position:relative">
+      <div class="excel-filter-compact-bar">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <span style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.04em">Período Selecionado</span>
+            <button type="button" class="excel-trigger-btn" id="ef_btn_toggle_popover">
+              <span>📅 <b>${modeLabel}</b></span>
+              <span class="tag" style="font-size:11px">${selectedCount} de ${totalCount} semana(s)</span>
+              <span style="font-size:10px;opacity:0.7">${isOpen ? '▲' : '▾'}</span>
+            </button>
+          </div>
+          <span class="note" style="margin-top:16px;font-size:12.5px">${periodRangeText ? periodRangeText + ' · ' : ''}Mostrando métricas de <b>${selectedCount}</b> semana(s) lançada(s).</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          ${mode !== 'all' ? `<button type="button" class="b s" id="ef_quick_reset" style="font-size:12px;padding:5px 10px">Ver todas</button>` : ''}
+        </div>
+      </div>
+      ${popoverHtml}
+    </div>
+  `;
+}
+
+function renderAgendaFilterControl(allAgendaData) {
+  const f = window.agendaFilter || { mode: 'all', year: 'all', month: 'all', sort: 'asc', isOpen: false };
+  const years = [...new Set(allAgendaData.map(w => (w.id || '').split('-')[0]).filter(Boolean))].sort();
+  const months = [...new Set(allAgendaData.map(w => {
+    const parts = (w.id || '').split('-');
+    return parts.length > 1 ? parseInt(parts[1], 10) - 1 : null;
+  }).filter(m => m !== null))].sort((a,b)=>a-b);
+
+  let label = 'Todas as semanas';
+  if (f.mode === 'future') label = 'Apenas futuras';
+  else if (f.mode === 'past') label = 'Apenas passadas';
+  else if (f.year !== 'all' || f.month !== 'all') {
+    const yStr = f.year !== 'all' ? f.year : '';
+    const mStr = f.month !== 'all' ? MONTH_NAMES[f.month] : '';
+    label = [mStr, yStr].filter(Boolean).join(' ');
+  }
+
+  let popoverHtml = '';
+  if (f.isOpen) {
+    popoverHtml = `
+      <div class="agenda-popover" id="ag_popover">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <b style="font-size:12px;color:var(--ink)">📅 Filtro da Agenda</b>
+          <button type="button" class="x" id="ag_popover_close" style="font-size:15px;padding:1px 5px">×</button>
+        </div>
+
+        <label class="note" style="display:block;margin-bottom:3px;font-size:11px;font-weight:600">Visualização rápida</label>
+        <select class="excel-quick-select" id="ag_sel_mode" style="margin-bottom:8px">
+          <option value="all" ${f.mode==='all'?'selected':''}>Todas as semanas (histórico + futuras)</option>
+          <option value="future" ${f.mode==='future'?'selected':''}>Apenas semanas futuras</option>
+          <option value="past" ${f.mode==='past'?'selected':''}>Apenas semanas passadas</option>
+          <option value="custom" ${f.mode==='custom'?'selected':''}>Filtrar Ano / Mês abaixo</option>
+        </select>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <label style="font-size:11px;color:var(--mut)">Ano
+            <select id="ag_sel_year" style="width:100%;font-size:11.5px;padding:4px 6px">
+              <option value="all" ${f.year==='all'?'selected':''}>Todos</option>
+              ${years.map(y=>`<option value="${y}" ${f.year===y?'selected':''}>${y}</option>`).join('')}
+            </select>
+          </label>
+          <label style="font-size:11px;color:var(--mut)">Mês
+            <select id="ag_sel_month" style="width:100%;font-size:11.5px;padding:4px 6px">
+              <option value="all" ${f.month==='all'?'selected':''}>Todos</option>
+              ${months.map(m=>`<option value="${m}" ${String(f.month)===String(m)?'selected':''}>${MONTH_NAMES[m]}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;border-top:1px solid var(--line)">
+          <button type="button" class="b s" id="ag_btn_clear" style="font-size:11px;padding:3px 7px">Limpar</button>
+          <button type="button" class="b" id="ag_btn_apply" style="font-size:11px;padding:3px 10px">Aplicar</button>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div style="position:relative">
+      <button type="button" class="b s" id="ag_btn_toggle_popover" style="font-size:11.5px;padding:4px 9px;display:inline-flex;align-items:center;gap:5px;border-radius:7px;background:var(--bg)">
+        <span>📅 Mês/Ano: <b>${label}</b></span>
+        <span style="font-size:9.5px;opacity:0.7">${f.isOpen ? '▲' : '▾'}</span>
+      </button>
+      ${popoverHtml}
+    </div>
+  `;
+}
+
 
 async function syncWeekMetricsWithAppts(persist = true) {
   const allAppts = Object.values(appts || {});
@@ -571,12 +998,12 @@ async function deleteWeek(id) {
   await delDoc('weeks/' + id);
 
   fillForm(null);
-  render();
+  forceRender();
   toast('Semana ' + fdf(id) + ' excluída com sucesso!');
 }
 
 const WCOLS=["semana","novos","antigas","ativas","fu2","fu3","fu4","fu5","resp","agend","semresp","pensando","aguard","nao","cagend","ccanc","creag","creal"];
-const ACOLS=["id","paciente","origem","agendada_em","consulta","status","reagendou","nova_data"];
+const ACOLS=["id","paciente","origem","agendada_em","consulta","status","reagendou","nova_data","status_nova_data"];
 
 function stLine(){
   const fbOk=window.DATA&&DATA.ready;
@@ -589,6 +1016,7 @@ function stLine(){
 async function init(){
   applyCfg();
   stLine();
+  await checkAutoCreateFirstMonday();
   await syncWeekMetricsWithAppts(false);
   render();
   setupChartTooltips();
@@ -604,7 +1032,19 @@ function isSn(k){return SNAP.includes(k)||(cfg.extra||[]).some(e=>e.k===k&&e.sna
 function applyCfg(){
   applyTheme();
   {const rm=cfg.removed||[],ex=cfg.extra||[];FIELDS=BASEF.filter(f=>!rm.includes(f[0])).concat(ex.map(e=>[e.k,e.n]));FK=FIELDS.map(f=>f[0]).concat(['msgs','tot','cprev'])}
-  if(!applyCfg.d&&cfg.defP){pSel=cfg.defP;applyCfg.d=1}
+  if(!applyCfg.d){
+    if(cfg.defFilter && typeof cfg.defFilter === 'object'){
+      window.excelFilter = {
+        ...window.excelFilter,
+        ...cfg.defFilter,
+        selected: cfg.defFilter.selected ? [...cfg.defFilter.selected] : null
+      };
+    } else if(cfg.defP){
+      pSel=cfg.defP;
+      window.excelFilter.mode=cfg.defP;
+    }
+    applyCfg.d=1;
+  }
   const t=cfg.title||'Painel KOMMO';$('#ttl').textContent=t;document.title=t;
   Object.keys(ORIG).forEach(k=>delete ORIG[k]);
   const os=cfg.origins&&cfg.origins.length?cfg.origins:Object.entries(ORIG0).map(([k,n])=>({k,n}));
@@ -1778,7 +2218,7 @@ const TT={
   'Agenda da semana: realizadas, canceladas e reagendadas':['Agenda da semana: previstas, realizadas, canceladas e reagendadas','Consultas por desfecho e previsão da agenda, semana a semana.'],
   'Funil: leads, respostas e agendamentos':['Funil: leads, respostas e agendamentos','Novos leads, respostas e agendamentos pelo follow-up.']
 };
-const card=(t,s,svg)=>(cfg.hide&&cfg.hide['c:'+t])?'':`<div class="card"><h2>${(TT[t]||[t])[0]}</h2>${TT[t]?`<p class="note" style="margin:-6px 0 8px">${TT[t][1]}</p>`:''}${leg(s)}${svg}</div>`;
+const card=(t,s,svg,extra)=>(cfg.hide&&cfg.hide['c:'+t])?'':`<div class="card" style="position:relative"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px"><div><h2>${(TT[t]||[t])[0]}</h2>${TT[t]?`<p class="note" style="margin:-6px 0 8px">${TT[t][1]}</p>`:''}</div>${extra||''}</div>${leg(s)}${svg}</div>`;
 const css=n=>`var(--${n})`;
 
 function setupChartTooltips(){
@@ -1889,23 +2329,48 @@ function enableChartScrollDragging() {
 function dash(){
   const WA=W();
   const nW=WA.length;
-  pFrom=nW?WA[0].id:'';
-  pTo=nW?WA[nW-1].id:'';
+  const launchedWeeks = WA.filter(w => weeks[w.id]);
+  const lastLaunched = launchedWeeks.length ? launchedWeeks[launchedWeeks.length - 1] : (nW ? WA[nW - 1] : null);
+  const curSat = getSaturdayOfWeek(today());
 
-  if(pSel==='last4'&&nW){
-    pFrom=WA[Math.max(0,nW-4)].id;
-  }else if(pSel==='last'&&nW){
-    pFrom=pTo=WA[nW-1].id;
-  }else if(pSel!=='all'&&weeks[pSel]){
-    pFrom=pSel;
-    pTo=pSel;
+  // 1. O filtro do painel deve conter APENAS as semanas lançadas na aba de lançar semanas
+  const allAgendaData = getAgendaWeeksData();
+  const allAvailableWeeks = WA;
+
+  // 2. Determinar semanas selecionadas com base no estado do filtro Excel
+  const filterMode = window.excelFilter.mode || 'all';
+  let selectedWeekIds = [];
+
+  if (filterMode === 'all') {
+    selectedWeekIds = allAvailableWeeks.map(w => w.id);
+  } else if (filterMode === 'last4') {
+    selectedWeekIds = allAvailableWeeks.slice(-4).map(w => w.id);
+  } else if (filterMode === 'last') {
+    selectedWeekIds = allAvailableWeeks.length ? [allAvailableWeeks[allAvailableWeeks.length - 1].id] : [];
+  } else if (filterMode === 'custom') {
+    if (!Array.isArray(window.excelFilter.selected) || !window.excelFilter.selected.length) {
+      selectedWeekIds = allAvailableWeeks.map(w => w.id);
+    } else {
+      selectedWeekIds = window.excelFilter.selected.filter(id => weeks[id]);
+    }
   }
 
-  const ws=WA.filter(w=>w.id>=pFrom&&w.id<=pTo);
-  const pEnd=(WA.find(w=>w.id>pTo)||{}).id||addDays(pTo,7);
+  // 3. Filtrar ws para as métricas da aba de lançamentos (topo do funil e follow-up)
+  let ws = [];
+  if (filterMode === 'all') {
+    ws = WA;
+  } else {
+    ws = WA.filter(w => selectedWeekIds.includes(w.id));
+  }
 
-  if(!ws.length){
-    return `<div class="card"><h2>Ainda não há dados</h2><p class="note">Vá em “Lançar semana” para registrar a primeira semana ou carregar dados.</p><button class="b" onclick="go('sem')">Lançar semana</button></div>`;
+  const fbar = renderExcelFilterBox(allAvailableWeeks, selectedWeekIds);
+
+  if (!ws.length && !allAgendaData.length) {
+    return fbar + `<div class="card"><h2>Ainda não há dados</h2><p class="note">Vá em “Lançar semana” para registrar a primeira semana ou adicione consultas na aba “Consultas”.</p><button class="b" onclick="go('sem')">Lançar semana</button></div>`;
+  }
+
+  if (!ws.length && selectedWeekIds.length === 0) {
+    return fbar + `<div class="card"><h2>Nenhuma semana selecionada</h2><p class="note">Marque as semanas que deseja visualizar no filtro de árvore acima.</p></div>`;
   }
 
   const L=ws.map(w=>fd(w.id));
@@ -1914,7 +2379,15 @@ function dash(){
 
   const tm=sum(ws,msgs),tr=sum(ws,'resp'),ta=sum(ws,'agend'),tl=sum(ws,'novos');
   const real=sum(ws,'creal'),cag=sum(ws,'cagend'),can=sum(ws,'ccanc'),rea=sum(ws,'creag'),tot=real+rea+can;
-  const ap=Object.values(appts).filter(a=>(a.schedOn||'')>=pFrom&&(a.schedOn||'')<pEnd);
+  const ap = (filterMode === 'all')
+    ? Object.values(appts)
+    : Object.values(appts).filter(a => {
+        const s = normIso(a.schedOn) || normIso(a.consult);
+        return selectedWeekIds.some(wid => {
+          const { start, end } = getWeekWindow(wid, [], 0);
+          return s >= start && s <= end;
+        });
+      });
   const perd=ap.filter(a=>a.status==='cancelada'||a.status==='reagendada');
   const rec=perd.filter(a=>a.regained==='sim').length;
   const andam=Object.values(appts).filter(a=>a.regained==='contato').length;
@@ -1926,6 +2399,7 @@ function dash(){
   window.setStgMode = function(m) { window._stgMode = m; render(); };
 
   const GL = GL_MAP;
+  const sw = (ws.length && ws.some(w => w.id === selWeek)) ? selWeek : (last ? last.id : (allAvailableWeeks.length ? allAvailableWeeks[allAvailableWeeks.length - 1].id : ''));
 
   const getActiveGoal = (mKey) => {
     const list = getUnifiedGoalsList();
@@ -1976,13 +2450,25 @@ function dash(){
   const st=[{n:'Sem resposta',c:css('k'),v:ws.map(w=>w.semresp||0)},{n:'Pensando ou pesquisando',c:css('a'),v:ws.map(w=>w.pensando||0)},{n:'Aguardando cadastro',c:css('g'),v:ws.map(w=>w.aguard||0)},{n:'Não vão seguir',c:css('r'),v:ws.map(w=>w.nao||0)}];
   const fu=[2,3,4,5].map((k,i)=>({n:'FU '+k,c:css(['b','g','a','p'][i]),v:ws.map(w=>w['fu'+k]||0)}));
 
-  /* ===== GRÁFICO AGENDA COM PREVISÃO E SUPORTE A SEMANAS FUTURAS ===== */
-  const curSat = getSaturdayOfWeek(today());
-  const upcomingWeeksWithAppts = WA.filter(w => (w.id >= curSat || w.id > pTo) && (w.cprev || 0) > 0);
-  const wsAgendaMap = new Map();
-  ws.forEach(w => wsAgendaMap.set(w.id, w));
-  upcomingWeeksWithAppts.forEach(w => wsAgendaMap.set(w.id, w));
-  const wsAgenda = Array.from(wsAgendaMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+  /* ===== GRÁFICO AGENDA COM FILTRO PRÓPRIO INDEPENDENTE ===== */
+  const af = window.agendaFilter || { mode: 'all', year: 'all', month: 'all', sort: 'asc' };
+  let filteredAgenda = allAgendaData;
+  if (af.mode === 'future') {
+    filteredAgenda = allAgendaData.filter(w => w.id >= curSat || w.id >= today());
+  } else if (af.mode === 'past') {
+    filteredAgenda = allAgendaData.filter(w => w.id < curSat && w.id < today());
+  } else if (af.year !== 'all' || af.month !== 'all') {
+    filteredAgenda = allAgendaData.filter(w => {
+      const parts = (w.id || '').split('-');
+      if (parts.length < 2) return false;
+      const y = parts[0];
+      const m = parseInt(parts[1], 10) - 1;
+      if (af.year !== 'all' && y !== af.year) return false;
+      if (af.month !== 'all' && String(m) !== String(af.month)) return false;
+      return true;
+    });
+  }
+  const wsAgenda = filteredAgenda.slice().sort((a, b) => (af.sort === 'desc' ? b.id.localeCompare(a.id) : a.id.localeCompare(b.id)));
 
   const LAgenda = wsAgenda.map(w => fd(w.id));
   const fullCatsAgenda = wsAgenda.map(w => 'Semana de ' + fdf(w.id) + (w.id >= curSat ? ' (Previsão Futura)' : ''));
@@ -2002,19 +2488,17 @@ function dash(){
   const orig=ap.length?oc.map(o=>`<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${ORIG[o.k]}</span><span class="note">${o.t} agendadas · ${o.r} realizadas · ${o.c} canceladas</span></div><div style="height:9px;background:var(--line);border-radius:5px;margin-top:3px"><div style="height:9px;width:${o.t/omax*100}%;background:var(--g);border-radius:5px"></div></div></div>`).join(''):'<p class="note">Registre consultas para analisar origens.</p>';
 
   const p2=v=>v.toFixed(cfg.dec??2).replace('.',',')+'%',ta2=sum(ws,'ativas');
-  const sw=ws.some(w=>w.id===selWeek)?selWeek:last.id,wi=ws.findIndex(w=>w.id===sw),wk=ws[wi]||last,wend=ws[wi+1]?ws[wi+1].id:addDays(sw,7);
-  const apw=ap.filter(a=>(a.schedOn||'')>=sw&&(a.schedOn||'')<wend);
+  const wi=ws.findIndex(w=>w.id===sw),wk=ws[wi]||last,wend=ws[wi+1]?ws[wi+1].id:addDays(sw,7);
+  const apw=ap.filter(a=>(normIso(a.schedOn)||'')>=sw&&(normIso(a.schedOn)||'')<wend);
   const stg=(list,d)=>{const D={novo:d.novos,c2:d.fu2,c3:d.fu3,c4:d.fu4,c5:d.fu5};const rows=Object.keys(ORIG).map(k=>{const n=list.filter(a=>a.origin===k).length,x=D[k];return {k,n,x,r:x?pct(n,x):null}});const m=Math.max(1,...rows.map(e=>e.r||0));
     return list.length?`<div class="wrap"><table><tr><th>Etapa</th><th>Contatados</th><th>Agendadas</th><th>Taxa</th><th></th></tr>${rows.map(e=>`<tr><td>${esc(ORIG[e.k])}</td><td>${e.x==null?'—':(e.x||0).toLocaleString('pt-BR')}</td><td>${e.n}</td><td><b>${e.r==null?'—':pf(e.r)}</b></td><td style="width:90px"><div style="height:8px;background:var(--line);border-radius:4px"><div style="height:8px;width:${(e.r||0)/m*100}%;background:var(--g);border-radius:4px"></div></div></td></tr>`).join('')}</table></div>`:'<p class="note">Nenhuma consulta registrada neste período.</p>'};
   const stgT=(list,d,at,ca,lb)=>{const row=`<tr style="font-weight:700;border-top:2px solid var(--line)"><td>${lb||'Total (agendadas ÷ ativas)'}</td><td>${at.toLocaleString('pt-BR')}</td><td>${ca}</td><td><b>${p2(pct(ca,at))}</b></td><td></td></tr>`;const h=stg(list,d);return h.includes('</table>')?h.replace('</table>',row+'</table>'):h+`<div class="wrap"><table>${row}</table></div>`};
   const selW=`<label class="note">Semana <select id="selw">${ws.map(w=>`<option value="${w.id}"${w.id===sw?' selected':''}>${fdf(w.id)}</option>`).join('')}</select></label>`;
   const GER={novos:tl,fu2:sum(ws,'fu2'),fu3:sum(ws,'fu3'),fu4:sum(ws,'fu4'),fu5:sum(ws,'fu5')};
-  const po=[['all','Todas as semanas'],['last4','Últimas 4 semanas'],['last','Última semana lançada'],...WA.slice().reverse().map(w=>[w.id,'Semana de '+fdf(w.id)])].map(([v,l])=>`<option value="${v}"${v===pSel?' selected':''}>${l}</option>`).join('');
 
   const cm=cfg.metrics||[],cs=m=>{try{return ev(m.expr,ws)}catch(e){return null}};
   const cKpi=cm.filter(m=>m.where==='kpi').map(m=>{const v=cs(m);return kp(esc(m.title),v==null?'—':fmtM(v,m.fmt),'card personalizado',m.title)}).join('');
   const cCh=cm.filter(m=>m.where!=='kpi').map(m=>{const v=ws.map(w=>{try{return Math.round(ev(m.expr,[w])*100)/100}catch(e){return 0}}),ser=[{n:m.title,c:css('p'),v}];return card(esc(m.title),ser,chart(L,ser,m.where==='bar'?'group':'line',m.fmt==='pct',fullCats))}).join('');
-  const fbar=`<div class="card" style="margin-bottom:14px"><div class="row" style="margin:0"><label class="note">Período Selecionado<br><select id="pp">${po}</select></label></div><p class="note" style="margin:8px 0 0">Mostrando ${ws.length} semana(s): de ${fdf(pFrom)} a ${fdf(pTo)}.</p></div>`;
 
   setTimeout(enableChartScrollDragging, 50);
 
@@ -2040,7 +2524,7 @@ function dash(){
     ${card('Mensagens de follow-up por tentativa',fu,chart(L,fu,'stack',false,fullCats))}
     ${card('Resposta e conversão do follow-up',rs,chart(L,rs,'line',true,fullCats))}
     ${card('Status dos pacientes (total acumulado em cada semana)',st,chart(L,st,'stack',false,fullCats))}
-    ${card('Agenda da semana: realizadas, canceladas e reagendadas',ag,chart(LAgenda,ag,'group',false,fullCatsAgenda))}
+    ${card('Agenda da semana: realizadas, canceladas e reagendadas',ag,chart(LAgenda,ag,'group',false,fullCatsAgenda),renderAgendaFilterControl(allAgendaData))}
     ${card('Funil: leads, respostas e agendamentos',fl,chart(L,fl,'group',false,fullCats))}
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
@@ -2113,11 +2597,118 @@ function readForm(){
 }
 
 function weekList(){
-  const all=W().reverse();if(!all.length)return '<p class="note">Nenhuma semana lançada.</p>';
-  const ws=all.filter(w=>(!wFilt.from||w.id>=wFilt.from)&&(!wFilt.to||w.id<=wFilt.to));
-  const fb=`<div class="row" style="margin:0 0 10px"><label class="note">Período de<br><input type="date" data-wf="from" value="${wFilt.from}"></label><label class="note">até<br><input type="date" data-wf="to" value="${wFilt.to}"></label><button class="b s" data-wfc="1">Limpar filtro</button><span class="note">Mostrando ${ws.length} de ${all.length} semanas</span></div>`;
-  if(!ws.length)return fb+'<p class="note">Nenhuma semana neste período.</p>';
-  return fb+`<div class="wrap"><table><tr><th>Semana</th>${FIELDS.map(f=>`<th>${esc(lab(f[0]))}</th>`).join('')}<th></th></tr>${ws.map(w=>{const ed=editRow===w.id;return `<tr><td><a href="#" data-e="${w.id}">${fdf(w.id)}</a></td>${FIELDS.map(([k])=>`<td>${ed?`<input type="number" min="0" data-ek="${k}" value="${w[k]||0}">`:(w[k]||0)}</td>`).join('')}<td><button class="b s" data-we="${w.id}">Editar</button><button class="b" data-ws="${w.id}"${ed?'':' disabled'}>Salvar</button><button class="b s" data-wx="${w.id}" style="color:var(--r)">Excluir</button></td></tr>`}).join('')}</table></div>`;
+  const all = W();
+  if (!all.length) return '<p class="note">Nenhuma semana lançada.</p>';
+
+  const f = wFilt || { from: '', to: '', q: '', sort: 'data_desc', minLeads: '' };
+  const qClean = (f.q || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  let ws = all.filter(w => {
+    if (f.from && w.id < f.from) return false;
+    if (f.to && w.id > f.to) return false;
+    if (f.minLeads && (w.novos || 0) < Number(f.minLeads)) return false;
+    if (qClean) {
+      const year = w.id.split('-')[0];
+      const monthNum = parseInt(w.id.split('-')[1], 10) - 1;
+      const monthName = (MONTH_NAMES[monthNum] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const fullDateStr = fdf(w.id);
+      const matchesQ = year.includes(qClean) || monthName.includes(qClean) || fullDateStr.includes(qClean) || w.id.includes(qClean);
+      if (!matchesQ) return false;
+    }
+    return true;
+  });
+
+  // Ordenação detalhada
+  ws.sort((a, b) => {
+    const s = f.sort || 'data_desc';
+    if (s === 'data_asc') return a.id.localeCompare(b.id);
+    if (s === 'novos_desc') return (b.novos || 0) - (a.novos || 0);
+    if (s === 'novos_asc') return (a.novos || 0) - (b.novos || 0);
+    if (s === 'cagend_desc') return (b.cagend || 0) - (a.cagend || 0);
+    if (s === 'creal_desc') return (b.creal || 0) - (a.creal || 0);
+    return b.id.localeCompare(a.id);
+  });
+
+  const fb = `
+    <div class="f" style="margin-bottom:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px">
+      <label style="grid-column:1/-1">Pesquisar semana
+        <input type="search" data-wf="q" placeholder="Pesquisar por ano, mês ou data (ex: 2026, outubro, 28/10)..." value="${esc(f.q || '')}">
+      </label>
+      <label>Data a partir de
+        <input type="date" data-wf="from" value="${f.from || ''}">
+      </label>
+      <label>Data até
+        <input type="date" data-wf="to" value="${f.to || ''}">
+      </label>
+      <label>Mínimo de novos leads
+        <select data-wf="minLeads">
+          <option value="" ${!f.minLeads ? 'selected' : ''}>Todos os volumes</option>
+          <option value="20" ${f.minLeads === '20' ? 'selected' : ''}>≥ 20 novos leads</option>
+          <option value="50" ${f.minLeads === '50' ? 'selected' : ''}>≥ 50 novos leads</option>
+          <option value="100" ${f.minLeads === '100' ? 'selected' : ''}>≥ 100 novos leads</option>
+          <option value="200" ${f.minLeads === '200' ? 'selected' : ''}>≥ 200 novos leads</option>
+        </select>
+      </label>
+      <label>Ordenar lista por
+        <select data-wf="sort">
+          <option value="data_desc" ${f.sort === 'data_desc' ? 'selected' : ''}>Data da semana (mais recente primeiro)</option>
+          <option value="data_asc" ${f.sort === 'data_asc' ? 'selected' : ''}>Data da semana (mais antiga primeiro)</option>
+          <option value="novos_desc" ${f.sort === 'novos_desc' ? 'selected' : ''}>Volume de novos leads (maior primeiro)</option>
+          <option value="cagend_desc" ${f.sort === 'cagend_desc' ? 'selected' : ''}>Consultas agendadas (maior primeiro)</option>
+          <option value="creal_desc" ${f.sort === 'creal_desc' ? 'selected' : ''}>Consultas realizadas (maior primeiro)</option>
+        </select>
+      </label>
+    </div>
+    <div class="row" style="margin:0 0 10px;justify-content:space-between;align-items:center;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="b s" data-wfc="1" style="font-size:12px;padding:4px 9px">Limpar filtros</button>
+        <span class="note">Exibindo <b>${ws.length}</b> de <b>${all.length}</b> semanas lançadas (visualizando até 10 por tela com rolagem)</span>
+      </div>
+    </div>
+  `;
+
+  if (!ws.length) return fb + '<p class="note" style="padding:16px 0">Nenhuma semana encontrada com os filtros selecionados.</p>';
+
+  return fb + `
+    <div class="week-scroll-box">
+      <table>
+        <thead>
+          <tr>
+            <th class="sticky-week-col" style="min-width:115px;text-align:left;box-shadow:2px 0 4px rgba(0,0,0,0.03)">Semana</th>
+            ${FIELDS.map(f => `<th style="white-space:nowrap;padding:8px 10px">${esc(lab(f[0]))}</th>`).join('')}
+            <th style="position:sticky;right:0;background:var(--bg);z-index:4;min-width:165px;text-align:center;box-shadow:-2px 0 4px rgba(0,0,0,0.04)">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${ws.map(w => {
+            const ed = editRow === w.id;
+            return `
+              <tr>
+                <td class="sticky-week-col" style="font-weight:700;white-space:nowrap;box-shadow:2px 0 4px rgba(0,0,0,0.03)">
+                  <a href="#" data-e="${w.id}" title="Carregar no formulário" style="color:var(--g);text-decoration:none">📅 ${fdf(w.id)}</a>
+                </td>
+                ${FIELDS.map(([k]) => `
+                  <td style="white-space:nowrap;padding:6px 10px;text-align:right">
+                    ${ed
+                      ? `<input type="number" min="0" data-ek="${k}" value="${w[k] || 0}" style="width:70px;padding:3px 5px;text-align:right">`
+                      : `<span style="font-weight:${['novos','cagend','creal'].includes(k)?'700':'400'}">${(w[k] || 0).toLocaleString('pt-BR')}</span>`
+                    }
+                  </td>
+                `).join('')}
+                <td style="position:sticky;right:0;background:var(--card);z-index:2;white-space:nowrap;text-align:center;box-shadow:-2px 0 4px rgba(0,0,0,0.04)">
+                  <div style="display:flex;gap:4px;justify-content:center;align-items:center">
+                    <button class="b s" data-we="${w.id}" style="font-size:11.5px;padding:3px 7px" title="Editar valores na linha">${ed ? 'Fechar' : 'Editar'}</button>
+                    <button class="b" data-ws="${w.id}" ${ed ? '' : 'disabled'} style="font-size:11.5px;padding:3px 7px" title="Salvar alterações">Salvar</button>
+                    <button class="b s" data-wx="${w.id}" style="font-size:11.5px;padding:3px 7px;color:var(--r);border-color:color-mix(in srgb,var(--r) 30%,transparent)" title="Excluir semana">Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 async function importRows(rows){
@@ -2196,6 +2787,7 @@ function fbarA(ids){const f=aFilt,tot=Object.keys(appts).length,WS=W().slice().r
     <label>Consulta até<input type="date" data-af="to" value="${f.to}"></label>
     <label>Veio de<select data-af="origin"><option value="">Todas</option>${opts(ORIG,f.origin)}</select></label>
     <label>Status<select data-af="status"><option value="">Todos</option>${opts(STAT,f.status)}</select></label>
+    <label>Status nova data<select data-af="statusNewDate"><option value="">Todos</option>${opts(STAT_NEW,f.statusNewDate||'')}</select></label>
     <label>Ordenar lista por
       <select data-af="sort_order">
         <option value="consult_desc"${aSort.col==='consult'&&aSort.dir==='desc'?' selected':''}>Consulta (mais recente primeiro)</option>
@@ -2227,7 +2819,7 @@ function apptList(){
     const pName=String(a.patient||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const matchesQ=!qClean||pName.includes(qClean);
     const matchesWeek=!wr||(s>=wr[0]&&s<=wr[1])||(c>=wr[0]&&c<=wr[1])||(nd>=wr[0]&&nd<=wr[1]);
-    return matchesQ&&matchesWeek&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status);
+    return matchesQ&&matchesWeek&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status)&&(!f.statusNewDate||(a.statusNewDate||'')===f.statusNewDate);
   });
 
   ids.sort((a, b) => {
@@ -2258,6 +2850,7 @@ function apptList(){
     <th style="min-width:115px">Status</th>
     <th style="min-width:130px">Conseguiu reagendar?</th>
     <th style="cursor:pointer;user-select:none;min-width:120px" data-asort="newDate" title="Clique para ordenar por nova data">Nova data${sortInd('newDate')}</th>
+    <th style="min-width:145px">Status nova data</th>
     <th style="width:36px;text-align:center"></th>
   </tr>${ids.map(id=>{const a=appts[id];
     return `<tr>
@@ -2268,13 +2861,21 @@ function apptList(){
       <td style="width:115px"><select data-id="${id}" data-k="status" style="width:100%">${opts(STAT,a.status)}</select></td>
       <td style="width:130px"><select data-id="${id}" data-k="regained" style="width:100%">${opts(REG,a.regained||'')}</select></td>
       <td style="width:120px"><input type="date" data-id="${id}" data-k="newDate" value="${a.newDate||''}" style="width:100%"></td>
+      <td style="width:145px"><select data-id="${id}" data-k="statusNewDate" style="width:100%">${opts(STAT_NEW,a.statusNewDate||'')}</select></td>
       <td style="width:36px;text-align:center"><button class="x" data-del="${id}" title="Excluir consulta" aria-label="Excluir" style="font-size:17px">×</button></td>
     </tr>`}).join('')}</table></div>`;
+}
+
+function updateIndeterminateInputs(){
+  document.querySelectorAll('#dash [data-indeterminate="1"]').forEach(el => {
+    el.indeterminate = true;
+  });
 }
 
 function render(){
   const ae=document.activeElement;if(ae&&ae.matches&&ae.matches('[data-id],[data-af="q"]')&&cur==='cons')return;
   $('#dash').innerHTML=dash();
+  updateIndeterminateInputs();
   if(!editRow)$('#wl').innerHTML=weekList();
   $('#al').innerHTML=apptList();
   updatePastePreviewUI();
@@ -2282,6 +2883,7 @@ function render(){
 
 function forceRender(){
   $('#dash').innerHTML=dash();
+  updateIndeterminateInputs();
   if(!editRow)$('#wl').innerHTML=weekList();
   $('#al').innerHTML=apptList();
   updatePastePreviewUI();
@@ -2362,9 +2964,8 @@ $('#cp_add').onclick=async()=>{
   const c=normalizeDateStr($('#cp_c').value, new Date().getFullYear());
   let s=normalizeDateStr($('#cp_s').value, new Date().getFullYear());
   if(!s)s=c||today();
-  await ensureWeekForCreatedSchedOn(s);
   const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:s,consult:c,status:'agendada',regained:'',newDate:''});
+  await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:s,consult:c||s,status:'agendada',regained:'',newDate:''});
   $('#cp_n').value='';
   await syncWeekMetricsWithAppts(true);
   forceRender();
@@ -2497,7 +3098,7 @@ $('#cfg').onclick=async e=>{
   if(id==='c_oa'){const n=$('#c_on').value.trim();if(!n)return;const os=Object.entries(ORIG).map(([k,v])=>({k,n:v}));os.push({k:'o'+Date.now().toString(36),n});await saveCfg({origins:os});return renderCfg()}
   if(t.dataset.od){const k=t.dataset.od;if(Object.values(appts).some(a=>a.origin===k))return toast('Há consultas com esta origem. Mude a origem antes.');if(Object.keys(ORIG).length<2)return toast('Mantenha ao menos uma origem');const os=Object.entries(ORIG).filter(([x])=>x!==k).map(([x,n])=>({k:x,n}));await saveCfg({origins:os});return renderCfg()}
   if(id==='c_ew')return exp('semanas.csv',['Data',...WCOLS.slice(1)],W().map(w=>[fdf(w.id),...WCOLS.slice(1).map(c=>w[c]||0)]));
-  if(id==='c_ea')return exp('consultas.csv',['ID','Paciente','Veio de','Agendada em','Consulta','Status','Reagendou?','Nova data'],Object.entries(appts).map(([id,a])=>[id,a.patient,ORIG[a.origin]||a.origin,fdf(a.schedOn),fdf(a.consult),STAT[a.status]||a.status,REG[a.regained||'']||a.regained,fdf(a.newDate)]));
+  if(id==='c_ea')return exp('consultas.csv',['ID','Paciente','Veio de','Agendada em','Consulta','Status','Reagendou?','Nova data','Status nova data'],Object.entries(appts).map(([id,a])=>[id,a.patient,ORIG[a.origin]||a.origin,fdf(a.schedOn),fdf(a.consult),STAT[a.status]||a.status,REG[a.regained||'']||a.regained,fdf(a.newDate),STAT_NEW[a.statusNewDate||'']||a.statusNewDate||'—']));
   
   // Gerenciador de Metas
   if(id==='g_clear_all_btn'){
@@ -2616,15 +3217,254 @@ $('#cfg').onchange=e=>{
   if(t.dataset.ok){const os=Object.entries(ORIG).map(([k,n])=>({k,n:k===t.dataset.ok?(t.value.trim()||n):n}));saveCfg({origins:os});t.value=ORIG[t.dataset.ok]}
 };
 
-$('#dash').onchange=e=>{
-  const t=e.target;
-  if(t.id==='selw'){selWeek=t.value;render()}
-  if(t.id==='pp'){pSel=t.value;render()}
+function getAllAvailableWeekIds() {
+  return W().map(w => w.id).sort();
+}
+
+function ensureExcelSelectedArray() {
+  if (!Array.isArray(window.excelFilter.selected)) {
+    window.excelFilter.selected = getAllAvailableWeekIds();
+  }
+}
+
+$('#dash').onclick = async e => {
+  const t = e.target;
+  const btnTogglePopover = t.closest('#ef_btn_toggle_popover');
+  if (btnTogglePopover) {
+    window.excelFilter.isOpen = !window.excelFilter.isOpen;
+    forceRender();
+    return;
+  }
+  const btnClosePopover = t.closest('#ef_popover_close');
+  if (btnClosePopover) {
+    window.excelFilter.isOpen = false;
+    forceRender();
+    return;
+  }
+  const btnQuickReset = t.closest('#ef_quick_reset');
+  if (btnQuickReset) {
+    window.excelFilter.mode = 'all';
+    window.excelFilter.selected = getAllAvailableWeekIds();
+    forceRender();
+    return;
+  }
+  const btnToggleAgenda = t.closest('#ag_btn_toggle_popover');
+  if (btnToggleAgenda) {
+    window.agendaFilter.isOpen = !window.agendaFilter.isOpen;
+    forceRender();
+    return;
+  }
+  const btnCloseAgenda = t.closest('#ag_popover_close');
+  if (btnCloseAgenda) {
+    window.agendaFilter.isOpen = false;
+    forceRender();
+    return;
+  }
+  const btnClearAgenda = t.closest('#ag_btn_clear');
+  if (btnClearAgenda) {
+    window.agendaFilter = { mode: 'all', year: 'all', month: 'all', search: '', sort: 'asc', isOpen: true };
+    forceRender();
+    return;
+  }
+  const btnApplyAgenda = t.closest('#ag_btn_apply');
+  if (btnApplyAgenda) {
+    window.agendaFilter.isOpen = false;
+    forceRender();
+    return;
+  }
+  const btnSortAsc = t.closest('#ef_sort_asc');
+  if (btnSortAsc) {
+    window.excelFilter.sort = 'asc';
+    forceRender();
+    return;
+  }
+  const btnSortDesc = t.closest('#ef_sort_desc');
+  if (btnSortDesc) {
+    window.excelFilter.sort = 'desc';
+    forceRender();
+    return;
+  }
+  const toggle = t.closest('[data-ef-toggle]');
+  if (toggle) {
+    const k = toggle.dataset.efToggle;
+    window.excelFilter.expanded[k] = !(window.excelFilter.expanded[k] !== false);
+    forceRender();
+    return;
+  }
+  if (t.id === 'ef_btn_clear') {
+    window.excelFilter.mode = 'all';
+    window.excelFilter.search = '';
+    window.excelFilter.selected = getAllAvailableWeekIds();
+    forceRender();
+    toast('Filtro redefinido para Todas as semanas.');
+    return;
+  }
+  if (t.id === 'ef_btn_apply') {
+    window.excelFilter.isOpen = false;
+    forceRender();
+    toast('Filtro de semanas aplicado com sucesso!');
+    return;
+  }
+  if (t.id === 'ef_btn_set_def') {
+    cfg.defFilter = {
+      mode: window.excelFilter.mode || 'all',
+      sort: window.excelFilter.sort || 'desc',
+      selected: window.excelFilter.selected ? [...window.excelFilter.selected] : null,
+      autoApply: window.excelFilter.autoApply !== false
+    };
+    cfg.defP = window.excelFilter.mode || 'all';
+    try { localStorage.setItem('kommo_cfg_v3', JSON.stringify(cfg)); } catch(err){}
+    await saveCfg({ defFilter: cfg.defFilter, defP: cfg.defP });
+    toast('⭐ Filtro definido como padrão permanente do painel!');
+    return;
+  }
 };
+
+$('#dash').onchange = e => {
+  const t = e.target;
+  if (t.id === 'selw') {
+    selWeek = t.value;
+    render();
+    return;
+  }
+  if (t.id === 'ag_sel_mode') {
+    window.agendaFilter.mode = t.value;
+    if (t.value !== 'custom') {
+      window.agendaFilter.year = 'all';
+      window.agendaFilter.month = 'all';
+    }
+    forceRender();
+    return;
+  }
+  if (t.id === 'ag_sel_year') {
+    window.agendaFilter.mode = 'custom';
+    window.agendaFilter.year = t.value;
+    forceRender();
+    return;
+  }
+  if (t.id === 'ag_sel_month') {
+    window.agendaFilter.mode = 'custom';
+    window.agendaFilter.month = t.value;
+    forceRender();
+    return;
+  }
+  if (t.id === 'ef_quick_sel') {
+    const val = t.value;
+    window.excelFilter.mode = val;
+    const allIds = getAllAvailableWeekIds();
+    const launched = Object.keys(weeks || {}).sort();
+    const sourceList = launched.length ? launched : allIds;
+
+    if (val === 'all') {
+      window.excelFilter.selected = [...allIds];
+    } else if (val === 'last4') {
+      window.excelFilter.selected = sourceList.slice(-4);
+    } else if (val === 'last') {
+      window.excelFilter.selected = sourceList.slice(-1);
+    }
+    forceRender();
+    return;
+  }
+  if (t.id === 'ef_auto_apply') {
+    window.excelFilter.autoApply = t.checked;
+    return;
+  }
+  if (t.id === 'ef_sel_all') {
+    window.excelFilter.mode = 'custom';
+    const allIds = getAllAvailableWeekIds();
+    window.excelFilter.selected = t.checked ? [...allIds] : [];
+    if (window.excelFilter.autoApply !== false) forceRender();
+    else updateIndeterminateInputs();
+    return;
+  }
+  if (t.dataset.efType === 'year') {
+    window.excelFilter.mode = 'custom';
+    ensureExcelSelectedArray();
+    const yr = t.dataset.efYear;
+    const allIds = getAllAvailableWeekIds();
+    const yrIds = allIds.filter(id => id.startsWith(yr + '-'));
+    if (t.checked) {
+      yrIds.forEach(id => {
+        if (!window.excelFilter.selected.includes(id)) window.excelFilter.selected.push(id);
+      });
+    } else {
+      window.excelFilter.selected = window.excelFilter.selected.filter(id => !yrIds.includes(id));
+    }
+    if (window.excelFilter.autoApply !== false) forceRender();
+    else updateIndeterminateInputs();
+    return;
+  }
+  if (t.dataset.efType === 'month') {
+    window.excelFilter.mode = 'custom';
+    ensureExcelSelectedArray();
+    const yr = t.dataset.efYear;
+    const mNum = parseInt(t.dataset.efMonth, 10);
+    const mStr = String(mNum + 1).padStart(2, '0');
+    const prefix = `${yr}-${mStr}-`;
+    const allIds = getAllAvailableWeekIds();
+    const mIds = allIds.filter(id => id.startsWith(prefix));
+    if (t.checked) {
+      mIds.forEach(id => {
+        if (!window.excelFilter.selected.includes(id)) window.excelFilter.selected.push(id);
+      });
+    } else {
+      window.excelFilter.selected = window.excelFilter.selected.filter(id => !mIds.includes(id));
+    }
+    if (window.excelFilter.autoApply !== false) forceRender();
+    else updateIndeterminateInputs();
+    return;
+  }
+  if (t.dataset.efType === 'day') {
+    window.excelFilter.mode = 'custom';
+    ensureExcelSelectedArray();
+    const wid = t.dataset.efId;
+    if (t.checked) {
+      if (!window.excelFilter.selected.includes(wid)) window.excelFilter.selected.push(wid);
+    } else {
+      window.excelFilter.selected = window.excelFilter.selected.filter(x => x !== wid);
+    }
+    if (window.excelFilter.autoApply !== false) forceRender();
+    else updateIndeterminateInputs();
+    return;
+  }
+};
+
+$('#dash').addEventListener('input', e => {
+  const t = e.target;
+  if (t && t.id === 'ef_search') {
+    window.excelFilter.search = t.value;
+    const curVal = t.value;
+    const curSel = t.selectionStart;
+    forceRender();
+    const newInp = document.getElementById('ef_search');
+    if (newInp) {
+      newInp.focus();
+      newInp.setSelectionRange(curSel, curSel);
+    }
+  }
+});
+
+// Fechar popovers automaticamente ao clicar fora
+document.addEventListener('click', e => {
+  let changed = false;
+  if (window.excelFilter && window.excelFilter.isOpen) {
+    if (!e.target.closest('#ef_popover') && !e.target.closest('#ef_btn_toggle_popover')) {
+      window.excelFilter.isOpen = false;
+      changed = true;
+    }
+  }
+  if (window.agendaFilter && window.agendaFilter.isOpen) {
+    if (!e.target.closest('#ag_popover') && !e.target.closest('#ag_btn_toggle_popover')) {
+      window.agendaFilter.isOpen = false;
+      changed = true;
+    }
+  }
+  if (changed) forceRender();
+});
 
 $('#wl').addEventListener('click',async e=>{
   const t=e.target,d=t.dataset;
-  if(d.we){editRow=d.we;$('#wl').innerHTML=weekList();return}
+  if(d.we){editRow=editRow===d.we?null:d.we;$('#wl').innerHTML=weekList();return}
   if(d.ws){
     const id=d.ws,o={...weeks[id]};
     document.querySelectorAll('#wl [data-ek]').forEach(i=>{o[i.dataset.ek]=Math.max(0,parseInt(i.value)||0)});
@@ -2659,9 +3499,20 @@ $('#wl').addEventListener('click',async e=>{
     await deleteWeek(id);
     return;
   }
-  if(d.wfc){wFilt={from:'',to:''};$('#wl').innerHTML=weekList()}
+  if(d.wfc){wFilt={from:'',to:'',q:'',sort:'data_desc',minLeads:''};$('#wl').innerHTML=weekList()}
 });
 $('#wl').addEventListener('change',e=>{const k=e.target.dataset.wf;if(k){wFilt[k]=e.target.value;$('#wl').innerHTML=weekList()}});
+$('#wl').addEventListener('input',e=>{
+  const k=e.target.dataset.wf;
+  if(k==='q'){
+    wFilt.q=e.target.value;
+    const curVal=e.target.value;
+    const curSel=e.target.selectionStart;
+    $('#wl').innerHTML=weekList();
+    const inp=document.querySelector('#wl [data-wf="q"]');
+    if(inp){inp.focus();inp.setSelectionRange(curSel,curSel);}
+  }
+});
 
 /* Sistema de Autenticação Oficial Firebase Auth */
 const lf=$("#lf");
