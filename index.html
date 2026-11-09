@@ -154,6 +154,7 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
     <button data-t="dash" class="on">Painel</button>
     <button data-t="sem">Lançar semana</button>
     <button data-t="cons">Consultas</button>
+    <button data-t="graf">Gráficos e Métricas</button>
     <button data-t="cfg">Configuração</button>
   </nav>
   <div style="display:flex;gap:6px;align-items:center">
@@ -211,6 +212,8 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
   </div>
 </section>
 
+<section id="graf" class="hide"></section>
+
 <section id="cfg" class="hide"></section>
 </main>
 
@@ -232,7 +235,7 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana']];
 const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-26":[100,2,473,346,0,0,0,20,3,326,33,3,9,13,6,2,5],"2026-10-03":[52,2,513,33,375,0,0,25,6,350,31,0,14,7,4,0,11],"2026-10-10":[27,0,514,14,163,290,0,70,3,397,45,6,26,10,9,1,11]};
 const ORIG={novo:'Novo lead',c2:'2º contato (FU 2)',c3:'3º contato (FU 3)',c4:'4º contato (FU 4)',c5:'5º contato (FU 5)',sem:'Sem retorno no follow-up'};
-const STAT={agendada:'Agendada',realizada:'Realizada',cancelada:'Cancelada',reagendada:'Reagendada'};
+const STAT={agendada:'Agendada',realizada:'Realizada',cancelada:'Cancelada',reagendada:'Reagendada',nao_compareceu:'Não compareceu'};
 const REG={'':'—',sim:'Sim, reagendado',contato:'Em contato',nao:'Não conseguiu'};
 const STAT_NEW={'':'—',compareceu:'Compareceu',nao_compareceu:'Não compareceu',aguardando:'Aguardando data',reagendou:'Reagendou novamente',cancelou:'Cancelou'};
 const MONTH_NAMES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -446,12 +449,27 @@ function W() {
       return c >= start && c <= end;
     });
 
-    const numReal = consultInWeek.filter(a => a.status === 'realizada' || a.statusNewDate === 'compareceu').length;
-    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
+    const numRealOrig = consultInWeek.filter(a => {
+      if (a.status !== 'realizada') return false;
+      const nd = normIso(a.newDate);
+      return !nd || (nd >= start && nd <= end);
+    }).length;
+    const numRealNewDate = allAppts.filter(a => {
+      const nd = normIso(a.newDate);
+      if (!nd || nd < start || nd > end) return false;
+      const c = normIso(a.consult) || normIso(a.schedOn);
+      const sameWeek = c >= start && c <= end;
+      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status === 'reagendada';
+      if (a.status === 'realizada' && !sameWeek) return true;
+      return false;
+    }).length;
+    const numReal = numRealOrig + numRealNewDate;
+
+    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
     const numReag = consultInWeek.filter(a => a.status === 'reagendada' || a.statusNewDate === 'reagendou').length;
 
     w.cagend = (schedInWeek.length > 0) ? schedInWeek.length : ((raw.cagend !== undefined && raw.cagend !== null && raw.cagend !== '') ? Number(raw.cagend) : 0);
-    w.creal = (consultInWeek.length > 0) ? numReal : ((raw.creal !== undefined && raw.creal !== null && raw.creal !== '') ? Number(raw.creal) : 0);
+    w.creal = (consultInWeek.length > 0 || numRealNewDate > 0) ? numReal : ((raw.creal !== undefined && raw.creal !== null && raw.creal !== '') ? Number(raw.creal) : 0);
     w.ccanc = (consultInWeek.length > 0) ? numCanc : ((raw.ccanc !== undefined && raw.ccanc !== null && raw.ccanc !== '') ? Number(raw.ccanc) : 0);
     w.creag = (consultInWeek.length > 0) ? numReag : ((raw.creag !== undefined && raw.creag !== null && raw.creag !== '') ? Number(raw.creag) : 0);
 
@@ -459,7 +477,7 @@ function W() {
       w.cprev = 0;
     } else {
       const ativasNaSemana = consultInWeek.filter(a => {
-        if (a.status === 'cancelada' || a.status === 'reagendada' || a.statusNewDate === 'cancelou') return false;
+        if (a.status !== 'agendada') return false;
         if (start >= tDay) return true;
         const cDate = normIso(a.consult) || normIso(a.schedOn);
         return !cDate || cDate >= tDay;
@@ -467,6 +485,7 @@ function W() {
 
       const reagendadasParaEstaSemana = allAppts.filter(a => {
         if (a.status !== 'reagendada') return false;
+        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
         const nd = normIso(a.newDate);
         if (start >= tDay) return nd >= start && nd <= end;
         return nd >= start && nd <= end && nd >= tDay;
@@ -507,14 +526,29 @@ function getAgendaWeeksData() {
       return c >= start && c <= end;
     });
 
-    const numReal = consultInWeek.filter(a => a.status === 'realizada' || a.statusNewDate === 'compareceu').length;
-    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
+    const numRealOrig = consultInWeek.filter(a => {
+      if (a.status !== 'realizada') return false;
+      const nd = normIso(a.newDate);
+      return !nd || (nd >= start && nd <= end);
+    }).length;
+    const numRealNewDate = allAppts.filter(a => {
+      const nd = normIso(a.newDate);
+      if (!nd || nd < start || nd > end) return false;
+      const c = normIso(a.consult) || normIso(a.schedOn);
+      const sameWeek = c >= start && c <= end;
+      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status === 'reagendada';
+      if (a.status === 'realizada' && !sameWeek) return true;
+      return false;
+    }).length;
+    const numReal = numRealOrig + numRealNewDate;
+
+    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
     const numReag = consultInWeek.filter(a => a.status === 'reagendada' || a.statusNewDate === 'reagendou').length;
 
     let cprev = 0;
     if (end >= tDay) {
       const ativas = consultInWeek.filter(a => {
-        if (a.status === 'cancelada' || a.status === 'reagendada' || a.statusNewDate === 'cancelou') return false;
+        if (a.status !== 'agendada') return false;
         if (start >= tDay) return true;
         const cDate = normIso(a.consult) || normIso(a.schedOn);
         return !cDate || cDate >= tDay;
@@ -522,6 +556,7 @@ function getAgendaWeeksData() {
 
       const reagendadasParaEstaSemana = allAppts.filter(a => {
         if (a.status !== 'reagendada') return false;
+        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
         const nd = normIso(a.newDate);
         if (start >= tDay) return nd >= start && nd <= end;
         return nd >= start && nd <= end && nd >= tDay;
@@ -592,6 +627,7 @@ function renderExcelFilterBox(weekList, selectedWeekIds) {
   let modeLabel = 'Todas as semanas';
   if (mode === 'last4') modeLabel = 'Últimas 4 semanas';
   else if (mode === 'last') modeLabel = 'Última semana lançada';
+  else if (mode === 'penultimate') modeLabel = 'Penúltima semana lançada';
   else if (mode === 'custom') modeLabel = `${selectedCount} semana(s) selecionada(s)`;
 
   let periodRangeText = '';
@@ -704,6 +740,7 @@ function renderExcelFilterBox(weekList, selectedWeekIds) {
           <option value="all" ${mode === 'all' ? 'selected' : ''}>Todas as semanas</option>
           <option value="last4" ${mode === 'last4' ? 'selected' : ''}>Últimas 4 semanas</option>
           <option value="last" ${mode === 'last' ? 'selected' : ''}>Última semana lançada</option>
+          <option value="penultimate" ${mode === 'penultimate' ? 'selected' : ''}>Penúltima semana lançada</option>
           <option value="custom" ${mode === 'custom' ? 'selected' : ''}>Personalizado (seleção na árvore)</option>
         </select>
 
@@ -1064,11 +1101,9 @@ function renderCfg(){
     <div class="card" style="margin-top:14px"><h2>Nomes dos campos semanais</h2><p class="note">Renomeie como preferir, adicione campos novos ou exclua os que não usa.</p>${fr}<h2 style="font-size:14px;margin-top:16px">Adicionar novo campo</h2><div class="row" style="margin-top:6px"><input id="f_n" placeholder="Nome do novo campo" style="flex:1;min-width:220px"><select id="f_t"><option value="0">Da semana</option><option value="1">Total atual</option></select><button class="b" id="f_add">Adicionar campo</button></div><div class="row"><button class="b s" id="c_rl">Restaurar nomes originais</button></div></div>
     <div class="card" style="margin-top:14px"><h2>Origem das consultas</h2><p class="note">Opções do campo “Veio de”.</p>${or}<div class="row"><input id="c_on" placeholder="Nova origem" style="flex:1;min-width:200px"><button class="b" id="c_oa">Adicionar origem</button></div><div class="row"><button class="b s" id="c_or">Restaurar origens originais</button></div></div>
     ${viewHtml()}
-    ${metricHtml()}
     <div class="card" style="margin-top:14px"><h2>Backup e Restauração dos dados</h2><p class="note">Exporte relatórios em CSV para o Excel ou gere uma cópia de segurança completa em JSON para restauração.</p><div class="row" style="margin-bottom:8px"><button class="b s" id="c_ew">Baixar semanas (CSV)</button><button class="b s" id="c_ea">Baixar consultas (CSV)</button></div><div class="row"><button class="b" id="c_bkj">Exportar Backup Completo (JSON)</button><button class="b s" id="c_rsj">Restaurar Backup (JSON)</button><input type="file" id="f_rsj" accept=".json" style="display:none"></div></div>
     ${themeHtml()}
   `;
-  attachMetricBuilderEvents();
 }
 
 async function exp(name,head,rows){
@@ -1501,7 +1536,7 @@ function getUnifiedGoalsList() {
 function goalsHtml(){
   const gl = getUnifiedGoalsList();
   const WA = W();
-  const allWeeksOpts = `<option value="all">Todas as semanas (Meta Geral)</option>` + WA.slice().reverse().map(w=>`<option value="${w.id}">Semana de ${fdf(w.id)}</option>`).join('');
+  const allWeeksOpts = `<option value="recurrent">Todas as semanas — Individual (repete em cada semana)</option><option value="sum_all">Soma de todas as semanas (Meta acumulada do período)</option>` + WA.slice().reverse().map(w=>`<option value="${w.id}">Semana específica: ${fdf(w.id)}</option>`).join('');
 
   const metricOpts = [
     ['cagend','Consultas agendadas na semana','num','min'],
@@ -1535,7 +1570,9 @@ function goalsHtml(){
           <th style="text-align:right">Ações</th>
         </tr>
         ${gl.map((g)=>{
-          const wkLbl = g.week === 'all' || !g.week ? 'Todas as semanas (Geral)' : 'Semana de ' + fdf(g.week);
+          const isSumAll = g.scope === 'sum_all' || g.week === 'sum_all';
+          const isRec = !isSumAll && (g.scope === 'recurrent' || g.week === 'all' || g.week === 'recurrent' || !g.week);
+          const wkLbl = isSumAll ? 'Soma de todas as semanas' : (isRec ? 'Individual semanal (todas)' : ('Semana de ' + fdf(g.week)));
           const tgtLbl = (g.dir === 'max' ? '≤ ' : '≥ ') + g.target + (g.unit === 'pct' ? '%' : '');
           return `<tr>
             <td><b>${esc(g.label||g.metric)}</b> ${g.legacy ? '<span class="tag" style="font-size:10px;margin-left:4px">Meta salva anteriormente</span>' : ''}</td>
@@ -1667,6 +1704,7 @@ function ev(expr,ws){
   };
 
   try {
+    if (!expr || typeof expr !== 'string' || !/^[a-zA-Z0-9_+\-*/().,\s]+$/.test(expr)) return 0;
     const fnEvaluator = new Function(...FNS, ...fieldKeys, 'return (' + expr + ')');
     const r = fnEvaluator(...FNS.map(k => fn[k]), ...fieldKeys);
     return isFinite(r) ? r : 0;
@@ -2347,8 +2385,10 @@ function dash(){
     selectedWeekIds = allAvailableWeeks.slice(-4).map(w => w.id);
   } else if (filterMode === 'last') {
     selectedWeekIds = allAvailableWeeks.length ? [allAvailableWeeks[allAvailableWeeks.length - 1].id] : [];
+  } else if (filterMode === 'penultimate') {
+    selectedWeekIds = allAvailableWeeks.length >= 2 ? [allAvailableWeeks[allAvailableWeeks.length - 2].id] : (allAvailableWeeks.length ? [allAvailableWeeks[0].id] : []);
   } else if (filterMode === 'custom') {
-    if (!Array.isArray(window.excelFilter.selected) || !window.excelFilter.selected.length) {
+    if (!Array.isArray(window.excelFilter.selected)) {
       selectedWeekIds = allAvailableWeeks.map(w => w.id);
     } else {
       selectedWeekIds = window.excelFilter.selected.filter(id => weeks[id]);
@@ -2401,13 +2441,17 @@ function dash(){
   const GL = GL_MAP;
   const sw = (ws.length && ws.some(w => w.id === selWeek)) ? selWeek : (last ? last.id : (allAvailableWeeks.length ? allAvailableWeeks[allAvailableWeeks.length - 1].id : ''));
 
+  const isSingleWeek = selectedWeekIds.length === 1;
+  const activeSingleWeekId = isSingleWeek ? selectedWeekIds[0] : null;
   const getActiveGoal = (mKey) => {
     const list = getUnifiedGoalsList();
-    const gw = list.find(g => (g.metric === mKey || g.label === mKey) && g.week === sw);
+    const matchesMetric = g => (g.metric === mKey || g.label === mKey);
+    if (!isSingleWeek) {
+      return list.find(g => matchesMetric(g) && (g.scope === 'sum_all' || g.week === 'sum_all')) || null;
+    }
+    const gw = list.find(g => matchesMetric(g) && g.week === activeSingleWeekId && g.scope !== 'sum_all');
     if (gw) return gw;
-    const ga = list.find(g => (g.metric === mKey || g.label === mKey) && (g.week === 'all' || !g.week));
-    if (ga) return ga;
-    return null;
+    return list.find(g => matchesMetric(g) && (g.scope === 'recurrent' || (!g.scope && (g.week === 'all' || g.week === 'recurrent' || !g.week)))) || null;
   };
 
   const kp=(l,v,s,mKey)=>{
@@ -2425,7 +2469,8 @@ function dash(){
       const sign = diff > 0 ? '+' : '';
       const unit = goal.unit === 'pct' ? '%' : '';
       const diffStr = sign + (goal.unit === 'pct' ? diff.toFixed(1).replace('.', ',') : Math.round(diff)) + unit;
-      const scopeText = (goal.week && goal.week !== 'all') ? ('Semana ' + fdf(goal.week)) : 'Meta geral';
+      const isSumAll = goal.scope === 'sum_all' || goal.week === 'sum_all';
+      const scopeText = isSumAll ? 'Meta acumulada do período' : ((goal.week && goal.week !== 'all' && goal.week !== 'recurrent') ? ('Semana ' + fdf(goal.week)) : 'Meta semanal individual');
 
       goalLegend = `
         <div style="margin-top:6px;padding:6px 9px;border-radius:8px;font-size:11.5px;font-weight:600;background:color-mix(in srgb,${ok ? 'var(--g)' : 'var(--r)'} 12%,var(--card));color:${ok ? 'var(--g)' : 'var(--r)'};border:1px solid color-mix(in srgb,${ok ? 'var(--g)' : 'var(--r)'} 25%,var(--line))">
@@ -2500,6 +2545,103 @@ function dash(){
   const cKpi=cm.filter(m=>m.where==='kpi').map(m=>{const v=cs(m);return kp(esc(m.title),v==null?'—':fmtM(v,m.fmt),'card personalizado',m.title)}).join('');
   const cCh=cm.filter(m=>m.where!=='kpi').map(m=>{const v=ws.map(w=>{try{return Math.round(ev(m.expr,[w])*100)/100}catch(e){return 0}}),ser=[{n:m.title,c:css('p'),v}];return card(esc(m.title),ser,chart(L,ser,m.where==='bar'?'group':'line',m.fmt==='pct',fullCats))}).join('');
 
+  const stdOverrides = cfg.customCharts || [];
+  const isChartVisible = (c) => c && c.showInDashboard !== false && !c.hidden;
+  const wrapCustomChartCard = (c, extraHtml) => {
+    if (!window.KommoGraf) return '';
+    const rendered = window.KommoGraf.renderVisualChart(c).html;
+    if (c.type === 'kpi') return rendered;
+    const editBtn = `<button type="button" class="b s" style="font-size:11px;padding:3px 7px" onclick="go('graf');setTimeout(()=>window.KommoGraf&&window.KommoGraf.editChart('${c.id}'),30)" title="Editar gráfico no construtor">✏️ Editar</button>`;
+    return `<div class="card" style="position:relative"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px"><div><h2>${esc(c.title)}</h2>${c.subtitle ? `<p class="note" style="margin:-6px 0 8px">${esc(c.subtitle)}</p>` : ''}</div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${extraHtml || ''}${editBtn}</div></div>${rendered}</div>`;
+  };
+
+  const renderStdOrOverride = (stdId, defaultTitle, ser, svgHtml, extraHtml) => {
+    const ov = stdOverrides.find(x => x.id === stdId);
+    if (ov) {
+      if (!isChartVisible(ov)) return '';
+      return wrapCustomChartCard(ov, extraHtml);
+    }
+    const editBtn = `<button type="button" class="b s" style="font-size:11px;padding:3px 7px" onclick="go('graf');setTimeout(()=>window.KommoGraf&&window.KommoGraf.editChart('${stdId}'),30)" title="Editar gráfico no construtor">✏️ Editar</button>`;
+    const mergedExtra = `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${extraHtml || ''}${editBtn}</div>`;
+    return card(defaultTitle, ser, svgHtml, mergedExtra);
+  };
+
+  const visibleCustomCharts = stdOverrides.filter(c => !String(c.id).startsWith('std_') && isChartVisible(c));
+  const extraCustomKpis = visibleCustomCharts
+    .filter(c => c.type === 'kpi')
+    .map(c => wrapCustomChartCard(c))
+    .join('');
+  const extraCustomCharts = visibleCustomCharts
+    .filter(c => c.type !== 'kpi')
+    .map(c => wrapCustomChartCard(c))
+    .join('');
+
+  // Gráfico de Acompanhamento de Metas por Semana (com filtro de período próprio)
+  const allGoalsForChart = getUnifiedGoalsList();
+  let goalTrackingHtml = '';
+  if (allGoalsForChart.length > 0) {
+    const selGoalId = window._selectedGoalChartId && allGoalsForChart.some(g => g.id === window._selectedGoalChartId)
+      ? window._selectedGoalChartId
+      : allGoalsForChart[0].id;
+    const activeG = allGoalsForChart.find(g => g.id === selGoalId) || allGoalsForChart[0];
+    const gPeriod = window._goalChartPeriod || 'panel';
+
+    let wsGoal = ws;
+    if (gPeriod === 'all') wsGoal = WA;
+    else if (gPeriod === 'last4') wsGoal = WA.slice(-4);
+    else if (gPeriod === 'last8') wsGoal = WA.slice(-8);
+    else if (gPeriod === 'last12') wsGoal = WA.slice(-12);
+    else if (gPeriod.startsWith('ym:')) {
+      const ym = gPeriod.slice(3);
+      wsGoal = WA.filter(w => w.id && w.id.startsWith(ym + '-'));
+    }
+
+    const ymSet = new Set();
+    WA.forEach(w => { if (w.id && w.id.length >= 7) ymSet.add(w.id.slice(0, 7)); });
+    const ymOpts = Array.from(ymSet).sort().reverse().map(ym => {
+      const [y, m] = ym.split('-');
+      const mName = MONTH_NAMES[parseInt(m, 10) - 1] || m;
+      const lbl = mName.charAt(0).toUpperCase() + mName.slice(1) + '/' + y;
+      return `<option value="ym:${ym}"${gPeriod === 'ym:' + ym ? ' selected' : ''}>${lbl}</option>`;
+    }).join('');
+
+    const getWeekMetricVal = (w, mKey) => {
+      if (mKey === 'tg') return pct(w.cagend || 0, w.ativas || 0);
+      if (mKey === 'conv') return pct(w.agend || 0, w.resp || 0);
+      if (mKey === 'convNovos') return pct(w.agend || 0, w.novos || 0);
+      if (mKey === 'resp') return pct(w.resp || 0, msgs(w));
+      if (mKey === 'comp') { const t = (w.creal||0)+(w.creag||0)+(w.ccanc||0); return pct(w.creal||0, t); }
+      if (mKey === 'canc') { const t = (w.creal||0)+(w.creag||0)+(w.ccanc||0); return pct(w.ccanc||0, t); }
+      return Number(w[mKey] || 0);
+    };
+    const isPctGoal = activeG.unit === 'pct';
+    const LGoal = wsGoal.map(w => fd(w.id));
+    const fullCatsGoal = wsGoal.map(w => 'Semana de ' + fdf(w.id));
+    const gActuals = wsGoal.map(w => Math.round(getWeekMetricVal(w, activeG.metric) * 10) / 10);
+    const gTargetLine = wsGoal.map(() => Number(activeG.target) || 0);
+    const gSer = [
+      { n: activeG.label || activeG.metric, c: css('g'), v: gActuals },
+      { n: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', c: css('a'), v: gTargetLine }
+    ];
+    const gControls = `
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <select id="goal_chart_period" style="font-size:11.5px;padding:3px 8px;min-height:28px" title="Filtrar período do gráfico de metas">
+          <option value="panel"${gPeriod==='panel'?' selected':''}>Seguir filtro do painel</option>
+          <option value="all"${gPeriod==='all'?' selected':''}>Todas as semanas</option>
+          <option value="last4"${gPeriod==='last4'?' selected':''}>Últimas 4 semanas</option>
+          <option value="last8"${gPeriod==='last8'?' selected':''}>Últimas 8 semanas</option>
+          <option value="last12"${gPeriod==='last12'?' selected':''}>Últimas 12 semanas</option>
+          ${ymOpts}
+        </select>
+        <select id="goal_chart_selector" style="font-size:11.5px;padding:3px 8px;min-height:28px">${allGoalsForChart.map(g => `<option value="${g.id}"${g.id===activeG.id?' selected':''}>${esc(g.label||g.metric)} (${g.target}${g.unit==='pct'?'%':''})</option>`).join('')}</select>
+      </div>
+    `;
+    const gBody = wsGoal.length
+      ? chart(LGoal, gSer, 'line', isPctGoal, fullCatsGoal)
+      : '<p class="note" style="padding:16px 0">Nenhuma semana encontrada para este período.</p>';
+    goalTrackingHtml = card('Acompanhamento de Metas por Semana', gSer, gBody, gControls);
+  }
+
   setTimeout(enableChartScrollDragging, 50);
 
   return fbar+`<div class="grid kpis">
@@ -2518,14 +2660,16 @@ function dash(){
     ${kp('Cancelados recuperados',perd.length?pf(pct(rec,perd.length)):'—',rec+' de '+perd.length,'rec')}
     ${kp('Reagendamentos em andamento',andam,'pacientes com “Em contato”','andam')}
     ${cKpi}
+    ${extraCustomKpis}
   </div>
   <div class="ins" id="dynamic_summary">${dynamicSummaryHtml}</div>
   <div class="grid charts">
-    ${card('Mensagens de follow-up por tentativa',fu,chart(L,fu,'stack',false,fullCats))}
-    ${card('Resposta e conversão do follow-up',rs,chart(L,rs,'line',true,fullCats))}
-    ${card('Status dos pacientes (total acumulado em cada semana)',st,chart(L,st,'stack',false,fullCats))}
-    ${card('Agenda da semana: realizadas, canceladas e reagendadas',ag,chart(LAgenda,ag,'group',false,fullCatsAgenda),renderAgendaFilterControl(allAgendaData))}
-    ${card('Funil: leads, respostas e agendamentos',fl,chart(L,fl,'group',false,fullCats))}
+    ${renderStdOrOverride('std_fu', 'Mensagens de follow-up por tentativa', fu, chart(L,fu,'stack',false,fullCats))}
+    ${renderStdOrOverride('std_rs', 'Resposta e conversão do follow-up', rs, chart(L,rs,'line',true,fullCats))}
+    ${renderStdOrOverride('std_st', 'Status dos pacientes (total acumulado em cada semana)', st, chart(L,st,'stack',false,fullCats))}
+    ${renderStdOrOverride('std_ag', 'Agenda da semana: realizadas, canceladas e reagendadas', ag, chart(LAgenda,ag,'group',false,fullCatsAgenda), renderAgendaFilterControl(allAgendaData))}
+    ${renderStdOrOverride('std_fl', 'Funil: leads, respostas e agendamentos', fl, chart(L,fl,'group',false,fullCats))}
+    ${goalTrackingHtml}
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
         <h2 style="margin:0">Taxa de agendamento por etapa</h2>
@@ -2540,6 +2684,7 @@ function dash(){
       }
     </div>
     ${cCh}
+    ${extraCustomCharts}
     <div class="card"><h2>De onde vêm as consultas</h2>${orig}</div>
   </div>`;
 }
@@ -2660,8 +2805,9 @@ function weekList(){
       </label>
     </div>
     <div class="row" style="margin:0 0 10px;justify-content:space-between;align-items:center;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <button class="b s" data-wfc="1" style="font-size:12px;padding:4px 9px">Limpar filtros</button>
+        <button type="button" class="b s" id="btn_export_weeks" style="font-size:12px;padding:4px 9px">📥 Exportar (CSV / Excel)</button>
         <span class="note">Exibindo <b>${ws.length}</b> de <b>${all.length}</b> semanas lançadas (visualizando até 10 por tela com rolagem)</span>
       </div>
     </div>
@@ -2801,7 +2947,7 @@ function fbarA(ids){const f=aFilt,tot=Object.keys(appts).length,WS=W().slice().r
       </select>
     </label>
   </div>
-  <div class="row" style="margin:0 0 10px"><button class="b s" data-afc="1">Limpar filtros e pesquisa</button><span class="note">Mostrando ${ids.length} de ${tot} consultas</span></div>`}
+  <div class="row" style="margin:0 0 10px"><button class="b s" data-afc="1">Limpar filtros e pesquisa</button><button type="button" class="b s" id="btn_export_appts">📥 Exportar (CSV / Excel)</button><span class="note">Mostrando ${ids.length} de ${tot} consultas</span></div>`}
 
 function apptList(){
   const f=aFilt,WS=W();
@@ -2889,7 +3035,7 @@ function forceRender(){
   updatePastePreviewUI();
 }
 
-function go(t){cur=t;['dash','sem','cons','cfg'].forEach(s=>$('#'+s).classList.toggle('hide',s!==t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='dash')render();if(t==='cfg')renderCfg()}
+function go(t){cur=t;['dash','sem','cons','graf','cfg'].forEach(s=>$('#'+s).classList.toggle('hide',s!==t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='dash')render();if(t==='graf'&&window.KommoGraf)window.KommoGraf.render();if(t==='cfg')renderCfg()}
 
 $('#nav').onclick=e=>{if(e.target.dataset.t)go(e.target.dataset.t)};
 buildForm();
@@ -3009,7 +3155,39 @@ $('#al').addEventListener('input',e=>{
 });
 
 $('#al').onclick=async e=>{
-  if(e.target.dataset.afc){aFilt={week:'',from:'',to:'',origin:'',status:'',q:''};$('#al').innerHTML=apptList();return}
+  if(e.target.id==='btn_export_appts'){
+    const f=aFilt,WS=W();
+    let wr=null;
+    if(f.week){
+      const i=WS.findIndex(w=>w.id===f.week);
+      if(i>=0){const {start,end}=getWeekWindow(f.week,WS.map(w=>w.id),i);wr=[start,end];}
+    }
+    const qClean=(f.q||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const filtered=Object.keys(appts).filter(k=>{
+      const a=appts[k],s=a.schedOn||'',c=a.consult||'',nd=a.newDate||'';
+      const pName=String(a.patient||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const matchesQ=!qClean||pName.includes(qClean);
+      const matchesWeek=!wr||(s>=wr[0]&&s<=wr[1])||(c>=wr[0]&&c<=wr[1])||(nd>=wr[0]&&nd<=wr[1]);
+      return matchesQ&&matchesWeek&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status)&&(!f.statusNewDate||(a.statusNewDate||'')===f.statusNewDate);
+    }).map(id=>({id,...appts[id]}));
+    const cols=[
+      {key:'patient',label:'Paciente',selected:true},
+      {key:'origin',label:'Veio de',selected:true,getter:a=>ORIG[a.origin]||a.origin||''},
+      {key:'schedOn',label:'Agendada em',selected:true,getter:a=>fdf(a.schedOn)||''},
+      {key:'consult',label:'Data da consulta',selected:true,getter:a=>fdf(a.consult)||''},
+      {key:'status',label:'Status',selected:true,getter:a=>STAT[a.status]||a.status||''},
+      {key:'regained',label:'Conseguiu reagendar?',selected:true,getter:a=>REG[a.regained||'']||a.regained||''},
+      {key:'newDate',label:'Nova data',selected:true,getter:a=>fdf(a.newDate)||''},
+      {key:'statusNewDate',label:'Status nova data',selected:true,getter:a=>STAT_NEW[a.statusNewDate||'']||a.statusNewDate||''}
+    ];
+    if(window.KommoExport){
+      window.KommoExport.renderExportModal('Consultas filtradas',cols,filtered.length,(fmt,selCols)=>{
+        window.KommoExport.exportDataFile('consultas_filtradas',fmt,selCols,filtered);
+      },()=>{});
+    }
+    return;
+  }
+  if(e.target.dataset.afc){aFilt={week:'',from:'',to:'',origin:'',status:'',statusNewDate:'',q:''};$('#al').innerHTML=apptList();return}
   const th=e.target.closest('[data-asort]');
   if(th){
     const col=th.dataset.asort;
@@ -3119,20 +3297,22 @@ $('#cfg').onclick=async e=>{
 
     if(isNaN(target))return toast('Informe o valor numérico da meta.');
 
+    const scope = week === 'sum_all' ? 'sum_all' : ((week === 'all' || week === 'recurrent') ? 'recurrent' : 'week');
     let list=getUnifiedGoalsList().map(g=>({
       id:g.id,
       metric:g.metric,
       label:g.label,
-      week:g.week||'all',
+      week:g.week||'recurrent',
+      scope:g.scope||(g.week==='sum_all'?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':'week')),
       target:g.target,
       unit:g.unit||'num',
       dir:g.dir||'min'
     }));
     if(editId){
-      list=list.map(g=>g.id===editId?{...g,id:editId.startsWith('legacy_')?'g'+Date.now().toString(36):g.id,metric:m,label,week,target,unit,dir}:g);
+      list=list.map(g=>g.id===editId?{...g,id:editId.startsWith('legacy_')?'g'+Date.now().toString(36):g.id,metric:m,label,week,scope,target,unit,dir}:g);
     }else{
-      const idx=list.findIndex(g=>g.metric===m && g.week===week);
-      const newG={id:'g'+Date.now().toString(36),metric:m,label,week,target,unit,dir};
+      const idx=list.findIndex(g=>g.metric===m && g.week===week && g.scope===scope);
+      const newG={id:'g'+Date.now().toString(36),metric:m,label,week,scope,target,unit,dir};
       if(idx>=0)list[idx]=newG;
       else list.push(newG);
     }
@@ -3159,7 +3339,7 @@ $('#cfg').onclick=async e=>{
     if(g){
       $('#g_edit_id').value=g.id;
       $('#g_metric').value=g.metric;
-      $('#g_week').value=g.week||'all';
+      $('#g_week').value=(g.scope==='sum_all'||g.week==='sum_all')?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':g.week);
       $('#g_target').value=g.target;
       $('#g_unit').value=g.unit||'num';
       $('#g_dir').value=g.dir||'min';
@@ -3348,6 +3528,16 @@ $('#dash').onchange = e => {
     forceRender();
     return;
   }
+  if (t.id === 'goal_chart_selector') {
+    window._selectedGoalChartId = t.value;
+    forceRender();
+    return;
+  }
+  if (t.id === 'goal_chart_period') {
+    window._goalChartPeriod = t.value;
+    forceRender();
+    return;
+  }
   if (t.id === 'ef_quick_sel') {
     const val = t.value;
     window.excelFilter.mode = val;
@@ -3361,6 +3551,8 @@ $('#dash').onchange = e => {
       window.excelFilter.selected = sourceList.slice(-4);
     } else if (val === 'last') {
       window.excelFilter.selected = sourceList.slice(-1);
+    } else if (val === 'penultimate') {
+      window.excelFilter.selected = sourceList.length >= 2 ? [sourceList[sourceList.length - 2]] : sourceList.slice(-1);
     }
     forceRender();
     return;
@@ -3497,6 +3689,31 @@ $('#wl').addEventListener('click',async e=>{
     delete btn.dataset.confirming;
     const id=d.wx;
     await deleteWeek(id);
+    return;
+  }
+  if(t.id==='btn_export_weeks'){
+    const all = W();
+    const f = wFilt || { from: '', to: '', q: '', sort: 'data_desc', minLeads: '' };
+    const qClean = (f.q || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const filtered = all.filter(w => {
+      if (f.from && w.id < f.from) return false;
+      if (f.to && w.id > f.to) return false;
+      if (f.minLeads && (w.novos || 0) < Number(f.minLeads)) return false;
+      if (qClean) {
+        const year = w.id.split('-')[0];
+        const monthNum = parseInt(w.id.split('-')[1], 10) - 1;
+        const monthName = (MONTH_NAMES[monthNum] || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const fullDateStr = fdf(w.id);
+        if (!(year.includes(qClean) || monthName.includes(qClean) || fullDateStr.includes(qClean) || w.id.includes(qClean))) return false;
+      }
+      return true;
+    });
+    const cols = [{key:'id',label:'Semana',selected:true,getter:w=>fdf(w.id)}, ...FIELDS.map(([k])=>({key:k,label:lab(k),selected:true,getter:w=>w[k]||0}))];
+    if(window.KommoExport){
+      window.KommoExport.renderExportModal('Semanas lançadas (filtradas)',cols,filtered.length,(fmt,selCols)=>{
+        window.KommoExport.exportDataFile('semanas_filtradas', fmt, selCols, filtered);
+      },()=>{});
+    }
     return;
   }
   if(d.wfc){wFilt={from:'',to:'',q:'',sort:'data_desc',minLeads:''};$('#wl').innerHTML=weekList()}
@@ -3820,6 +4037,37 @@ async function initFirebaseModule() {
 }
 
 initFirebaseModule();
+
+window.KommoApp = {
+  get weeks() { return weeks; },
+  get appts() { return appts; },
+  get cfg() { return cfg; },
+  W,
+  getAgendaWeeksData,
+  FIELDS,
+  ORIG,
+  STAT,
+  lab,
+  isSn,
+  ev,
+  fmtM,
+  saveCfg,
+  toast,
+  forceRender,
+  getUnifiedGoalsList,
+  fd,
+  fdf,
+  pct,
+  pf,
+  esc,
+  normIso,
+  addDays,
+  MONTH_NAMES,
+  metricHtml,
+  attachMetricBuilderEvents,
+  go
+};
 </script>
+<script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
