@@ -459,7 +459,7 @@ function W() {
       if (!nd || nd < start || nd > end) return false;
       const c = normIso(a.consult) || normIso(a.schedOn);
       const sameWeek = c >= start && c <= end;
-      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status === 'reagendada';
+      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status !== 'realizada';
       if (a.status === 'realizada' && !sameWeek) return true;
       return false;
     }).length;
@@ -484,9 +484,11 @@ function W() {
       }).length;
 
       const reagendadasParaEstaSemana = allAppts.filter(a => {
-        if (a.status !== 'reagendada') return false;
-        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
         const nd = normIso(a.newDate);
+        if (!nd) return false;
+        if (a.status === 'realizada') return false;
+        if (a.status !== 'reagendada' && a.status !== 'cancelada' && a.status !== 'nao_compareceu' && a.regained !== 'sim') return false;
+        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
         if (start >= tDay) return nd >= start && nd <= end;
         return nd >= start && nd <= end && nd >= tDay;
       }).length;
@@ -536,7 +538,7 @@ function getAgendaWeeksData() {
       if (!nd || nd < start || nd > end) return false;
       const c = normIso(a.consult) || normIso(a.schedOn);
       const sameWeek = c >= start && c <= end;
-      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status === 'reagendada';
+      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status !== 'realizada';
       if (a.status === 'realizada' && !sameWeek) return true;
       return false;
     }).length;
@@ -555,9 +557,11 @@ function getAgendaWeeksData() {
       }).length;
 
       const reagendadasParaEstaSemana = allAppts.filter(a => {
-        if (a.status !== 'reagendada') return false;
-        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
         const nd = normIso(a.newDate);
+        if (!nd) return false;
+        if (a.status === 'realizada') return false;
+        if (a.status !== 'reagendada' && a.status !== 'cancelada' && a.status !== 'nao_compareceu' && a.regained !== 'sim') return false;
+        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
         if (start >= tDay) return nd >= start && nd <= end;
         return nd >= start && nd <= end && nd >= tDay;
       }).length;
@@ -894,22 +898,39 @@ async function syncWeekMetricsWithAppts(persist = true) {
       return c >= start && c <= end;
     });
 
-    const numReal = consultInWeek.filter(a => a.status === 'realizada').length;
-    const numCanc = consultInWeek.filter(a => a.status === 'cancelada').length;
-    const numReag = consultInWeek.filter(a => a.status === 'reagendada').length;
+    const numRealOrig = consultInWeek.filter(a => {
+      if (a.status !== 'realizada') return false;
+      const nd = normIso(a.newDate);
+      return !nd || (nd >= start && nd <= end);
+    }).length;
+    const numRealNewDate = allAppts.filter(a => {
+      const nd = normIso(a.newDate);
+      if (!nd || nd < start || nd > end) return false;
+      const c = normIso(a.consult) || normIso(a.schedOn);
+      const sameWeek = c >= start && c <= end;
+      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status !== 'realizada';
+      if (a.status === 'realizada' && !sameWeek) return true;
+      return false;
+    }).length;
+    const numReal = numRealOrig + numRealNewDate;
+    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
+    const numReag = consultInWeek.filter(a => a.status === 'reagendada' || a.statusNewDate === 'reagendou').length;
 
     let numPrev = 0;
     if (end >= tDay) {
       const ativasNaSemana = consultInWeek.filter(a => {
-        if (a.status === 'cancelada' || a.status === 'reagendada') return false;
+        if (a.status !== 'agendada') return false;
         if (start >= tDay) return true;
-        const cDate = a.consult || '';
+        const cDate = normIso(a.consult) || normIso(a.schedOn);
         return !cDate || cDate >= tDay;
       }).length;
 
       const reagendadasParaEstaSemana = allAppts.filter(a => {
-        if (a.status !== 'reagendada') return false;
-        const nd = a.newDate || '';
+        const nd = normIso(a.newDate);
+        if (!nd) return false;
+        if (a.status === 'realizada') return false;
+        if (a.status !== 'reagendada' && a.status !== 'cancelada' && a.status !== 'nao_compareceu' && a.regained !== 'sim') return false;
+        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
         if (start >= tDay) return nd >= start && nd <= end;
         return nd >= start && nd <= end && nd >= tDay;
       }).length;
@@ -917,7 +938,7 @@ async function syncWeekMetricsWithAppts(persist = true) {
       numPrev = ativasNaSemana + reagendadasParaEstaSemana;
     }
 
-    const hasApptsInWeek = schedInWeek.length > 0 || consultInWeek.length > 0;
+    const hasApptsInWeek = schedInWeek.length > 0 || consultInWeek.length > 0 || numRealNewDate > 0;
     if (hasApptsInWeek) {
       if (raw.cagend !== schedInWeek.length || raw.creal !== numReal || raw.ccanc !== numCanc || raw.creag !== numReag || raw.cprev !== numPrev) {
         raw.cagend = schedInWeek.length;
