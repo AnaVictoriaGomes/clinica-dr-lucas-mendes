@@ -1,0 +1,6 @@
+{
+  "name": "Painel KOMMO – Follow-up e Agenda",
+  "description": "Painel de controle para acompanhamento de follow-up, taxa de resposta, agenda e sincronização de consultas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
