@@ -145,6 +145,37 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 .sticky-week-col{position:sticky;left:0;z-index:2;background:var(--card)}
 .week-scroll-box tr:hover .sticky-week-col{background:color-mix(in srgb,var(--g) 6%,var(--card))}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Consultas SaaS Table & Modals */
+.cons-pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:7px;font-size:12px;font-weight:500;background:color-mix(in srgb,var(--line) 55%,var(--bg));color:var(--ink);white-space:normal;line-height:1.25;max-width:120px}
+.cons-patient-btn{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:2px 0;color:var(--ink);font:inherit;font-weight:600;text-align:left;cursor:pointer;transition:color .15s}
+.cons-patient-btn:hover{color:var(--b)}
+.cons-avatar{width:22px;height:22px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--b) 14%,var(--bg));color:var(--b);font-size:11px;flex-shrink:0}
+.cons-sel{min-height:31px;padding:4px 24px 4px 10px;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;border:1px solid var(--line);transition:all .15s}
+.cons-sel-st-agendada{background:color-mix(in srgb,var(--b) 11%,var(--card));border-color:color-mix(in srgb,var(--b) 35%,var(--line));color:var(--b)}
+.cons-sel-st-realizada{background:color-mix(in srgb,var(--g) 12%,var(--card));border-color:color-mix(in srgb,var(--g) 38%,var(--line));color:var(--g)}
+.cons-sel-st-reagendada{background:color-mix(in srgb,var(--a) 13%,var(--card));border-color:color-mix(in srgb,var(--a) 42%,var(--line));color:color-mix(in srgb,var(--a) 85%,var(--ink))}
+.cons-sel-st-nao_compareceu{background:color-mix(in srgb,var(--r) 10%,var(--card));border-color:color-mix(in srgb,var(--r) 30%,var(--line));color:var(--r)}
+.cons-sel-st-cancelada{background:color-mix(in srgb,var(--r) 14%,var(--card));border-color:color-mix(in srgb,var(--r) 42%,var(--line));color:var(--r)}
+.cons-sel-rg-none{background:var(--bg);border-color:var(--line);color:var(--mut);font-weight:500}
+.cons-sel-rg-contato{background:color-mix(in srgb,var(--b) 11%,var(--card));border-color:color-mix(in srgb,var(--b) 35%,var(--line));color:var(--b)}
+.cons-sel-rg-sim{background:color-mix(in srgb,var(--g) 13%,var(--card));border-color:color-mix(in srgb,var(--g) 40%,var(--line));color:var(--g)}
+.cons-sel-rg-nao{background:color-mix(in srgb,var(--r) 12%,var(--card));border-color:color-mix(in srgb,var(--r) 38%,var(--line));color:var(--r)}
+.cons-act-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;font-size:12px;font-weight:600;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;min-height:30px;transition:all .15s}
+.cons-act-btn:hover{border-color:var(--k);background:var(--bg)}
+.cons-act-btn.date{background:color-mix(in srgb,var(--b) 10%,var(--card));border-color:color-mix(in srgb,var(--b) 32%,var(--line));color:var(--b)}
+.cons-act-btn.date:hover{background:color-mix(in srgb,var(--b) 18%,var(--card))}
+.cons-act-btn.del{color:var(--r);border-color:color-mix(in srgb,var(--r) 28%,var(--line));background:color-mix(in srgb,var(--r) 7%,var(--card));padding:4px 8px}
+.cons-act-btn.del:hover{background:color-mix(in srgb,var(--r) 15%,var(--card))}
+.k-modal-backdrop{position:fixed;inset:0;z-index:120;background:rgba(15,23,42,.48);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:16px}
+.k-modal-card{background:var(--card);border:1px solid var(--line);border-radius:16px;width:100%;max-width:460px;box-shadow:0 20px 50px rgba(0,0,0,.28);overflow:hidden;animation:fadeIn .15s ease}
+.k-modal-head{display:flex;justify-content:space-between;align-items:flex-start;padding:16px 20px;border-bottom:1px solid var(--line)}
+.k-modal-head h3{margin:0;font-size:16px;font-weight:700}
+.k-modal-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px;max-height:72vh;overflow-y:auto}
+.k-modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 50%,var(--card))}
+.k-radio-card{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;cursor:pointer;transition:all .15s;background:var(--card)}
+.k-radio-card.active-warn{border-color:var(--a);background:color-mix(in srgb,var(--a) 8%,var(--card))}
+.k-radio-card.active-info{border-color:var(--b);background:color-mix(in srgb,var(--b) 8%,var(--card))}
 </style>
 </head>
 <body class="locked">
@@ -232,11 +263,11 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 <div id="msg"></div>
 
 <script>
-let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana']];
+let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana'],['cprev','Consultas previstas da semana']];
 const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-26":[100,2,473,346,0,0,0,20,3,326,33,3,9,13,6,2,5],"2026-10-03":[52,2,513,33,375,0,0,25,6,350,31,0,14,7,4,0,11],"2026-10-10":[27,0,514,14,163,290,0,70,3,397,45,6,26,10,9,1,11]};
 const ORIG={novo:'Novo lead',c2:'2º contato (FU 2)',c3:'3º contato (FU 3)',c4:'4º contato (FU 4)',c5:'5º contato (FU 5)',sem:'Sem retorno no follow-up'};
-const STAT={agendada:'Agendada',realizada:'Realizada',cancelada:'Cancelada',reagendada:'Reagendada',nao_compareceu:'Não compareceu'};
-const REG={'':'—',sim:'Sim, reagendado',contato:'Em contato',nao:'Não conseguiu'};
+const STAT={agendada:'Agendada',realizada:'Compareceu',reagendada:'Reagendou',nao_compareceu:'Faltou',cancelada:'Cancelada'};
+const REG={'':'Nenhum',contato:'Em contato',sim:'Conseguimos reagendar',nao:'Não conseguiu'};
 const STAT_NEW={'':'—',compareceu:'Compareceu',nao_compareceu:'Não compareceu',aguardando:'Aguardando data',reagendou:'Reagendou novamente',cancelou:'Cancelou'};
 const MONTH_NAMES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
@@ -251,6 +282,15 @@ window.excelFilter = window.excelFilter || {
 };
 
 window.agendaFilter = window.agendaFilter || {
+  mode: 'all',
+  year: 'all',
+  month: 'all',
+  search: '',
+  sort: 'asc',
+  isOpen: false
+};
+
+window.goalFilter = window.goalFilter || {
   mode: 'all',
   year: 'all',
   month: 'all',
@@ -426,75 +466,143 @@ async function ensureWeekForCreatedSchedOn(schedDate) {
   // Desativado: semanas agora são criadas exclusivamente de forma manual ou na 1ª segunda-feira às 08h
 }
 
+function computeWeekApptMetrics(id, start, end, allAppts) {
+  const schedInWeek = allAppts.filter(a => {
+    const s = normIso(a.schedOn);
+    return s >= start && s <= end;
+  });
+  const consultInWeek = allAppts.filter(a => {
+    const c = normIso(a.consult) || normIso(a.schedOn);
+    return c >= start && c <= end;
+  });
+
+  // Consultas previstas da semana: exclui canceladas e reagendadas para outra semana
+  const prevPatients = new Set();
+  const totalWeekPatients = new Set();
+  allAppts.forEach((a, idx) => {
+    const origDate = normIso(a.consult) || normIso(a.schedOn);
+    const nd = normIso(a.newDate);
+    const inOrigWeek = origDate >= start && origDate <= end;
+    const inNewWeek = !!(nd && nd >= start && nd <= end);
+    const movedOutOfOrigWeek = inOrigWeek && !!(nd && (nd < start || nd > end));
+    const pKey = String(a.patient || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') || ('__idx_' + idx);
+
+    if (inOrigWeek || inNewWeek) {
+      totalWeekPatients.add(pKey);
+    }
+
+    const isCancelledOrig = a.status === 'cancelada';
+    const isMovedOut = (a.status === 'reagendada' && (!nd || nd < start || nd > end)) || movedOutOfOrigWeek;
+    const isValidOrig = inOrigWeek && !isCancelledOrig && !isMovedOut;
+    const isValidNew = inNewWeek && a.statusNewDate !== 'cancelou' && a.statusNewDate !== 'reagendou' && (a.status !== 'cancelada' || a.regained === 'sim');
+
+    if (isValidOrig || isValidNew) {
+      prevPatients.add(pKey);
+    }
+  });
+  const numPrev = prevPatients.size;
+  const numTotWeek = totalWeekPatients.size;
+
+  const numRealOrig = consultInWeek.filter(a => {
+    if (a.status !== 'realizada') return false;
+    const nd = normIso(a.newDate);
+    return !nd || (nd >= start && nd <= end);
+  }).length;
+  const numRealNewDate = allAppts.filter(a => {
+    const nd = normIso(a.newDate);
+    if (!nd || nd < start || nd > end) return false;
+    const c = normIso(a.consult) || normIso(a.schedOn);
+    const sameWeek = c >= start && c <= end;
+    if (a.statusNewDate === 'compareceu') return !sameWeek || a.status !== 'realizada';
+    if (a.status === 'realizada' && !sameWeek) return true;
+    return false;
+  }).length;
+  const numReal = numRealOrig + numRealNewDate;
+
+  const cancSet = new Set();
+  const reagSet = new Set();
+
+  allAppts.forEach((a, idx) => {
+    const c = normIso(a.consult) || normIso(a.schedOn);
+    const nd = normIso(a.newDate);
+    const inOrig = c >= start && c <= end;
+    const inNew = !!(nd && nd >= start && nd <= end);
+    const movedOut = inOrig && !!(nd && (nd < start || nd > end));
+
+    if (inOrig && !movedOut && (a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu')) {
+      cancSet.add(idx);
+    }
+    if (inNew && !inOrig && (a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu')) {
+      cancSet.add(idx);
+    }
+
+    if (inOrig && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || movedOut)) {
+      reagSet.add(idx);
+    }
+    if (inNew && !inOrig && a.statusNewDate === 'reagendou') {
+      reagSet.add(idx);
+    }
+
+    if (Array.isArray(a.historyLog)) {
+      a.historyLog.forEach(ev => {
+        const d = normIso(ev && ev.date);
+        if (!d || d < start || d > end) return;
+        const st = ev.status || '';
+        if (st === 'cancelada' || st === 'cancelou' || st === 'nao_compareceu') cancSet.add(idx);
+        if (st === 'reagendada' || st === 'reagendou') reagSet.add(idx);
+      });
+    }
+  });
+
+  const numCanc = cancSet.size;
+  const numReag = reagSet.size;
+
+  const numAgendFU = schedInWeek.filter(a => ['c2', 'c3', 'c4', 'c5'].includes(a.origin)).length;
+  const hasData = schedInWeek.length > 0 || consultInWeek.length > 0 || numPrev > 0 || numTotWeek > 0 || numRealNewDate > 0 || numCanc > 0 || numReag > 0;
+
+  return {
+    cagend: schedInWeek.length,
+    cprev: numPrev,
+    ctot: numTotWeek,
+    creal: numReal,
+    ccanc: numCanc,
+    creag: numReag,
+    agend: numAgendFU,
+    hasData
+  };
+}
+
+function mergeWeekAutoVal(weekId, manualVal, autoVal, hasData) {
+  const man = (manualVal !== undefined && manualVal !== null && manualVal !== '') ? Number(manualVal) : 0;
+  if (weekId < '2026-11-09') {
+    return Math.max(man, autoVal);
+  }
+  return hasData ? autoVal : man;
+}
+
+function weekTotalConsultas(w) {
+  const outcomeTot = (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0);
+  return Math.max(w.ctot || 0, w.cprev || 0, outcomeTot);
+}
+
 /* ===== FUNÇÃO W() DA ABA DE LANÇAMENTO DE SEMANAS (USA EXCLUSIVAMENTE SEMANAS CRIADAS) ===== */
 function W() {
   const keys = Object.keys(weeks || {}).sort();
   const allAppts = Object.values(appts || {});
-  const tDay = today();
 
   return keys.map((id, i) => {
     const raw = weeks[id] || {};
     const w = { ...raw, id };
     const { start, end } = getWeekWindow(id, keys, i);
+    const m = computeWeekApptMetrics(id, start, end, allAppts);
 
-    // 1. Consultas agendadas nesta semana (campo "Agendada em")
-    const schedInWeek = allAppts.filter(a => {
-      const s = normIso(a.schedOn);
-      return s >= start && s <= end;
-    });
-
-    // 2. Consultas marcadas para esta semana
-    const consultInWeek = allAppts.filter(a => {
-      const c = normIso(a.consult) || normIso(a.schedOn);
-      return c >= start && c <= end;
-    });
-
-    const numRealOrig = consultInWeek.filter(a => {
-      if (a.status !== 'realizada') return false;
-      const nd = normIso(a.newDate);
-      return !nd || (nd >= start && nd <= end);
-    }).length;
-    const numRealNewDate = allAppts.filter(a => {
-      const nd = normIso(a.newDate);
-      if (!nd || nd < start || nd > end) return false;
-      const c = normIso(a.consult) || normIso(a.schedOn);
-      const sameWeek = c >= start && c <= end;
-      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status !== 'realizada';
-      if (a.status === 'realizada' && !sameWeek) return true;
-      return false;
-    }).length;
-    const numReal = numRealOrig + numRealNewDate;
-
-    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
-    const numReag = consultInWeek.filter(a => a.status === 'reagendada' || a.statusNewDate === 'reagendou').length;
-
-    w.cagend = (schedInWeek.length > 0) ? schedInWeek.length : ((raw.cagend !== undefined && raw.cagend !== null && raw.cagend !== '') ? Number(raw.cagend) : 0);
-    w.creal = (consultInWeek.length > 0 || numRealNewDate > 0) ? numReal : ((raw.creal !== undefined && raw.creal !== null && raw.creal !== '') ? Number(raw.creal) : 0);
-    w.ccanc = (consultInWeek.length > 0) ? numCanc : ((raw.ccanc !== undefined && raw.ccanc !== null && raw.ccanc !== '') ? Number(raw.ccanc) : 0);
-    w.creag = (consultInWeek.length > 0) ? numReag : ((raw.creag !== undefined && raw.creag !== null && raw.creag !== '') ? Number(raw.creag) : 0);
-
-    if (end < tDay) {
-      w.cprev = 0;
-    } else {
-      const ativasNaSemana = consultInWeek.filter(a => {
-        if (a.status !== 'agendada') return false;
-        if (start >= tDay) return true;
-        const cDate = normIso(a.consult) || normIso(a.schedOn);
-        return !cDate || cDate >= tDay;
-      }).length;
-
-      const reagendadasParaEstaSemana = allAppts.filter(a => {
-        const nd = normIso(a.newDate);
-        if (!nd) return false;
-        if (a.status === 'realizada') return false;
-        if (a.status !== 'reagendada' && a.status !== 'cancelada' && a.status !== 'nao_compareceu' && a.regained !== 'sim') return false;
-        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
-        if (start >= tDay) return nd >= start && nd <= end;
-        return nd >= start && nd <= end && nd >= tDay;
-      }).length;
-
-      w.cprev = ativasNaSemana + reagendadasParaEstaSemana;
-    }
+    w.cagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData);
+    w.cprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData);
+    w.creal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData);
+    w.ccanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData);
+    w.creag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData);
+    w.agend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData);
+    w.ctot = m.hasData ? Math.max(m.ctot, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0)) : Math.max(w.cprev || 0, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0));
 
     return w;
   });
@@ -544,26 +652,66 @@ function getAgendaWeeksData() {
     }).length;
     const numReal = numRealOrig + numRealNewDate;
 
-    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
-    const numReag = consultInWeek.filter(a => a.status === 'reagendada' || a.statusNewDate === 'reagendou').length;
+    const cancSet = new Set();
+    const reagSet = new Set();
+
+    allAppts.forEach((a, idx) => {
+      const c = normIso(a.consult) || normIso(a.schedOn);
+      const nd = normIso(a.newDate);
+      const inOrig = c >= start && c <= end;
+      const inNew = !!(nd && nd >= start && nd <= end);
+      const movedOut = inOrig && !!(nd && (nd < start || nd > end));
+
+      if (inOrig && !movedOut && (a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu')) {
+        cancSet.add(idx);
+      }
+      if (inNew && !inOrig && (a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu')) {
+        cancSet.add(idx);
+      }
+
+      if (inOrig && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || movedOut)) {
+        reagSet.add(idx);
+      }
+      if (inNew && !inOrig && a.statusNewDate === 'reagendou') {
+        reagSet.add(idx);
+      }
+
+      if (Array.isArray(a.historyLog)) {
+        a.historyLog.forEach(ev => {
+          const d = normIso(ev && ev.date);
+          if (!d || d < start || d > end) return;
+          const st = ev.status || '';
+          if (st === 'cancelada' || st === 'cancelou' || st === 'nao_compareceu') cancSet.add(idx);
+          if (st === 'reagendada' || st === 'reagendou') reagSet.add(idx);
+        });
+      }
+    });
+
+    const numCanc = cancSet.size;
+    const numReag = reagSet.size;
 
     let cprev = 0;
     if (end >= tDay) {
       const ativas = consultInWeek.filter(a => {
         if (a.status !== 'agendada') return false;
+        const nd = normIso(a.newDate);
+        if (nd && (nd < start || nd > end)) return false;
         if (start >= tDay) return true;
-        const cDate = normIso(a.consult) || normIso(a.schedOn);
+        const cDate = nd || normIso(a.consult) || normIso(a.schedOn);
         return !cDate || cDate >= tDay;
       }).length;
 
       const reagendadasParaEstaSemana = allAppts.filter(a => {
         const nd = normIso(a.newDate);
-        if (!nd) return false;
+        if (!nd || nd < start || nd > end) return false;
+        const c = normIso(a.consult) || normIso(a.schedOn);
+        const sameWeek = c >= start && c <= end;
+        if (sameWeek && a.status === 'agendada') return false;
         if (a.status === 'realizada') return false;
-        if (a.status !== 'reagendada' && a.status !== 'cancelada' && a.status !== 'nao_compareceu' && a.regained !== 'sim') return false;
+        if (a.status !== 'agendada' && a.status !== 'reagendada' && a.status !== 'cancelada' && a.status !== 'nao_compareceu' && a.regained !== 'sim') return false;
         if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
-        if (start >= tDay) return nd >= start && nd <= end;
-        return nd >= start && nd <= end && nd >= tDay;
+        if (start >= tDay) return true;
+        return nd >= tDay;
       }).length;
 
       cprev = ativas + reagendadasParaEstaSemana;
@@ -872,6 +1020,74 @@ function renderAgendaFilterControl(allAgendaData) {
   `;
 }
 
+function renderGoalFilterControl(allWeeksData) {
+  const f = window.goalFilter || { mode: 'all', year: 'all', month: 'all', sort: 'asc', isOpen: false };
+  const years = [...new Set(allWeeksData.map(w => (w.id || '').split('-')[0]).filter(Boolean))].sort();
+  const months = [...new Set(allWeeksData.map(w => {
+    const parts = (w.id || '').split('-');
+    return parts.length > 1 ? parseInt(parts[1], 10) - 1 : null;
+  }).filter(m => m !== null))].sort((a,b)=>a-b);
+
+  let label = 'Todas as semanas';
+  if (f.mode === 'future') label = 'Apenas futuras';
+  else if (f.mode === 'past') label = 'Apenas passadas';
+  else if (f.year !== 'all' || f.month !== 'all') {
+    const yStr = f.year !== 'all' ? f.year : '';
+    const mStr = f.month !== 'all' ? MONTH_NAMES[f.month] : '';
+    label = [mStr, yStr].filter(Boolean).join(' ');
+  }
+
+  let popoverHtml = '';
+  if (f.isOpen) {
+    popoverHtml = `
+      <div class="agenda-popover" id="goal_popover">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <b style="font-size:12px;color:var(--ink)">📅 Filtro de Metas</b>
+          <button type="button" class="x" id="goal_popover_close" style="font-size:15px;padding:1px 5px">×</button>
+        </div>
+
+        <label class="note" style="display:block;margin-bottom:3px;font-size:11px;font-weight:600">Visualização rápida</label>
+        <select class="excel-quick-select" id="goal_sel_mode" style="margin-bottom:8px">
+          <option value="all" ${f.mode==='all'?'selected':''}>Todas as semanas (histórico + futuras)</option>
+          <option value="future" ${f.mode==='future'?'selected':''}>Apenas semanas futuras</option>
+          <option value="past" ${f.mode==='past'?'selected':''}>Apenas semanas passadas</option>
+          <option value="custom" ${f.mode==='custom'?'selected':''}>Filtrar Ano / Mês abaixo</option>
+        </select>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <label style="font-size:11px;color:var(--mut)">Ano
+            <select id="goal_sel_year" style="width:100%;font-size:11.5px;padding:4px 6px">
+              <option value="all" ${f.year==='all'?'selected':''}>Todos</option>
+              ${years.map(y=>`<option value="${y}" ${f.year===y?'selected':''}>${y}</option>`).join('')}
+            </select>
+          </label>
+          <label style="font-size:11px;color:var(--mut)">Mês
+            <select id="goal_sel_month" style="width:100%;font-size:11.5px;padding:4px 6px">
+              <option value="all" ${f.month==='all'?'selected':''}>Todos</option>
+              ${months.map(m=>`<option value="${m}" ${String(f.month)===String(m)?'selected':''}>${MONTH_NAMES[m]}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;border-top:1px solid var(--line)">
+          <button type="button" class="b s" id="goal_btn_clear" style="font-size:11px;padding:3px 7px">Limpar</button>
+          <button type="button" class="b" id="goal_btn_apply" style="font-size:11px;padding:3px 10px">Aplicar</button>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div style="position:relative">
+      <button type="button" class="b s" id="goal_btn_toggle_popover" style="font-size:11.5px;padding:4px 9px;display:inline-flex;align-items:center;gap:5px;border-radius:7px;background:var(--bg)">
+        <span>📅 Mês/Ano: <b>${label}</b></span>
+        <span style="font-size:9.5px;opacity:0.7">${f.isOpen ? '▲' : '▾'}</span>
+      </button>
+      ${popoverHtml}
+    </div>
+  `;
+}
+
 
 async function syncWeekMetricsWithAppts(persist = true) {
   const allAppts = Object.values(appts || {});
@@ -888,72 +1104,22 @@ async function syncWeekMetricsWithAppts(persist = true) {
     const raw = weeks[id] || {};
     let weekChanged = false;
 
-    const schedInWeek = allAppts.filter(a => {
-      const s = a.schedOn || '';
-      return s >= start && s <= end;
-    });
+    const m = computeWeekApptMetrics(id, start, end, allAppts);
+    const nextCagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData);
+    const nextCprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData);
+    const nextCreal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData);
+    const nextCcanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData);
+    const nextCreag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData);
+    const nextAgend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData);
 
-    const consultInWeek = allAppts.filter(a => {
-      const c = a.consult || '';
-      return c >= start && c <= end;
-    });
-
-    const numRealOrig = consultInWeek.filter(a => {
-      if (a.status !== 'realizada') return false;
-      const nd = normIso(a.newDate);
-      return !nd || (nd >= start && nd <= end);
-    }).length;
-    const numRealNewDate = allAppts.filter(a => {
-      const nd = normIso(a.newDate);
-      if (!nd || nd < start || nd > end) return false;
-      const c = normIso(a.consult) || normIso(a.schedOn);
-      const sameWeek = c >= start && c <= end;
-      if (a.statusNewDate === 'compareceu') return !sameWeek || a.status !== 'realizada';
-      if (a.status === 'realizada' && !sameWeek) return true;
-      return false;
-    }).length;
-    const numReal = numRealOrig + numRealNewDate;
-    const numCanc = consultInWeek.filter(a => a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu').length;
-    const numReag = consultInWeek.filter(a => a.status === 'reagendada' || a.statusNewDate === 'reagendou').length;
-
-    let numPrev = 0;
-    if (end >= tDay) {
-      const ativasNaSemana = consultInWeek.filter(a => {
-        if (a.status !== 'agendada') return false;
-        if (start >= tDay) return true;
-        const cDate = normIso(a.consult) || normIso(a.schedOn);
-        return !cDate || cDate >= tDay;
-      }).length;
-
-      const reagendadasParaEstaSemana = allAppts.filter(a => {
-        const nd = normIso(a.newDate);
-        if (!nd) return false;
-        if (a.status === 'realizada') return false;
-        if (a.status !== 'reagendada' && a.status !== 'cancelada' && a.status !== 'nao_compareceu' && a.regained !== 'sim') return false;
-        if (['compareceu','cancelou','nao_compareceu','reagendou'].includes(a.statusNewDate)) return false;
-        if (start >= tDay) return nd >= start && nd <= end;
-        return nd >= start && nd <= end && nd >= tDay;
-      }).length;
-
-      numPrev = ativasNaSemana + reagendadasParaEstaSemana;
-    }
-
-    const hasApptsInWeek = schedInWeek.length > 0 || consultInWeek.length > 0 || numRealNewDate > 0;
-    if (hasApptsInWeek) {
-      if (raw.cagend !== schedInWeek.length || raw.creal !== numReal || raw.ccanc !== numCanc || raw.creag !== numReag || raw.cprev !== numPrev) {
-        raw.cagend = schedInWeek.length;
-        raw.creal = numReal;
-        raw.ccanc = numCanc;
-        raw.creag = numReag;
-        raw.cprev = numPrev;
-        weekChanged = true;
-      }
-    } else {
-      if (raw.cagend == null) { raw.cagend = 0; weekChanged = true; }
-      if (raw.creal == null) { raw.creal = 0; weekChanged = true; }
-      if (raw.ccanc == null) { raw.ccanc = 0; weekChanged = true; }
-      if (raw.creag == null) { raw.creag = 0; weekChanged = true; }
-      if (raw.cprev == null) { raw.cprev = numPrev; weekChanged = true; }
+    if (raw.cagend !== nextCagend || raw.cprev !== nextCprev || raw.creal !== nextCreal || raw.ccanc !== nextCcanc || raw.creag !== nextCreag || raw.agend !== nextAgend) {
+      raw.cagend = nextCagend;
+      raw.cprev = nextCprev;
+      raw.creal = nextCreal;
+      raw.ccanc = nextCcanc;
+      raw.creag = nextCreag;
+      raw.agend = nextAgend;
+      weekChanged = true;
     }
 
     if (weekChanged) {
@@ -1089,7 +1255,20 @@ function lab(k){
 function isSn(k){return SNAP.includes(k)||(cfg.extra||[]).some(e=>e.k===k&&e.snap)}
 function applyCfg(){
   applyTheme();
-  {const rm=cfg.removed||[],ex=cfg.extra||[];FIELDS=BASEF.filter(f=>!rm.includes(f[0])).concat(ex.map(e=>[e.k,e.n]));FK=FIELDS.map(f=>f[0]).concat(['msgs','tot','cprev'])}
+  {
+    const rm=cfg.removed||[],ex=(cfg.extra||[]).filter(e=>{
+      const n=String((cfg.labels&&cfg.labels[e.k])||e.n||e.k).trim().toLowerCase();
+      return n!=='consultas realizadas';
+    });
+    const combined=BASEF.filter(f=>!rm.includes(f[0])).concat(ex.map(e=>[e.k,e.n]));
+    const seenKeys=new Set(), seenLabels=new Set();
+    FIELDS=combined.filter(([k,n])=>{
+      const lblNorm=String((cfg.labels&&cfg.labels[k])||n||k).trim().toLowerCase();
+      if(seenKeys.has(k)||seenLabels.has(lblNorm))return false;
+      seenKeys.add(k);seenLabels.add(lblNorm);return true;
+    });
+    FK=Array.from(new Set(FIELDS.map(f=>f[0]).concat(['msgs','tot','cprev'])));
+  }
   if(!applyCfg.d){
     if(cfg.defFilter && typeof cfg.defFilter === 'object'){
       window.excelFilter = {
@@ -1948,14 +2127,17 @@ async function savePreviewAppts(isExplicitUserClick){
 
       await ensureWeekForCreatedSchedOn(s);
       const newId='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      const initSt=STAT[item.status]?item.status:'agendada';
       await saveDoc('appts/'+newId,{
         patient:p.slice(0,200),
         origin:ORIG[item.origin]?item.origin:'novo',
         schedOn:s,
         consult:c,
-        status:STAT[item.status]?item.status:'agendada',
+        status:initSt,
         regained:item.regained||(item.status==='reagendada'?'sim':''),
-        newDate:item.newDate||''
+        newDate:item.newDate||'',
+        updatedAt:new Date().toISOString(),
+        historyLog:[{date:item.newDate||c||s,status:initSt,note:'Importado via prévia',updatedAt:new Date().toISOString()}]
       });
       savedCount++;
     }
@@ -2001,6 +2183,7 @@ function calculatePeriodMetrics(ws,ap,allWeeks){
   const totalCanc=sum(ws,'ccanc');
   const totalReag=sum(ws,'creag');
   const totalAgenda=totalReal+totalCanc+totalReag;
+  const totalWeekConsultas=sum(ws,weekTotalConsultas);
 
   const lastW=ws[numWeeks-1];
   const firstW=ws[0];
@@ -2014,8 +2197,8 @@ function calculatePeriodMetrics(ws,ap,allWeeks){
   const respRate=totalMsgs>0?(totalResp/totalMsgs*100):0;
   const convRate=totalResp>0?(totalAgend/totalResp*100):0;
   const realRate=totalAgenda>0?(totalReal/totalAgenda*100):0;
-  const cancRate=totalAgenda>0?(totalCanc/totalAgenda*100):0;
-  const reagRate=totalAgenda>0?(totalReag/totalAgenda*100):0;
+  const cancRate=totalWeekConsultas>0?(totalCanc/totalWeekConsultas*100):0;
+  const reagRate=totalWeekConsultas>0?(totalReag/totalWeekConsultas*100):0;
 
   const perd=ap.filter(a=>a.status==='cancelada'||a.status==='reagendada');
   const rec=perd.filter(a=>a.regained==='sim').length;
@@ -2439,7 +2622,7 @@ function dash(){
   const last=[...ws].reverse().find(w=>(w.ativas||0)>0||(w.novos||0)>0)||ws[ws.length-1];
 
   const tm=sum(ws,msgs),tr=sum(ws,'resp'),ta=sum(ws,'agend'),tl=sum(ws,'novos');
-  const real=sum(ws,'creal'),cag=sum(ws,'cagend'),can=sum(ws,'ccanc'),rea=sum(ws,'creag'),tot=real+rea+can;
+  const real=sum(ws,'creal'),cag=sum(ws,'cagend'),can=sum(ws,'ccanc'),rea=sum(ws,'creag'),tot=real+rea+can,totWeek=sum(ws,weekTotalConsultas);
   const ap = (filterMode === 'all')
     ? Object.values(appts)
     : Object.values(appts).filter(a => {
@@ -2597,7 +2780,7 @@ function dash(){
     .map(c => wrapCustomChartCard(c))
     .join('');
 
-  // Gráfico de Acompanhamento de Metas por Semana (com filtro de período próprio)
+  // Gráfico de Acompanhamento de Metas por Semana (mesmo filtro de período da Agenda)
   const allGoalsForChart = getUnifiedGoalsList();
   let goalTrackingHtml = '';
   if (allGoalsForChart.length > 0) {
@@ -2605,26 +2788,25 @@ function dash(){
       ? window._selectedGoalChartId
       : allGoalsForChart[0].id;
     const activeG = allGoalsForChart.find(g => g.id === selGoalId) || allGoalsForChart[0];
-    const gPeriod = window._goalChartPeriod || 'panel';
+    const gf = window.goalFilter || { mode: 'all', year: 'all', month: 'all', sort: 'asc' };
 
-    let wsGoal = ws;
-    if (gPeriod === 'all') wsGoal = WA;
-    else if (gPeriod === 'last4') wsGoal = WA.slice(-4);
-    else if (gPeriod === 'last8') wsGoal = WA.slice(-8);
-    else if (gPeriod === 'last12') wsGoal = WA.slice(-12);
-    else if (gPeriod.startsWith('ym:')) {
-      const ym = gPeriod.slice(3);
-      wsGoal = WA.filter(w => w.id && w.id.startsWith(ym + '-'));
+    let filteredGoalWeeks = WA;
+    if (gf.mode === 'future') {
+      filteredGoalWeeks = WA.filter(w => w.id >= curSat || w.id >= today());
+    } else if (gf.mode === 'past') {
+      filteredGoalWeeks = WA.filter(w => w.id < curSat && w.id < today());
+    } else if (gf.year !== 'all' || gf.month !== 'all') {
+      filteredGoalWeeks = WA.filter(w => {
+        const parts = (w.id || '').split('-');
+        if (parts.length < 2) return false;
+        const y = parts[0];
+        const m = parseInt(parts[1], 10) - 1;
+        if (gf.year !== 'all' && y !== gf.year) return false;
+        if (gf.month !== 'all' && String(m) !== String(gf.month)) return false;
+        return true;
+      });
     }
-
-    const ymSet = new Set();
-    WA.forEach(w => { if (w.id && w.id.length >= 7) ymSet.add(w.id.slice(0, 7)); });
-    const ymOpts = Array.from(ymSet).sort().reverse().map(ym => {
-      const [y, m] = ym.split('-');
-      const mName = MONTH_NAMES[parseInt(m, 10) - 1] || m;
-      const lbl = mName.charAt(0).toUpperCase() + mName.slice(1) + '/' + y;
-      return `<option value="ym:${ym}"${gPeriod === 'ym:' + ym ? ' selected' : ''}>${lbl}</option>`;
-    }).join('');
+    const wsGoal = filteredGoalWeeks.slice().sort((a, b) => (gf.sort === 'desc' ? b.id.localeCompare(a.id) : a.id.localeCompare(b.id)));
 
     const getWeekMetricVal = (w, mKey) => {
       if (mKey === 'tg') return pct(w.cagend || 0, w.ativas || 0);
@@ -2632,7 +2814,8 @@ function dash(){
       if (mKey === 'convNovos') return pct(w.agend || 0, w.novos || 0);
       if (mKey === 'resp') return pct(w.resp || 0, msgs(w));
       if (mKey === 'comp') { const t = (w.creal||0)+(w.creag||0)+(w.ccanc||0); return pct(w.creal||0, t); }
-      if (mKey === 'canc') { const t = (w.creal||0)+(w.creag||0)+(w.ccanc||0); return pct(w.ccanc||0, t); }
+      if (mKey === 'canc') { const t = weekTotalConsultas(w); return pct(w.ccanc||0, t); }
+      if (mKey === 'creag') { const t = weekTotalConsultas(w); return pct(w.creag||0, t); }
       return Number(w[mKey] || 0);
     };
     const isPctGoal = activeG.unit === 'pct';
@@ -2646,21 +2829,14 @@ function dash(){
     ];
     const gControls = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-        <select id="goal_chart_period" style="font-size:11.5px;padding:3px 8px;min-height:28px" title="Filtrar período do gráfico de metas">
-          <option value="panel"${gPeriod==='panel'?' selected':''}>Seguir filtro do painel</option>
-          <option value="all"${gPeriod==='all'?' selected':''}>Todas as semanas</option>
-          <option value="last4"${gPeriod==='last4'?' selected':''}>Últimas 4 semanas</option>
-          <option value="last8"${gPeriod==='last8'?' selected':''}>Últimas 8 semanas</option>
-          <option value="last12"${gPeriod==='last12'?' selected':''}>Últimas 12 semanas</option>
-          ${ymOpts}
-        </select>
+        ${renderGoalFilterControl(WA)}
         <select id="goal_chart_selector" style="font-size:11.5px;padding:3px 8px;min-height:28px">${allGoalsForChart.map(g => `<option value="${g.id}"${g.id===activeG.id?' selected':''}>${esc(g.label||g.metric)} (${g.target}${g.unit==='pct'?'%':''})</option>`).join('')}</select>
       </div>
     `;
     const gBody = wsGoal.length
       ? chart(LGoal, gSer, 'line', isPctGoal, fullCatsGoal)
       : '<p class="note" style="padding:16px 0">Nenhuma semana encontrada para este período.</p>';
-    goalTrackingHtml = card('Acompanhamento de Metas por Semana', gSer, gBody, gControls);
+    goalTrackingHtml = renderStdOrOverride('std_goals', 'Acompanhamento de Metas por Semana', gSer, gBody, gControls);
   }
 
   setTimeout(enableChartScrollDragging, 50);
@@ -2675,8 +2851,8 @@ function dash(){
     ${kp('Mensagens de follow-up',tm.toLocaleString('pt-BR'),'','msgs')}
     ${kp('Taxa de resposta do FU',tm?pf(pct(tr,tm)):'—',tr+' respostas','resp')}
     ${kp('Comparecimento (check-in)',tot?pf(pct(real,tot)):'—',real+' de '+tot+' consultas','comp')}
-    ${kp('Cancelamento',tot?pf(pct(can,tot)):'—',can+' de '+tot+' consultas','canc')}
-    ${kp('Reagendamento',tot?pf(pct(rea,tot)):'—',rea+' de '+tot+' consultas','creag')}
+    ${kp('Cancelamento',totWeek?pf(pct(can,totWeek)):'—',can+' de '+totWeek+' consultas','canc')}
+    ${kp('Reagendamento',totWeek?pf(pct(rea,totWeek)):'—',rea+' de '+totWeek+' consultas','creag')}
     ${kp('Pacientes sem retorno',(last.semresp||0).toLocaleString('pt-BR'),(last.ativas?pf(pct(last.semresp||0,last.ativas||0))+' das conversas ativas':'na semana de '+fd(last.id)),'semresp')}
     ${kp('Cancelados recuperados',perd.length?pf(pct(rec,perd.length)):'—',rec+' de '+perd.length,'rec')}
     ${kp('Reagendamentos em andamento',andam,'pacientes com “Em contato”','andam')}
@@ -2723,34 +2899,14 @@ function loadWeek(){
     // Semana nova ou re-adicionada: pré-calcula métricas das consultas já existentes no sistema
     const { start, end } = getWeekWindow(id, [], 0);
     const allAppts = Object.values(appts || {});
-    const tDay = today();
-    const schedInWeek = allAppts.filter(a => (a.schedOn || '') >= start && (a.schedOn || '') <= end);
-    const consultInWeek = allAppts.filter(a => (a.consult || '') >= start && (a.consult || '') <= end);
-    const numReal = consultInWeek.filter(a => a.status === 'realizada').length;
-    const numCanc = consultInWeek.filter(a => a.status === 'cancelada').length;
-    const numReag = consultInWeek.filter(a => a.status === 'reagendada').length;
-    let numPrev = 0;
-    if (end >= tDay) {
-      const ativasNaSemana = consultInWeek.filter(a => {
-        if (a.status === 'cancelada' || a.status === 'reagendada') return false;
-        if (start >= tDay) return true;
-        const cDate = a.consult || '';
-        return !cDate || cDate >= tDay;
-      }).length;
-      const reagendadasParaEstaSemana = allAppts.filter(a => {
-        if (a.status !== 'reagendada') return false;
-        const nd = a.newDate || '';
-        if (start >= tDay) return nd >= start && nd <= end;
-        return nd >= start && nd <= end && nd >= tDay;
-      }).length;
-      numPrev = ativasNaSemana + reagendadasParaEstaSemana;
-    }
+    const m = computeWeekApptMetrics(id, start, end, allAppts);
     fillForm({
-      cagend: schedInWeek.length,
-      creal: numReal,
-      ccanc: numCanc,
-      creag: numReag,
-      cprev: numPrev
+      cagend: m.cagend,
+      creal: m.creal,
+      ccanc: m.ccanc,
+      creag: m.creag,
+      cprev: m.cprev,
+      agend: m.agend
     });
   }
 }
@@ -2947,14 +3103,14 @@ async function importRows(rows){
 const opts=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${k}"${k===sel?' selected':''}>${v}</option>`).join('');
 
 function fbarA(ids){const f=aFilt,tot=Object.keys(appts).length,WS=W().slice().reverse();
-  return `<div class="f" style="margin-bottom:10px">
+  return `<div class="f" style="margin-bottom:12px">
     <label style="grid-column:1/-1">Pesquisar paciente<input type="search" data-af="q" placeholder="Digite o nome ou iniciais do paciente..." value="${esc(f.q||'')}"></label>
-    <label>Semana em que foi criada<select data-af="week"><option value="">Todas</option>${WS.map(w=>`<option value="${w.id}"${f.week===w.id?' selected':''}>Semana de ${fdf(w.id)}</option>`).join('')}</select></label>
     <label>Consulta a partir de<input type="date" data-af="from" value="${f.from}"></label>
     <label>Consulta até<input type="date" data-af="to" value="${f.to}"></label>
-    <label>Veio de<select data-af="origin"><option value="">Todas</option>${opts(ORIG,f.origin)}</select></label>
+    <label>Veio de<select data-af="origin"><option value="">Todos</option>${opts(ORIG,f.origin)}</select></label>
     <label>Status<select data-af="status"><option value="">Todos</option>${opts(STAT,f.status)}</select></label>
-    <label>Status nova data<select data-af="statusNewDate"><option value="">Todos</option>${opts(STAT_NEW,f.statusNewDate||'')}</select></label>
+    <label>Status Contato<select data-af="regained"><option value="">Todos</option>${opts(REG,f.regained||'')}</select></label>
+    <label>Semana (Sáb–Sex)<select data-af="week"><option value="">Todas</option>${WS.map(w=>`<option value="${w.id}"${f.week===w.id?' selected':''}>Semana de ${fdf(w.id)}</option>`).join('')}</select></label>
     <label>Ordenar lista por
       <select data-af="sort_order">
         <option value="consult_desc"${aSort.col==='consult'&&aSort.dir==='desc'?' selected':''}>Consulta (mais recente primeiro)</option>
@@ -2968,7 +3124,13 @@ function fbarA(ids){const f=aFilt,tot=Object.keys(appts).length,WS=W().slice().r
       </select>
     </label>
   </div>
-  <div class="row" style="margin:0 0 10px"><button class="b s" data-afc="1">Limpar filtros e pesquisa</button><button type="button" class="b s" id="btn_export_appts">📥 Exportar (CSV / Excel)</button><span class="note">Mostrando ${ids.length} de ${tot} consultas</span></div>`}
+  <div class="row" style="margin:0 0 12px;justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="b s" data-afc="1">Limpar filtros e pesquisa</button>
+      <button type="button" class="b s" id="btn_export_appts" style="border-color:color-mix(in srgb,var(--g) 45%,var(--line));color:var(--g);font-weight:600">📊 Exportar (CSV / Excel)</button>
+    </div>
+    <span class="note">Mostrando ${ids.length} de ${tot} consultas</span>
+  </div>`}
 
 function apptList(){
   const f=aFilt,WS=W();
@@ -2983,10 +3145,11 @@ function apptList(){
   const qClean=(f.q||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const ids=Object.keys(appts).filter(k=>{
     const a=appts[k],s=a.schedOn||'',c=a.consult||'',nd=a.newDate||'';
+    const eff=nd||c||s;
     const pName=String(a.patient||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const matchesQ=!qClean||pName.includes(qClean);
     const matchesWeek=!wr||(s>=wr[0]&&s<=wr[1])||(c>=wr[0]&&c<=wr[1])||(nd>=wr[0]&&nd<=wr[1]);
-    return matchesQ&&matchesWeek&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status)&&(!f.statusNewDate||(a.statusNewDate||'')===f.statusNewDate);
+    return matchesQ&&matchesWeek&&(!f.from||eff>=f.from)&&(!f.to||(eff&&eff<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status)&&(!f.regained||(a.regained||'')===f.regained)&&(!f.statusNewDate||(a.statusNewDate||'')===f.statusNewDate);
   });
 
   ids.sort((a, b) => {
@@ -2995,6 +3158,13 @@ function apptList(){
     if (aSort.col === 'patient') {
       valA = String(apA.patient || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       valB = String(apB.patient || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return aSort.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    } else if (aSort.col === 'consult') {
+      valA = apA.newDate || apA.consult || apA.schedOn || '';
+      valB = apB.newDate || apB.consult || apB.schedOn || '';
+      if (!valA && valB) return 1;
+      if (valA && !valB) return -1;
+      if (!valA && !valB) return 0;
       return aSort.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
     } else {
       valA = apA[aSort.col] || '';
@@ -3010,27 +3180,395 @@ function apptList(){
 
   if(!ids.length)return fbarA(ids)+'<p class="note">'+(Object.keys(appts).length?'Nenhuma consulta encontrada com estes filtros ou pesquisa.':'Nenhuma consulta registrada ainda.')+'</p>';
   return fbarA(ids)+`<div class="appt-scroll-box"><table><tr>
-    <th style="cursor:pointer;user-select:none;min-width:140px" data-asort="patient" title="Clique para ordenar por Paciente (A-Z ou Z-A)">Paciente${sortInd('patient')}</th>
-    <th style="min-width:125px">Veio de</th>
-    <th style="cursor:pointer;user-select:none;min-width:120px" data-asort="schedOn" title="Clique para ordenar por data de agendamento">Agendada em${sortInd('schedOn')}</th>
-    <th style="cursor:pointer;user-select:none;min-width:120px" data-asort="consult" title="Clique para ordenar por data da consulta">Consulta${sortInd('consult')}</th>
-    <th style="min-width:115px">Status</th>
-    <th style="min-width:130px">Conseguiu reagendar?</th>
-    <th style="cursor:pointer;user-select:none;min-width:120px" data-asort="newDate" title="Clique para ordenar por nova data">Nova data${sortInd('newDate')}</th>
-    <th style="min-width:145px">Status nova data</th>
-    <th style="width:36px;text-align:center"></th>
+    <th style="cursor:pointer;user-select:none;min-width:175px" data-asort="patient" title="Clique para ordenar por Paciente (A-Z ou Z-A)">PACIENTE (VER HISTÓRICO)${sortInd('patient')}</th>
+    <th style="min-width:115px">VEIO DE</th>
+    <th style="cursor:pointer;user-select:none;min-width:105px" data-asort="schedOn" title="Clique para ordenar por data de agendamento">AGENDADA EM${sortInd('schedOn')}</th>
+    <th style="cursor:pointer;user-select:none;min-width:115px" data-asort="consult" title="Clique para ordenar por data da consulta">DATA CONSULTA${sortInd('consult')}</th>
+    <th style="min-width:140px">STATUS DA CONSULTA</th>
+    <th style="min-width:165px">STATUS CONTATO</th>
+    <th style="min-width:195px;text-align:right">AÇÕES</th>
   </tr>${ids.map(id=>{const a=appts[id];
+    const stKey = a.status || 'agendada';
+    const rgKey = a.regained || '';
+    const rgCls = rgKey === 'sim' ? 'cons-sel-rg-sim' : (rgKey === 'contato' ? 'cons-sel-rg-contato' : (rgKey === 'nao' ? 'cons-sel-rg-nao' : 'cons-sel-rg-none'));
+    const displayConsult = a.newDate || a.consult || a.schedOn || '';
     return `<tr>
-      <td style="font-weight:600;min-width:140px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(a.patient)}">${esc(a.patient)}</td>
-      <td style="width:125px"><select data-id="${id}" data-k="origin" style="width:100%">${opts(ORIG,a.origin)}</select></td>
-      <td style="width:120px"><input type="date" data-id="${id}" data-k="schedOn" value="${a.schedOn||''}" style="width:100%"></td>
-      <td style="width:120px"><input type="date" data-id="${id}" data-k="consult" value="${a.consult||''}" style="width:100%"></td>
-      <td style="width:115px"><select data-id="${id}" data-k="status" style="width:100%">${opts(STAT,a.status)}</select></td>
-      <td style="width:130px"><select data-id="${id}" data-k="regained" style="width:100%">${opts(REG,a.regained||'')}</select></td>
-      <td style="width:120px"><input type="date" data-id="${id}" data-k="newDate" value="${a.newDate||''}" style="width:100%"></td>
-      <td style="width:145px"><select data-id="${id}" data-k="statusNewDate" style="width:100%">${opts(STAT_NEW,a.statusNewDate||'')}</select></td>
-      <td style="width:36px;text-align:center"><button class="x" data-del="${id}" title="Excluir consulta" aria-label="Excluir" style="font-size:17px">×</button></td>
+      <td style="min-width:175px;max-width:220px">
+        <button type="button" class="cons-patient-btn" data-appt-history="${id}" title="Clique para ver o histórico de ${esc(a.patient)}">
+          <span class="cons-avatar">👤</span>
+          <span style="white-space:normal;line-height:1.25">${esc(a.patient)}</span>
+        </button>
+      </td>
+      <td><span class="cons-pill">${esc(ORIG[a.origin] || a.origin || '—')}</span></td>
+      <td style="color:var(--mut);font-size:13px">${fdf(a.schedOn) || '—'}</td>
+      <td>
+        <b style="font-size:13.5px">${fdf(displayConsult) || '—'}</b>
+      </td>
+      <td>
+        <select class="cons-sel cons-sel-st-${esc(stKey)}" data-id="${id}" data-k="status">${opts(STAT,stKey)}</select>
+      </td>
+      <td>
+        <select class="cons-sel ${rgCls}" data-id="${id}" data-k="regained">${opts(REG,rgKey)}</select>
+      </td>
+      <td style="text-align:right;white-space:nowrap">
+        <div style="display:inline-flex;gap:5px;align-items:center">
+          <button type="button" class="cons-act-btn date" data-appt-date="${id}" title="Alterar ou reagendar data">📅 Data</button>
+          <button type="button" class="cons-act-btn" data-appt-edit="${id}" title="Editar dados do paciente">✏️ Editar</button>
+          <button type="button" class="cons-act-btn del" data-del="${id}" title="Excluir consulta" aria-label="Excluir">🗑️</button>
+        </div>
+      </td>
     </tr>`}).join('')}</table></div>`;
+}
+
+function appendApptHistory(a, statusKey, dateIso, noteText, prevSnapshot) {
+  const nowIso = new Date().toISOString();
+  const list = Array.isArray(a.historyLog) ? [...a.historyLog] : [];
+  if (list.length === 0 && prevSnapshot) {
+    if (prevSnapshot.newDate && prevSnapshot.consult && prevSnapshot.newDate !== prevSnapshot.consult) {
+      list.push({
+        date: prevSnapshot.consult,
+        status: 'reagendada',
+        note: 'Reagendada para ' + fdf(prevSnapshot.newDate),
+        updatedAt: prevSnapshot.updatedAt || ''
+      });
+    }
+    const prevSt = prevSnapshot.status || 'agendada';
+    const prevLatestDate = prevSnapshot.newDate || prevSnapshot.consult || prevSnapshot.schedOn || '';
+    if (prevSt !== 'agendada' && prevLatestDate) {
+      const idxSeed = list.findIndex(ev => ev.date === prevLatestDate);
+      const seedEntry = {
+        date: prevLatestDate,
+        status: prevSt,
+        note: '',
+        updatedAt: prevSnapshot.updatedAt || ''
+      };
+      if (idxSeed >= 0) list[idxSeed] = seedEntry;
+      else list.push(seedEntry);
+    }
+  }
+  const targetDate = dateIso || a.newDate || a.consult || a.schedOn || '';
+  const targetStatus = statusKey || a.status || 'agendada';
+  const targetNote = noteText || '';
+  const existingIdx = list.findIndex(ev => ev.date === targetDate);
+  if (existingIdx >= 0) {
+    list[existingIdx] = {
+      date: targetDate,
+      status: targetStatus,
+      note: targetNote || (targetStatus === 'reagendada' ? (list[existingIdx].note || '') : ''),
+      updatedAt: nowIso
+    };
+  } else {
+    list.push({
+      date: targetDate,
+      status: targetStatus,
+      note: targetNote,
+      updatedAt: nowIso
+    });
+  }
+  a.historyLog = list;
+  a.updatedAt = nowIso;
+  return a;
+}
+
+function fmtDateTimeBr(isoStr) {
+  if (!isoStr) return 'Sem registro de hora';
+  try {
+    const d = new Date(isoStr);
+    if (isNaN(d.getTime())) return 'Sem registro de hora';
+    return new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    }).format(d);
+  } catch (e) {
+    return 'Sem registro de hora';
+  }
+}
+
+function closeApptModal(){
+  const existing = document.getElementById('appt_modal_root');
+  if (existing) existing.remove();
+}
+
+function openApptHistoryModal(id){
+  closeApptModal();
+  const a = appts[id];
+  if (!a) return;
+  const normName = String(a.patient || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const history = Object.entries(appts)
+    .filter(([, item]) => String(item.patient || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === normName)
+    .map(([k, item]) => ({ id: k, ...item }))
+    .sort((x, y) => (y.newDate || y.consult || y.schedOn || '').localeCompare(x.newDate || x.consult || x.schedOn || ''));
+
+  const realizedList = [];
+  const reschedList = [];
+  const cancelledList = [];
+  const scheduledList = [];
+
+  history.forEach(h => {
+    const logs = Array.isArray(h.historyLog) && h.historyLog.length > 0 ? h.historyLog : null;
+    const currentActiveDate = h.newDate || h.consult || h.schedOn || '';
+    if (logs) {
+      const dedupByDate = new Map();
+      logs.forEach(ev => {
+        const dKey = ev.date || currentActiveDate;
+        dedupByDate.set(dKey, { ...ev });
+      });
+      if (h.newDate && h.consult && h.newDate !== h.consult) {
+        const origEv = dedupByDate.get(h.consult);
+        if (!origEv) {
+          dedupByDate.set(h.consult, {
+            date: h.consult,
+            status: 'reagendada',
+            note: 'Reagendada para ' + fdf(h.newDate),
+            updatedAt: ''
+          });
+        } else if (origEv.status === 'agendada') {
+          origEv.status = 'reagendada';
+          if (!origEv.note) origEv.note = 'Reagendada para ' + fdf(h.newDate);
+        }
+      }
+      if ((h.regained === 'sim' || (h.newDate && h.consult && h.newDate !== h.consult)) && dedupByDate.size > 1) {
+        dedupByDate.forEach((ev, dKey) => {
+          if (dKey !== currentActiveDate && ev.status === 'agendada') {
+            ev.status = 'reagendada';
+            if (!ev.note && currentActiveDate) ev.note = 'Reagendada para ' + fdf(currentActiveDate);
+          }
+        });
+      }
+      dedupByDate.forEach(ev => {
+        const entry = {
+          date: ev.date || currentActiveDate,
+          status: ev.status || h.status || 'agendada',
+          note: ev.note || '',
+          updatedAt: ev.updatedAt || h.updatedAt || '',
+          origin: ORIG[h.origin] || h.origin || '—',
+          schedOn: h.schedOn || ''
+        };
+        if (entry.status === 'realizada' || entry.status === 'compareceu') realizedList.push(entry);
+        else if (entry.status === 'reagendada' || entry.status === 'reagendou') reschedList.push(entry);
+        else if (entry.status === 'cancelada' || entry.status === 'cancelou' || entry.status === 'nao_compareceu') cancelledList.push(entry);
+        else scheduledList.push(entry);
+      });
+    } else {
+      // Fallback para registros antigos sem historyLog
+      if (h.newDate && h.consult && h.newDate !== h.consult) {
+        reschedList.push({
+          date: h.consult,
+          status: 'reagendada',
+          note: 'Reagendada para ' + fdf(h.newDate),
+          updatedAt: h.updatedAt || '',
+          origin: ORIG[h.origin] || h.origin || '—',
+          schedOn: h.schedOn || ''
+        });
+      }
+      const finalDate = currentActiveDate;
+      const st = h.status || 'agendada';
+      const entry = {
+        date: finalDate,
+        status: st,
+        note: '',
+        updatedAt: h.updatedAt || '',
+        origin: ORIG[h.origin] || h.origin || '—',
+        schedOn: h.schedOn || ''
+      };
+      if (st === 'realizada') realizedList.push(entry);
+      else if (st === 'reagendada') reschedList.push(entry);
+      else if (st === 'cancelada' || st === 'nao_compareceu') cancelledList.push(entry);
+      else scheduledList.push(entry);
+    }
+  });
+
+  const renderSection = (title, colorVar, items, emptyText) => `
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:${colorVar};margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+        <span>${title}</span>
+        <span class="tag" style="font-size:11px">${items.length}</span>
+      </div>
+      ${items.length ? items.map(ev => `
+        <div style="padding:8px 10px;border:1px solid var(--line);border-left:3px solid ${colorVar};border-radius:8px;background:var(--bg);font-size:12.5px;margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <b>Data: ${fdf(ev.date) || '—'}</b>
+            <span class="tag">${esc(STAT[ev.status] || ev.status)}</span>
+          </div>
+          <div class="note" style="font-size:11.5px;margin-top:3px">
+            Atualizado em: <b>${fmtDateTimeBr(ev.updatedAt)}</b>${ev.note ? ' · ' + esc(ev.note) : ''} · Origem: ${esc(ev.origin)}
+          </div>
+        </div>
+      `).join('') : `<div class="note" style="font-size:12px;padding:6px 8px;border:1px dashed var(--line);border-radius:8px">${emptyText}</div>`}
+    </div>
+  `;
+
+  const modal = document.createElement('div');
+  modal.id = 'appt_modal_root';
+  modal.className = 'k-modal-backdrop';
+  modal.innerHTML = `
+    <div class="k-modal-card" style="max-width:580px">
+      <div class="k-modal-head">
+        <div>
+          <h3>Histórico do Paciente</h3>
+          <div class="note" style="font-size:12.5px;margin-top:2px">${esc(a.patient)} · ${history.length} registro(s)</div>
+        </div>
+        <button type="button" class="x" id="k_modal_close" style="font-size:20px">×</button>
+      </div>
+      <div class="k-modal-body" style="max-height:65vh;overflow-y:auto">
+        ${renderSection('✅ Compareceu', 'var(--g)', realizedList, 'Nenhum comparecimento registrado.')}
+        ${renderSection('🔄 Reagendadas', 'var(--a)', reschedList, 'Nenhum reagendamento registrado.')}
+        ${renderSection('❌ Canceladas / Faltou', 'var(--r)', cancelledList, 'Nenhum cancelamento ou falta registrada.')}
+        ${scheduledList.length ? renderSection('📅 Agendadas', 'var(--b)', scheduledList, '') : ''}
+      </div>
+      <div class="k-modal-foot">
+        <button type="button" class="b s" id="k_modal_close_btn">Fechar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.onclick = e => { if (e.target === modal || e.target.id === 'k_modal_close' || e.target.id === 'k_modal_close_btn') closeApptModal(); };
+}
+
+function openApptDateModal(id){
+  closeApptModal();
+  const a = appts[id];
+  if (!a) return;
+  const curDate = a.newDate || a.consult || a.schedOn || today();
+  let mode = 'reagendar';
+
+  const modal = document.createElement('div');
+  modal.id = 'appt_modal_root';
+  modal.className = 'k-modal-backdrop';
+  modal.innerHTML = `
+    <div class="k-modal-card">
+      <div class="k-modal-head">
+        <div>
+          <h3>Alterar Data da Consulta</h3>
+          <div class="note" style="font-size:12.5px;margin-top:2px">Paciente: ${esc(a.patient)}</div>
+        </div>
+        <button type="button" class="x" id="k_modal_close" style="font-size:20px">×</button>
+      </div>
+      <div class="k-modal-body">
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:700;color:var(--mut);text-transform:uppercase">
+          Data Atual Registrada
+          <input type="text" value="${fdf(curDate) || '—'}" readonly style="background:var(--bg);color:var(--ink)">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:700;color:var(--mut);text-transform:uppercase">
+          Nova Data da Consulta *
+          <input type="date" id="k_new_date_inp" value="${curDate}">
+        </label>
+        <div style="border-top:1px solid var(--line);padding-top:12px">
+          <div style="font-size:11.5px;font-weight:700;color:var(--mut);text-transform:uppercase;margin-bottom:8px">Classificação do Ajuste:</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label class="k-radio-card active-warn" id="k_card_reag">
+              <input type="radio" name="k_date_mode" value="reagendar" checked style="width:auto;min-height:auto;margin-top:3px">
+              <div>
+                <div style="font-weight:700;font-size:13.5px;color:color-mix(in srgb,var(--a) 80%,var(--ink))">Reagendamento pelo Paciente</div>
+                <div class="note" style="font-size:12px;margin-top:2px">Registra o reagendamento no histórico, define a nova data como <b>"Agendada"</b> e o contato como <b>"Conseguimos reagendar"</b>.</div>
+              </div>
+            </label>
+            <label class="k-radio-card" id="k_card_edit">
+              <input type="radio" name="k_date_mode" value="editar" style="width:auto;min-height:auto;margin-top:3px">
+              <div>
+                <div style="font-weight:700;font-size:13.5px">Apenas Edição / Correção de Data</div>
+                <div class="note" style="font-size:12px;margin-top:2px">Apenas altera a data sem contabilizar como reagendamento oficial.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="k-modal-foot">
+        <button type="button" class="b s" id="k_modal_cancel">Cancelar</button>
+        <button type="button" class="b" id="k_modal_save" style="background:var(--b);border-color:var(--b)">✓ Salvar Alteração</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const cardReag = modal.querySelector('#k_card_reag');
+  const cardEdit = modal.querySelector('#k_card_edit');
+  modal.querySelectorAll('input[name="k_date_mode"]').forEach(r => {
+    r.onchange = () => {
+      mode = r.value;
+      cardReag.className = 'k-radio-card' + (mode === 'reagendar' ? ' active-warn' : '');
+      cardEdit.className = 'k-radio-card' + (mode === 'editar' ? ' active-info' : '');
+    };
+  });
+
+  modal.onclick = e => { if (e.target === modal || e.target.id === 'k_modal_close' || e.target.id === 'k_modal_cancel') closeApptModal(); };
+  modal.querySelector('#k_modal_save').onclick = async () => {
+    const newIso = modal.querySelector('#k_new_date_inp').value;
+    if (!newIso) return toast('Selecione uma data válida.');
+    const prevSnapshot = { ...appts[id] };
+    const updated = { ...appts[id] };
+    if (mode === 'reagendar') {
+      const prevDate = updated.newDate || updated.consult || updated.schedOn || '';
+      updated.status = 'agendada';
+      updated.regained = 'sim';
+      updated.newDate = newIso;
+      updated.statusNewDate = '';
+      appendApptHistory(updated, 'reagendada', prevDate || newIso, 'Reagendada para ' + fdf(newIso), prevSnapshot);
+      if (newIso && newIso !== prevDate) {
+        appendApptHistory(updated, 'agendada', newIso, '', prevSnapshot);
+      }
+    } else {
+      if (updated.newDate) {
+        updated.newDate = newIso;
+      } else {
+        updated.consult = newIso;
+      }
+      appendApptHistory(updated, updated.status || 'agendada', newIso, 'Data ajustada para ' + fdf(newIso), prevSnapshot);
+    }
+    appts[id] = updated;
+    closeApptModal();
+    await saveDoc('appts/' + id, updated);
+    await syncWeekMetricsWithAppts(true);
+    forceRender();
+    toast('Data da consulta atualizada com sucesso!');
+  };
+}
+
+function openApptEditModal(id){
+  closeApptModal();
+  const a = appts[id];
+  if (!a) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'appt_modal_root';
+  modal.className = 'k-modal-backdrop';
+  modal.innerHTML = `
+    <div class="k-modal-card">
+      <div class="k-modal-head">
+        <h3>Editar Dados do Paciente</h3>
+        <button type="button" class="x" id="k_modal_close" style="font-size:20px">×</button>
+      </div>
+      <div class="k-modal-body">
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--mut)">
+          Nome Completo *
+          <input type="text" id="k_edit_patient" value="${esc(a.patient)}">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--mut)">
+          Veio de (Origem) *
+          <select id="k_edit_origin">${opts(ORIG, a.origin || 'novo')}</select>
+        </label>
+      </div>
+      <div class="k-modal-foot">
+        <button type="button" class="b s" id="k_modal_cancel">Cancelar</button>
+        <button type="button" class="b" id="k_modal_save" style="background:var(--b);border-color:var(--b)">Salvar Dados</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.onclick = e => { if (e.target === modal || e.target.id === 'k_modal_close' || e.target.id === 'k_modal_cancel') closeApptModal(); };
+  modal.querySelector('#k_modal_save').onclick = async () => {
+    const pName = modal.querySelector('#k_edit_patient').value.trim();
+    const pOrig = modal.querySelector('#k_edit_origin').value;
+    if (!pName) return toast('Informe o nome do paciente.');
+    const updated = { ...appts[id], patient: pName, origin: pOrig };
+    appts[id] = updated;
+    closeApptModal();
+    await saveDoc('appts/' + id, updated);
+    await syncWeekMetricsWithAppts(true);
+    forceRender();
+    toast('Dados do paciente atualizados!');
+  };
 }
 
 function updateIndeterminateInputs(){
@@ -3109,7 +3647,7 @@ $('#wdel').onclick=async function(){
   await deleteWeek(id);
 };
 $('#imp').onclick=()=>importRows($('#paste').value.split(/\r?\n/));
-$('#seed').onclick=async()=>{for(const [id,v] of Object.entries(SEED)){const o={};BASEF.forEach(([k],i)=>o[k]=v[i]);await saveDoc('weeks/'+id,{...(weeks[id]||{}),...o})}toast('Semanas carregadas')};
+$('#seed').onclick=async()=>{for(const [id,v] of Object.entries(SEED)){const o={};BASEF.forEach(([k],i)=>o[k]=v[i]??0);await saveDoc('weeks/'+id,{...(weeks[id]||{}),...o})}toast('Semanas carregadas')};
 $('#wl').onclick=e=>{const id=e.target.dataset.e;if(id){e.preventDefault();$('#wd').value=id;loadWeek();window.scrollTo({top:0,behavior:'smooth'})}};
 
 if($('#cp_c')){
@@ -3132,7 +3670,8 @@ $('#cp_add').onclick=async()=>{
   let s=normalizeDateStr($('#cp_s').value, new Date().getFullYear());
   if(!s)s=c||today();
   const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:s,consult:c||s,status:'agendada',regained:'',newDate:''});
+  const nowIso=new Date().toISOString();
+  await saveDoc('appts/'+id,{patient:n,origin:$('#cp_o').value,schedOn:s,consult:c||s,status:'agendada',regained:'',newDate:'',updatedAt:nowIso,historyLog:[{date:c||s,status:'agendada',note:'Agendamento inicial',updatedAt:nowIso}]});
   $('#cp_n').value='';
   await syncWeekMetricsWithAppts(true);
   forceRender();
@@ -3150,8 +3689,18 @@ $('#al').onchange=async e=>{
   }
   if(t.dataset.af){aFilt[t.dataset.af]=t.value;$('#al').innerHTML=apptList();return}
   if(!id)return;
+  const prevSnapshot = { ...appts[id] };
   const a={...appts[id],[t.dataset.k]:t.value};
-  if(t.dataset.k==='status'&&a.status==='reagendada'&&!a.regained)a.regained='sim';
+  if(t.dataset.k==='status'){
+    if(a.status==='reagendada'&&!a.regained)a.regained='sim';
+    if(a.newDate){
+      if(a.status==='realizada')a.statusNewDate='compareceu';
+      else if(a.status==='cancelada')a.statusNewDate='cancelou';
+      else if(a.status==='nao_compareceu')a.statusNewDate='nao_compareceu';
+      else if(a.status==='agendada')a.statusNewDate='';
+    }
+    appendApptHistory(a, a.status, a.newDate || a.consult || a.schedOn || '', '', prevSnapshot);
+  }
   if(t.dataset.k==='newDate'&&t.value&&(!a.regained||a.regained==='contato'))a.regained='sim';
   appts[id]=a;
   await saveDoc('appts/'+id,a);
@@ -3186,10 +3735,11 @@ $('#al').onclick=async e=>{
     const qClean=(f.q||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const filtered=Object.keys(appts).filter(k=>{
       const a=appts[k],s=a.schedOn||'',c=a.consult||'',nd=a.newDate||'';
+      const eff=nd||c||s;
       const pName=String(a.patient||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
       const matchesQ=!qClean||pName.includes(qClean);
       const matchesWeek=!wr||(s>=wr[0]&&s<=wr[1])||(c>=wr[0]&&c<=wr[1])||(nd>=wr[0]&&nd<=wr[1]);
-      return matchesQ&&matchesWeek&&(!f.from||c>=f.from)&&(!f.to||(c&&c<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status)&&(!f.statusNewDate||(a.statusNewDate||'')===f.statusNewDate);
+      return matchesQ&&matchesWeek&&(!f.from||eff>=f.from)&&(!f.to||(eff&&eff<=f.to))&&(!f.origin||a.origin===f.origin)&&(!f.status||a.status===f.status)&&(!f.regained||(a.regained||'')===f.regained)&&(!f.statusNewDate||(a.statusNewDate||'')===f.statusNewDate);
     }).map(id=>({id,...appts[id]}));
     const cols=[
       {key:'patient',label:'Paciente',selected:true},
@@ -3197,7 +3747,7 @@ $('#al').onclick=async e=>{
       {key:'schedOn',label:'Agendada em',selected:true,getter:a=>fdf(a.schedOn)||''},
       {key:'consult',label:'Data da consulta',selected:true,getter:a=>fdf(a.consult)||''},
       {key:'status',label:'Status',selected:true,getter:a=>STAT[a.status]||a.status||''},
-      {key:'regained',label:'Conseguiu reagendar?',selected:true,getter:a=>REG[a.regained||'']||a.regained||''},
+      {key:'regained',label:'Status Contato',selected:true,getter:a=>REG[a.regained||'']||a.regained||''},
       {key:'newDate',label:'Nova data',selected:true,getter:a=>fdf(a.newDate)||''},
       {key:'statusNewDate',label:'Status nova data',selected:true,getter:a=>STAT_NEW[a.statusNewDate||'']||a.statusNewDate||''}
     ];
@@ -3208,7 +3758,13 @@ $('#al').onclick=async e=>{
     }
     return;
   }
-  if(e.target.dataset.afc){aFilt={week:'',from:'',to:'',origin:'',status:'',statusNewDate:'',q:''};$('#al').innerHTML=apptList();return}
+  if(e.target.dataset.afc){aFilt={week:'',from:'',to:'',origin:'',status:'',regained:'',statusNewDate:'',q:''};$('#al').innerHTML=apptList();return}
+  const histBtn=e.target.closest('[data-appt-history]');
+  if(histBtn){openApptHistoryModal(histBtn.dataset.apptHistory);return;}
+  const dateBtn=e.target.closest('[data-appt-date]');
+  if(dateBtn){openApptDateModal(dateBtn.dataset.apptDate);return;}
+  const editBtn=e.target.closest('[data-appt-edit]');
+  if(editBtn){openApptEditModal(editBtn.dataset.apptEdit);return;}
   const th=e.target.closest('[data-asort]');
   if(th){
     const col=th.dataset.asort;
@@ -3232,7 +3788,7 @@ $('#al').onclick=async e=>{
       setTimeout(()=>{
         if(delBtn&&delBtn.dataset){
           delete delBtn.dataset.confirming;
-          delBtn.textContent='×';
+          delBtn.textContent='🗑️';
           delBtn.style.fontWeight='';
           delBtn.style.color='';
         }
@@ -3473,6 +4029,30 @@ $('#dash').onclick = async e => {
     forceRender();
     return;
   }
+  const btnToggleGoal = t.closest('#goal_btn_toggle_popover');
+  if (btnToggleGoal) {
+    window.goalFilter.isOpen = !window.goalFilter.isOpen;
+    forceRender();
+    return;
+  }
+  const btnCloseGoal = t.closest('#goal_popover_close');
+  if (btnCloseGoal) {
+    window.goalFilter.isOpen = false;
+    forceRender();
+    return;
+  }
+  const btnClearGoal = t.closest('#goal_btn_clear');
+  if (btnClearGoal) {
+    window.goalFilter = { mode: 'all', year: 'all', month: 'all', search: '', sort: 'asc', isOpen: true };
+    forceRender();
+    return;
+  }
+  const btnApplyGoal = t.closest('#goal_btn_apply');
+  if (btnApplyGoal) {
+    window.goalFilter.isOpen = false;
+    forceRender();
+    return;
+  }
   const btnSortAsc = t.closest('#ef_sort_asc');
   if (btnSortAsc) {
     window.excelFilter.sort = 'asc';
@@ -3554,8 +4134,24 @@ $('#dash').onchange = e => {
     forceRender();
     return;
   }
-  if (t.id === 'goal_chart_period') {
-    window._goalChartPeriod = t.value;
+  if (t.id === 'goal_sel_mode') {
+    window.goalFilter.mode = t.value;
+    if (t.value !== 'custom') {
+      window.goalFilter.year = 'all';
+      window.goalFilter.month = 'all';
+    }
+    forceRender();
+    return;
+  }
+  if (t.id === 'goal_sel_year') {
+    window.goalFilter.mode = 'custom';
+    window.goalFilter.year = t.value;
+    forceRender();
+    return;
+  }
+  if (t.id === 'goal_sel_month') {
+    window.goalFilter.mode = 'custom';
+    window.goalFilter.month = t.value;
     forceRender();
     return;
   }
@@ -3669,6 +4265,12 @@ document.addEventListener('click', e => {
   if (window.agendaFilter && window.agendaFilter.isOpen) {
     if (!e.target.closest('#ag_popover') && !e.target.closest('#ag_btn_toggle_popover')) {
       window.agendaFilter.isOpen = false;
+      changed = true;
+    }
+  }
+  if (window.goalFilter && window.goalFilter.isOpen) {
+    if (!e.target.closest('#goal_popover') && !e.target.closest('#goal_btn_toggle_popover')) {
+      window.goalFilter.isOpen = false;
       changed = true;
     }
   }
@@ -3980,16 +4582,22 @@ async function initFirebaseModule() {
       unsubWeeks = onSnapshot(collection(db, "weeks"), snap => {
         const w = {};
         snap.forEach(d => { w[d.id] = d.data(); });
+        window.DATA.lastRead = Date.now();
+        if (typeof window.stLine === "function") window.stLine();
         if (typeof window.setWeeks === "function") window.setWeeks(w);
       }, err => console.warn("Aviso Firestore weeks:", err));
 
       unsubAppts = onSnapshot(collection(db, "appts"), snap => {
         const a = {};
         snap.forEach(d => { a[d.id] = d.data(); });
+        window.DATA.lastRead = Date.now();
+        if (typeof window.stLine === "function") window.stLine();
         if (typeof window.setAppts === "function") window.setAppts(a);
       }, err => console.warn("Aviso Firestore appts:", err));
 
       unsubCfg = onSnapshot(doc(db, "config", "general"), snap => {
+        window.DATA.lastRead = Date.now();
+        if (typeof window.stLine === "function") window.stLine();
         if (snap.exists() && typeof window.setCfg === "function") {
           window.setCfg(snap.data());
         }
