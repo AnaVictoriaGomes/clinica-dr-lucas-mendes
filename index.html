@@ -520,6 +520,7 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
   const numReal = numRealOrig + numRealNewDate;
 
   const cancSet = new Set();
+  const faltouSet = new Set();
   const reagSet = new Set();
 
   allAppts.forEach((a, idx) => {
@@ -528,15 +529,26 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
     const inOrig = c >= start && c <= end;
     const inNew = !!(nd && nd >= start && nd <= end);
     const movedOut = inOrig && !!(nd && (nd < start || nd > end));
+    const hasCancHistInOrig = Array.isArray(a.historyLog) && a.historyLog.some(ev => {
+      const d = normIso(ev && ev.date);
+      return d >= start && d <= end && (ev.status === 'cancelada' || ev.status === 'cancelou');
+    });
 
-    if (inOrig && !movedOut && (a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu')) {
+    if (inOrig && !movedOut && (a.status === 'cancelada' || a.statusNewDate === 'cancelou')) {
       cancSet.add(idx);
     }
-    if (inNew && !inOrig && (a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu')) {
+    if (inNew && !inOrig && (a.status === 'cancelada' || a.statusNewDate === 'cancelou')) {
       cancSet.add(idx);
     }
 
-    if (inOrig && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || movedOut)) {
+    if (inOrig && !movedOut && (a.status === 'nao_compareceu' || a.statusNewDate === 'nao_compareceu')) {
+      faltouSet.add(idx);
+    }
+    if (inNew && !inOrig && (a.status === 'nao_compareceu' || a.statusNewDate === 'nao_compareceu')) {
+      faltouSet.add(idx);
+    }
+
+    if (inOrig && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || (movedOut && !a.wasCancelled && !hasCancHistInOrig))) {
       reagSet.add(idx);
     }
     if (inNew && !inOrig && a.statusNewDate === 'reagendou') {
@@ -548,17 +560,19 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
         const d = normIso(ev && ev.date);
         if (!d || d < start || d > end) return;
         const st = ev.status || '';
-        if (st === 'cancelada' || st === 'cancelou' || st === 'nao_compareceu') cancSet.add(idx);
+        if (st === 'cancelada' || st === 'cancelou') cancSet.add(idx);
+        if (st === 'nao_compareceu') faltouSet.add(idx);
         if (st === 'reagendada' || st === 'reagendou') reagSet.add(idx);
       });
     }
   });
 
   const numCanc = cancSet.size;
+  const numFaltou = faltouSet.size;
   const numReag = reagSet.size;
 
   const numAgendFU = schedInWeek.filter(a => ['c2', 'c3', 'c4', 'c5'].includes(a.origin)).length;
-  const hasData = schedInWeek.length > 0 || consultInWeek.length > 0 || numPrev > 0 || numTotWeek > 0 || numRealNewDate > 0 || numCanc > 0 || numReag > 0;
+  const hasData = schedInWeek.length > 0 || consultInWeek.length > 0 || numPrev > 0 || numTotWeek > 0 || numRealNewDate > 0 || numCanc > 0 || numFaltou > 0 || numReag > 0;
 
   return {
     cagend: schedInWeek.length,
@@ -566,6 +580,7 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
     ctot: numTotWeek,
     creal: numReal,
     ccanc: numCanc,
+    cfaltou: numFaltou,
     creag: numReag,
     agend: numAgendFU,
     hasData
@@ -581,7 +596,7 @@ function mergeWeekAutoVal(weekId, manualVal, autoVal, hasData) {
 }
 
 function weekTotalConsultas(w) {
-  const outcomeTot = (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0);
+  const outcomeTot = (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0);
   return Math.max(w.ctot || 0, w.cprev || 0, outcomeTot);
 }
 
@@ -600,9 +615,10 @@ function W() {
     w.cprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData);
     w.creal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData);
     w.ccanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData);
+    w.cfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData);
     w.creag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData);
     w.agend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData);
-    w.ctot = m.hasData ? Math.max(m.ctot, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0)) : Math.max(w.cprev || 0, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0));
+    w.ctot = m.hasData ? Math.max(m.ctot, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0)) : Math.max(w.cprev || 0, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0));
 
     return w;
   });
@@ -653,6 +669,7 @@ function getAgendaWeeksData() {
     const numReal = numRealOrig + numRealNewDate;
 
     const cancSet = new Set();
+    const faltouSet = new Set();
     const reagSet = new Set();
 
     allAppts.forEach((a, idx) => {
@@ -661,15 +678,26 @@ function getAgendaWeeksData() {
       const inOrig = c >= start && c <= end;
       const inNew = !!(nd && nd >= start && nd <= end);
       const movedOut = inOrig && !!(nd && (nd < start || nd > end));
+      const hasCancHistInOrig = Array.isArray(a.historyLog) && a.historyLog.some(ev => {
+        const d = normIso(ev && ev.date);
+        return d >= start && d <= end && (ev.status === 'cancelada' || ev.status === 'cancelou');
+      });
 
-      if (inOrig && !movedOut && (a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu')) {
+      if (inOrig && !movedOut && (a.status === 'cancelada' || a.statusNewDate === 'cancelou')) {
         cancSet.add(idx);
       }
-      if (inNew && !inOrig && (a.status === 'cancelada' || a.status === 'nao_compareceu' || a.statusNewDate === 'cancelou' || a.statusNewDate === 'nao_compareceu')) {
+      if (inNew && !inOrig && (a.status === 'cancelada' || a.statusNewDate === 'cancelou')) {
         cancSet.add(idx);
       }
 
-      if (inOrig && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || movedOut)) {
+      if (inOrig && !movedOut && (a.status === 'nao_compareceu' || a.statusNewDate === 'nao_compareceu')) {
+        faltouSet.add(idx);
+      }
+      if (inNew && !inOrig && (a.status === 'nao_compareceu' || a.statusNewDate === 'nao_compareceu')) {
+        faltouSet.add(idx);
+      }
+
+      if (inOrig && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || (movedOut && !a.wasCancelled && !hasCancHistInOrig))) {
         reagSet.add(idx);
       }
       if (inNew && !inOrig && a.statusNewDate === 'reagendou') {
@@ -681,13 +709,15 @@ function getAgendaWeeksData() {
           const d = normIso(ev && ev.date);
           if (!d || d < start || d > end) return;
           const st = ev.status || '';
-          if (st === 'cancelada' || st === 'cancelou' || st === 'nao_compareceu') cancSet.add(idx);
+          if (st === 'cancelada' || st === 'cancelou') cancSet.add(idx);
+          if (st === 'nao_compareceu') faltouSet.add(idx);
           if (st === 'reagendada' || st === 'reagendou') reagSet.add(idx);
         });
       }
     });
 
     const numCanc = cancSet.size;
+    const numFaltou = faltouSet.size;
     const numReag = reagSet.size;
 
     let cprev = 0;
@@ -724,6 +754,7 @@ function getAgendaWeeksData() {
       cprev,
       creal: numReal,
       ccanc: numCanc,
+      cfaltou: numFaltou,
       creag: numReag
     };
   });
@@ -1109,14 +1140,16 @@ async function syncWeekMetricsWithAppts(persist = true) {
     const nextCprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData);
     const nextCreal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData);
     const nextCcanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData);
+    const nextCfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData);
     const nextCreag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData);
     const nextAgend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData);
 
-    if (raw.cagend !== nextCagend || raw.cprev !== nextCprev || raw.creal !== nextCreal || raw.ccanc !== nextCcanc || raw.creag !== nextCreag || raw.agend !== nextAgend) {
+    if (raw.cagend !== nextCagend || raw.cprev !== nextCprev || raw.creal !== nextCreal || raw.ccanc !== nextCcanc || raw.cfaltou !== nextCfaltou || raw.creag !== nextCreag || raw.agend !== nextAgend) {
       raw.cagend = nextCagend;
       raw.cprev = nextCprev;
       raw.creal = nextCreal;
       raw.ccanc = nextCcanc;
+      raw.cfaltou = nextCfaltou;
       raw.creag = nextCreag;
       raw.agend = nextAgend;
       weekChanged = true;
@@ -2200,7 +2233,7 @@ function calculatePeriodMetrics(ws,ap,allWeeks){
   const cancRate=totalWeekConsultas>0?(totalCanc/totalWeekConsultas*100):0;
   const reagRate=totalWeekConsultas>0?(totalReag/totalWeekConsultas*100):0;
 
-  const perd=ap.filter(a=>a.status==='cancelada'||a.status==='reagendada');
+  const perd=ap.filter(a=>a.status==='cancelada'||a.status==='reagendada'||a.wasCancelled===true||(Array.isArray(a.historyLog)&&a.historyLog.some(ev=>ev.status==='cancelada'||ev.status==='cancelou'||ev.status==='reagendada'||ev.status==='reagendou'))||(!!a.newDate&&a.regained==='sim'));
   const rec=perd.filter(a=>a.regained==='sim').length;
   const recRate=perd.length>0?(rec/perd.length*100):0;
   const andam=perd.filter(a=>a.regained==='contato').length;
@@ -2632,7 +2665,7 @@ function dash(){
           return s >= start && s <= end;
         });
       });
-  const perd=ap.filter(a=>a.status==='cancelada'||a.status==='reagendada');
+  const perd=ap.filter(a=>a.status==='cancelada'||a.status==='reagendada'||a.wasCancelled===true||(Array.isArray(a.historyLog)&&a.historyLog.some(ev=>ev.status==='cancelada'||ev.status==='cancelou'||ev.status==='reagendada'||ev.status==='reagendou'))||(!!a.newDate&&a.regained==='sim'));
   const rec=perd.filter(a=>a.regained==='sim').length;
   const andam=Object.values(appts).filter(a=>a.regained==='contato').length;
 
@@ -2726,6 +2759,7 @@ function dash(){
     {n:'Previstas',c:css('b'),v:wsAgenda.map(w=>w.cprev||0)},
     {n:'Realizadas',c:css('g'),v:wsAgenda.map(w=>w.creal||0)},
     {n:'Canceladas',c:css('r'),v:wsAgenda.map(w=>w.ccanc||0)},
+    {n:'Faltou',c:css('p'),v:wsAgenda.map(w=>w.cfaltou||0)},
     {n:'Reagendadas',c:css('a'),v:wsAgenda.map(w=>w.creag||0)}
   ];
 
@@ -3303,6 +3337,7 @@ function openApptHistoryModal(id){
   const realizedList = [];
   const reschedList = [];
   const cancelledList = [];
+  const faltouList = [];
   const scheduledList = [];
 
   history.forEach(h => {
@@ -3319,13 +3354,13 @@ function openApptHistoryModal(id){
         if (!origEv) {
           dedupByDate.set(h.consult, {
             date: h.consult,
-            status: 'reagendada',
-            note: 'Reagendada para ' + fdf(h.newDate),
+            status: h.wasCancelled ? 'cancelada' : 'reagendada',
+            note: (h.wasCancelled ? 'Cancelada · Nova data: ' : 'Reagendada para ') + fdf(h.newDate),
             updatedAt: ''
           });
         } else if (origEv.status === 'agendada') {
-          origEv.status = 'reagendada';
-          if (!origEv.note) origEv.note = 'Reagendada para ' + fdf(h.newDate);
+          origEv.status = h.wasCancelled ? 'cancelada' : 'reagendada';
+          if (!origEv.note) origEv.note = (h.wasCancelled ? 'Cancelada · Nova data: ' : 'Reagendada para ') + fdf(h.newDate);
         }
       }
       if ((h.regained === 'sim' || (h.newDate && h.consult && h.newDate !== h.consult)) && dedupByDate.size > 1) {
@@ -3347,20 +3382,23 @@ function openApptHistoryModal(id){
         };
         if (entry.status === 'realizada' || entry.status === 'compareceu') realizedList.push(entry);
         else if (entry.status === 'reagendada' || entry.status === 'reagendou') reschedList.push(entry);
-        else if (entry.status === 'cancelada' || entry.status === 'cancelou' || entry.status === 'nao_compareceu') cancelledList.push(entry);
+        else if (entry.status === 'cancelada' || entry.status === 'cancelou') cancelledList.push(entry);
+        else if (entry.status === 'nao_compareceu') faltouList.push(entry);
         else scheduledList.push(entry);
       });
     } else {
       // Fallback para registros antigos sem historyLog
       if (h.newDate && h.consult && h.newDate !== h.consult) {
-        reschedList.push({
+        const origEntry = {
           date: h.consult,
-          status: 'reagendada',
-          note: 'Reagendada para ' + fdf(h.newDate),
+          status: h.wasCancelled ? 'cancelada' : 'reagendada',
+          note: (h.wasCancelled ? 'Cancelada · Nova data: ' : 'Reagendada para ') + fdf(h.newDate),
           updatedAt: h.updatedAt || '',
           origin: ORIG[h.origin] || h.origin || '—',
           schedOn: h.schedOn || ''
-        });
+        };
+        if (h.wasCancelled) cancelledList.push(origEntry);
+        else reschedList.push(origEntry);
       }
       const finalDate = currentActiveDate;
       const st = h.status || 'agendada';
@@ -3374,7 +3412,8 @@ function openApptHistoryModal(id){
       };
       if (st === 'realizada') realizedList.push(entry);
       else if (st === 'reagendada') reschedList.push(entry);
-      else if (st === 'cancelada' || st === 'nao_compareceu') cancelledList.push(entry);
+      else if (st === 'cancelada') cancelledList.push(entry);
+      else if (st === 'nao_compareceu') faltouList.push(entry);
       else scheduledList.push(entry);
     }
   });
@@ -3414,7 +3453,8 @@ function openApptHistoryModal(id){
       <div class="k-modal-body" style="max-height:65vh;overflow-y:auto">
         ${renderSection('✅ Compareceu', 'var(--g)', realizedList, 'Nenhum comparecimento registrado.')}
         ${renderSection('🔄 Reagendadas', 'var(--a)', reschedList, 'Nenhum reagendamento registrado.')}
-        ${renderSection('❌ Canceladas / Faltou', 'var(--r)', cancelledList, 'Nenhum cancelamento ou falta registrada.')}
+        ${renderSection('❌ Canceladas', 'var(--r)', cancelledList, 'Nenhum cancelamento registrado.')}
+        ${renderSection('⚠️ Faltou', 'var(--p)', faltouList, 'Nenhuma falta registrada.')}
         ${scheduledList.length ? renderSection('📅 Agendadas', 'var(--b)', scheduledList, '') : ''}
       </div>
       <div class="k-modal-foot">
@@ -3500,11 +3540,17 @@ function openApptDateModal(id){
     const updated = { ...appts[id] };
     if (mode === 'reagendar') {
       const prevDate = updated.newDate || updated.consult || updated.schedOn || '';
+      const wasPrevCancelled = prevSnapshot.status === 'cancelada' || prevSnapshot.statusNewDate === 'cancelou';
+      if (wasPrevCancelled) updated.wasCancelled = true;
       updated.status = 'agendada';
       updated.regained = 'sim';
       updated.newDate = newIso;
       updated.statusNewDate = '';
-      appendApptHistory(updated, 'reagendada', prevDate || newIso, 'Reagendada para ' + fdf(newIso), prevSnapshot);
+      if (wasPrevCancelled) {
+        appendApptHistory(updated, 'cancelada', prevDate || newIso, 'Cancelada · Nova data: ' + fdf(newIso), prevSnapshot);
+      } else {
+        appendApptHistory(updated, 'reagendada', prevDate || newIso, 'Reagendada para ' + fdf(newIso), prevSnapshot);
+      }
       if (newIso && newIso !== prevDate) {
         appendApptHistory(updated, 'agendada', newIso, '', prevSnapshot);
       }
