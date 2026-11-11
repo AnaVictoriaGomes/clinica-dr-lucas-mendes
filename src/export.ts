@@ -35,10 +35,15 @@ export function exportDataFile(
   const fileName = `${filenameBase}_${timestamp}.${format}`;
 
   if (format === 'xlsx') {
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Dados');
-    XLSX.writeFile(wb, fileName);
+    try {
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Dados');
+      XLSX.writeFile(wb, fileName);
+    } catch (err) {
+      console.error('Erro ao gerar Excel:', err);
+      (window as any).KommoApp?.toast?.('Erro ao gerar arquivo Excel. Tente exportar em CSV.');
+    }
   } else {
     // CSV with UTF-8 BOM
     const q = (v: any) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
@@ -151,5 +156,11 @@ export function renderExportModal(
   }
 
   renderContent();
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+      onClose();
+    }
+  });
   document.body.appendChild(overlay);
 }
