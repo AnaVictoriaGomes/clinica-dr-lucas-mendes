@@ -548,10 +548,11 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
       faltouSet.add(idx);
     }
 
-    if (inOrig && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || (movedOut && !a.wasCancelled && !hasCancHistInOrig))) {
+    const hasNewDate = !!normIso(a.newDate);
+    if (inOrig && ((a.status === 'reagendada' && hasNewDate) || (a.statusNewDate === 'reagendou' && hasNewDate) || (movedOut && !a.wasCancelled && !hasCancHistInOrig))) {
       reagSet.add(idx);
     }
-    if (inNew && !inOrig && a.statusNewDate === 'reagendou') {
+    if (inNew && !inOrig && a.statusNewDate === 'reagendou' && hasNewDate) {
       reagSet.add(idx);
     }
 
@@ -562,7 +563,7 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
         const st = ev.status || '';
         if (st === 'cancelada' || st === 'cancelou') cancSet.add(idx);
         if (st === 'nao_compareceu') faltouSet.add(idx);
-        if (st === 'reagendada' || st === 'reagendou') reagSet.add(idx);
+        if ((st === 'reagendada' || st === 'reagendou') && hasNewDate) reagSet.add(idx);
       });
     }
   });
@@ -2192,6 +2193,16 @@ async function savePreviewAppts(isExplicitUserClick){
 const msgs=w=>(w.fu2||0)+(w.fu3||0)+(w.fu4||0)+(w.fu5||0);
 function sum(arr,f){return arr.reduce((a,w)=>a+(typeof f==='function'?f(w):(w[f]||0)),0)}
 
+function isApptCancelled(a) {
+  if (!a) return false;
+  if (a.status === 'cancelada' || a.wasCancelled === true || a.statusNewDate === 'cancelou') return true;
+  if (Array.isArray(a.historyLog) && a.historyLog.some(ev => ev.status === 'cancelada' || ev.status === 'cancelou')) return true;
+  return false;
+}
+function isApptCancelledRecovered(a) {
+  return isApptCancelled(a) && (a.regained === 'sim' || (!!a.newDate && a.regained !== 'nao' && a.regained !== 'contato'));
+}
+
 function calculatePeriodMetrics(ws,ap,allWeeks){
   if(!ws||!ws.length)return null;
 
@@ -2233,10 +2244,10 @@ function calculatePeriodMetrics(ws,ap,allWeeks){
   const cancRate=totalWeekConsultas>0?(totalCanc/totalWeekConsultas*100):0;
   const reagRate=totalWeekConsultas>0?(totalReag/totalWeekConsultas*100):0;
 
-  const perd=ap.filter(a=>a.status==='cancelada'||a.status==='reagendada'||a.wasCancelled===true||(Array.isArray(a.historyLog)&&a.historyLog.some(ev=>ev.status==='cancelada'||ev.status==='cancelou'||ev.status==='reagendada'||ev.status==='reagendou'))||(!!a.newDate&&a.regained==='sim'));
-  const rec=perd.filter(a=>a.regained==='sim').length;
+  const perd=ap.filter(isApptCancelled);
+  const rec=perd.filter(isApptCancelledRecovered).length;
   const recRate=perd.length>0?(rec/perd.length*100):0;
-  const andam=perd.filter(a=>a.regained==='contato').length;
+  const andam=ap.filter(a=>a.regained==='contato').length;
 
   let multiData=null;
   if(isMulti){
@@ -2656,18 +2667,110 @@ function dash(){
 
   const tm=sum(ws,msgs),tr=sum(ws,'resp'),ta=sum(ws,'agend'),tl=sum(ws,'novos');
   const real=sum(ws,'creal'),cag=sum(ws,'cagend'),can=sum(ws,'ccanc'),rea=sum(ws,'creag'),tot=real+rea+can,totWeek=sum(ws,weekTotalConsultas);
+  const allApptsWithId = Object.entries(appts).map(([id, a]) => ({ id, ...a }));
+  const inSelectedWeeks = (isoDate) => {
+    if (filterMode === 'all') return true;
+    const d = normIso(isoDate);
+    if (!d) return false;
+    return selectedWeekIds.some(wid => {
+      const { start, end } = getWeekWindow(wid, [], 0);
+      return d >= start && d <= end;
+    });
+  };
   const ap = (filterMode === 'all')
-    ? Object.values(appts)
-    : Object.values(appts).filter(a => {
-        const s = normIso(a.schedOn) || normIso(a.consult);
-        return selectedWeekIds.some(wid => {
-          const { start, end } = getWeekWindow(wid, [], 0);
-          return s >= start && s <= end;
-        });
+    ? allApptsWithId
+    : allApptsWithId.filter(a => inSelectedWeeks(normIso(a.schedOn) || normIso(a.consult)));
+
+  const apByAnyDate = (filterMode === 'all')
+    ? allApptsWithId
+    : allApptsWithId.filter(a => inSelectedWeeks(a.consult) || inSelectedWeeks(a.newDate) || inSelectedWeeks(a.schedOn));
+
+  const perd = apByAnyDate.filter(isApptCancelled);
+  const recList = perd.filter(isApptCancelledRecovered);
+  const rec = recList.length;
+  const andamList = apByAnyDate.filter(a => a.regained === 'contato');
+  const andam = andamList.length;
+
+  const isApptRealized = (a) => a.status === 'realizada' || a.statusNewDate === 'compareceu';
+  const realizedList = (filterMode === 'all')
+    ? allApptsWithId.filter(isApptRealized)
+    : allApptsWithId.filter(a => isApptRealized(a) && inSelectedWeeks(normIso(a.newDate) || normIso(a.consult) || normIso(a.schedOn)));
+
+  const reagList = (filterMode === 'all')
+    ? allApptsWithId.filter(a => !!normIso(a.newDate) && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || !isApptCancelled(a)))
+    : allApptsWithId.filter(a => !!normIso(a.newDate) && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || !isApptCancelled(a)) && (inSelectedWeeks(a.consult) || inSelectedWeeks(a.newDate) || inSelectedWeeks(a.schedOn)));
+
+  const prevList = (filterMode === 'all')
+    ? allApptsWithId.filter(a => a.status !== 'cancelada' || a.regained === 'sim')
+    : allApptsWithId.filter(a => {
+        if (a.status === 'cancelada' && a.regained !== 'sim') return false;
+        const eff = normIso(a.newDate) || normIso(a.consult) || normIso(a.schedOn);
+        return inSelectedWeeks(eff);
       });
-  const perd=ap.filter(a=>a.status==='cancelada'||a.status==='reagendada'||a.wasCancelled===true||(Array.isArray(a.historyLog)&&a.historyLog.some(ev=>ev.status==='cancelada'||ev.status==='cancelou'||ev.status==='reagendada'||ev.status==='reagendou'))||(!!a.newDate&&a.regained==='sim'));
-  const rec=perd.filter(a=>a.regained==='sim').length;
-  const andam=Object.values(appts).filter(a=>a.regained==='contato').length;
+
+  window._dashKpiLists = {
+    conv: {
+      title: 'Conversão do FU em Agendamento (%)',
+      subtitle: 'Pacientes agendados via Follow-up (FU 2 a FU 5) no período filtrado',
+      items: ap.filter(a => ['c2', 'c3', 'c4', 'c5'].includes(a.origin)),
+      kpiCount: ta
+    },
+    convNovos: {
+      title: 'Conversão de Novos Leads em Agendamento',
+      subtitle: 'Pacientes vindos de "Novo lead" agendados no período filtrado',
+      items: ap.filter(a => a.origin === 'novo'),
+      kpiCount: ap.filter(a => a.origin === 'novo').length
+    },
+    cagend: {
+      title: 'Consultas agendadas',
+      subtitle: 'Pacientes com consulta agendada no período filtrado',
+      items: ap,
+      kpiCount: cag
+    },
+    cprev: {
+      title: 'Consultas previstas',
+      subtitle: 'Pacientes com consulta prevista nas semanas filtradas',
+      items: prevList,
+      kpiCount: sum(ws, 'cprev')
+    },
+    creal: {
+      title: 'Consultas realizadas',
+      subtitle: 'Pacientes que compareceram às consultas no período filtrado',
+      items: realizedList,
+      kpiCount: real
+    },
+    comp: {
+      title: 'Comparecimento (check-in)',
+      subtitle: 'Pacientes que compareceram às consultas no período filtrado',
+      items: realizedList,
+      kpiCount: real
+    },
+    canc: {
+      title: 'Cancelamento',
+      subtitle: 'Pacientes com consulta cancelada no período filtrado',
+      items: perd,
+      kpiCount: can
+    },
+    creag: {
+      title: 'Reagendamento',
+      subtitle: 'Pacientes com consulta reagendada com nova data definida no período filtrado',
+      items: reagList,
+      kpiCount: rea
+    },
+    rec: {
+      title: 'Cancelados recuperados',
+      subtitle: 'Pacientes que cancelaram e depois reagendaram uma nova data no período filtrado',
+      items: recList,
+      allCancelled: perd,
+      kpiCount: rec
+    },
+    andam: {
+      title: 'Reagendamentos em andamento',
+      subtitle: 'Pacientes com status de contato "Em contato" no período filtrado',
+      items: andamList,
+      kpiCount: andam
+    }
+  };
 
   const agendDeNovosLeads = ap.filter(a => a.origin === 'novo').length;
   const convNovosLeadsRate = tl > 0 ? (agendDeNovosLeads / tl * 100) : 0;
@@ -2721,7 +2824,17 @@ function dash(){
         </div>
       `;
     }
-    return `<div class="card kpi"><span>${l}</span><b>${v}</b>${s?`<small>${s}</small>`:''}${goalLegend}</div>`;
+    let resolvedKey = key;
+    if (!window._dashKpiLists?.[resolvedKey]) {
+      const lblLow = String(l || '').toLowerCase();
+      if (lblLow.includes('consultas realizadas') || lblLow.includes('realizada')) resolvedKey = 'creal';
+      else if (lblLow.includes('consultas previstas') || lblLow.includes('prevista')) resolvedKey = 'cprev';
+      else if (lblLow.includes('consultas agendadas')) resolvedKey = 'cagend';
+    }
+    const hasPatients = Boolean(window._dashKpiLists && window._dashKpiLists[resolvedKey]);
+    const clickAttrs = hasPatients ? ` data-kpi-metric="${esc(resolvedKey)}" style="cursor:pointer" title="Clique para ver os pacientes desta métrica"` : '';
+    const clickHint = hasPatients ? `<small style="color:var(--g);font-weight:600;margin-top:6px">Ver pacientes →</small>` : '';
+    return `<div class="card kpi"${clickAttrs}><span>${l}</span><b>${v}</b>${s?`<small>${s}</small>`:''}${goalLegend}${clickHint}</div>`;
   };
 
   const rt=w=>pct(w.resp||0,msgs(w));
@@ -2780,7 +2893,17 @@ function dash(){
   const GER={novos:tl,fu2:sum(ws,'fu2'),fu3:sum(ws,'fu3'),fu4:sum(ws,'fu4'),fu5:sum(ws,'fu5')};
 
   const cm=cfg.metrics||[],cs=m=>{try{return ev(m.expr,ws)}catch(e){return null}};
-  const cKpi=cm.filter(m=>m.where==='kpi').map(m=>{const v=cs(m);return kp(esc(m.title),v==null?'—':fmtM(v,m.fmt),'card personalizado',m.title)}).join('');
+  const cKpi=cm.filter(m=>m.where==='kpi').map(m=>{
+    const v=cs(m);
+    const expr=String(m.expr||'');
+    let kpiAlias=m.title;
+    if(/\b(creal|appts_realizada)\b/.test(expr))kpiAlias='creal';
+    else if(/\bcprev\b/.test(expr))kpiAlias='cprev';
+    else if(/\b(ccanc|appts_cancelada)\b/.test(expr))kpiAlias='canc';
+    else if(/\b(creag|appts_reagendada)\b/.test(expr))kpiAlias='creag';
+    else if(/\bcagend\b/.test(expr))kpiAlias='cagend';
+    return kp(esc(m.title),v==null?'—':fmtM(v,m.fmt),'card personalizado',kpiAlias);
+  }).join('');
   const cCh=cm.filter(m=>m.where!=='kpi').map(m=>{const v=ws.map(w=>{try{return Math.round(ev(m.expr,[w])*100)/100}catch(e){return 0}}),ser=[{n:m.title,c:css('p'),v}];return card(esc(m.title),ser,chart(L,ser,m.where==='bar'?'group':'line',m.fmt==='pct',fullCats))}).join('');
 
   const stdOverrides = cfg.customCharts || [];
@@ -4304,8 +4427,138 @@ $('#dash').addEventListener('input', e => {
   }
 });
 
+function openKpiPatientsModal(metricKey) {
+  const data = window._dashKpiLists && window._dashKpiLists[metricKey];
+  if (!data) return;
+  const existing = document.getElementById('kpi_patients_modal');
+  if (existing) existing.remove();
+
+  let showAllCancelled = false;
+  const modal = document.createElement('div');
+  modal.id = 'kpi_patients_modal';
+  modal.className = 'k-modal-backdrop';
+
+  const getActiveList = () => (metricKey === 'rec' && showAllCancelled && Array.isArray(data.allCancelled)) ? data.allCancelled : (data.items || []);
+
+  const renderModalContent = () => {
+    const list = getActiveList().slice().sort((a, b) => (b.newDate || b.consult || b.schedOn || '').localeCompare(a.newDate || a.consult || a.schedOn || ''));
+    const toggleHtml = (metricKey === 'rec' && Array.isArray(data.allCancelled)) ? `
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <button type="button" class="b ${!showAllCancelled ? '' : 's'}" id="kpi_rec_only" style="font-size:12px;padding:4px 10px">Recuperados (${data.items.length})</button>
+        <button type="button" class="b ${showAllCancelled ? '' : 's'}" id="kpi_rec_all" style="font-size:12px;padding:4px 10px">Todos os cancelados (${data.allCancelled.length})</button>
+      </div>
+    ` : '';
+
+    const rowsHtml = list.length ? `
+      <div class="wrap" style="max-height:52vh;overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Veio de</th>
+              <th>Agendada em</th>
+              <th>Data da consulta</th>
+              <th>Status</th>
+              <th>Status Contato</th>
+              <th>Nova data</th>
+              <th>Status nova data</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(a => `
+              <tr>
+                <td><b>${esc(a.patient || '—')}</b></td>
+                <td>${esc(ORIG[a.origin] || a.origin || '—')}</td>
+                <td>${fdf(a.schedOn) || '—'}</td>
+                <td>${fdf(a.consult) || '—'}</td>
+                <td><span class="tag">${esc(STAT[a.status] || a.status || '—')}</span></td>
+                <td>${esc(REG[a.regained || ''] || a.regained || '—')}</td>
+                <td>${fdf(a.newDate) || '—'}</td>
+                <td>${esc(STAT_NEW[a.statusNewDate || ''] || a.statusNewDate || '—')}</td>
+                <td>${a.id ? `<button type="button" class="b s" data-kpi-hist="${esc(a.id)}" style="font-size:11px;padding:3px 7px" title="Ver histórico do paciente">🕒</button>` : ''}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    ` : '<p class="note" style="padding:12px 0">Nenhum paciente encontrado para esta métrica no filtro atual.</p>';
+
+    const legacyNote = (typeof data.kpiCount === 'number' && !showAllCancelled && data.kpiCount > list.length)
+      ? `<div class="note" style="font-size:12px;margin-bottom:10px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px">O card soma <b>${data.kpiCount}</b> registro(s) no período (incluindo lançamentos manuais de semanas anteriores sem cadastro individual na aba Consultas). Abaixo estão os <b>${list.length}</b> paciente(s) cadastrados individualmente.</div>`
+      : '';
+
+    modal.innerHTML = `
+      <div class="k-modal-card" style="max-width:920px;width:100%">
+        <div class="k-modal-head">
+          <div>
+            <h3>${esc(data.title)}</h3>
+            <div class="note" style="font-size:12.5px;margin-top:2px">${esc(data.subtitle)} · <b>${list.length}</b> paciente(s)</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button type="button" class="b s" id="kpi_export_btn" style="border-color:color-mix(in srgb,var(--g) 45%,var(--line));color:var(--g);font-weight:600;font-size:12px;padding:5px 10px">📊 Exportar (CSV / Excel)</button>
+            <button type="button" class="x" id="kpi_modal_close" style="font-size:20px">×</button>
+          </div>
+        </div>
+        <div class="k-modal-body">
+          ${legacyNote}
+          ${toggleHtml}
+          ${rowsHtml}
+        </div>
+      </div>
+    `;
+
+    modal.querySelector('#kpi_modal_close')?.addEventListener('click', () => modal.remove());
+    modal.querySelector('#kpi_rec_only')?.addEventListener('click', () => { showAllCancelled = false; renderModalContent(); });
+    modal.querySelector('#kpi_rec_all')?.addEventListener('click', () => { showAllCancelled = true; renderModalContent(); });
+    modal.querySelectorAll('[data-kpi-hist]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-kpi-hist');
+        if (id) openApptHistoryModal(id);
+      });
+    });
+    modal.querySelector('#kpi_export_btn')?.addEventListener('click', () => {
+      const cols = [
+        { key: 'patient', label: 'Paciente', selected: true },
+        { key: 'origin', label: 'Veio de', selected: true, getter: a => ORIG[a.origin] || a.origin || '' },
+        { key: 'schedOn', label: 'Agendada em', selected: true, getter: a => fdf(a.schedOn) || '' },
+        { key: 'consult', label: 'Data da consulta', selected: true, getter: a => fdf(a.consult) || '' },
+        { key: 'status', label: 'Status', selected: true, getter: a => STAT[a.status] || a.status || '' },
+        { key: 'regained', label: 'Status Contato', selected: true, getter: a => REG[a.regained || ''] || a.regained || '' },
+        { key: 'newDate', label: 'Nova data', selected: true, getter: a => fdf(a.newDate) || '' },
+        { key: 'statusNewDate', label: 'Status nova data', selected: true, getter: a => STAT_NEW[a.statusNewDate || ''] || a.statusNewDate || '' }
+      ];
+      const baseName = 'metrica_' + metricKey;
+      if (window.KommoExport) {
+        window.KommoExport.renderExportModal(data.title, cols, list.length, (fmt, selCols) => {
+          window.KommoExport.exportDataFile(baseName, fmt, selCols, list);
+        }, () => {});
+      } else {
+        const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+        const csv = '\ufeff' + [cols.map(c => c.label), ...list.map(it => cols.map(c => c.getter ? c.getter(it) : (it[c.key] ?? '')))].map(r => r.map(q).join(';')).join('\r\n');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+        a.download = baseName + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast('CSV exportado!');
+      }
+    });
+  };
+
+  renderModalContent();
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
 // Fechar popovers automaticamente ao clicar fora
 document.addEventListener('click', e => {
+  const kpiCard = e.target.closest('#dash [data-kpi-metric]');
+  if (kpiCard) {
+    openKpiPatientsModal(kpiCard.dataset.kpiMetric);
+    return;
+  }
   let changed = false;
   if (window.excelFilter && window.excelFilter.isOpen) {
     if (!e.target.closest('#ef_popover') && !e.target.closest('#ef_btn_toggle_popover')) {
