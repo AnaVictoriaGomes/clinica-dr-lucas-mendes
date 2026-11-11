@@ -51,7 +51,7 @@ function getApp(): any {
 }
 
 function getThemeColors(): string[] {
-  if (typeof document === 'undefined') {
+  if (typeof document === 'undefined' || typeof getComputedStyle !== 'function') {
     return ['#1f7a6d', '#3d6fa8', '#d99a1c', '#c2455a', '#7a5aa6', '#9aa8a4'];
   }
   const cs = getComputedStyle(document.documentElement);
@@ -1153,7 +1153,7 @@ export function renderGraficosTabContent() {
       <div style="margin-top:16px;padding:16px;background:var(--bg);border:1px solid var(--line);border-radius:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
           <div>
-            <h3 style="margin:0;font-size:15px">${esc(c.title)}</h3>
+            <h3 id="gb_preview_title" style="margin:0;font-size:15px">${esc(c.title)}</h3>
             <span class="note" style="font-size:11.5px">Passe o mouse sobre os valores para ver detalhes</span>
           </div>
           <span class="tag" style="background:color-mix(in srgb,var(--b) 12%,var(--card));color:var(--b);font-size:11px;font-weight:700">LIVE RENDER</span>
@@ -1271,7 +1271,7 @@ function attachGrafEvents() {
 
   container.querySelector('#gb_title')?.addEventListener('input', (e: any) => {
     c.title = e.target.value;
-    const h3 = container.querySelector('#gb_preview_area')?.previousElementSibling;
+    const h3 = container.querySelector('#gb_preview_title');
     if (h3) h3.textContent = c.title;
   });
   container.querySelector('#gb_type')?.addEventListener('change', (e: any) => { c.type = e.target.value; refreshPreviewOnly(); });
