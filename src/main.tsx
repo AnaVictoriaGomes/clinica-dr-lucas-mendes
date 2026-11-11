@@ -37,3 +37,12 @@ window.KommoGraf = {
   computeChartData: computeStudioChartData,
   getStandardChartDefs
 };
+
+const grafEl = document.getElementById('graf');
+if (grafEl && !grafEl.classList.contains('hide')) {
+  try {
+    renderGraficosTabContent();
+  } catch (err) {
+    console.error('Erro ao renderizar aba de gráficos:', err);
+  }
+}
