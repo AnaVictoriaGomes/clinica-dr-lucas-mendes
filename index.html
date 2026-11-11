@@ -311,7 +311,7 @@ window.DATA = window.DATA || {
   cardHtml: () => '<h2>Status do Firebase Firestore</h2><p class="note">Carregando conector em nuvem...</p>',
   migHtml: () => ''
 };
-var db=null,sync={},editRow=null,wFilt={from:'',to:'',q:'',sort:'data_desc',minLeads:''},weeks={},appts={},cur='dash',cfg={},selWeek='',aFilt={week:'',from:'',to:'',origin:'',status:'',statusNewDate:'',q:''},aSort={col:'consult',dir:'desc'};
+var db=null,sync={},editRow=null,wFilt={from:'',to:'',q:'',sort:'data_desc',minLeads:''},weeks={},appts={},cur='dash',pSel='mes',cfg={},selWeek='',aFilt={week:'',from:'',to:'',origin:'',status:'',regained:'',statusNewDate:'',q:''},aSort={col:'consult',dir:'desc'};
 
 // Carregamento de segurança de dados em cache local (para nunca perder alterações)
 try {
@@ -3640,7 +3640,7 @@ function forceRender(){
   updatePastePreviewUI();
 }
 
-function go(t){cur=t;['dash','sem','cons','graf','cfg'].forEach(s=>$('#'+s).classList.toggle('hide',s!==t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='dash')render();if(t==='graf'&&window.KommoGraf)window.KommoGraf.render();if(t==='cfg')renderCfg()}
+function go(t){cur=t;['dash','sem','cons','graf','cfg'].forEach(s=>$('#'+s).classList.toggle('hide',s!==t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='dash')render();if(t==='graf'){if(window.KommoGraf){try{window.KommoGraf.render()}catch(err){console.error('Erro ao renderizar gráficos:',err);$('#graf').innerHTML='<div class="card"><p class="note">Erro ao carregar gráficos. Recarregue a página.</p></div>'}}else{$('#graf').innerHTML='<div class="card"><p class="note">Carregando gráficos e métricas...</p></div>'}}if(t==='cfg')renderCfg()}
 
 $('#nav').onclick=e=>{if(e.target.dataset.t)go(e.target.dataset.t)};
 buildForm();
@@ -3771,7 +3771,7 @@ $('#al').addEventListener('input',e=>{
 });
 
 $('#al').onclick=async e=>{
-  if(e.target.id==='btn_export_appts'){
+  if(e.target.closest('#btn_export_appts')){
     const f=aFilt,WS=W();
     let wr=null;
     if(f.week){
@@ -3801,6 +3801,11 @@ $('#al').onclick=async e=>{
       window.KommoExport.renderExportModal('Consultas filtradas',cols,filtered.length,(fmt,selCols)=>{
         window.KommoExport.exportDataFile('consultas_filtradas',fmt,selCols,filtered);
       },()=>{});
+    }else{
+      const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+      const csv='\ufeff'+[cols.map(c=>c.label),...filtered.map(it=>cols.map(c=>c.getter?c.getter(it):(it[c.key]??'')))].map(r=>r.map(q).join(';')).join('\r\n');
+      const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='consultas_filtradas_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();
+      toast('CSV exportado!');
     }
     return;
   }
@@ -4360,7 +4365,7 @@ $('#wl').addEventListener('click',async e=>{
     await deleteWeek(id);
     return;
   }
-  if(t.id==='btn_export_weeks'){
+  if(t.closest('#btn_export_weeks')){
     const all = W();
     const f = wFilt || { from: '', to: '', q: '', sort: 'data_desc', minLeads: '' };
     const qClean = (f.q || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -4382,6 +4387,11 @@ $('#wl').addEventListener('click',async e=>{
       window.KommoExport.renderExportModal('Semanas lançadas (filtradas)',cols,filtered.length,(fmt,selCols)=>{
         window.KommoExport.exportDataFile('semanas_filtradas', fmt, selCols, filtered);
       },()=>{});
+    }else{
+      const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+      const csv='\ufeff'+[cols.map(c=>c.label),...filtered.map(it=>cols.map(c=>c.getter?c.getter(it):(it[c.key]??'')))].map(r=>r.map(q).join(';')).join('\r\n');
+      const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='semanas_filtradas_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();
+      toast('CSV exportado!');
     }
     return;
   }
