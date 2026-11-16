@@ -51,3 +51,4 @@ if (!builtHtml.includes('/assets/kommo-bundle.js')) {
 fs.writeFileSync(path.join(distDir, 'index.html'), builtHtml, 'utf8');
 
 console.log('Build estático (esbuild) concluído com sucesso em dist/');
+
