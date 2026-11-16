@@ -602,12 +602,39 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
   };
 }
 
-function mergeWeekAutoVal(weekId, manualVal, autoVal, hasData) {
+function mergeWeekAutoVal(weekId, manualVal, autoVal, hasData, isManualLocked) {
   const man = (manualVal !== undefined && manualVal !== null && manualVal !== '') ? Number(manualVal) : 0;
+  if (isManualLocked) {
+    return man;
+  }
   if (weekId < '2026-11-09') {
     return Math.max(man, autoVal);
   }
   return hasData ? autoVal : man;
+}
+
+function weekHasScheduleAppts(weekId, allAppts, keys, idx) {
+  const list = allAppts || Object.values(appts || {});
+  const kList = keys || Object.keys(weeks || {}).sort();
+  const i = idx != null ? idx : kList.indexOf(weekId);
+  const { start, end } = getWeekWindow(weekId, kList, i >= 0 ? i : 0);
+  return list.some(a => {
+    const c = normIso(a.consult) || normIso(a.schedOn);
+    const nd = normIso(a.newDate);
+    return (c >= start && c <= end) || (nd && nd >= start && nd <= end);
+  });
+}
+
+function getEffectiveCprev(w) {
+  if (!w) return 0;
+  const val = Number(w.cprev || 0);
+  if (val > 0) return val;
+  const raw = weeks[w.id] || {};
+  if (raw._manual && raw._manual.cprev) return 0;
+  if (!w._hasScheduleAppts && !weekHasScheduleAppts(w.id)) {
+    return (Number(w.creal) || 0) + (Number(w.ccanc) || 0) + (Number(w.creag) || 0) + (Number(w.cfaltou) || 0);
+  }
+  return 0;
 }
 
 function weekTotalConsultas(w) {
@@ -622,21 +649,66 @@ function W() {
 
   return keys.map((id, i) => {
     const raw = weeks[id] || {};
+    const manLock = raw._manual || {};
     const w = { ...raw, id };
     const { start, end } = getWeekWindow(id, keys, i);
     const m = computeWeekApptMetrics(id, start, end, allAppts);
 
-    w.cagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData);
-    w.cprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData);
-    w.creal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData);
-    w.ccanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData);
-    w.cfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData);
-    w.creag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData);
-    w.agend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData);
+    w.cagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData, !!manLock.cagend);
+    w.cprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData, !!manLock.cprev);
+    w.creal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData, !!manLock.creal);
+    w.ccanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData, !!manLock.ccanc);
+    w.cfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData, !!manLock.cfaltou);
+    w.creag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData, !!manLock.creag);
+    w.agend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData, !!manLock.agend);
+    w._hasScheduleAppts = weekHasScheduleAppts(id, allAppts, keys, i);
     w.ctot = m.hasData ? Math.max(m.ctot, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0)) : Math.max(w.cprev || 0, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0));
 
     return w;
   });
+}
+
+function getGoalChartWeeks(metricKey) {
+  const baseWeeks = W().map(w => ({ ...w, cprevEffective: getEffectiveCprev(w) }));
+  const apptMetrics = ['cprev', 'cagend', 'creal', 'ccanc', 'cfaltou', 'creag', 'comp', 'canc', 'tot'];
+  if (metricKey && !apptMetrics.includes(metricKey)) {
+    return baseWeeks;
+  }
+  const byId = new Map(baseWeeks.map(w => [w.id, w]));
+  const allAppts = Object.values(appts || {});
+  const extraWeekIds = new Set();
+  allAppts.forEach(a => {
+    [a.consult, a.newDate, a.schedOn].forEach(d => {
+      const iso = normIso(d);
+      if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+        const sat = getSaturdayOfWeek(iso);
+        if (!byId.has(sat)) extraWeekIds.add(sat);
+      }
+    });
+  });
+  const sortedAllIds = Array.from(new Set([...byId.keys(), ...extraWeekIds])).sort();
+  sortedAllIds.forEach((wid, idx) => {
+    if (byId.has(wid)) return;
+    const { start, end } = getWeekWindow(wid, sortedAllIds, idx);
+    const m = computeWeekApptMetrics(wid, start, end, allAppts);
+    if (m.cprev > 0 || m.creal > 0 || m.ccanc > 0 || m.cfaltou > 0 || m.creag > 0 || m.cagend > 0) {
+      byId.set(wid, {
+        id: wid,
+        cagend: m.cagend,
+        cprev: m.cprev,
+        cprevEffective: m.cprev,
+        creal: m.creal,
+        ccanc: m.ccanc,
+        cfaltou: m.cfaltou,
+        creag: m.creag,
+        agend: m.agend,
+        ctot: m.ctot,
+        _hasScheduleAppts: true,
+        _fromApptsOnly: true
+      });
+    }
+  });
+  return Array.from(byId.values()).sort((a, b) => a.id.localeCompare(b.id));
 }
 
 /* ===== GRÁFICO DA AGENDA VINCULADO DIRETAMENTE À ABA DE CONSULTAS (INDEPENDENTE DA ABA DE SEMANAS) ===== */
@@ -1066,8 +1138,8 @@ function renderAgendaFilterControl(allAgendaData) {
   `;
 }
 
-function renderGoalFilterControl(allWeeksData) {
-  const f = window.goalFilter || { mode: 'all', year: 'all', month: 'all', sort: 'asc', isOpen: false };
+function renderGoalFilterControl(allWeeksData, ovChart) {
+  const f = window.goalFilter || { mode: 'all', year: 'all', month: 'all', dateFrom: '', dateTo: '', sort: 'asc', isOpen: false };
   const years = [...new Set(allWeeksData.map(w => (w.id || '').split('-')[0]).filter(Boolean))].sort();
   const months = [...new Set(allWeeksData.map(w => {
     const parts = (w.id || '').split('-');
@@ -1075,18 +1147,27 @@ function renderGoalFilterControl(allWeeksData) {
   }).filter(m => m !== null))].sort((a,b)=>a-b);
 
   let label = 'Todas as semanas';
-  if (f.mode === 'future') label = 'Apenas futuras';
+  if (f.dateFrom || f.dateTo) {
+    label = (f.dateFrom ? fdf(f.dateFrom) : 'Início') + ' até ' + (f.dateTo ? fdf(f.dateTo) : 'Hoje');
+  } else if (f.mode === 'future') label = 'Apenas futuras';
   else if (f.mode === 'past') label = 'Apenas passadas';
   else if (f.year !== 'all' || f.month !== 'all') {
     const yStr = f.year !== 'all' ? f.year : '';
     const mStr = f.month !== 'all' ? MONTH_NAMES[f.month] : '';
     label = [mStr, yStr].filter(Boolean).join(' ');
+  } else if (ovChart) {
+    if (ovChart.dateFrom || ovChart.dateTo) {
+      label = (ovChart.dateFrom ? fdf(ovChart.dateFrom) : 'Início') + ' até ' + (ovChart.dateTo ? fdf(ovChart.dateTo) : 'Hoje');
+    } else if (ovChart.periodFilter && ovChart.periodFilter !== 'all') {
+      const pMap = { last4: 'Últimas 4 semanas', last8: 'Últimas 8 semanas', last12: 'Últimas 12 semanas', last: 'Última semana', penultimate: 'Penúltima semana', past: 'Apenas passadas', future: 'Apenas futuras' };
+      label = pMap[ovChart.periodFilter] || (ovChart.periodFilter.startsWith('ym:') ? ovChart.periodFilter.slice(3) : label);
+    }
   }
 
   let popoverHtml = '';
   if (f.isOpen) {
     popoverHtml = `
-      <div class="agenda-popover" id="goal_popover">
+      <div class="agenda-popover" id="goal_popover" style="min-width:265px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <b style="font-size:12px;color:var(--ink)">📅 Filtro de Metas</b>
           <button type="button" class="x" id="goal_popover_close" style="font-size:15px;padding:1px 5px">×</button>
@@ -1097,7 +1178,7 @@ function renderGoalFilterControl(allWeeksData) {
           <option value="all" ${f.mode==='all'?'selected':''}>Todas as semanas (histórico + futuras)</option>
           <option value="future" ${f.mode==='future'?'selected':''}>Apenas semanas futuras</option>
           <option value="past" ${f.mode==='past'?'selected':''}>Apenas semanas passadas</option>
-          <option value="custom" ${f.mode==='custom'?'selected':''}>Filtrar Ano / Mês abaixo</option>
+          <option value="custom" ${f.mode==='custom'?'selected':''}>Filtrar Ano / Mês / Datas abaixo</option>
         </select>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
@@ -1115,6 +1196,15 @@ function renderGoalFilterControl(allWeeksData) {
           </label>
         </div>
 
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <label style="font-size:11px;color:var(--mut)">Data inicial
+            <input type="date" id="goal_date_from" value="${esc(f.dateFrom||'')}" style="width:100%;font-size:11px;padding:4px 5px">
+          </label>
+          <label style="font-size:11px;color:var(--mut)">Data final
+            <input type="date" id="goal_date_to" value="${esc(f.dateTo||'')}" style="width:100%;font-size:11px;padding:4px 5px">
+          </label>
+        </div>
+
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;border-top:1px solid var(--line)">
           <button type="button" class="b s" id="goal_btn_clear" style="font-size:11px;padding:3px 7px">Limpar</button>
           <button type="button" class="b" id="goal_btn_apply" style="font-size:11px;padding:3px 10px">Aplicar</button>
@@ -1126,7 +1216,7 @@ function renderGoalFilterControl(allWeeksData) {
   return `
     <div style="position:relative">
       <button type="button" class="b s" id="goal_btn_toggle_popover" style="font-size:11.5px;padding:4px 9px;display:inline-flex;align-items:center;gap:5px;border-radius:7px;background:var(--bg)">
-        <span>📅 Mês/Ano: <b>${label}</b></span>
+        <span>📅 Mês/Ano: <b>${esc(label)}</b></span>
         <span style="font-size:9.5px;opacity:0.7">${f.isOpen ? '▲' : '▾'}</span>
       </button>
       ${popoverHtml}
@@ -1151,13 +1241,14 @@ async function syncWeekMetricsWithAppts(persist = true) {
       let weekChanged = false;
 
       const m = computeWeekApptMetrics(id, start, end, allAppts);
-      const nextCagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData);
-      const nextCprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData);
-      const nextCreal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData);
-      const nextCcanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData);
-      const nextCfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData);
-      const nextCreag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData);
-      const nextAgend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData);
+      const manLock = raw._manual || {};
+      const nextCagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData, !!manLock.cagend);
+      const nextCprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData, !!manLock.cprev);
+      const nextCreal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData, !!manLock.creal);
+      const nextCcanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData, !!manLock.ccanc);
+      const nextCfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData, !!manLock.cfaltou);
+      const nextCreag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData, !!manLock.creag);
+      const nextAgend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData, !!manLock.agend);
 
       if (raw.cagend !== nextCagend || raw.cprev !== nextCprev || raw.creal !== nextCreal || raw.ccanc !== nextCcanc || raw.cfaltou !== nextCfaltou || raw.creag !== nextCreag || raw.agend !== nextAgend) {
         raw.cagend = nextCagend;
@@ -2024,8 +2115,8 @@ function ev(expr,ws){
 
   const g = (f, w) => {
     if (f === 'msgs') return msgs(w);
-    if (f === 'tot') return (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0);
-    if (f === 'cprev') return w.cprev || ((w.creal || 0) + (w.ccanc || 0) + (w.creag || 0));
+    if (f === 'tot') return (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0);
+    if (f === 'cprev') return getEffectiveCprev(w);
 
     const mf = allMetricFields.find(m => m.key === f);
     if (mf && mf.isAppt && typeof mf.getter === 'function') {
@@ -3053,7 +3144,7 @@ function dash(){
     .map(c => wrapCustomChartCard(c))
     .join('');
 
-  // Gráfico de Acompanhamento de Metas por Semana (mesmo filtro de período da Agenda)
+  // Gráfico de Acompanhamento de Metas por Semana
   const allGoalsForChart = getUnifiedGoalsList();
   let goalTrackingHtml = '';
   if (allGoalsForChart.length > 0) {
@@ -3061,15 +3152,16 @@ function dash(){
       ? window._selectedGoalChartId
       : allGoalsForChart[0].id;
     const activeG = allGoalsForChart.find(g => g.id === selGoalId) || allGoalsForChart[0];
-    const gf = window.goalFilter || { mode: 'all', year: 'all', month: 'all', sort: 'asc' };
+    const gf = window.goalFilter || { mode: 'all', year: 'all', month: 'all', dateFrom: '', dateTo: '', sort: 'asc' };
+    const goalWeeksAll = getGoalChartWeeks(activeG.metric);
 
-    let filteredGoalWeeks = WA;
+    let filteredGoalWeeks = goalWeeksAll;
     if (gf.mode === 'future') {
-      filteredGoalWeeks = WA.filter(w => w.id >= curSat || w.id >= today());
+      filteredGoalWeeks = goalWeeksAll.filter(w => w.id >= curSat || w.id >= today());
     } else if (gf.mode === 'past') {
-      filteredGoalWeeks = WA.filter(w => w.id < curSat && w.id < today());
+      filteredGoalWeeks = goalWeeksAll.filter(w => w.id < curSat && w.id < today());
     } else if (gf.year !== 'all' || gf.month !== 'all') {
-      filteredGoalWeeks = WA.filter(w => {
+      filteredGoalWeeks = goalWeeksAll.filter(w => {
         const parts = (w.id || '').split('-');
         if (parts.length < 2) return false;
         const y = parts[0];
@@ -3079,37 +3171,114 @@ function dash(){
         return true;
       });
     }
+    if (gf.dateFrom) filteredGoalWeeks = filteredGoalWeeks.filter(w => w.id >= gf.dateFrom);
+    if (gf.dateTo) filteredGoalWeeks = filteredGoalWeeks.filter(w => w.id <= gf.dateTo);
+
     const wsGoal = filteredGoalWeeks.slice().sort((a, b) => (gf.sort === 'desc' ? b.id.localeCompare(a.id) : a.id.localeCompare(b.id)));
 
-    const getWeekMetricVal = (w, mKey) => {
+    const getWeekMetricVal = (w, mKey, goalObj) => {
+      const customM = (cfg.metrics || []).find(cmItem => cmItem.id === mKey || cmItem.title === mKey);
+      if (customM) {
+        try { return ev(customM.expr, [w]); } catch(e) { return 0; }
+      }
+      if (mKey === 'cprev') return w.cprevEffective != null ? w.cprevEffective : getEffectiveCprev(w);
       if (mKey === 'tg') return pct(w.cagend || 0, w.ativas || 0);
       if (mKey === 'conv') return pct(w.agend || 0, w.resp || 0);
-      if (mKey === 'convNovos') return pct(w.agend || 0, w.novos || 0);
-      if (mKey === 'resp') return pct(w.resp || 0, msgs(w));
-      if (mKey === 'comp') { const t = (w.creal||0)+(w.creag||0)+(w.ccanc||0); return pct(w.creal||0, t); }
-      if (mKey === 'canc') { const t = weekTotalConsultas(w); return pct(w.ccanc||0, t); }
-      if (mKey === 'creag') { const t = weekTotalConsultas(w); return pct(w.creag||0, t); }
+      if (mKey === 'convNovos') {
+        const idxW = goalWeeksAll.findIndex(x => x.id === w.id);
+        const { start, end } = getWeekWindow(w.id, goalWeeksAll.map(x => x.id), idxW >= 0 ? idxW : 0);
+        const novosAg = Object.values(appts || {}).filter(a => {
+          const s = normIso(a.schedOn) || normIso(a.consult);
+          return a.origin === 'novo' && s >= start && s <= end;
+        }).length;
+        return pct(novosAg, w.novos || 0);
+      }
+      if (mKey === 'resp') {
+        if (goalObj && goalObj.unit === 'num') return Number(w.resp || 0);
+        return pct(w.resp || 0, msgs(w));
+      }
+      if (mKey === 'comp') {
+        const t = (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0);
+        return pct(w.creal || 0, t);
+      }
+      if (mKey === 'canc') {
+        if (goalObj && goalObj.unit === 'num') return Number(w.ccanc || 0);
+        const t = weekTotalConsultas(w);
+        return pct(w.ccanc || 0, t);
+      }
+      if (mKey === 'creag') {
+        if (goalObj && goalObj.unit === 'pct') {
+          const t = weekTotalConsultas(w);
+          return pct(w.creag || 0, t);
+        }
+        return Number(w.creag || 0);
+      }
+      if (mKey === 'msgs') return msgs(w);
+      if (mKey === 'tot') return weekTotalConsultas(w);
       return Number(w[mKey] || 0);
     };
     const isPctGoal = activeG.unit === 'pct';
     const LGoal = wsGoal.map(w => fd(w.id));
     const fullCatsGoal = wsGoal.map(w => 'Semana de ' + fdf(w.id));
-    const gActuals = wsGoal.map(w => Math.round(getWeekMetricVal(w, activeG.metric) * 10) / 10);
-    const gTargetLine = wsGoal.map(() => Number(activeG.target) || 0);
+    const gActuals = wsGoal.map(w => Math.round(getWeekMetricVal(w, activeG.metric, activeG) * 10) / 10);
+    const gTargetLine = wsGoal.map(w => {
+      const spec = allGoalsForChart.find(g => g.metric === activeG.metric && (g.scope === 'week' || g.type === 'specific') && g.week === w.id);
+      if (spec) return Number(spec.target) || 0;
+      const rec = allGoalsForChart.find(g => g.metric === activeG.metric && isGoalApplicableToWeek(g, w.id));
+      if (rec) return Number(rec.target) || 0;
+      return Number(activeG.target) || 0;
+    });
     const gSer = [
       { n: activeG.label || activeG.metric, c: css('g'), v: gActuals },
       { n: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', c: css('a'), v: gTargetLine }
     ];
+    const ovGoals = stdOverrides.find(x => x.id === 'std_goals');
     const gControls = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-        ${renderGoalFilterControl(WA)}
+        ${renderGoalFilterControl(goalWeeksAll, ovGoals)}
         <select id="goal_chart_selector" style="font-size:11.5px;padding:3px 8px;min-height:28px">${allGoalsForChart.map(g => `<option value="${g.id}"${g.id===activeG.id?' selected':''}>${esc(g.label||g.metric)} (${g.target}${g.unit==='pct'?'%':''})</option>`).join('')}</select>
       </div>
     `;
     const gBody = wsGoal.length
       ? chart(LGoal, gSer, 'line', isPctGoal, fullCatsGoal)
       : '<p class="note" style="padding:16px 0">Nenhuma semana encontrada para este período.</p>';
-    goalTrackingHtml = renderStdOrOverride('std_goals', 'Acompanhamento de Metas por Semana', gSer, gBody, gControls);
+
+    if (ovGoals) {
+      if (!isChartVisible(ovGoals)) {
+        goalTrackingHtml = '';
+      } else {
+        const effOv = JSON.parse(JSON.stringify(ovGoals));
+        if (window._goalFilterExplicit) {
+          effOv.dateFrom = gf.dateFrom || '';
+          effOv.dateTo = gf.dateTo || '';
+          if (gf.dateFrom || gf.dateTo) effOv.periodFilter = 'custom_dates';
+          else if (gf.mode === 'future' || gf.mode === 'past') effOv.periodFilter = gf.mode;
+          else if (gf.year !== 'all' && gf.month !== 'all') effOv.periodFilter = 'ym:' + gf.year + '-' + String(Number(gf.month) + 1).padStart(2, '0');
+          else effOv.periodFilter = 'all';
+          if (gf.mode === 'all' && gf.year === 'all' && gf.month === 'all' && !gf.dateFrom && !gf.dateTo) {
+            effOv.filters = (effOv.filters || []).filter(r => r.field !== 'year' && r.field !== 'month' && r.field !== 'week_time' && r.field !== 'date_range');
+          } else if (gf.year !== 'all' || gf.month !== 'all') {
+            effOv.filters = (effOv.filters || []).filter(r => r.field !== 'year' && r.field !== 'month');
+            if (gf.year !== 'all') effOv.filters.push({ id: 'gf_y', field: 'year', op: 'eq', value: String(gf.year) });
+            if (gf.month !== 'all') effOv.filters.push({ id: 'gf_m', field: 'month', op: 'eq', value: String(Number(gf.month) + 1) });
+          }
+        } else if (gf.dateFrom || gf.dateTo || gf.mode !== 'all' || gf.year !== 'all' || gf.month !== 'all') {
+          if (gf.dateFrom) effOv.dateFrom = gf.dateFrom;
+          if (gf.dateTo) effOv.dateTo = gf.dateTo;
+          if (gf.mode === 'future' || gf.mode === 'past') effOv.periodFilter = gf.mode;
+          else if (gf.year !== 'all' && gf.month !== 'all') effOv.periodFilter = 'ym:' + gf.year + '-' + String(Number(gf.month) + 1).padStart(2, '0');
+        }
+        if (window._goalSelectorExplicit && effOv.dataSource === 'metas') {
+          effOv.series = [
+            { id: 'g_act', name: activeG.label || activeG.metric, source: 'semanas', field: activeG.metric, agg: isPctGoal ? 'PCT' : 'SUM', color: effOv.series?.[0]?.color || css('g') },
+            { id: 'g_tgt', name: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', source: 'metas', field: 'goal_target_' + activeG.id, agg: 'SUM', color: effOv.series?.[1]?.color || css('a') }
+          ];
+        }
+        goalTrackingHtml = wrapCustomChartCard(effOv, gControls);
+      }
+    } else {
+      goalTrackingHtml = renderStdOrOverride('std_goals', 'Acompanhamento de Metas por Semana', gSer, gBody, gControls);
+    }
   }
 
   setTimeout(enableChartScrollDragging, 50);
@@ -3900,7 +4069,17 @@ $('#ws').onclick=async()=>{
   id=normalizeDateStr(id,new Date().getFullYear());
   if(!id)return toast('Escolha a data da semana');
   const formData=readForm();
-  weeks[id]={...(weeks[id]||{}),...formData,id};
+  const prevManual=(weeks[id]&&weeks[id]._manual)||{};
+  const nextManual={...prevManual};
+  const keysList=Object.keys(weeks||{}).concat(weeks[id]?[]:[id]).sort();
+  const idxW=keysList.indexOf(id);
+  const {start,end}=getWeekWindow(id,keysList,idxW>=0?idxW:0);
+  const m=computeWeekApptMetrics(id,start,end,Object.values(appts||{}));
+  ['cagend','cprev','creal','ccanc','cfaltou','creag','agend'].forEach(k=>{
+    if(Number(formData[k]||0)!==Number(m[k]||0)) nextManual[k]=true;
+    else delete nextManual[k];
+  });
+  weeks[id]={...(weeks[id]||{}),...formData,_manual:nextManual,id};
   try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
   await saveDoc('weeks/'+id,weeks[id]);
   await syncWeekMetricsWithAppts(true);
@@ -4372,12 +4551,14 @@ $('#dash').onclick = async e => {
   }
   const btnClearGoal = t.closest('#goal_btn_clear');
   if (btnClearGoal) {
-    window.goalFilter = { mode: 'all', year: 'all', month: 'all', search: '', sort: 'asc', isOpen: true };
+    window._goalFilterExplicit = true;
+    window.goalFilter = { mode: 'all', year: 'all', month: 'all', dateFrom: '', dateTo: '', search: '', sort: 'asc', isOpen: true };
     forceRender();
     return;
   }
   const btnApplyGoal = t.closest('#goal_btn_apply');
   if (btnApplyGoal) {
+    window._goalFilterExplicit = true;
     window.goalFilter.isOpen = false;
     forceRender();
     return;
@@ -4468,27 +4649,47 @@ $('#dash').onchange = e => {
   }
   if (t.id === 'goal_chart_selector') {
     window._selectedGoalChartId = t.value;
+    window._goalSelectorExplicit = true;
     forceRender();
     return;
   }
   if (t.id === 'goal_sel_mode') {
+    window._goalFilterExplicit = true;
     window.goalFilter.mode = t.value;
     if (t.value !== 'custom') {
       window.goalFilter.year = 'all';
       window.goalFilter.month = 'all';
+      window.goalFilter.dateFrom = '';
+      window.goalFilter.dateTo = '';
     }
     forceRender();
     return;
   }
   if (t.id === 'goal_sel_year') {
+    window._goalFilterExplicit = true;
     window.goalFilter.mode = 'custom';
     window.goalFilter.year = t.value;
     forceRender();
     return;
   }
   if (t.id === 'goal_sel_month') {
+    window._goalFilterExplicit = true;
     window.goalFilter.mode = 'custom';
     window.goalFilter.month = t.value;
+    forceRender();
+    return;
+  }
+  if (t.id === 'goal_date_from') {
+    window._goalFilterExplicit = true;
+    window.goalFilter.mode = 'custom';
+    window.goalFilter.dateFrom = t.value || '';
+    forceRender();
+    return;
+  }
+  if (t.id === 'goal_date_to') {
+    window._goalFilterExplicit = true;
+    window.goalFilter.mode = 'custom';
+    window.goalFilter.dateTo = t.value || '';
     forceRender();
     return;
   }
@@ -4748,10 +4949,19 @@ $('#wl').addEventListener('click',async e=>{
   const t=e.target,d=t.dataset;
   if(d.we){editRow=editRow===d.we?null:d.we;$('#wl').innerHTML=weekList();return}
   if(d.ws){
-    const id=d.ws,o={...weeks[id]};
+    const id=d.ws,w0=weeks[id]||{},o={...w0};
     document.querySelectorAll('#wl [data-ek]').forEach(i=>{o[i.dataset.ek]=Math.max(0,parseInt(i.value)||0)});
+    const nextManual={...(w0._manual||{})};
+    const keysList=Object.keys(weeks||{}).sort();
+    const idxW=keysList.indexOf(id);
+    const {start,end}=getWeekWindow(id,keysList,idxW>=0?idxW:0);
+    const m=computeWeekApptMetrics(id,start,end,Object.values(appts||{}));
+    ['cagend','cprev','creal','ccanc','cfaltou','creag','agend'].forEach(k=>{
+      if(Number(o[k]||0)!==Number(m[k]||0)) nextManual[k]=true;
+      else delete nextManual[k];
+    });
     editRow=null;
-    weeks[id]={...(weeks[id]||{}),...o,id};
+    weeks[id]={...w0,...o,_manual:nextManual,id};
     try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
     await saveDoc('weeks/'+id,weeks[id]);
     await syncWeekMetricsWithAppts(true);
@@ -5154,8 +5364,21 @@ window.KommoApp = {
   get weeks() { return weeks; },
   get appts() { return appts; },
   get cfg() { return cfg; },
+  get excelFilter() { return window.excelFilter; },
+  get agendaFilter() { return window.agendaFilter; },
+  get goalFilter() { return window.goalFilter; },
+  get selectedGoalChartId() { return window._selectedGoalChartId; },
   W,
+  getGoalChartWeeks,
   getAgendaWeeksData,
+  getEffectiveCprev,
+  weekTotalConsultas,
+  msgs,
+  today,
+  getSaturdayOfWeek,
+  getWeekWindow,
+  computeWeekApptMetrics,
+  isGoalApplicableToWeek,
   FIELDS,
   ORIG,
   STAT,
