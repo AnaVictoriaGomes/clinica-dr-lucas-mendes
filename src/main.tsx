@@ -46,3 +46,4 @@ if (grafEl && !grafEl.classList.contains('hide')) {
     console.error('Erro ao renderizar aba de gráficos:', err);
   }
 }
+
