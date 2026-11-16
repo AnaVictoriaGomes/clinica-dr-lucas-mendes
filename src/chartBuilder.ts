@@ -23,6 +23,16 @@ export interface SeriesItem {
   color: string;
 }
 
+export type StudioFilterOp = 'eq' | 'neq' | 'contains' | 'gte' | 'lte' | 'between';
+
+export interface StudioFilterRule {
+  id: string;
+  field: string;
+  op: StudioFilterOp;
+  value: string;
+  value2?: string;
+}
+
 export interface StudioChartCfg {
   id: string;
   title: string;
@@ -34,9 +44,12 @@ export interface StudioChartCfg {
   xAxisSeries?: string[];
   xAxisGrouping: 'individual' | 'week' | 'month' | 'quarter' | 'year' | 'weekday';
   xAxisSort: 'asc' | 'desc';
-  periodFilter: 'all' | 'last4' | 'last8' | 'last12' | 'last' | 'penultimate' | string;
+  periodFilter: 'all' | 'last4' | 'last8' | 'last12' | 'last' | 'penultimate' | 'past' | 'future' | 'custom_dates' | string;
+  dateFrom?: string;
+  dateTo?: string;
   originFilter: string;
   statusFilter: string;
+  filters?: StudioFilterRule[];
   series: SeriesItem[];
   showInDashboard: boolean;
   hidden?: boolean;
@@ -91,9 +104,101 @@ function aggregateNums(nums: number[], agg: StudioAgg, distinctSet?: Set<string>
   return nums.reduce((x, y) => x + y, 0);
 }
 
+function resolveWeekMetricValue(w: any, fieldKey: string, app: any, allAppts: any[], goalObj?: any): number {
+  const cfg = app.cfg || {};
+  const pct = app.pct || ((a: number, b: number) => b ? (a / b * 100) : 0);
+  const normIso = app.normIso || ((s: string) => s);
+  const msgsFn = app.msgs || ((x: any) => (x.fu2 || 0) + (x.fu3 || 0) + (x.fu4 || 0) + (x.fu5 || 0));
+  const totConsultas = app.weekTotalConsultas
+    ? app.weekTotalConsultas(w)
+    : Math.max(w.ctot || 0, w.cprev || 0, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0));
+
+  const customM = (cfg.metrics || []).find((m: any) => m.id === fieldKey || m.title === fieldKey);
+  if (customM && app.ev) {
+    try { return Number(app.ev(customM.expr, [w])) || 0; } catch { return 0; }
+  }
+
+  if (fieldKey === 'cprev') {
+    if (w.cprevEffective != null) return Number(w.cprevEffective) || 0;
+    if (app.getEffectiveCprev) return Number(app.getEffectiveCprev(w)) || 0;
+    return Number(w.cprev) || 0;
+  }
+  if (fieldKey === 'msgs') return Number(msgsFn(w)) || 0;
+  if (fieldKey === 'tot') return Number(totConsultas) || 0;
+  if (fieldKey === 'taxa_resp' || (fieldKey === 'resp' && goalObj?.unit === 'pct')) {
+    return pct(w.resp || 0, msgsFn(w));
+  }
+  if (fieldKey === 'taxa_conv' || fieldKey === 'conv') {
+    return pct(w.agend || 0, w.resp || 0);
+  }
+  if (fieldKey === 'taxa_agend_geral' || fieldKey === 'tg') {
+    return pct(w.cagend || 0, w.ativas || 0);
+  }
+  if (fieldKey === 'convNovos') {
+    const start = w.id;
+    const end = app.addDays ? app.addDays(w.id, 6) : w.id;
+    const novosAg = allAppts.filter(a => {
+      const s = normIso(a.schedOn) || normIso(a.consult);
+      return a.origin === 'novo' && s >= start && s <= end;
+    }).length;
+    return pct(novosAg, w.novos || 0);
+  }
+  if (fieldKey === 'comp') {
+    const t = (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0);
+    return pct(w.creal || 0, t);
+  }
+  if (fieldKey === 'canc') {
+    return goalObj?.unit === 'num' ? (Number(w.ccanc) || 0) : pct(w.ccanc || 0, totConsultas);
+  }
+  if (fieldKey === 'creag' && goalObj?.unit === 'pct') {
+    return pct(w.creag || 0, totConsultas);
+  }
+  return Number(w[fieldKey]) || 0;
+}
+
+function matchScalarRule(rawVal: string | number, op: StudioFilterOp, val1: string, val2 = '', isNumeric = false): boolean {
+  if (!val1 && op !== 'eq' && op !== 'neq') return true;
+  if (isNumeric) {
+    const num = Number(rawVal) || 0;
+    const n1 = parseFloat(String(val1).replace(',', '.'));
+    const n2 = parseFloat(String(val2).replace(',', '.'));
+    if (isNaN(n1)) return true;
+    if (op === 'eq') return num === n1;
+    if (op === 'neq') return num !== n1;
+    if (op === 'gte') return num >= n1;
+    if (op === 'lte') return num <= n1;
+    if (op === 'between') {
+      if (!isNaN(n2)) return num >= Math.min(n1, n2) && num <= Math.max(n1, n2);
+      return num >= n1;
+    }
+    return String(num).includes(String(val1));
+  }
+  const s = String(rawVal ?? '').trim().toLowerCase();
+  const v1 = String(val1 ?? '').trim().toLowerCase();
+  const v2 = String(val2 ?? '').trim().toLowerCase();
+  if (op === 'eq') return s === v1;
+  if (op === 'neq') return s !== v1;
+  if (op === 'contains') return s.includes(v1);
+  if (op === 'gte') return s >= v1;
+  if (op === 'lte') return s <= v1;
+  if (op === 'between') {
+    if (v1 && s < v1) return false;
+    if (v2 && s > v2) return false;
+    return true;
+  }
+  return true;
+}
+
+const APPT_RULE_FIELDS = new Set(['origin', 'status', 'regained', 'statusNewDate', 'patient']);
+const WEEK_TIME_FIELDS = new Set(['year', 'month', 'week_id', 'week_id_in', 'week_time', 'date_range']);
+
 export function computeStudioChartData(c: StudioChartCfg) {
   const app = getApp();
-  const WA: any[] = app.W ? app.W() : [];
+  const ds = c.dataSource || 'semanas';
+  const firstGoalSeries = (c.series || []).find(s => s.field && !s.field.startsWith('goal_target_'));
+  const WA: any[] = ds === 'metas' && app.getGoalChartWeeks
+    ? app.getGoalChartWeeks(firstGoalSeries?.field)
+    : (app.W ? app.W() : []);
   const allAppts: any[] = Object.values(app.appts || {});
   const cfg = app.cfg || {};
   const ORIG = app.ORIG || {};
@@ -104,6 +209,9 @@ export function computeStudioChartData(c: StudioChartCfg) {
   const normIso = app.normIso || ((s: string) => s);
   const addDays = app.addDays || ((s: string) => s);
   const pct = app.pct || ((a: number, b: number) => b ? (a / b * 100) : 0);
+  const todayStr = app.today ? app.today() : new Date().toISOString().slice(0, 10);
+  const curSat = app.getSaturdayOfWeek ? app.getSaturdayOfWeek(todayStr) : todayStr;
+  const rules: StudioFilterRule[] = Array.isArray(c.filters) ? c.filters : [];
 
   let filteredWeeks = [...WA];
   if (c.periodFilter === 'last4') filteredWeeks = WA.slice(-4);
@@ -112,14 +220,77 @@ export function computeStudioChartData(c: StudioChartCfg) {
   else if (c.periodFilter === 'last') filteredWeeks = WA.slice(-1);
   else if (c.periodFilter === 'penultimate') {
     filteredWeeks = WA.length >= 2 ? [WA[WA.length - 2]] : WA.slice(-1);
+  } else if (c.periodFilter === 'past') {
+    filteredWeeks = WA.filter(w => w.id < curSat && w.id < todayStr);
+  } else if (c.periodFilter === 'future') {
+    filteredWeeks = WA.filter(w => w.id >= curSat || w.id >= todayStr);
   } else if (c.periodFilter && c.periodFilter.startsWith('ym:')) {
     const ym = c.periodFilter.slice(3);
     filteredWeeks = WA.filter(w => w.id && w.id.startsWith(ym + '-'));
   }
 
+  if (c.dateFrom) {
+    filteredWeeks = filteredWeeks.filter(w => w.id >= c.dateFrom!);
+  }
+  if (c.dateTo) {
+    filteredWeeks = filteredWeeks.filter(w => w.id <= c.dateTo!);
+  }
+
+  // Apply structured rules to weeks
+  const numericWeekFields = new Set([
+    ...(app.FIELDS || []).map((f: any) => f[0]),
+    'cprev', 'msgs', 'tot', 'tg', 'conv', 'convNovos', 'comp', 'canc',
+    'taxa_resp', 'taxa_conv', 'taxa_agend_geral',
+    ...(cfg.metrics || []).flatMap((m: any) => [m.id, m.title])
+  ]);
+
+  if (rules.length > 0) {
+    filteredWeeks = filteredWeeks.filter(w => {
+      for (const r of rules) {
+        if (!r || !r.field || APPT_RULE_FIELDS.has(r.field)) continue;
+        if (ds === 'planilha' && !WEEK_TIME_FIELDS.has(r.field)) continue;
+        if (r.field === 'year') {
+          if (!r.value) continue;
+          const y = String(w.id || '').slice(0, 4);
+          if (!matchScalarRule(y, r.op, r.value)) return false;
+        } else if (r.field === 'month') {
+          if (!r.value) continue;
+          const mNum = String(parseInt(String(w.id || '').split('-')[1] || '0', 10));
+          const targetM = String(parseInt(r.value, 10));
+          if (!matchScalarRule(mNum, r.op, targetM)) return false;
+        } else if (r.field === 'week_id') {
+          if (!r.value && !r.value2) continue;
+          if (!matchScalarRule(w.id || '', r.op, r.value, r.value2)) return false;
+        } else if (r.field === 'week_id_in') {
+          const list = String(r.value || '').split(',').map(s => s.trim()).filter(Boolean);
+          if (list.length) {
+            const has = list.includes(w.id);
+            if (r.op === 'neq' ? has : !has) return false;
+          }
+        } else if (r.field === 'week_time') {
+          const isFuture = w.id >= curSat || w.id >= todayStr;
+          const wantsFuture = r.value === 'future';
+          if (r.op === 'neq' ? (isFuture === wantsFuture) : (isFuture !== wantsFuture)) return false;
+        } else if (r.field === 'date_range') {
+          if (r.value && w.id < r.value) return false;
+          if (r.value2 && w.id > r.value2) return false;
+        } else if (numericWeekFields.has(r.field)) {
+          if (r.value === '' && r.value2 === '') continue;
+          const val = resolveWeekMetricValue(w, r.field, app, allAppts);
+          if (!matchScalarRule(val, r.op, r.value, r.value2, true)) return false;
+        }
+      }
+      return true;
+    });
+  }
+
   let periodStart = '';
   let periodEnd = '';
-  if (c.periodFilter && c.periodFilter !== 'all' && filteredWeeks.length) {
+  const hasWeekRestriction = (c.periodFilter && c.periodFilter !== 'all' && c.periodFilter !== 'custom_dates')
+    || !!c.dateFrom
+    || !!c.dateTo
+    || rules.some(r => WEEK_TIME_FIELDS.has(r.field));
+  if (hasWeekRestriction && filteredWeeks.length) {
     periodStart = filteredWeeks[0].id;
     periodEnd = addDays(filteredWeeks[filteredWeeks.length - 1].id, 6);
   }
@@ -127,14 +298,39 @@ export function computeStudioChartData(c: StudioChartCfg) {
   const filteredAppts = allAppts.filter(a => {
     if (c.originFilter && a.origin !== c.originFilter) return false;
     if (c.statusFilter && a.status !== c.statusFilter) return false;
-    if (periodStart && periodEnd) {
-      const dt = normIso(a.consult) || normIso(a.schedOn) || normIso(a.newDate);
-      if (!dt || dt < periodStart || dt > periodEnd) return false;
+    const dt = normIso(a.newDate) || normIso(a.consult) || normIso(a.schedOn);
+    if (c.dateFrom && (!dt || dt < c.dateFrom)) return false;
+    if (c.dateTo && (!dt || dt > c.dateTo)) return false;
+    if (periodStart && periodEnd && !c.dateFrom && !c.dateTo) {
+      const anyDt = normIso(a.consult) || normIso(a.schedOn) || normIso(a.newDate);
+      if (!anyDt || anyDt < periodStart || anyDt > periodEnd) return false;
+    }
+    for (const r of rules) {
+      if (!r || !r.field) continue;
+      if (r.field === 'origin' && r.value !== '') {
+        if (!matchScalarRule(a.origin || '', r.op, r.value)) return false;
+      } else if (r.field === 'status' && r.value !== '') {
+        if (!matchScalarRule(a.status || 'agendada', r.op, r.value)) return false;
+      } else if (r.field === 'regained' && r.value !== '') {
+        if (!matchScalarRule(a.regained || '', r.op, r.value)) return false;
+      } else if (r.field === 'statusNewDate' && r.value !== '') {
+        if (!matchScalarRule(a.statusNewDate || '', r.op, r.value)) return false;
+      } else if (r.field === 'patient' && r.value !== '') {
+        if (!matchScalarRule(a.patient || '', r.op, r.value)) return false;
+      } else if (r.field === 'date_range') {
+        if (r.value && (!dt || dt < r.value)) return false;
+        if (r.value2 && (!dt || dt > r.value2)) return false;
+      } else if (r.field === 'year' && r.value) {
+        if (!dt || !matchScalarRule(dt.slice(0, 4), r.op, r.value)) return false;
+      } else if (r.field === 'month' && r.value) {
+        if (!dt) return false;
+        const mNum = String(parseInt(dt.split('-')[1] || '0', 10));
+        if (!matchScalarRule(mNum, r.op, String(parseInt(r.value, 10)))) return false;
+      }
     }
     return true;
   });
 
-  const ds = c.dataSource || 'semanas';
   const xField = c.xAxisField || 'id';
   const extraXFields = (c.xAxisSeries || []).filter(f => f && f !== xField);
   const buckets: Record<string, { label: string; fullCat: string; weeks: any[]; appts: any[]; rows: any[] }> = {};
@@ -209,15 +405,17 @@ export function computeStudioChartData(c: StudioChartCfg) {
     return { key: v, label: v, fullCat: v };
   };
 
+  const goalsListAll = app.getUnifiedGoalsList ? app.getUnifiedGoalsList() : [];
+  let matchedRowCount = 0;
+
   if (ds === 'semanas' || ds === 'metas') {
-    const goals = app.getUnifiedGoalsList ? app.getUnifiedGoalsList() : [];
     filteredWeeks.forEach(w => {
       const bInfo = getGroupBucket(w.id, 'Semana de ');
       const extraParts = extraXFields.map(ef => String(w[ef] ?? '—'));
       const fullKey = extraParts.length ? `${bInfo.key}__${extraParts.join('__')}` : bInfo.key;
       const fullLabel = extraParts.length ? `${bInfo.label} · ${extraParts.join(' · ')}` : bInfo.label;
       const fullCat = extraParts.length ? `${bInfo.fullCat} · ${extraParts.join(' · ')}` : bInfo.fullCat;
-      if (!buckets[fullKey]) buckets[fullKey] = { label: fullLabel, fullCat, weeks: [], appts: [], rows: goals };
+      if (!buckets[fullKey]) buckets[fullKey] = { label: fullLabel, fullCat, weeks: [], appts: [], rows: goalsListAll };
       buckets[fullKey].weeks.push(w);
     });
   } else if (ds === 'consultas') {
@@ -263,7 +461,30 @@ export function computeStudioChartData(c: StudioChartCfg) {
     const sheets = cfg.spreadsheets || [];
     const sp = sheets.find((s: any) => s.id === c.spreadsheetId) || sheets[0];
     if (sp && Array.isArray(sp.rows)) {
-      sp.rows.forEach((r: any, idx: number) => {
+      const filteredRows = sp.rows.filter((r: any) => {
+        for (const rule of rules) {
+          if (!rule || !rule.field || WEEK_TIME_FIELDS.has(rule.field) || APPT_RULE_FIELDS.has(rule.field)) continue;
+          if (r[rule.field] === undefined && rule.value === '') continue;
+          const cell = r[rule.field];
+          const isNum = typeof cell === 'number' || (!isNaN(parseFloat(String(cell))) && isFinite(Number(cell)));
+          if (!matchScalarRule(cell ?? '', rule.op, rule.value, rule.value2, isNum && (rule.op === 'gte' || rule.op === 'lte' || rule.op === 'between'))) {
+            return false;
+          }
+        }
+        if (c.dateFrom || c.dateTo) {
+          const dateHeader = (sp.headers || []).find((h: string) => /data|date|dia|semana/i.test(h));
+          if (dateHeader && r[dateHeader]) {
+            const iso = normIso(String(r[dateHeader]));
+            if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+              if (c.dateFrom && iso < c.dateFrom) return false;
+              if (c.dateTo && iso > c.dateTo) return false;
+            }
+          }
+        }
+        return true;
+      });
+      matchedRowCount = filteredRows.length;
+      filteredRows.forEach((r: any, idx: number) => {
         const rawVal = r[xField];
         const baseKey = rawVal !== undefined && rawVal !== null && rawVal !== '' ? String(rawVal) : `Linha ${idx + 1}`;
         const extraVals = extraXFields.map(ef => String(r[ef] ?? '—'));
@@ -285,6 +506,10 @@ export function computeStudioChartData(c: StudioChartCfg) {
   const palette = getThemeColors();
 
   const series = (c.series || []).map((s, idx) => {
+    const linkedGoal = s.field.startsWith('goal_target_')
+      ? goalsListAll.find((g: any) => g.id === s.field.replace('goal_target_', ''))
+      : goalsListAll.find((g: any) => g.metric === s.field);
+
     const rawValues = sortedKeys.map(k => {
       const b = buckets[k];
 
@@ -298,10 +523,21 @@ export function computeStudioChartData(c: StudioChartCfg) {
         return aggregateNums(nums, s.agg);
       }
 
-      if (ds === 'metas' && s.field.startsWith('goal_target_')) {
+      if ((ds === 'metas' || s.source === 'metas') && s.field.startsWith('goal_target_')) {
         const gId = s.field.replace('goal_target_', '');
-        const goal = (b.rows || []).find((g: any) => g.id === gId);
-        return goal ? Number(goal.target) || 0 : 0;
+        const baseGoal = (b.rows || goalsListAll).find((g: any) => g.id === gId);
+        if (!baseGoal) return 0;
+        if (b.weeks.length && app.isGoalApplicableToWeek) {
+          const targets = b.weeks.map((w: any) => {
+            const spec = goalsListAll.find((g: any) => g.metric === baseGoal.metric && (g.scope === 'week' || g.type === 'specific') && g.week === w.id);
+            if (spec) return Number(spec.target) || 0;
+            const rec = goalsListAll.find((g: any) => g.metric === baseGoal.metric && app.isGoalApplicableToWeek(g, w.id));
+            if (rec) return Number(rec.target) || 0;
+            return Number(baseGoal.target) || 0;
+          });
+          return aggregateNums(targets, 'AVG');
+        }
+        return Number(baseGoal.target) || 0;
       }
 
       if (ds === 'consultas' || s.source === 'consultas') {
@@ -325,37 +561,43 @@ export function computeStudioChartData(c: StudioChartCfg) {
       }
 
       if (s.field === 'msgs') {
-        const vals = b.weeks.map(w => (w.fu2 || 0) + (w.fu3 || 0) + (w.fu4 || 0) + (w.fu5 || 0));
+        const vals = b.weeks.map(w => resolveWeekMetricValue(w, 'msgs', app, allAppts));
         return aggregateNums(vals, s.agg);
       }
       if (s.field === 'taxa_resp') {
-        const m = b.weeks.reduce((x, w) => x + (w.fu2 || 0) + (w.fu3 || 0) + (w.fu4 || 0) + (w.fu5 || 0), 0);
+        const m = b.weeks.reduce((x, w) => x + resolveWeekMetricValue(w, 'msgs', app, allAppts), 0);
         const r = b.weeks.reduce((x, w) => x + (w.resp || 0), 0);
         return pct(r, m);
       }
-      if (s.field === 'taxa_conv') {
+      if (s.field === 'taxa_conv' || s.field === 'conv') {
         const r = b.weeks.reduce((x, w) => x + (w.resp || 0), 0);
         const a = b.weeks.reduce((x, w) => x + (w.agend || 0), 0);
         return pct(a, r);
       }
-      if (s.field === 'taxa_agend_geral') {
+      if (s.field === 'taxa_agend_geral' || s.field === 'tg') {
         const at = b.weeks.reduce((x, w) => x + (w.ativas || 0), 0) / (b.weeks.length || 1);
         const ca = b.weeks.reduce((x, w) => x + (w.cagend || 0), 0);
         return pct(ca, at);
       }
 
-      const vals = b.weeks.map(w => Number(w[s.field]) || 0);
+      const vals = b.weeks.map(w => resolveWeekMetricValue(w, s.field, app, allAppts, linkedGoal));
       const dist = new Set(vals.map(String));
-      return aggregateNums(vals, s.agg, dist);
+      const effectiveAgg = (['comp', 'canc', 'convNovos', 'resp'].includes(s.field) && linkedGoal?.unit === 'pct') ? 'AVG' : s.agg;
+      return aggregateNums(vals, effectiveAgg, dist);
     });
 
     let finalValues = rawValues;
-    if (s.agg === 'PCT' && s.field !== 'taxa_resp' && s.field !== 'taxa_conv' && s.field !== 'taxa_agend_geral') {
+    const isBuiltInPct = ['taxa_resp', 'taxa_conv', 'taxa_agend_geral', 'tg', 'conv', 'convNovos', 'comp'].includes(s.field)
+      || (['canc', 'resp', 'creag'].includes(s.field) && linkedGoal?.unit === 'pct')
+      || (s.field.startsWith('goal_target_') && linkedGoal?.unit === 'pct')
+      || Boolean((cfg.metrics || []).find((cm: any) => (cm.id === s.field || cm.title === s.field) && cm.fmt === 'pct'));
+
+    if (s.agg === 'PCT' && !isBuiltInPct && !s.field.startsWith('goal_target_')) {
       const totalSum = rawValues.reduce((a, b) => a + Math.max(0, b), 0);
       finalValues = rawValues.map(v => totalSum > 0 ? (Math.max(0, v) / totalSum) * 100 : 0);
     }
 
-    const isPct = s.agg === 'PCT' || s.field === 'taxa_resp' || s.field === 'taxa_conv' || s.field === 'taxa_agend_geral';
+    const isPct = isBuiltInPct || (s.agg === 'PCT' && !s.field.startsWith('goal_target_'));
     return {
       n: (s.name && String(s.name).trim()) || s.field || `Série ${idx + 1}`,
       c: s.color || palette[idx % palette.length],
@@ -364,7 +606,16 @@ export function computeStudioChartData(c: StudioChartCfg) {
     };
   });
 
-  return { labels, series, categories };
+  return {
+    labels,
+    series,
+    categories,
+    meta: {
+      weekCount: filteredWeeks.length,
+      apptCount: filteredAppts.length,
+      rowCount: matchedRowCount
+    }
+  };
 }
 
 export const computeChartData = computeStudioChartData;
@@ -683,14 +934,81 @@ function createDefaultDraft(): StudioChartCfg {
     xAxisGrouping: 'individual',
     xAxisSort: 'asc',
     periodFilter: 'all',
+    dateFrom: '',
+    dateTo: '',
     originFilter: '',
     statusFilter: '',
+    filters: [],
     series: [
       { id: 's1', name: 'Novos leads', source: 'semanas', field: 'novos', agg: 'SUM', color: palette[0] },
       { id: 's2', name: 'Consultas agendadas', source: 'semanas', field: 'cagend', agg: 'SUM', color: palette[1] }
     ],
     showInDashboard: true
   };
+}
+
+function normalizeChartFilters(c: StudioChartCfg): StudioChartCfg {
+  if (!Array.isArray(c.filters)) c.filters = [];
+  if (c.originFilter && !c.filters.some(f => f.field === 'origin' && f.value === c.originFilter)) {
+    c.filters.push({ id: 'mig_orig', field: 'origin', op: 'eq', value: c.originFilter });
+  }
+  c.originFilter = '';
+  if (c.statusFilter && !c.filters.some(f => f.field === 'status' && f.value === c.statusFilter)) {
+    c.filters.push({ id: 'mig_stat', field: 'status', op: 'eq', value: c.statusFilter });
+  }
+  c.statusFilter = '';
+  return c;
+}
+
+function applyDashboardFilterToDraft(chartId: string, target: StudioChartCfg) {
+  const app = getApp();
+  if (!Array.isArray(target.filters)) target.filters = [];
+  if (chartId === 'std_goals') {
+    const gf = app.goalFilter || {};
+    if (gf.dateFrom) target.dateFrom = gf.dateFrom;
+    if (gf.dateTo) target.dateTo = gf.dateTo;
+    if (gf.dateFrom || gf.dateTo) target.periodFilter = 'custom_dates';
+    else if (gf.mode === 'future' || gf.mode === 'past') target.periodFilter = gf.mode;
+    else if (gf.year && gf.year !== 'all' && gf.month && gf.month !== 'all') {
+      target.periodFilter = 'ym:' + gf.year + '-' + String(Number(gf.month) + 1).padStart(2, '0');
+    } else {
+      if (gf.year && gf.year !== 'all' && !target.filters.some(f => f.field === 'year')) {
+        target.filters.push({ id: 'gf_y_' + Date.now().toString(36), field: 'year', op: 'eq', value: String(gf.year) });
+      }
+      if (gf.month != null && gf.month !== 'all' && !target.filters.some(f => f.field === 'month')) {
+        target.filters.push({ id: 'gf_m_' + Date.now().toString(36), field: 'month', op: 'eq', value: String(Number(gf.month) + 1) });
+      }
+    }
+    if (gf.sort === 'desc') target.xAxisSort = 'desc';
+  } else if (chartId === 'std_ag') {
+    const af = app.agendaFilter || {};
+    if (af.mode === 'future' || af.mode === 'past') target.periodFilter = af.mode;
+    else if (af.year && af.year !== 'all' && af.month && af.month !== 'all') {
+      target.periodFilter = 'ym:' + af.year + '-' + String(Number(af.month) + 1).padStart(2, '0');
+    } else {
+      if (af.year && af.year !== 'all' && !target.filters.some(f => f.field === 'year')) {
+        target.filters.push({ id: 'af_y_' + Date.now().toString(36), field: 'year', op: 'eq', value: String(af.year) });
+      }
+      if (af.month != null && af.month !== 'all' && !target.filters.some(f => f.field === 'month')) {
+        target.filters.push({ id: 'af_m_' + Date.now().toString(36), field: 'month', op: 'eq', value: String(Number(af.month) + 1) });
+      }
+    }
+    if (af.sort === 'desc') target.xAxisSort = 'desc';
+  } else if (['std_fu', 'std_rs', 'std_st', 'std_fl'].includes(chartId)) {
+    const ef = app.excelFilter || {};
+    if (ef.mode === 'last4' || ef.mode === 'last' || ef.mode === 'penultimate') {
+      target.periodFilter = ef.mode;
+    } else if (ef.mode === 'custom' && Array.isArray(ef.selected) && ef.selected.length > 0) {
+      target.filters = target.filters.filter(f => f.field !== 'week_id_in');
+      target.filters.push({
+        id: 'ef_sel_' + Date.now().toString(36),
+        field: 'week_id_in',
+        op: 'eq',
+        value: ef.selected.join(',')
+      });
+    }
+    if (ef.sort === 'desc') target.xAxisSort = 'desc';
+  }
 }
 
 function getXAxisOptions(ds: string, spreadsheetId?: string): { value: string; label: string }[] {
@@ -742,14 +1060,21 @@ function getYFieldOptions(ds: string, spreadsheetId?: string): { value: string; 
   };
 
   if (ds === 'semanas' || ds === 'cruzado' || ds === 'metas') {
+    pushOpt({ value: 'cprev', label: 'Consultas previstas da semana', group: 'Campos Semanais', source: 'semanas' });
     FIELDS.forEach(([k]) => {
       pushOpt({ value: k, label: lab(k), group: 'Campos Semanais', source: 'semanas' });
     });
-    pushOpt({ value: 'cprev', label: 'Consultas previstas da semana', group: 'Campos Semanais', source: 'semanas' });
     pushOpt({ value: 'msgs', label: 'Mensagens de follow-up (FU 2 a 5)', group: 'Campos Semanais', source: 'semanas' });
+    pushOpt({ value: 'tot', label: 'Total de consultas da semana', group: 'Campos Semanais', source: 'semanas' });
     pushOpt({ value: 'taxa_resp', label: 'Taxa de Resposta do Follow-up (%)', group: 'Taxas Calculadas', source: 'semanas' });
     pushOpt({ value: 'taxa_conv', label: 'Conversão do Follow-up (%)', group: 'Taxas Calculadas', source: 'semanas' });
     pushOpt({ value: 'taxa_agend_geral', label: 'Taxa Geral de Agendamento (%)', group: 'Taxas Calculadas', source: 'semanas' });
+    pushOpt({ value: 'convNovos', label: 'Conversão de Novos Leads (%)', group: 'Taxas Calculadas', source: 'semanas' });
+    pushOpt({ value: 'comp', label: 'Comparecimento (Check-in %)', group: 'Taxas Calculadas', source: 'semanas' });
+    pushOpt({ value: 'canc', label: 'Taxa de Cancelamento (%)', group: 'Taxas Calculadas', source: 'semanas' });
+    (cfg.metrics || []).forEach((m: any) => {
+      pushOpt({ value: m.id, label: m.title, group: 'Métricas Personalizadas', source: 'semanas' });
+    });
   }
 
   if (ds === 'metas') {
@@ -759,7 +1084,7 @@ function getYFieldOptions(ds: string, spreadsheetId?: string): { value: string; 
         value: 'goal_target_' + g.id,
         label: `Meta: ${g.label || g.metric} (${g.target}${g.unit === 'pct' ? '%' : ''})`,
         group: 'Linhas de Meta',
-        source: 'semanas'
+        source: 'metas'
       });
     });
   }
@@ -797,12 +1122,13 @@ export function startEditingChart(chartId: string) {
   const found = list.find(c => c.id === chartId);
   if (found) {
     editingChartId = found.id;
-    draftChart = JSON.parse(JSON.stringify(found));
+    draftChart = normalizeChartFilters(JSON.parse(JSON.stringify(found)));
   } else {
     const stdMap: Record<string, StudioChartCfg> = getStandardChartDefs();
     if (stdMap[chartId]) {
       editingChartId = chartId;
-      draftChart = JSON.parse(JSON.stringify(stdMap[chartId]));
+      draftChart = normalizeChartFilters(JSON.parse(JSON.stringify(stdMap[chartId])));
+      applyDashboardFilterToDraft(chartId, draftChart);
     }
   }
   renderGraficosTabContent();
@@ -810,6 +1136,33 @@ export function startEditingChart(chartId: string) {
 
 export function getStandardChartDefs(): Record<string, StudioChartCfg> {
   const palette = getThemeColors();
+  const app = getApp();
+  const goals = app.getUnifiedGoalsList ? app.getUnifiedGoalsList() : [];
+  const selGoalId = app.selectedGoalChartId;
+  const activeGoal = (selGoalId && goals.find((g: any) => g.id === selGoalId)) || goals[0];
+  const goalSeries: SeriesItem[] = activeGoal
+    ? [
+        {
+          id: 'g_act',
+          name: activeGoal.label || activeGoal.metric,
+          source: 'semanas',
+          field: activeGoal.metric,
+          agg: activeGoal.unit === 'pct' ? 'PCT' : 'SUM',
+          color: palette[0]
+        },
+        {
+          id: 'g_tgt',
+          name: `Meta (${activeGoal.target}${activeGoal.unit === 'pct' ? '%' : ''})`,
+          source: 'metas',
+          field: 'goal_target_' + activeGoal.id,
+          agg: 'SUM',
+          color: palette[2]
+        }
+      ]
+    : [
+        { id: 'g_act', name: 'Consultas previstas da semana', source: 'semanas', field: 'cprev', agg: 'SUM', color: palette[0] }
+      ];
+
   return {
     std_fu: {
       id: 'std_fu',
@@ -822,6 +1175,7 @@ export function getStandardChartDefs(): Record<string, StudioChartCfg> {
       periodFilter: 'all',
       originFilter: '',
       statusFilter: '',
+      filters: [],
       series: [
         { id: 'fu2', name: 'FU 2', source: 'semanas', field: 'fu2', agg: 'SUM', color: palette[1] },
         { id: 'fu3', name: 'FU 3', source: 'semanas', field: 'fu3', agg: 'SUM', color: palette[0] },
@@ -843,6 +1197,7 @@ export function getStandardChartDefs(): Record<string, StudioChartCfg> {
       periodFilter: 'all',
       originFilter: '',
       statusFilter: '',
+      filters: [],
       series: [
         { id: 'resp', name: 'Taxa de resposta', source: 'semanas', field: 'taxa_resp', agg: 'PCT', color: palette[1] },
         { id: 'conv', name: 'Respostas que viraram agendamento', source: 'semanas', field: 'taxa_conv', agg: 'PCT', color: palette[0] }
@@ -862,6 +1217,7 @@ export function getStandardChartDefs(): Record<string, StudioChartCfg> {
       periodFilter: 'all',
       originFilter: '',
       statusFilter: '',
+      filters: [],
       series: [
         { id: 'sr', name: 'Sem resposta', source: 'semanas', field: 'semresp', agg: 'SUM', color: palette[5] },
         { id: 'pe', name: 'Pensando ou pesquisando', source: 'semanas', field: 'pensando', agg: 'SUM', color: palette[2] },
@@ -883,6 +1239,7 @@ export function getStandardChartDefs(): Record<string, StudioChartCfg> {
       periodFilter: 'all',
       originFilter: '',
       statusFilter: '',
+      filters: [],
       series: [
         { id: 'cp', name: 'Previstas', source: 'semanas', field: 'cprev', agg: 'SUM', color: palette[1] },
         { id: 'cr', name: 'Realizadas', source: 'semanas', field: 'creal', agg: 'SUM', color: palette[0] },
@@ -904,6 +1261,7 @@ export function getStandardChartDefs(): Record<string, StudioChartCfg> {
       periodFilter: 'all',
       originFilter: '',
       statusFilter: '',
+      filters: [],
       series: [
         { id: 'nv', name: 'Novos leads', source: 'semanas', field: 'novos', agg: 'SUM', color: palette[0] },
         { id: 'rp', name: 'Respostas no follow-up', source: 'semanas', field: 'resp', agg: 'SUM', color: palette[1] },
@@ -922,11 +1280,12 @@ export function getStandardChartDefs(): Record<string, StudioChartCfg> {
       xAxisGrouping: 'individual',
       xAxisSort: 'asc',
       periodFilter: 'all',
+      dateFrom: '',
+      dateTo: '',
       originFilter: '',
       statusFilter: '',
-      series: [
-        { id: 'g_act', name: 'Consultas agendadas na semana', source: 'semanas', field: 'cagend', agg: 'SUM', color: palette[0] }
-      ],
+      filters: [],
+      series: goalSeries,
       showInDashboard: true,
       isStandardOverride: true,
       standardKey: 'std_goals'
@@ -945,8 +1304,9 @@ export function renderGraficosTabContent() {
   const STAT = app.STAT || {};
 
   if (!draftChart) draftChart = createDefaultDraft();
-  const c = draftChart;
+  const c = normalizeChartFilters(draftChart);
   if (!Array.isArray(c.xAxisSeries)) c.xAxisSeries = [];
+  if (!Array.isArray(c.filters)) c.filters = [];
 
   const xOptions = getXAxisOptions(c.dataSource, c.spreadsheetId);
   if (!xOptions.some(o => o.value === c.xAxisField)) {
@@ -956,9 +1316,182 @@ export function renderGraficosTabContent() {
   const sheets: any[] = cfg.spreadsheets || [];
   const customCharts: StudioChartCfg[] = cfg.customCharts || [];
   const stdDefs = getStandardChartDefs();
+  const WA_ALL: any[] = app.getGoalChartWeeks ? app.getGoalChartWeeks('cprev') : (app.W ? app.W() : []);
+  const MONTH_NAMES: string[] = app.MONTH_NAMES || ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const fdf = app.fdf || ((s: string) => s);
 
+  const computedPreview = computeStudioChartData(c);
   const previewHtml = renderStudioSvg(c).html;
   const metricHtmlStr = app.metricHtml ? app.metricHtml() : '';
+
+  const filterFieldOptions: { value: string; label: string; group: string }[] = [
+    { value: 'date_range', label: 'Intervalo de Datas (De / Até)', group: 'Datas e Semanas' },
+    { value: 'week_time', label: 'Janela Temporal (Passadas / Futuras)', group: 'Datas e Semanas' },
+    { value: 'year', label: 'Ano (AAAA)', group: 'Datas e Semanas' },
+    { value: 'month', label: 'Mês', group: 'Datas e Semanas' },
+    { value: 'week_id', label: 'Semana específica (Data da semana)', group: 'Datas e Semanas' },
+    { value: 'week_id_in', label: 'Lista de Semanas selecionadas', group: 'Datas e Semanas' }
+  ];
+  if (c.dataSource !== 'planilha') {
+    filterFieldOptions.push(
+      { value: 'cprev', label: 'Consultas previstas da semana', group: 'Indicadores Semanais' },
+      { value: 'cagend', label: 'Consultas agendadas na semana', group: 'Indicadores Semanais' },
+      { value: 'creal', label: 'Consultas realizadas na semana', group: 'Indicadores Semanais' },
+      { value: 'ccanc', label: 'Consultas canceladas da semana', group: 'Indicadores Semanais' },
+      { value: 'creag', label: 'Consultas reagendadas da semana', group: 'Indicadores Semanais' },
+      { value: 'novos', label: 'Novos leads', group: 'Indicadores Semanais' },
+      { value: 'ativas', label: 'Conversas ativas', group: 'Indicadores Semanais' },
+      { value: 'resp', label: 'Respostas recebidas no follow-up', group: 'Indicadores Semanais' },
+      { value: 'agend', label: 'Agendamentos pelo follow-up', group: 'Indicadores Semanais' },
+      { value: 'origin', label: 'Origem do Paciente (Veio de)', group: 'Consultas' },
+      { value: 'status', label: 'Status da Consulta', group: 'Consultas' },
+      { value: 'regained', label: 'Status Contato (Reagendamento)', group: 'Consultas' },
+      { value: 'statusNewDate', label: 'Status Nova Data', group: 'Consultas' },
+      { value: 'patient', label: 'Nome do Paciente', group: 'Consultas' }
+    );
+  } else {
+    const sp = sheets.find((s: any) => s.id === c.spreadsheetId) || sheets[0];
+    (sp?.headers || []).forEach((h: string) => {
+      filterFieldOptions.push({ value: h, label: h, group: 'Colunas da Planilha' });
+    });
+  }
+
+  const periodLabels: Record<string, string> = {
+    all: 'Todas as semanas',
+    custom_dates: 'Intervalo de datas personalizado',
+    past: 'Apenas semanas passadas',
+    future: 'Apenas semanas futuras / atual',
+    last4: 'Últimas 4 semanas',
+    last8: 'Últimas 8 semanas',
+    last12: 'Últimas 12 semanas',
+    last: 'Última semana lançada',
+    penultimate: 'Penúltima semana lançada'
+  };
+
+  const getRuleSummary = (r: StudioFilterRule) => {
+    const fLbl = filterFieldOptions.find(o => o.value === r.field)?.label || r.field;
+    const opMap: Record<StudioFilterOp, string> = {
+      eq: '=',
+      neq: '≠',
+      contains: 'contém',
+      gte: '≥',
+      lte: '≤',
+      between: 'entre'
+    };
+    let valDesc = r.value || '—';
+    if (r.field === 'origin') valDesc = ORIG[r.value] || r.value || 'Qualquer';
+    else if (r.field === 'status') valDesc = STAT[r.value] || r.value || 'Qualquer';
+    else if (r.field === 'month' && r.value) valDesc = MONTH_NAMES[parseInt(r.value, 10) - 1] || r.value;
+    else if (r.field === 'week_time') valDesc = r.value === 'future' ? 'Apenas futuras/atual' : 'Apenas passadas';
+    else if (r.field === 'week_id' && r.value) valDesc = fdf(r.value);
+    else if (r.field === 'week_id_in' && r.value) valDesc = `${r.value.split(',').filter(Boolean).length} semana(s)`;
+    else if (r.field === 'date_range') valDesc = `${r.value ? fdf(r.value) : 'Início'} até ${r.value2 ? fdf(r.value2) : 'Hoje'}`;
+    if (r.op === 'between' && r.field !== 'date_range' && r.value2) valDesc = `${r.value} e ${r.value2}`;
+    return `${fLbl} ${opMap[r.op] || r.op} ${valDesc}`;
+  };
+
+  const renderFilterValueInputs = (r: StudioFilterRule, idx: number) => {
+    const yearsAvail = Array.from(new Set(WA_ALL.map(w => String(w.id || '').slice(0, 4)).filter(Boolean))).sort();
+    if (r.field === 'date_range') {
+      return `
+        <input type="date" data-gf-idx="${idx}" data-gf-k="value" value="${esc(r.value || '')}" style="min-width:130px" title="Data inicial">
+        <span class="note" style="font-size:11px">até</span>
+        <input type="date" data-gf-idx="${idx}" data-gf-k="value2" value="${esc(r.value2 || '')}" style="min-width:130px" title="Data final">
+      `;
+    }
+    if (r.field === 'week_time') {
+      return `
+        <select data-gf-idx="${idx}" data-gf-k="value" style="min-width:160px">
+          <option value="past" ${r.value === 'past' ? 'selected' : ''}>Apenas semanas passadas</option>
+          <option value="future" ${r.value === 'future' ? 'selected' : ''}>Apenas futuras / atual</option>
+        </select>
+      `;
+    }
+    if (r.field === 'year') {
+      return `
+        <select data-gf-idx="${idx}" data-gf-k="value" style="min-width:120px">
+          <option value="">Selecione...</option>
+          ${yearsAvail.map(y => `<option value="${y}" ${r.value === y ? 'selected' : ''}>${y}</option>`).join('')}
+        </select>
+      `;
+    }
+    if (r.field === 'month') {
+      return `
+        <select data-gf-idx="${idx}" data-gf-k="value" style="min-width:150px">
+          <option value="">Selecione...</option>
+          ${MONTH_NAMES.map((m, i) => `<option value="${i + 1}" ${String(r.value) === String(i + 1) ? 'selected' : ''}>${m.charAt(0).toUpperCase() + m.slice(1)}</option>`).join('')}
+        </select>
+      `;
+    }
+    if (r.field === 'week_id') {
+      if (r.op === 'between') {
+        return `
+          <input type="date" data-gf-idx="${idx}" data-gf-k="value" value="${esc(r.value || '')}" style="min-width:130px">
+          <span class="note" style="font-size:11px">até</span>
+          <input type="date" data-gf-idx="${idx}" data-gf-k="value2" value="${esc(r.value2 || '')}" style="min-width:130px">
+        `;
+      }
+      return `
+        <select data-gf-idx="${idx}" data-gf-k="value" style="min-width:170px">
+          <option value="">Selecione uma semana...</option>
+          ${WA_ALL.slice().reverse().map(w => `<option value="${w.id}" ${r.value === w.id ? 'selected' : ''}>${fdf(w.id)}</option>`).join('')}
+        </select>
+      `;
+    }
+    if (r.field === 'week_id_in') {
+      const selArr = String(r.value || '').split(',').map(s => s.trim()).filter(Boolean);
+      return `
+        <input type="text" data-gf-idx="${idx}" data-gf-k="value" value="${esc(r.value || '')}" placeholder="Ex: 2026-10-03,2026-10-10" style="flex:1;min-width:180px" title="Datas separadas por vírgula (${selArr.length} selecionada(s))">
+      `;
+    }
+    if (r.field === 'origin') {
+      return `
+        <select data-gf-idx="${idx}" data-gf-k="value" style="min-width:170px">
+          <option value="">Todas</option>
+          ${Object.entries(ORIG).map(([k, v]: any) => `<option value="${esc(k)}" ${r.value === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}
+        </select>
+      `;
+    }
+    if (r.field === 'status') {
+      return `
+        <select data-gf-idx="${idx}" data-gf-k="value" style="min-width:170px">
+          <option value="">Todos</option>
+          ${Object.entries(STAT).map(([k, v]: any) => `<option value="${esc(k)}" ${r.value === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}
+        </select>
+      `;
+    }
+    if (r.field === 'regained') {
+      const regOpts = [['', 'Nenhum'], ['contato', 'Em contato'], ['sim', 'Conseguimos reagendar'], ['nao', 'Não conseguiu']];
+      return `
+        <select data-gf-idx="${idx}" data-gf-k="value" style="min-width:170px">
+          ${regOpts.map(([k, v]) => `<option value="${k}" ${r.value === k ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      `;
+    }
+    if (r.field === 'statusNewDate') {
+      const stNewOpts = [['', 'Pendente'], ['compareceu', 'Compareceu'], ['nao_compareceu', 'Não compareceu'], ['aguardando', 'Aguardando data'], ['reagendou', 'Reagendou novamente'], ['cancelou', 'Cancelou']];
+      return `
+        <select data-gf-idx="${idx}" data-gf-k="value" style="min-width:170px">
+          ${stNewOpts.map(([k, v]) => `<option value="${k}" ${r.value === k ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      `;
+    }
+    return `
+      <input type="text" data-gf-idx="${idx}" data-gf-k="value" value="${esc(r.value || '')}" placeholder="Valor..." style="min-width:110px;flex:1">
+      ${r.op === 'between' ? `<span class="note" style="font-size:11px">e</span><input type="text" data-gf-idx="${idx}" data-gf-k="value2" value="${esc(r.value2 || '')}" placeholder="Até..." style="min-width:100px;flex:1">` : ''}
+    `;
+  };
+
+  const activeBadges: { id: string; text: string; kind: 'period' | 'dateFrom' | 'dateTo' | 'rule'; idx?: number }[] = [];
+  if (c.periodFilter && c.periodFilter !== 'all' && c.periodFilter !== 'custom_dates') {
+    const pTxt = c.periodFilter.startsWith('ym:') ? `Mês: ${c.periodFilter.slice(3)}` : (periodLabels[c.periodFilter] || c.periodFilter);
+    activeBadges.push({ id: 'b_period', text: `Período: ${pTxt}`, kind: 'period' });
+  }
+  if (c.dateFrom) activeBadges.push({ id: 'b_from', text: `Data inicial ≥ ${fdf(c.dateFrom)}`, kind: 'dateFrom' });
+  if (c.dateTo) activeBadges.push({ id: 'b_to', text: `Data final ≤ ${fdf(c.dateTo)}`, kind: 'dateTo' });
+  c.filters.forEach((r, idx) => {
+    activeBadges.push({ id: 'b_r_' + idx, text: getRuleSummary(r), kind: 'rule', idx });
+  });
 
   const allGalleryCharts: { def: StudioChartCfg; isStd: boolean; isOverride: boolean; isVisible: boolean }[] = [
     ...Object.values(stdDefs).map(std => {
@@ -984,7 +1517,7 @@ export function renderGraficosTabContent() {
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line)">
         <div>
           <h2 style="margin:0">${editingChartId ? '✏️ Editando Gráfico: ' + esc(c.title) : '🪄 Estúdio de Construção Livre de Gráficos'}</h2>
-          <p class="note" style="margin:3px 0 0">Configure livremente o Eixo X, o Eixo Y e o Modelo Visual para analisar qualquer cruzamento de dados em tempo real.</p>
+          <p class="note" style="margin:3px 0 0">Configure livremente o Eixo X, o Eixo Y, o Modelo Visual e os Filtros exatos para analisar os dados em tempo real.</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button type="button" class="b s" id="gb_btn_new">➕ Novo Gráfico</button>
@@ -1054,43 +1587,101 @@ export function renderGraficosTabContent() {
             <option value="desc" ${c.xAxisSort === 'desc' ? 'selected' : ''}>Decrescente (Recente → Antiga / Z → A)</option>
           </select>
         </label>
+      </div>
 
-        <label>Filtro de Período
-          <select id="gb_period">
-            <option value="all" ${c.periodFilter === 'all' ? 'selected' : ''}>Todas as semanas</option>
-            <option value="last4" ${c.periodFilter === 'last4' ? 'selected' : ''}>Últimas 4 semanas</option>
-            <option value="last8" ${c.periodFilter === 'last8' ? 'selected' : ''}>Últimas 8 semanas</option>
-            <option value="last12" ${c.periodFilter === 'last12' ? 'selected' : ''}>Últimas 12 semanas</option>
-            <option value="last" ${c.periodFilter === 'last' ? 'selected' : ''}>Última semana lançada</option>
-            <option value="penultimate" ${c.periodFilter === 'penultimate' ? 'selected' : ''}>Penúltima semana lançada</option>
-            ${(() => {
-              const WA: any[] = app.W ? app.W() : [];
-              const MONTH_NAMES: string[] = app.MONTH_NAMES || ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-              const ymSet = new Set<string>();
-              WA.forEach(w => { if (w.id && w.id.length >= 7) ymSet.add(w.id.slice(0, 7)); });
-              return Array.from(ymSet).sort().reverse().map(ym => {
-                const [y, m] = ym.split('-');
-                const mName = MONTH_NAMES[parseInt(m, 10) - 1] || m;
-                const lbl = mName.charAt(0).toUpperCase() + mName.slice(1) + '/' + y;
-                return `<option value="ym:${ym}" ${c.periodFilter === 'ym:' + ym ? 'selected' : ''}>Mês: ${lbl}</option>`;
-              }).join('');
-            })()}
-          </select>
-        </label>
+      <!-- Painel Preciso de Filtros Reais Aplicados e Filtro de Datas -->
+      <div style="margin-top:14px;padding:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+          <div>
+            <h3 style="margin:0;font-size:14px">🎯 Filtros Aplicados, Datas e Regras</h3>
+            <span class="note" style="font-size:12px">Visualize exatamente quais filtros estão ativos, edite o intervalo de datas, adicione novas condições ou remova filtros.</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${editingChartId && String(editingChartId).startsWith('std_') ? `<button type="button" class="b s" id="gb_btn_sync_dash_filter" style="font-size:11.5px;padding:4px 9px" title="Puxar o filtro que está aplicado no Painel neste momento">🔄 Importar Filtro do Painel</button>` : ''}
+            <button type="button" class="b s" id="gb_btn_clear_filters" style="font-size:11.5px;padding:4px 9px">🧹 Limpar Todos</button>
+            <button type="button" class="b" id="gb_btn_add_filter" style="font-size:11.5px;padding:4px 10px">➕ Adicionar Filtro</button>
+          </div>
+        </div>
 
-        ${(c.dataSource === 'consultas' || c.dataSource === 'cruzado') ? `
-          <label>Filtrar Origem
-            <select id="gb_origin">
-              <option value="">Todas as origens</option>
-              ${Object.entries(ORIG).map(([k, v]: any) => `<option value="${esc(k)}" ${c.originFilter === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}
+        <div id="gb_active_filter_badges" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;padding:8px 10px;background:var(--card);border:1px dashed var(--line);border-radius:8px;align-items:center">
+          <span style="font-size:11.5px;font-weight:700;color:var(--mut);margin-right:4px">Filtros reais ativos:</span>
+          ${activeBadges.length ? activeBadges.map(b => `
+            <span class="tag" style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;background:color-mix(in srgb,var(--g) 12%,var(--card));color:var(--ink);border:1px solid color-mix(in srgb,var(--g) 30%,var(--line))">
+              <span>${esc(b.text)}</span>
+              <button type="button" class="x" data-gchip-kind="${b.kind}" ${b.idx != null ? `data-gchip-idx="${b.idx}"` : ''} style="font-size:14px;padding:0 3px;line-height:1" title="Excluir este filtro">×</button>
+            </span>
+          `).join('') : `<span class="note" style="font-size:12px">Nenhum filtro restritivo (exibindo todo o histórico disponível).</span>`}
+        </div>
+
+        <div class="f" style="margin-bottom:10px">
+          <label>Período Rápido
+            <select id="gb_period">
+              <option value="all" ${c.periodFilter === 'all' ? 'selected' : ''}>Todas as semanas / datas</option>
+              <option value="custom_dates" ${c.periodFilter === 'custom_dates' ? 'selected' : ''}>Intervalo de datas personalizado (De / Até)</option>
+              <option value="past" ${c.periodFilter === 'past' ? 'selected' : ''}>Apenas semanas passadas</option>
+              <option value="future" ${c.periodFilter === 'future' ? 'selected' : ''}>Apenas semanas futuras / atual</option>
+              <option value="last4" ${c.periodFilter === 'last4' ? 'selected' : ''}>Últimas 4 semanas</option>
+              <option value="last8" ${c.periodFilter === 'last8' ? 'selected' : ''}>Últimas 8 semanas</option>
+              <option value="last12" ${c.periodFilter === 'last12' ? 'selected' : ''}>Últimas 12 semanas</option>
+              <option value="last" ${c.periodFilter === 'last' ? 'selected' : ''}>Última semana lançada</option>
+              <option value="penultimate" ${c.periodFilter === 'penultimate' ? 'selected' : ''}>Penúltima semana lançada</option>
+              ${(() => {
+                const ymSet = new Set<string>();
+                WA_ALL.forEach(w => { if (w.id && w.id.length >= 7) ymSet.add(w.id.slice(0, 7)); });
+                return Array.from(ymSet).sort().reverse().map(ym => {
+                  const [y, m] = ym.split('-');
+                  const mName = MONTH_NAMES[parseInt(m, 10) - 1] || m;
+                  const lbl = mName.charAt(0).toUpperCase() + mName.slice(1) + '/' + y;
+                  return `<option value="ym:${ym}" ${c.periodFilter === 'ym:' + ym ? 'selected' : ''}>Mês: ${lbl}</option>`;
+                }).join('');
+              })()}
             </select>
           </label>
-          <label>Filtrar Status
-            <select id="gb_status">
-              <option value="">Todos os status</option>
-              ${Object.entries(STAT).map(([k, v]: any) => `<option value="${esc(k)}" ${c.statusFilter === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}
-            </select>
+
+          <label>Data Inicial (De)
+            <input type="date" id="gb_date_from" value="${esc(c.dateFrom || '')}">
           </label>
+
+          <label>Data Final (Até)
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="date" id="gb_date_to" value="${esc(c.dateTo || '')}" style="flex:1">
+              ${(c.dateFrom || c.dateTo) ? `<button type="button" class="b s" id="gb_btn_clear_dates" style="font-size:11px;padding:5px 8px" title="Limpar datas">✕</button>` : ''}
+            </div>
+          </label>
+        </div>
+
+        ${c.filters.length ? `
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            ${c.filters.map((r, idx) => `
+              <div class="row" style="margin:0;padding:8px 10px;background:var(--card);border:1px solid var(--line);border-radius:9px;align-items:center;gap:8px;flex-wrap:wrap">
+                <span style="font-weight:700;font-size:11.5px;color:var(--mut)">Filtro #${idx + 1}</span>
+                <select data-gf-idx="${idx}" data-gf-k="field" style="min-width:190px;flex:1">
+                  ${(() => {
+                    const groups: Record<string, { value: string; label: string }[]> = {};
+                    filterFieldOptions.forEach(o => {
+                      groups[o.group] = groups[o.group] || [];
+                      groups[o.group].push(o);
+                    });
+                    return Object.entries(groups).map(([grp, items]) =>
+                      `<optgroup label="${esc(grp)}">${items.map(o => `<option value="${esc(o.value)}" ${r.field === o.value ? 'selected' : ''}>${esc(o.label)}</option>`).join('')}</optgroup>`
+                    ).join('');
+                  })()}
+                </select>
+                ${r.field === 'date_range' ? `<span class="tag" style="font-size:11px">entre</span>` : `
+                  <select data-gf-idx="${idx}" data-gf-k="op" style="min-width:130px">
+                    <option value="eq" ${r.op === 'eq' ? 'selected' : ''}>Igual a (=)</option>
+                    <option value="neq" ${r.op === 'neq' ? 'selected' : ''}>Diferente de (≠)</option>
+                    <option value="gte" ${r.op === 'gte' ? 'selected' : ''}>Maior ou igual (≥)</option>
+                    <option value="lte" ${r.op === 'lte' ? 'selected' : ''}>Menor ou igual (≤)</option>
+                    <option value="between" ${r.op === 'between' ? 'selected' : ''}>Entre (De / Até)</option>
+                    <option value="contains" ${r.op === 'contains' ? 'selected' : ''}>Contém texto</option>
+                  </select>
+                `}
+                ${renderFilterValueInputs(r, idx)}
+                <button type="button" class="x" data-gf-del="${idx}" title="Excluir este filtro" style="font-size:16px;padding:3px 7px;color:var(--r)">🗑️</button>
+              </div>
+            `).join('')}
+          </div>
         ` : ''}
       </div>
 
@@ -1165,7 +1756,7 @@ export function renderGraficosTabContent() {
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
           <div>
             <h3 id="gb_preview_title" style="margin:0;font-size:15px">${esc(c.title)}</h3>
-            <span class="note" style="font-size:11.5px">Passe o mouse sobre os valores para ver detalhes</span>
+            <span class="note" id="gb_preview_counts" style="font-size:11.5px">Exibindo ${c.dataSource === 'planilha' ? `${computedPreview.meta.rowCount} linha(s)` : `${computedPreview.meta.weekCount} semana(s) · ${computedPreview.meta.apptCount} consulta(s)`} · Passe o mouse sobre os valores para ver detalhes</span>
           </div>
           <span class="tag" style="background:color-mix(in srgb,var(--b) 12%,var(--card));color:var(--b);font-size:11px;font-weight:700">LIVE RENDER</span>
         </div>
@@ -1276,8 +1867,13 @@ function attachGrafEvents() {
   const c = draftChart!;
 
   const refreshPreviewOnly = () => {
+    const comp = computeStudioChartData(c);
     const area = document.getElementById('gb_preview_area');
     if (area) area.innerHTML = renderStudioSvg(c).html;
+    const cnt = document.getElementById('gb_preview_counts');
+    if (cnt) {
+      cnt.textContent = `Exibindo ${c.dataSource === 'planilha' ? `${comp.meta.rowCount} linha(s)` : `${comp.meta.weekCount} semana(s) · ${comp.meta.apptCount} consulta(s)`} · Passe o mouse sobre os valores para ver detalhes`;
+    }
   };
 
   container.querySelector('#gb_title')?.addEventListener('input', (e: any) => {
@@ -1304,7 +1900,122 @@ function attachGrafEvents() {
   container.querySelector('#gb_x_axis')?.addEventListener('change', (e: any) => { c.xAxisField = e.target.value; refreshPreviewOnly(); });
   container.querySelector('#gb_x_group')?.addEventListener('change', (e: any) => { c.xAxisGrouping = e.target.value; refreshPreviewOnly(); });
   container.querySelector('#gb_x_sort')?.addEventListener('change', (e: any) => { c.xAxisSort = e.target.value; refreshPreviewOnly(); });
-  container.querySelector('#gb_period')?.addEventListener('change', (e: any) => { c.periodFilter = e.target.value; refreshPreviewOnly(); });
+  container.querySelector('#gb_period')?.addEventListener('change', (e: any) => {
+    c.periodFilter = e.target.value;
+    if (c.periodFilter !== 'custom_dates' && c.periodFilter !== 'all') {
+      // Keep dateFrom/dateTo if user only switched periodFilter? Clear dates if selecting a preset like last4/ym
+      c.dateFrom = '';
+      c.dateTo = '';
+    }
+    renderGraficosTabContent();
+  });
+  const onDateChange = (k: 'dateFrom' | 'dateTo', val: string) => {
+    c[k] = val || '';
+    if (c.dateFrom || c.dateTo) {
+      c.periodFilter = 'custom_dates';
+    } else if (c.periodFilter === 'custom_dates') {
+      c.periodFilter = 'all';
+    }
+    renderGraficosTabContent();
+  };
+  container.querySelector('#gb_date_from')?.addEventListener('change', (e: any) => onDateChange('dateFrom', e.target.value));
+  container.querySelector('#gb_date_to')?.addEventListener('change', (e: any) => onDateChange('dateTo', e.target.value));
+  container.querySelector('#gb_btn_clear_dates')?.addEventListener('click', () => {
+    c.dateFrom = '';
+    c.dateTo = '';
+    if (c.periodFilter === 'custom_dates') c.periodFilter = 'all';
+    renderGraficosTabContent();
+  });
+
+  container.querySelector('#gb_btn_add_filter')?.addEventListener('click', () => {
+    if (!Array.isArray(c.filters)) c.filters = [];
+    const defaultField = c.dataSource === 'consultas' ? 'origin' : (c.dataSource === 'planilha' ? ((app.cfg?.spreadsheets?.[0]?.headers?.[0]) || 'date_range') : 'cprev');
+    const defaultOp: StudioFilterOp = defaultField === 'cprev' ? 'gte' : 'eq';
+    c.filters.push({
+      id: 'f_' + Date.now().toString(36),
+      field: defaultField,
+      op: defaultOp,
+      value: defaultField === 'cprev' ? '1' : '',
+      value2: ''
+    });
+    renderGraficosTabContent();
+  });
+
+  container.querySelector('#gb_btn_clear_filters')?.addEventListener('click', () => {
+    c.periodFilter = 'all';
+    c.dateFrom = '';
+    c.dateTo = '';
+    c.originFilter = '';
+    c.statusFilter = '';
+    c.filters = [];
+    renderGraficosTabContent();
+    app.toast?.('Todos os filtros removidos.');
+  });
+
+  container.querySelector('#gb_btn_sync_dash_filter')?.addEventListener('click', () => {
+    if (!editingChartId) return;
+    c.periodFilter = 'all';
+    c.dateFrom = '';
+    c.dateTo = '';
+    c.originFilter = '';
+    c.statusFilter = '';
+    c.filters = [];
+    applyDashboardFilterToDraft(editingChartId, c);
+    renderGraficosTabContent();
+    app.toast?.('Filtros atuais do Painel importados!');
+  });
+
+  container.querySelectorAll('[data-gchip-kind]').forEach((btn: any) => {
+    btn.onclick = () => {
+      const kind = btn.dataset.gchipKind;
+      if (kind === 'period') c.periodFilter = 'all';
+      else if (kind === 'dateFrom') c.dateFrom = '';
+      else if (kind === 'dateTo') c.dateTo = '';
+      else if (kind === 'rule' && btn.dataset.gchipIdx != null && Array.isArray(c.filters)) {
+        c.filters.splice(parseInt(btn.dataset.gchipIdx, 10), 1);
+      }
+      if (!c.dateFrom && !c.dateTo && c.periodFilter === 'custom_dates') c.periodFilter = 'all';
+      renderGraficosTabContent();
+    };
+  });
+
+  container.querySelectorAll('[data-gf-idx]').forEach((el: any) => {
+    const idx = parseInt(el.dataset.gfIdx, 10);
+    const k = el.dataset.gfK;
+    const isSelect = el.tagName === 'SELECT';
+    const isDate = el.type === 'date';
+    el.addEventListener(isSelect || isDate ? 'change' : 'input', () => {
+      if (!Array.isArray(c.filters) || !c.filters[idx] || !k) return;
+      (c.filters[idx] as any)[k] = el.value;
+      if (k === 'field') {
+        c.filters[idx].value = el.value === 'week_time' ? 'past' : '';
+        c.filters[idx].value2 = '';
+        c.filters[idx].op = el.value === 'date_range' ? 'between' : (['cprev', 'cagend', 'creal', 'ccanc', 'creag', 'novos', 'ativas', 'resp', 'agend'].includes(el.value) ? 'gte' : 'eq');
+        renderGraficosTabContent();
+        return;
+      }
+      if (k === 'op') {
+        renderGraficosTabContent();
+        return;
+      }
+      if (isSelect || isDate) {
+        renderGraficosTabContent();
+      } else {
+        refreshPreviewOnly();
+      }
+    });
+  });
+
+  container.querySelectorAll('[data-gf-del]').forEach((btn: any) => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.gfDel, 10);
+      if (Array.isArray(c.filters)) {
+        c.filters.splice(idx, 1);
+        renderGraficosTabContent();
+      }
+    };
+  });
+
   container.querySelector('#gb_origin')?.addEventListener('change', (e: any) => { c.originFilter = e.target.value; refreshPreviewOnly(); });
   container.querySelector('#gb_status')?.addEventListener('change', (e: any) => { c.statusFilter = e.target.value; refreshPreviewOnly(); });
   container.querySelector('#gb_show_dash')?.addEventListener('change', (e: any) => { c.showInDashboard = e.target.checked; });
