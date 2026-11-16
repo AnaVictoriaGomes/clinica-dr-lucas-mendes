@@ -389,12 +389,23 @@ export function renderStudioSvg(c: StudioChartCfg): { html: string } {
     const displayVal = s.isPct
       ? pf(s.v.length ? totalVal / s.v.length : 0)
       : totalVal.toLocaleString('pt-BR');
+    const titleLow = String(c.title || '').toLowerCase();
+    const field0 = String(c.series?.[0]?.field || '');
+    let kpiKey = '';
+    if (field0 === 'creal' || titleLow.includes('consultas realizadas')) kpiKey = 'creal';
+    else if (field0 === 'cprev' || titleLow.includes('consultas previstas')) kpiKey = 'cprev';
+    else if (field0 === 'cagend' || titleLow.includes('consultas agendadas')) kpiKey = 'cagend';
+    else if (field0 === 'ccanc' || titleLow.includes('cancelad')) kpiKey = 'canc';
+    else if (field0 === 'creag' || titleLow.includes('reagendad')) kpiKey = 'creag';
+    const clickAttrs = kpiKey ? ` data-kpi-metric="${esc(kpiKey)}" style="border-left:4px solid ${s.c};cursor:pointer" title="Clique para ver os pacientes desta métrica"` : ` style="border-left:4px solid ${s.c}"`;
+    const clickHint = kpiKey ? `<small style="color:var(--g);font-weight:600;margin-top:4px">Ver pacientes →</small>` : '';
     return {
       html: `
-        <div class="card kpi" style="border-left:4px solid ${s.c}">
+        <div class="card kpi"${clickAttrs}>
           <span>${esc(c.title)}</span>
           <b>${displayVal}</b>
           <small>${esc(s.n)} (${labels.length} ponto(s))</small>
+          ${clickHint}
         </div>
       `
     };
@@ -1565,7 +1576,27 @@ function attachGrafEvents() {
     const t = e.target;
     if (t.dataset?.md != null) {
       const idx = +t.dataset.md;
-      await app.saveCfg({ metrics: (app.cfg?.metrics || []).filter((_: any, i: number) => i !== idx) });
+      const list = [...(app.cfg?.metrics || [])];
+      const delM = list[idx];
+      const newList = list.filter((_: any, i: number) => i !== idx);
+      const h = { ...(app.cfg?.hide || {}) };
+      if (delM) {
+        if (!newList.some((x: any) => x.title === delM.title)) {
+          delete h['k:' + delM.title];
+          delete h['c:' + delM.title];
+        }
+        delete h['k:' + delM.id];
+        delete h['c:' + delM.id];
+      }
+      const curGoals = app.getUnifiedGoalsList ? app.getUnifiedGoalsList() : (app.cfg?.goalsList || []);
+      const newGoalsList = curGoals.filter((g: any) => !delM || (g.metric !== delM.id && g.metric !== delM.title && g.label !== delM.title));
+      const newGoalsMap: Record<string, any> = {};
+      newGoalsList.forEach((g: any) => {
+        if ((g.scope === 'recurrent' || g.week === 'all' || !g.week) && !g.startWeek && !g.endWeek) {
+          newGoalsMap[g.metric] = g.target;
+        }
+      });
+      await app.saveCfg({ metrics: newList, hide: h, goalsList: newGoalsList, goals: newGoalsMap });
       renderGraficosTabContent();
       app.toast?.('Métrica removida.');
     }
