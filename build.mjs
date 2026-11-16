@@ -24,13 +24,28 @@ await build({
 });
 
 const rawHtml = fs.readFileSync(path.join(rootDir, 'index.html'), 'utf8');
-const builtHtml = rawHtml.replace(
-  /<script\s+type="module"\s+src="\/src\/main\.tsx"><\/script>/,
-  '<script src="/assets/kommo-bundle.js"></script>'
-);
+const mainScriptPattern = /<script\b[^>]*\bsrc=["']\.?\/src\/main\.tsx["'][^>]*>\s*<\/script>/i;
+let builtHtml = rawHtml;
+
+if (mainScriptPattern.test(rawHtml)) {
+  builtHtml = rawHtml.replace(
+    mainScriptPattern,
+    '<script src="/assets/kommo-bundle.js"></script>'
+  );
+} else if (!rawHtml.includes('/assets/kommo-bundle.js')) {
+  console.warn('Aviso: referência de /src/main.tsx não encontrada no index.html; injetando /assets/kommo-bundle.js antes de </body>.');
+  if (/<\/body>/i.test(rawHtml)) {
+    builtHtml = rawHtml.replace(
+      /<\/body>/i,
+      '<script src="/assets/kommo-bundle.js"></script>\n</body>'
+    );
+  } else {
+    builtHtml = `${rawHtml}\n<script src="/assets/kommo-bundle.js"></script>\n`;
+  }
+}
 
 if (!builtHtml.includes('/assets/kommo-bundle.js')) {
-  throw new Error('Falha ao substituir a referência de /src/main.tsx no index.html');
+  throw new Error('Falha ao injetar /assets/kommo-bundle.js no index.html');
 }
 
 fs.writeFileSync(path.join(distDir, 'index.html'), builtHtml, 'utf8');
