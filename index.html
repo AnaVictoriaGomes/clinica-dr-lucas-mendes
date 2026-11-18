@@ -198,7 +198,7 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 <section id="sem" class="hide">
   <div class="card">
     <h2>Lançamento semanal</h2>
-    <p class="note">Escolha a data da semana. Se já existe, os valores são carregados para edição. Todos os campos estão disponíveis para edição manual (incluindo Consultas agendadas na semana). Se não for preenchido manualmente, ele calcula automaticamente pela data “Agendada em”.</p>
+    <p class="note">Escolha a data da semana. Se já existe, os valores são carregados para edição. Todos os campos estão disponíveis para edição manual (incluindo Consultas agendadas e Consultas previstas da semana). Se não forem editados manualmente, atualizam automaticamente com base na aba “Consultas”.</p>
     <div class="row" style="margin:0 0 12px"><label class="note">Data da semana<br><input type="date" id="wd"></label><button class="b s" id="cp">Copiar valores da semana anterior</button></div>
     <div class="f" id="wf"></div>
     <div class="row"><button class="b" id="ws">Salvar semana</button><button class="b s" id="wdel">Excluir esta semana</button></div>
@@ -429,6 +429,7 @@ function normIso(d) {
   if (!d) return '';
   d = String(d).trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  if (/^\d{4}-\d{2}-\d{2}[T\s]/.test(d)) return d.slice(0, 10);
   return normalizeDateStr(d, new Date().getFullYear());
 }
 
@@ -480,6 +481,84 @@ async function ensureWeekForCreatedSchedOn(schedDate) {
   // Desativado: semanas agora são criadas exclusivamente de forma manual ou na 1ª segunda-feira às 08h
 }
 
+function isApptPrevistaInWeek(a, start, end) {
+  if (!a) return false;
+  const origDate = normIso(a.consult) || normIso(a.schedOn);
+  const nd = normIso(a.newDate);
+  const inOrigWeek = Boolean(origDate && origDate >= start && origDate <= end);
+  const inNewWeek = Boolean(nd && nd >= start && nd <= end);
+
+  if (inNewWeek) {
+    if (a.statusNewDate === 'compareceu') return true;
+    if (['cancelou', 'nao_compareceu', 'reagendou'].includes(a.statusNewDate || '')) return false;
+    if (a.status === 'cancelada' && a.regained !== 'sim') return false;
+    return true;
+  }
+  if (nd) {
+    return false;
+  }
+  return Boolean(inOrigWeek && (a.status === 'realizada' || a.status === 'agendada'));
+}
+
+function isApptCancelledInContactInWeek(a, start, end) {
+  if (!a) return false;
+  if (a.status !== 'cancelada' || a.regained !== 'contato') return false;
+  const origDate = normIso(a.consult) || normIso(a.schedOn);
+  const nd = normIso(a.newDate);
+  return Boolean((origDate && origDate >= start && origDate <= end) || (nd && nd >= start && nd <= end));
+}
+
+function isApptFaltouInWeek(a, start, end) {
+  if (!a) return false;
+  const origDate = normIso(a.consult) || normIso(a.schedOn);
+  const nd = normIso(a.newDate);
+  const inOrig = Boolean(origDate && origDate >= start && origDate <= end);
+  const inNew = Boolean(nd && nd >= start && nd <= end);
+  const movedOut = inOrig && Boolean(nd && (nd < start || nd > end));
+  if (inOrig && !movedOut && (a.status === 'nao_compareceu' || a.statusNewDate === 'nao_compareceu')) return true;
+  if (inNew && !inOrig && (a.statusNewDate === 'nao_compareceu' || (a.status === 'nao_compareceu' && (!a.statusNewDate || a.statusNewDate === 'nao_compareceu')))) return true;
+  if (Array.isArray(a.historyLog)) {
+    if (a.historyLog.some(ev => {
+      const d = normIso(ev && ev.date);
+      return d >= start && d <= end && ev.status === 'nao_compareceu';
+    })) return true;
+  }
+  return false;
+}
+
+function isApptCancelledInWeek(a, start, end) {
+  if (!a) return false;
+  if (isApptPrevistaInWeek(a, start, end)) return false;
+  const origDate = normIso(a.consult) || normIso(a.schedOn);
+  const nd = normIso(a.newDate);
+  const inOrig = Boolean(origDate && origDate >= start && origDate <= end);
+  const inNew = Boolean(nd && nd >= start && nd <= end);
+  const movedOut = inOrig && Boolean(nd && (nd < start || nd > end));
+  if (inOrig && !movedOut && (a.status === 'cancelada' || a.statusNewDate === 'cancelou')) return true;
+  if (inNew && !inOrig && (a.statusNewDate === 'cancelou' || (a.status === 'cancelada' && a.regained !== 'sim' && a.statusNewDate !== 'compareceu'))) return true;
+  if (Array.isArray(a.historyLog)) {
+    if (a.historyLog.some(ev => {
+      const d = normIso(ev && ev.date);
+      return d >= start && d <= end && (ev.status === 'cancelada' || ev.status === 'cancelou');
+    })) return true;
+  }
+  return false;
+}
+
+function isApptPendingInWeek(a, start, end) {
+  if (!a) return false;
+  if (isApptPrevistaInWeek(a, start, end)) return false;
+  if (isApptFaltouInWeek(a, start, end)) return false;
+  if (isApptCancelledInWeek(a, start, end)) return false;
+  const origDate = normIso(a.consult) || normIso(a.schedOn);
+  const nd = normIso(a.newDate);
+  const inOrig = Boolean(origDate && origDate >= start && origDate <= end);
+  const inNew = Boolean(nd && nd >= start && nd <= end);
+  if (inNew && a.statusNewDate === 'reagendou') return true;
+  if (!nd && inOrig && a.status === 'reagendada') return true;
+  return false;
+}
+
 function computeWeekApptMetrics(id, start, end, allAppts) {
   const schedInWeek = allAppts.filter(a => {
     const s = normIso(a.schedOn);
@@ -490,32 +569,24 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
     return c >= start && c <= end;
   });
 
-  // Consultas previstas da semana: exclui canceladas e reagendadas para outra semana
-  const prevPatients = new Set();
-  const totalWeekPatients = new Set();
+  // Consultas previstas da semana: contabiliza as que compareceram + agendadas (exclui canceladas e faltantes)
+  const prevIndices = new Set();
+  const totalWeekIndices = new Set();
   allAppts.forEach((a, idx) => {
     const origDate = normIso(a.consult) || normIso(a.schedOn);
     const nd = normIso(a.newDate);
     const inOrigWeek = origDate >= start && origDate <= end;
     const inNewWeek = !!(nd && nd >= start && nd <= end);
-    const movedOutOfOrigWeek = inOrigWeek && !!(nd && (nd < start || nd > end));
-    const pKey = String(a.patient || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') || ('__idx_' + idx);
 
     if (inOrigWeek || inNewWeek) {
-      totalWeekPatients.add(pKey);
+      totalWeekIndices.add(idx);
     }
-
-    const isCancelledOrig = a.status === 'cancelada';
-    const isMovedOut = (a.status === 'reagendada' && (!nd || nd < start || nd > end)) || movedOutOfOrigWeek;
-    const isValidOrig = inOrigWeek && !isCancelledOrig && !isMovedOut;
-    const isValidNew = inNewWeek && a.statusNewDate !== 'cancelou' && a.statusNewDate !== 'reagendou' && (a.status !== 'cancelada' || a.regained === 'sim');
-
-    if (isValidOrig || isValidNew) {
-      prevPatients.add(pKey);
+    if (isApptPrevistaInWeek(a, start, end)) {
+      prevIndices.add(idx);
     }
   });
-  const numPrev = prevPatients.size;
-  const numTotWeek = totalWeekPatients.size;
+  const numPrev = prevIndices.size;
+  const numTotWeek = totalWeekIndices.size;
 
   const numRealOrig = consultInWeek.filter(a => {
     if (a.status !== 'realizada') return false;
@@ -602,10 +673,13 @@ function computeWeekApptMetrics(id, start, end, allAppts) {
   };
 }
 
-function mergeWeekAutoVal(weekId, manualVal, autoVal, hasData, isManualLocked) {
+function mergeWeekAutoVal(weekId, manualVal, autoVal, hasData, isManualLocked, fieldKey) {
   const man = (manualVal !== undefined && manualVal !== null && manualVal !== '') ? Number(manualVal) : 0;
   if (isManualLocked) {
     return man;
+  }
+  if (fieldKey === 'cprev') {
+    return hasData ? autoVal : man;
   }
   if (weekId < '2026-11-09') {
     return Math.max(man, autoVal);
@@ -625,16 +699,31 @@ function weekHasScheduleAppts(weekId, allAppts, keys, idx) {
   });
 }
 
+function isCprevLabel(lbl) {
+  const norm = String(lbl || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
+  return norm === 'consultas previstas da semana' || norm === 'consultas previstas';
+}
+
+function getCprevAliasKeys() {
+  return (cfg.extra || [])
+    .filter(e => e && e.k && isCprevLabel((cfg.labels && cfg.labels[e.k]) || e.n || e.k))
+    .map(e => e.k);
+}
+
+function isCprevFieldKey(k) {
+  return k === 'cprev' || getCprevAliasKeys().includes(k);
+}
+
 function getEffectiveCprev(w) {
   if (!w) return 0;
-  const val = Number(w.cprev || 0);
-  if (val > 0) return val;
   const raw = weeks[w.id] || {};
-  if (raw._manual && raw._manual.cprev) return 0;
-  if (!w._hasScheduleAppts && !weekHasScheduleAppts(w.id)) {
-    return (Number(w.creal) || 0) + (Number(w.ccanc) || 0) + (Number(w.creag) || 0) + (Number(w.cfaltou) || 0);
+  if (raw._manual && raw._manual.cprev === 'v2') return Number(w.cprev || 0);
+  if (w._hasScheduleAppts || weekHasScheduleAppts(w.id)) {
+    return w.id < '2026-11-09'
+      ? Math.max(Number(w.cprev || 0), Number(w.creal || 0))
+      : Number(w.cprev || 0);
   }
-  return 0;
+  return Number(w.creal || 0);
 }
 
 function weekTotalConsultas(w) {
@@ -646,6 +735,7 @@ function weekTotalConsultas(w) {
 function W() {
   const keys = Object.keys(weeks || {}).sort();
   const allAppts = Object.values(appts || {});
+  const cprevAliases = getCprevAliasKeys();
 
   return keys.map((id, i) => {
     const raw = weeks[id] || {};
@@ -654,14 +744,18 @@ function W() {
     const { start, end } = getWeekWindow(id, keys, i);
     const m = computeWeekApptMetrics(id, start, end, allAppts);
 
-    w.cagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData, !!manLock.cagend);
-    w.cprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData, !!manLock.cprev);
-    w.creal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData, !!manLock.creal);
-    w.ccanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData, !!manLock.ccanc);
-    w.cfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData, !!manLock.cfaltou);
-    w.creag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData, !!manLock.creag);
-    w.agend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData, !!manLock.agend);
+    w.cagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData, !!manLock.cagend, 'cagend');
+    w.creal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData, !!manLock.creal, 'creal');
+    w.ccanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData, !!manLock.ccanc, 'ccanc');
+    w.cfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData, !!manLock.cfaltou, 'cfaltou');
+    w.creag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData, !!manLock.creag, 'creag');
+    w.agend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData, !!manLock.agend, 'agend');
     w._hasScheduleAppts = weekHasScheduleAppts(id, allAppts, keys, i);
+    const isCprevMan = manLock.cprev === 'v2';
+    const baseApptCprev = id < '2026-11-09' ? Math.max(m.cprev, Number(w.creal || 0)) : m.cprev;
+    const cprevFallback = (m.hasData || w._hasScheduleAppts) ? baseApptCprev : Number(w.creal || 0);
+    w.cprev = mergeWeekAutoVal(id, isCprevMan ? raw.cprev : cprevFallback, baseApptCprev, m.hasData, isCprevMan, 'cprev');
+    cprevAliases.forEach(ak => { w[ak] = w.cprev; });
     w.ctot = m.hasData ? Math.max(m.ctot, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0)) : Math.max(w.cprev || 0, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0));
 
     return w;
@@ -671,9 +765,11 @@ function W() {
 function getGoalChartWeeks(metricKey) {
   const baseWeeks = W().map(w => ({ ...w, cprevEffective: getEffectiveCprev(w) }));
   const apptMetrics = ['cprev', 'cagend', 'creal', 'ccanc', 'cfaltou', 'creag', 'comp', 'canc', 'tot'];
-  if (metricKey && !apptMetrics.includes(metricKey)) {
+  const isCprevMetric = isCprevFieldKey(metricKey);
+  if (metricKey && !isCprevMetric && !apptMetrics.includes(metricKey)) {
     return baseWeeks;
   }
+  const cprevAliases = getCprevAliasKeys();
   const byId = new Map(baseWeeks.map(w => [w.id, w]));
   const allAppts = Object.values(appts || {});
   const extraWeekIds = new Set();
@@ -692,7 +788,7 @@ function getGoalChartWeeks(metricKey) {
     const { start, end } = getWeekWindow(wid, sortedAllIds, idx);
     const m = computeWeekApptMetrics(wid, start, end, allAppts);
     if (m.cprev > 0 || m.creal > 0 || m.ccanc > 0 || m.cfaltou > 0 || m.creag > 0 || m.cagend > 0) {
-      byId.set(wid, {
+      const extraRow = {
         id: wid,
         cagend: m.cagend,
         cprev: m.cprev,
@@ -705,7 +801,9 @@ function getGoalChartWeeks(metricKey) {
         ctot: m.ctot,
         _hasScheduleAppts: true,
         _fromApptsOnly: true
-      });
+      };
+      cprevAliases.forEach(ak => { extraRow[ak] = m.cprev; });
+      byId.set(wid, extraRow);
     }
   });
   return Array.from(byId.values()).sort((a, b) => a.id.localeCompare(b.id));
@@ -1242,15 +1340,26 @@ async function syncWeekMetricsWithAppts(persist = true) {
 
       const m = computeWeekApptMetrics(id, start, end, allAppts);
       const manLock = raw._manual || {};
-      const nextCagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData, !!manLock.cagend);
-      const nextCprev = mergeWeekAutoVal(id, raw.cprev, m.cprev, m.hasData, !!manLock.cprev);
-      const nextCreal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData, !!manLock.creal);
-      const nextCcanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData, !!manLock.ccanc);
-      const nextCfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData, !!manLock.cfaltou);
-      const nextCreag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData, !!manLock.creag);
-      const nextAgend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData, !!manLock.agend);
+      const nextCagend = mergeWeekAutoVal(id, raw.cagend, m.cagend, m.hasData, !!manLock.cagend, 'cagend');
+      const nextCreal = mergeWeekAutoVal(id, raw.creal, m.creal, m.hasData, !!manLock.creal, 'creal');
+      const nextCcanc = mergeWeekAutoVal(id, raw.ccanc, m.ccanc, m.hasData, !!manLock.ccanc, 'ccanc');
+      const nextCfaltou = mergeWeekAutoVal(id, raw.cfaltou, m.cfaltou, m.hasData, !!manLock.cfaltou, 'cfaltou');
+      const nextCreag = mergeWeekAutoVal(id, raw.creag, m.creag, m.hasData, !!manLock.creag, 'creag');
+      const nextAgend = mergeWeekAutoVal(id, raw.agend, m.agend, m.hasData, !!manLock.agend, 'agend');
+      const cprevAliases = getCprevAliasKeys();
+      const hasApptsInWin = weekHasScheduleAppts(id, allAppts, keys, i);
+      const isCprevMan = manLock.cprev === 'v2';
+      let manualCleaned = false;
+      if (raw._manual && raw._manual.cprev === true) {
+        raw._manual = { ...raw._manual, cprev: false };
+        manualCleaned = true;
+      }
+      const baseApptCprev = id < '2026-11-09' ? Math.max(m.cprev, nextCreal) : m.cprev;
+      const nextCprevFallback = (m.hasData || hasApptsInWin) ? baseApptCprev : nextCreal;
+      const nextCprev = mergeWeekAutoVal(id, isCprevMan ? raw.cprev : nextCprevFallback, baseApptCprev, m.hasData, isCprevMan, 'cprev');
+      const aliasChanged = cprevAliases.some(ak => raw[ak] !== nextCprev);
 
-      if (raw.cagend !== nextCagend || raw.cprev !== nextCprev || raw.creal !== nextCreal || raw.ccanc !== nextCcanc || raw.cfaltou !== nextCfaltou || raw.creag !== nextCreag || raw.agend !== nextAgend) {
+      if (manualCleaned || aliasChanged || raw.cagend !== nextCagend || raw.cprev !== nextCprev || raw.creal !== nextCreal || raw.ccanc !== nextCcanc || raw.cfaltou !== nextCfaltou || raw.creag !== nextCreag || raw.agend !== nextAgend) {
         raw.cagend = nextCagend;
         raw.cprev = nextCprev;
         raw.creal = nextCreal;
@@ -1258,6 +1367,7 @@ async function syncWeekMetricsWithAppts(persist = true) {
         raw.cfaltou = nextCfaltou;
         raw.creag = nextCreag;
         raw.agend = nextAgend;
+        cprevAliases.forEach(ak => { raw[ak] = nextCprev; });
         weekChanged = true;
       }
 
@@ -1266,7 +1376,7 @@ async function syncWeekMetricsWithAppts(persist = true) {
         anyChanged = true;
         if (persist && window.DATA && typeof window.DATA.write === 'function') {
           try {
-            await window.DATA.write('weeks', id, {
+            const payload = {
               cagend: weeks[id].cagend,
               cprev: weeks[id].cprev,
               creal: weeks[id].creal,
@@ -1274,7 +1384,10 @@ async function syncWeekMetricsWithAppts(persist = true) {
               cfaltou: weeks[id].cfaltou,
               creag: weeks[id].creag,
               agend: weeks[id].agend
-            });
+            };
+            cprevAliases.forEach(ak => { payload[ak] = nextCprev; });
+            if (manualCleaned) payload._manual = weeks[id]._manual;
+            await window.DATA.write('weeks', id, payload);
           } catch (err) {
             console.warn("Aviso: Falha ao enviar semana sincronizada para Firebase:", err);
           }
@@ -1424,7 +1537,7 @@ async function init(){
 
 const SNAP=['semresp','pensando','aguard','nao'];
 function lab(k){
-  if (k === 'cprev') return 'Consultas previstas da semana';
+  if (k === 'cprev' || isCprevFieldKey(k)) return 'Consultas previstas da semana';
   if (k === 'convNovos') return 'Conversão de Novos Leads em Agendamento (%)';
   return (cfg.labels&&cfg.labels[k])||((BASEF.find(f=>f[0]===k)||(cfg.extra||[]).map(e=>[e.k,e.n]).find(f=>f[0]===k)||[])[1])||k;
 }
@@ -1432,18 +1545,21 @@ function isSn(k){return SNAP.includes(k)||(cfg.extra||[]).some(e=>e.k===k&&e.sna
 function applyCfg(fromCloud){
   applyTheme();
   {
-    const rm=cfg.removed||[],ex=(cfg.extra||[]).filter(e=>{
-      const n=String((cfg.labels&&cfg.labels[e.k])||e.n||e.k).trim().toLowerCase();
-      return n!=='consultas realizadas';
+    const rm=cfg.removed||[];
+    const cprevAliases=getCprevAliasKeys();
+    const effectiveRm=cprevAliases.length?rm.filter(k=>k!=='cprev'):rm;
+    const ex=(cfg.extra||[]).filter(e=>{
+      const n=String((cfg.labels&&cfg.labels[e.k])||e.n||e.k).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
+      return n!=='consultas realizadas'&&!isCprevLabel(n);
     });
-    const combined=BASEF.filter(f=>!rm.includes(f[0])).concat(ex.map(e=>[e.k,e.n]));
+    const combined=BASEF.filter(f=>!effectiveRm.includes(f[0])).concat(ex.map(e=>[e.k,e.n]));
     const seenKeys=new Set(), seenLabels=new Set();
     FIELDS=combined.filter(([k,n])=>{
       const lblNorm=String((cfg.labels&&cfg.labels[k])||n||k).trim().toLowerCase();
       if(seenKeys.has(k)||seenLabels.has(lblNorm))return false;
       seenKeys.add(k);seenLabels.add(lblNorm);return true;
     });
-    FK=Array.from(new Set(FIELDS.map(f=>f[0]).concat(['msgs','tot','cprev'])));
+    FK=Array.from(new Set(FIELDS.map(f=>f[0]).concat(['msgs','tot','cprev',...cprevAliases])));
   }
   if((!applyCfg.d || (fromCloud && !applyCfg.cloudApplied)) && !window._userChangedFilter){
     if(cfg.defFilter && typeof cfg.defFilter === 'object'){
@@ -1896,7 +2012,7 @@ function getValidGoalMetricKeys() {
   const builtin = ['cprev','creal','cagend','tg','conv','convNovos','novos','resp','comp','canc','semresp','ccanc','cfaltou','creag','antigas','ativas','msgs','rec','andam','tot'];
   const fieldKeys = FIELDS.map(f => f[0]);
   const customKeys = (cfg.metrics || []).flatMap(m => [m.id, m.title]).filter(Boolean);
-  return new Set([...builtin, ...fieldKeys, ...customKeys]);
+  return new Set([...builtin, ...fieldKeys, ...customKeys, ...getCprevAliasKeys()]);
 }
 
 function getUnifiedGoalsList() {
@@ -2116,7 +2232,7 @@ function ev(expr,ws){
   const g = (f, w) => {
     if (f === 'msgs') return msgs(w);
     if (f === 'tot') return (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0);
-    if (f === 'cprev') return getEffectiveCprev(w);
+    if (f === 'cprev' || isCprevFieldKey(f)) return getEffectiveCprev(w);
 
     const mf = allMetricFields.find(m => m.key === f);
     if (mf && mf.isAppt && typeof mf.getter === 'function') {
@@ -2667,14 +2783,24 @@ function chart(labels, series, mode, isPct, categories){
       });
     });
   } else {
-    series.forEach(s => {
+    const orderedSeries = [
+      ...series.filter(s => s.dashed || /^meta\b/i.test(s.n || '')),
+      ...series.filter(s => !s.dashed && !/^meta\b/i.test(s.n || ''))
+    ];
+    const solidSeriesList = orderedSeries.filter(s => !s.dashed && !/^meta\b/i.test(s.n || ''));
+    orderedSeries.forEach(s => {
+      const isRef = Boolean(s.dashed || /^meta\b/i.test(s.n || ''));
+      const solidIdx = isRef ? -1 : solidSeriesList.indexOf(s);
+      const isMultiSolid = solidSeriesList.length > 1;
+      const lineW = isRef ? '2' : (isMultiSolid && solidIdx === 0 ? '3.3' : (isMultiSolid && solidIdx > 0 ? '2.1' : '2.6'));
+      const dotR = isRef ? '3.2' : (isMultiSolid && solidIdx === 0 ? '5.4' : (isMultiSolid && solidIdx > 0 ? '3.3' : '4.5'));
       const pts = s.v.map((v, i) => [L + bw * i + bw / 2, y(v || 0)]);
-      o += `<polyline fill="none" stroke="${s.c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
+      o += `<polyline fill="none" stroke="${s.c}" stroke-width="${lineW}" ${isRef ? 'stroke-dasharray="6 4" opacity="0.88"' : ''} stroke-linecap="round" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
       pts.forEach((p, i) => {
         const v = s.v[i] || 0;
         const valStr = isPct ? pf(v) : (v || 0).toLocaleString('pt-BR');
         const cat = categories && categories[i] ? categories[i] : ('Semana ' + labels[i]);
-        o += `<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="${s.c}" stroke="var(--card)" stroke-width="2"
+        o += `<circle cx="${p[0]}" cy="${p[1]}" r="${dotR}" fill="${s.c}" stroke="var(--card)" stroke-width="${isRef ? '1.5' : '1.8'}"
               data-tip-series="${esc(s.n)}"
               data-tip-color="${s.c}"
               data-tip-cat="${esc(cat)}"
@@ -2682,13 +2808,58 @@ function chart(labels, series, mode, isPct, categories){
               role="graphics-symbol"
               aria-label="${esc(s.n)}: ${valStr} (${esc(cat)})">
             </circle>`;
-        o += `<circle cx="${p[0]}" cy="${p[1]}" r="16" fill="transparent"
+        o += `<circle cx="${p[0]}" cy="${p[1]}" r="15" fill="transparent"
               data-tip-series="${esc(s.n)}"
               data-tip-color="${s.c}"
               data-tip-cat="${esc(cat)}"
               data-tip-val="${valStr}">
             </circle>`;
-        o += `<text x="${p[0]}" y="${p[1] - 8}" text-anchor="middle" font-weight="600" font-size="9.5px">${isPct ? (v).toFixed(1).replace('.', ',') + '%' : v}</text>`;
+      });
+    });
+
+    // Rótulos organizados sem sobreposição e sem duplicar valores idênticos sobrepostos
+    labels.forEach((_, i) => {
+      const colPts = orderedSeries.map((s, sIdx) => {
+        const isRef = Boolean(s.dashed || /^meta\b/i.test(s.n || ''));
+        const v = s.v[i] || 0;
+        const isFlatRef = isRef && s.v.every(x => x === s.v[0]);
+        return {
+          s,
+          sIdx,
+          isRef,
+          isFlatRef,
+          cx: L + bw * i + bw / 2,
+          cy: y(v),
+          valStr: isPct ? (v).toFixed(1).replace('.', ',') + '%' : v
+        };
+      });
+
+      const placedLabels = [];
+      const sortedPts = colPts.slice().sort((a, b) => {
+        if (a.isRef !== b.isRef) return a.isRef ? 1 : -1;
+        return a.cy - b.cy;
+      });
+
+      sortedPts.forEach(pt => {
+        if (pt.isFlatRef && i > 0 && i < labels.length - 1) {
+          const nearOther = colPts.some(oPt => !oPt.isRef && Math.abs(oPt.cy - pt.cy) < 16);
+          if (nearOther) return;
+        }
+        if (!pt.isRef && placedLabels.some(pl => !pl.isRef && Math.abs(pl.cy - pt.cy) <= 2 && String(pl.valStr) === String(pt.valStr))) {
+          return;
+        }
+        let ly = pt.cy - 8;
+        if (ly < 11) ly = pt.cy + 15;
+        for (let attempt = 0; attempt < 4; attempt++) {
+          const collision = placedLabels.some(pl => Math.abs(pl.ly - ly) < 12);
+          if (!collision) break;
+          if (attempt === 0) ly = pt.cy + 14;
+          else if (attempt === 1) ly = pt.cy - 17;
+          else ly = pt.cy + 22;
+        }
+        ly = Math.max(10, Math.min(T + ih + 10, ly));
+        placedLabels.push({ ly, cy: pt.cy, valStr: pt.valStr, isRef: pt.isRef });
+        o += `<text x="${pt.cx}" y="${ly}" text-anchor="middle" font-weight="${pt.isRef ? '600' : '700'}" font-size="9.5px" fill="${pt.isRef ? 'var(--mut)' : pt.s.c}" style="paint-order:stroke;stroke:var(--card);stroke-width:3.5px;stroke-linejoin:round">${pt.valStr}</text>`;
       });
     });
   }
@@ -2702,7 +2873,7 @@ function chart(labels, series, mode, isPct, categories){
   `;
 }
 
-const leg=s=>`<div class="lg" role="list" aria-label="Legenda"><b style="color:var(--ink)">Legenda:</b>${s.map(x=>`<span role="listitem"><i style="background:${x.c}"></i>${x.n}</span>`).join('')}</div>`;
+const leg=s=>`<div class="lg" role="list" aria-label="Legenda"><b style="color:var(--ink)">Legenda:</b>${s.map(x=>{const isDashed=Boolean(x.dashed||/^meta\b/i.test(x.n||''));return `<span role="listitem">${isDashed?`<i style="background:none;border-top:2.5px dashed ${x.c};height:0;width:15px;border-radius:0;vertical-align:middle"></i>`:`<i style="background:${x.c}"></i>`}${x.n}</span>`;}).join('')}</div>`;
 const TT={
   'Mensagens de follow-up por tentativa':['Mensagens de follow-up enviadas por tentativa (FU 2 a FU 5)','Cada barra soma as mensagens da semana.'],
   'Resposta e conversão do follow-up':['Taxa de resposta e conversão do follow-up (%)','Resposta = respostas ÷ mensagens. Conversão = agendamentos ÷ respostas.'],
@@ -2874,14 +3045,24 @@ function dash(){
   const tm=sum(ws,msgs),tr=sum(ws,'resp'),ta=sum(ws,'agend'),tl=sum(ws,'novos');
   const real=sum(ws,'creal'),cag=sum(ws,'cagend'),can=sum(ws,'ccanc'),rea=sum(ws,'creag'),tot=real+rea+can,totWeek=sum(ws,weekTotalConsultas);
   const allApptsWithId = Object.entries(appts).map(([id, a]) => ({ id, ...a }));
+  const allLaunchedWeekIds = allAvailableWeeks.map(w => w.id).sort();
+  const buildWeekWindows = (targetIds, refKeys) => {
+    const keys = (refKeys || targetIds).slice().sort();
+    return targetIds.map(wid => {
+      const idx = keys.indexOf(wid);
+      const win = getWeekWindow(wid, keys, idx >= 0 ? idx : 0);
+      return { id: wid, start: win.start, end: win.end };
+    });
+  };
+  const selectedWeekWindows = buildWeekWindows(selectedWeekIds, allLaunchedWeekIds);
+  const allChartWeeksForAppts = getGoalChartWeeks('cprev');
+  const allChartWeekWindows = buildWeekWindows(allChartWeeksForAppts.map(w => w.id), allChartWeeksForAppts.map(w => w.id));
+
   const inSelectedWeeks = (isoDate) => {
     if (filterMode === 'all') return true;
     const d = normIso(isoDate);
     if (!d) return false;
-    return selectedWeekIds.some(wid => {
-      const { start, end } = getWeekWindow(wid, [], 0);
-      return d >= start && d <= end;
-    });
+    return selectedWeekWindows.some(win => d >= win.start && d <= win.end);
   };
   const ap = (filterMode === 'all')
     ? allApptsWithId
@@ -2906,13 +3087,40 @@ function dash(){
     ? allApptsWithId.filter(a => !!normIso(a.newDate) && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || !isApptCancelled(a)))
     : allApptsWithId.filter(a => !!normIso(a.newDate) && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || !isApptCancelled(a)) && (inSelectedWeeks(a.consult) || inSelectedWeeks(a.newDate) || inSelectedWeeks(a.schedOn)));
 
-  const prevList = (filterMode === 'all')
-    ? allApptsWithId.filter(a => a.status !== 'cancelada' || a.regained === 'sim')
-    : allApptsWithId.filter(a => {
-        if (a.status === 'cancelada' && a.regained !== 'sim') return false;
-        const eff = normIso(a.newDate) || normIso(a.consult) || normIso(a.schedOn);
-        return inSelectedWeeks(eff);
-      });
+  const wsForCprev = (filterMode === 'all') ? allChartWeeksForAppts : ws;
+  const prevWindows = (filterMode === 'all') ? allChartWeekWindows : selectedWeekWindows;
+  const prevList = allApptsWithId.filter(a => {
+    if (prevWindows.some(win => isApptPrevistaInWeek(a, win.start, win.end))) return true;
+    if (filterMode === 'all' && !normIso(a.consult) && !normIso(a.newDate) && !normIso(a.schedOn)) {
+      return a.status === 'realizada' || a.statusNewDate === 'compareceu' || a.status === 'agendada';
+    }
+    return false;
+  });
+  const prevFaltouList = allApptsWithId.filter(a => {
+    if (prevWindows.some(win => isApptFaltouInWeek(a, win.start, win.end))) return true;
+    if (filterMode === 'all' && !normIso(a.consult) && !normIso(a.newDate) && !normIso(a.schedOn)) {
+      return a.status === 'nao_compareceu' || a.statusNewDate === 'nao_compareceu';
+    }
+    return false;
+  });
+  const prevCancelledList = allApptsWithId.filter(a => {
+    if (prevWindows.some(win => isApptCancelledInWeek(a, win.start, win.end))) return true;
+    if (filterMode === 'all' && !normIso(a.consult) && !normIso(a.newDate) && !normIso(a.schedOn)) {
+      return a.status === 'cancelada' || a.statusNewDate === 'cancelou';
+    }
+    return false;
+  });
+  const prevPendingList = allApptsWithId.filter(a => {
+    if (prevWindows.some(win => isApptPendingInWeek(a, win.start, win.end))) return true;
+    if (filterMode === 'all' && !normIso(a.consult) && !normIso(a.newDate) && !normIso(a.schedOn)) {
+      return a.status === 'reagendada';
+    }
+    return false;
+  });
+  const prevCancInContactList = allApptsWithId.filter(a => {
+    if (filterMode === 'all') return a.status === 'cancelada' && a.regained === 'contato';
+    return selectedWeekWindows.some(win => isApptCancelledInContactInWeek(a, win.start, win.end));
+  });
 
   window._dashKpiLists = {
     conv: {
@@ -2935,9 +3143,13 @@ function dash(){
     },
     cprev: {
       title: 'Consultas previstas',
-      subtitle: 'Pacientes com consulta prevista nas semanas filtradas',
+      subtitle: 'Pacientes que compareceram e agendadas no período filtrado',
       items: prevList,
-      kpiCount: sum(ws, 'cprev')
+      faltouItems: prevFaltouList,
+      cancelledItems: prevCancelledList,
+      pendingItems: prevPendingList,
+      cancelledInContact: prevCancInContactList,
+      kpiCount: sum(wsForCprev, getEffectiveCprev)
     },
     creal: {
       title: 'Consultas realizadas',
@@ -3099,16 +3311,18 @@ function dash(){
   const selW=`<label class="note">Semana <select id="selw">${ws.map(w=>`<option value="${w.id}"${w.id===sw?' selected':''}>${fdf(w.id)}</option>`).join('')}</select></label>`;
   const GER={novos:tl,fu2:sum(ws,'fu2'),fu3:sum(ws,'fu3'),fu4:sum(ws,'fu4'),fu5:sum(ws,'fu5')};
 
-  const cm=cfg.metrics||[],cs=m=>{try{return ev(m.expr,ws)}catch(e){return null}};
+  const cm=cfg.metrics||[],cs=(m,targetWs)=>{try{return ev(m.expr,targetWs||ws)}catch(e){return null}};
   const cKpi=cm.filter(m=>m.where==='kpi').map(m=>{
-    const v=cs(m);
     const expr=String(m.expr||'');
+    const cprevAliases=getCprevAliasKeys();
+    const exprTokens=expr.match(/[A-Za-z_]\w*/g)||[];
     let kpiAlias=m.title;
     if(/\b(creal|appts_realizada)\b/.test(expr))kpiAlias='creal';
-    else if(/\bcprev\b/.test(expr))kpiAlias='cprev';
+    else if(/\bcprev\b/.test(expr)||exprTokens.some(tk=>cprevAliases.includes(tk)))kpiAlias='cprev';
     else if(/\b(ccanc|appts_cancelada)\b/.test(expr))kpiAlias='canc';
     else if(/\b(creag|appts_reagendada)\b/.test(expr))kpiAlias='creag';
     else if(/\bcagend\b/.test(expr))kpiAlias='cagend';
+    const v=cs(m, kpiAlias==='cprev' ? wsForCprev : ws);
     return kp(esc(m.title),v==null?'—':fmtM(v,m.fmt),'card personalizado',kpiAlias,m.title);
   }).join('');
   const cCh=cm.filter(m=>m.where!=='kpi').map(m=>{const v=ws.map(w=>{try{return Math.round(ev(m.expr,[w])*100)/100}catch(e){return 0}}),ser=[{n:m.title,c:css('p'),v}];return card(esc(m.title),ser,chart(L,ser,m.where==='bar'?'group':'line',m.fmt==='pct',fullCats))}).join('');
@@ -3153,7 +3367,8 @@ function dash(){
       : allGoalsForChart[0].id;
     const activeG = allGoalsForChart.find(g => g.id === selGoalId) || allGoalsForChart[0];
     const gf = window.goalFilter || { mode: 'all', year: 'all', month: 'all', dateFrom: '', dateTo: '', sort: 'asc' };
-    const goalWeeksAll = getGoalChartWeeks(activeG.metric);
+    const isActiveGoalCprev = isCprevFieldKey(activeG.metric) || isCprevLabel(activeG.label);
+    const goalWeeksAll = getGoalChartWeeks(isActiveGoalCprev ? 'cprev' : activeG.metric);
 
     let filteredGoalWeeks = goalWeeksAll;
     if (gf.mode === 'future') {
@@ -3177,11 +3392,13 @@ function dash(){
     const wsGoal = filteredGoalWeeks.slice().sort((a, b) => (gf.sort === 'desc' ? b.id.localeCompare(a.id) : a.id.localeCompare(b.id)));
 
     const getWeekMetricVal = (w, mKey, goalObj) => {
+      if (mKey === 'cprev' || isCprevFieldKey(mKey) || (goalObj && isCprevLabel(goalObj.label))) {
+        return w.cprevEffective != null ? w.cprevEffective : getEffectiveCprev(w);
+      }
       const customM = (cfg.metrics || []).find(cmItem => cmItem.id === mKey || cmItem.title === mKey);
       if (customM) {
         try { return ev(customM.expr, [w]); } catch(e) { return 0; }
       }
-      if (mKey === 'cprev') return w.cprevEffective != null ? w.cprevEffective : getEffectiveCprev(w);
       if (mKey === 'tg') return pct(w.cagend || 0, w.ativas || 0);
       if (mKey === 'conv') return pct(w.agend || 0, w.resp || 0);
       if (mKey === 'convNovos') {
@@ -3228,10 +3445,19 @@ function dash(){
       if (rec) return Number(rec.target) || 0;
       return Number(activeG.target) || 0;
     });
-    const gSer = [
-      { n: activeG.label || activeG.metric, c: css('g'), v: gActuals },
-      { n: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', c: css('a'), v: gTargetLine }
-    ];
+    const gRealizadas = isActiveGoalCprev
+      ? wsGoal.map(w => Math.round(getWeekMetricVal(w, 'creal', activeG) * 10) / 10)
+      : null;
+    const gSer = isActiveGoalCprev
+      ? [
+          { n: activeG.label || activeG.metric, c: css('b'), v: gActuals },
+          { n: 'Consultas realizadas (de fato)', c: css('g'), v: gRealizadas },
+          { n: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', c: css('a'), v: gTargetLine, dashed: true }
+        ]
+      : [
+          { n: activeG.label || activeG.metric, c: css('g'), v: gActuals },
+          { n: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', c: css('a'), v: gTargetLine, dashed: true }
+        ];
     const ovGoals = stdOverrides.find(x => x.id === 'std_goals');
     const gControls = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -3269,9 +3495,23 @@ function dash(){
           else if (gf.year !== 'all' && gf.month !== 'all') effOv.periodFilter = 'ym:' + gf.year + '-' + String(Number(gf.month) + 1).padStart(2, '0');
         }
         if (window._goalSelectorExplicit && effOv.dataSource === 'metas') {
+          effOv.series = isActiveGoalCprev
+            ? [
+                { id: 'g_act', name: activeG.label || activeG.metric, source: 'semanas', field: 'cprev', agg: isPctGoal ? 'PCT' : 'SUM', color: css('b') },
+                { id: 'g_real', name: 'Consultas realizadas (de fato)', source: 'semanas', field: 'creal', agg: 'SUM', color: css('g') },
+                { id: 'g_tgt', name: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', source: 'metas', field: 'goal_target_' + activeG.id, agg: 'SUM', color: css('a'), dashed: true }
+              ]
+            : [
+                { id: 'g_act', name: activeG.label || activeG.metric, source: 'semanas', field: activeG.metric, agg: isPctGoal ? 'PCT' : 'SUM', color: effOv.series?.[0]?.color || css('g') },
+                { id: 'g_tgt', name: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', source: 'metas', field: 'goal_target_' + activeG.id, agg: 'SUM', color: effOv.series?.[1]?.color || css('a'), dashed: true }
+              ];
+        } else if (effOv.dataSource === 'metas' && Array.isArray(effOv.series) && effOv.series.some(s => isCprevFieldKey(s.field) || isCprevLabel(s.name)) && !effOv.series.some(s => s.field === 'creal')) {
+          const prevSeries = effOv.series.find(s => isCprevFieldKey(s.field) || isCprevLabel(s.name));
+          const tgtSeries = effOv.series.find(s => String(s.field || '').startsWith('goal_target_'));
           effOv.series = [
-            { id: 'g_act', name: activeG.label || activeG.metric, source: 'semanas', field: activeG.metric, agg: isPctGoal ? 'PCT' : 'SUM', color: effOv.series?.[0]?.color || css('g') },
-            { id: 'g_tgt', name: 'Meta (' + activeG.target + (isPctGoal ? '%' : '') + ')', source: 'metas', field: 'goal_target_' + activeG.id, agg: 'SUM', color: effOv.series?.[1]?.color || css('a') }
+            { ...(prevSeries || { id: 'g_act', name: 'Consultas previstas da semana', source: 'semanas', field: 'cprev', agg: 'SUM' }), field: 'cprev', color: css('b') },
+            { id: 'g_real', name: 'Consultas realizadas (de fato)', source: 'semanas', field: 'creal', agg: 'SUM', color: css('g') },
+            ...(tgtSeries ? [{ ...tgtSeries, color: tgtSeries.color || css('a'), dashed: true }] : [])
           ];
         }
         goalTrackingHtml = wrapCustomChartCard(effOv, gControls);
@@ -3456,7 +3696,7 @@ function weekList(){
                   <td style="white-space:nowrap;padding:6px 10px;text-align:right">
                     ${ed
                       ? `<input type="number" min="0" data-ek="${k}" value="${w[k] || 0}" style="width:70px;padding:3px 5px;text-align:right">`
-                      : `<span style="font-weight:${['novos','cagend','creal'].includes(k)?'700':'400'}">${(w[k] || 0).toLocaleString('pt-BR')}</span>`
+                      : `<span style="font-weight:${['novos','cagend','creal','cprev'].includes(k)?'700':'400'}">${(w[k] || 0).toLocaleString('pt-BR')}</span>`
                     }
                   </td>
                 `).join('')}
@@ -4036,6 +4276,7 @@ function render(){
   $('#dash').innerHTML=dash();
   updateIndeterminateInputs();
   if(!editRow)$('#wl').innerHTML=weekList();
+  if(!window._wfDirty&&!document.activeElement?.closest?.('#wf'))loadWeek();
   $('#al').innerHTML=apptList();
   updatePastePreviewUI();
 }
@@ -4044,24 +4285,26 @@ function forceRender(){
   $('#dash').innerHTML=dash();
   updateIndeterminateInputs();
   if(!editRow)$('#wl').innerHTML=weekList();
+  if(!window._wfDirty&&!document.activeElement?.closest?.('#wf'))loadWeek();
   $('#al').innerHTML=apptList();
   updatePastePreviewUI();
 }
 
-function go(t){cur=t;['dash','sem','cons','graf','cfg'].forEach(s=>$('#'+s).classList.toggle('hide',s!==t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='dash')render();if(t==='graf'){if(window.KommoGraf){try{window.KommoGraf.render()}catch(err){console.error('Erro ao renderizar gráficos:',err);$('#graf').innerHTML='<div class="card"><p class="note">Erro ao carregar gráficos. Recarregue a página.</p></div>'}}else{$('#graf').innerHTML='<div class="card"><p class="note">Carregando gráficos e métricas...</p></div>'}}if(t==='cfg')renderCfg()}
+function go(t){cur=t;['dash','sem','cons','graf','cfg'].forEach(s=>$('#'+s).classList.toggle('hide',s!==t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));if(t==='dash')render();if(t==='sem'){if(!window._wfDirty)loadWeek();if(!editRow)$('#wl').innerHTML=weekList();}if(t==='graf'){if(window.KommoGraf){try{window.KommoGraf.render()}catch(err){console.error('Erro ao renderizar gráficos:',err);$('#graf').innerHTML='<div class="card"><p class="note">Erro ao carregar gráficos. Recarregue a página.</p></div>'}}else{$('#graf').innerHTML='<div class="card"><p class="note">Carregando gráficos e métricas...</p></div>'}}if(t==='cfg')renderCfg()}
 
 $('#nav').onclick=e=>{if(e.target.dataset.t)go(e.target.dataset.t)};
 buildForm();
 $('#wd').value=today();
 $('#cp_s').value='';
 $('#cp_o').innerHTML=opts(ORIG,'novo');
-$('#wd').onchange=loadWeek;
+$('#wf').addEventListener('input',()=>{window._wfDirty=true;});
+$('#wd').onchange=()=>{window._wfDirty=false;loadWeek();};
 $('#cp').onclick=()=>{
   let id=($('#wd').value||'').trim();
   id=normalizeDateStr(id,new Date().getFullYear());
   const ks=Object.keys(weeks).sort().filter(k=>k<id);
   const p=ks.length?weeks[ks[ks.length-1]]:null;
-  if(p){fillForm(p);toast('Valores copiados de '+fdf(ks[ks.length-1]))}
+  if(p){window._wfDirty=true;fillForm(p);toast('Valores copiados de '+fdf(ks[ks.length-1]))}
   else toast('Não há semana anterior');
 };
 $('#ws').onclick=async()=>{
@@ -4074,11 +4317,19 @@ $('#ws').onclick=async()=>{
   const keysList=Object.keys(weeks||{}).concat(weeks[id]?[]:[id]).sort();
   const idxW=keysList.indexOf(id);
   const {start,end}=getWeekWindow(id,keysList,idxW>=0?idxW:0);
-  const m=computeWeekApptMetrics(id,start,end,Object.values(appts||{}));
-  ['cagend','cprev','creal','ccanc','cfaltou','creag','agend'].forEach(k=>{
+  const allApptsList=Object.values(appts||{});
+  const m=computeWeekApptMetrics(id,start,end,allApptsList);
+  const hasApptsInWin=m.hasData||weekHasScheduleAppts(id,allApptsList,keysList,idxW);
+  const baseApptCprev=id<'2026-11-09'?Math.max(m.cprev,Number(formData.creal||0)):m.cprev;
+  const autoCprev=hasApptsInWin?baseApptCprev:Number(formData.creal||0);
+  ['cagend','creal','ccanc','cfaltou','creag','agend'].forEach(k=>{
     if(Number(formData[k]||0)!==Number(m[k]||0)) nextManual[k]=true;
-    else delete nextManual[k];
+    else nextManual[k]=false;
   });
+  if(Number(formData.cprev||0)!==Number(autoCprev||0)) nextManual.cprev='v2';
+  else nextManual.cprev=false;
+  getCprevAliasKeys().forEach(ak=>{ formData[ak]=formData.cprev; });
+  window._wfDirty=false;
   weeks[id]={...(weeks[id]||{}),...formData,_manual:nextManual,id};
   try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
   await saveDoc('weeks/'+id,weeks[id]);
@@ -4112,7 +4363,7 @@ $('#wdel').onclick=async function(){
 };
 $('#imp').onclick=()=>importRows($('#paste').value.split(/\r?\n/));
 $('#seed').onclick=async()=>{for(const [id,v] of Object.entries(SEED)){const o={};BASEF.forEach(([k],i)=>o[k]=v[i]??0);await saveDoc('weeks/'+id,{...(weeks[id]||{}),...o})}toast('Semanas carregadas')};
-$('#wl').onclick=e=>{const id=e.target.dataset.e;if(id){e.preventDefault();$('#wd').value=id;loadWeek();window.scrollTo({top:0,behavior:'smooth'})}};
+$('#wl').onclick=e=>{const id=e.target.dataset.e;if(id){e.preventDefault();window._wfDirty=false;$('#wd').value=id;loadWeek();window.scrollTo({top:0,behavior:'smooth'})}};
 
 if($('#cp_c')){
   $('#cp_c').onchange=()=>{
@@ -4791,27 +5042,131 @@ $('#dash').addEventListener('input', e => {
   }
 });
 
-function openKpiPatientsModal(metricKey) {
-  const data = window._dashKpiLists && window._dashKpiLists[metricKey];
+function openKpiPatientsModal(metricKey, chartId) {
+  const baseData = window._dashKpiLists && window._dashKpiLists[metricKey];
+  const studioCtx = (chartId && window._studioKpiContexts) ? window._studioKpiContexts[chartId] : null;
+  let data = baseData;
+
+  if (studioCtx) {
+    const allApptsWithId = Object.entries(appts || {}).map(([id, a]) => ({ id, ...a }));
+    const ctxWeeks = Array.isArray(studioCtx.weeks) ? studioCtx.weeks : [];
+    const allChartWeeks = getGoalChartWeeks('cprev');
+    const refKeys = allChartWeeks.map(w => w.id).sort();
+    const ctxWindows = ctxWeeks.map(w => {
+      const idx = refKeys.indexOf(w.id);
+      const win = getWeekWindow(w.id, refKeys, idx >= 0 ? idx : 0);
+      return { id: w.id, start: win.start, end: win.end };
+    });
+    const inCtxWeeks = (isoDate) => {
+      const d = normIso(isoDate);
+      if (!d) return false;
+      return ctxWindows.some(win => d >= win.start && d <= win.end);
+    };
+
+    if (metricKey === 'cprev') {
+      const prevItems = allApptsWithId.filter(a => ctxWindows.some(win => isApptPrevistaInWeek(a, win.start, win.end)));
+      const faltouItems = allApptsWithId.filter(a => ctxWindows.some(win => isApptFaltouInWeek(a, win.start, win.end)));
+      const cancelledItems = allApptsWithId.filter(a => ctxWindows.some(win => isApptCancelledInWeek(a, win.start, win.end)));
+      const pendingItems = allApptsWithId.filter(a => ctxWindows.some(win => isApptPendingInWeek(a, win.start, win.end)));
+      const cancContato = allApptsWithId.filter(a => ctxWindows.some(win => isApptCancelledInContactInWeek(a, win.start, win.end)));
+      data = {
+        title: studioCtx.title || (baseData ? baseData.title : 'Consultas previstas'),
+        subtitle: 'Pacientes que compareceram e agendadas no filtro do card',
+        items: prevItems,
+        faltouItems,
+        cancelledItems,
+        pendingItems,
+        cancelledInContact: cancContato,
+        kpiCount: studioCtx.kpiCount
+      };
+    } else if (metricKey === 'creal') {
+      data = {
+        title: studioCtx.title || (baseData ? baseData.title : 'Consultas realizadas'),
+        subtitle: 'Pacientes que compareceram no filtro do card',
+        items: allApptsWithId.filter(a => (a.status === 'realizada' || a.statusNewDate === 'compareceu') && inCtxWeeks(normIso(a.newDate) || normIso(a.consult) || normIso(a.schedOn))),
+        kpiCount: studioCtx.kpiCount
+      };
+    } else if (metricKey === 'cagend') {
+      data = {
+        title: studioCtx.title || (baseData ? baseData.title : 'Consultas agendadas'),
+        subtitle: 'Pacientes com consulta agendada no filtro do card',
+        items: allApptsWithId.filter(a => inCtxWeeks(normIso(a.schedOn) || normIso(a.consult))),
+        kpiCount: studioCtx.kpiCount
+      };
+    } else if (metricKey === 'canc') {
+      data = {
+        title: studioCtx.title || (baseData ? baseData.title : 'Cancelamento'),
+        subtitle: 'Pacientes com consulta cancelada no filtro do card',
+        items: allApptsWithId.filter(a => isApptCancelled(a) && (inCtxWeeks(a.consult) || inCtxWeeks(a.newDate) || inCtxWeeks(a.schedOn))),
+        kpiCount: studioCtx.kpiCount
+      };
+    } else if (metricKey === 'creag') {
+      data = {
+        title: studioCtx.title || (baseData ? baseData.title : 'Reagendamento'),
+        subtitle: 'Pacientes com consulta reagendada no filtro do card',
+        items: allApptsWithId.filter(a => !!normIso(a.newDate) && (a.status === 'reagendada' || a.statusNewDate === 'reagendou' || !isApptCancelled(a)) && (inCtxWeeks(a.consult) || inCtxWeeks(a.newDate) || inCtxWeeks(a.schedOn))),
+        kpiCount: studioCtx.kpiCount
+      };
+    }
+  }
+
   if (!data) return;
   const existing = document.getElementById('kpi_patients_modal');
   if (existing) existing.remove();
 
   let showAllCancelled = false;
+  let cprevTab = 'realizadas';
   const modal = document.createElement('div');
   modal.id = 'kpi_patients_modal';
   modal.className = 'k-modal-backdrop';
 
-  const getActiveList = () => (metricKey === 'rec' && showAllCancelled && Array.isArray(data.allCancelled)) ? data.allCancelled : (data.items || []);
+  const getActiveList = () => {
+    if (metricKey === 'rec' && showAllCancelled && Array.isArray(data.allCancelled)) return data.allCancelled;
+    if (metricKey === 'cprev') {
+      if (cprevTab === 'faltaram' && Array.isArray(data.faltouItems)) return data.faltouItems;
+      if (cprevTab === 'canceladas' && Array.isArray(data.cancelledItems)) return data.cancelledItems;
+      if (cprevTab === 'pendentes' && Array.isArray(data.pendingItems)) return data.pendingItems;
+    }
+    return data.items || [];
+  };
 
   const renderModalContent = () => {
+    const validItems = data.items || [];
+    const faltouItems = Array.isArray(data.faltouItems) ? data.faltouItems : [];
+    const cancelledItems = Array.isArray(data.cancelledItems) ? data.cancelledItems : (Array.isArray(data.cancelledInContact) ? data.cancelledInContact : []);
+    const pendingItems = Array.isArray(data.pendingItems) ? data.pendingItems : [];
     const list = getActiveList().slice().sort((a, b) => (b.newDate || b.consult || b.schedOn || '').localeCompare(a.newDate || a.consult || a.schedOn || ''));
-    const toggleHtml = (metricKey === 'rec' && Array.isArray(data.allCancelled)) ? `
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-        <button type="button" class="b ${!showAllCancelled ? '' : 's'}" id="kpi_rec_only" style="font-size:12px;padding:4px 10px">Recuperados (${data.items.length})</button>
-        <button type="button" class="b ${showAllCancelled ? '' : 's'}" id="kpi_rec_all" style="font-size:12px;padding:4px 10px">Todos os cancelados (${data.allCancelled.length})</button>
-      </div>
-    ` : '';
+    let toggleHtml = '';
+    if (metricKey === 'rec' && Array.isArray(data.allCancelled)) {
+      toggleHtml = `
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <button type="button" class="b ${!showAllCancelled ? '' : 's'}" id="kpi_rec_only" style="font-size:12px;padding:4px 10px">Recuperados (${data.items.length})</button>
+          <button type="button" class="b ${showAllCancelled ? '' : 's'}" id="kpi_rec_all" style="font-size:12px;padding:4px 10px">Todos os cancelados (${data.allCancelled.length})</button>
+        </div>
+      `;
+    } else if (metricKey === 'cprev') {
+      const cntReal = validItems.filter(a => a.status === 'realizada' || a.statusNewDate === 'compareceu').length;
+      const cntAg = validItems.length - cntReal;
+      let noteBanner = '';
+      if (cprevTab === 'realizadas') {
+        noteBanner = `<div class="note" style="font-size:12px;margin-bottom:10px;padding:7px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px">Contabilizando <b>${validItems.length}</b> paciente(s) em Consultas previstas: <b>${cntReal}</b> que <b>compareceram</b> + <b>${cntAg}</b> <b>agendada(s)</b>. Consultas <b>faltantes (${faltouItems.length})</b> e <b>canceladas (${cancelledItems.length})</b> ficam separadas nas abas ao lado e não entram no total do card nem do gráfico.</div>`;
+      } else if (cprevTab === 'faltaram') {
+        noteBanner = `<div class="note" style="font-size:12px;margin-bottom:10px;padding:7px 10px;background:color-mix(in srgb,var(--p) 10%,var(--card));border:1px solid color-mix(in srgb,var(--p) 30%,var(--line));border-radius:8px">Pacientes com status <b>Faltou</b> no período (<b>${faltouItems.length}</b>). Não são contabilizados no número de Consultas previstas nem no gráfico.</div>`;
+      } else if (cprevTab === 'canceladas') {
+        noteBanner = `<div class="note" style="font-size:12px;margin-bottom:10px;padding:7px 10px;background:color-mix(in srgb,var(--r) 10%,var(--card));border:1px solid color-mix(in srgb,var(--r) 30%,var(--line));border-radius:8px">Pacientes com status <b>Cancelada</b> no período — incluindo <b>Em contato</b> e <b>Não conseguiu</b> (<b>${cancelledItems.length}</b>). Não são contabilizados no número de Consultas previstas nem no gráfico.</div>`;
+      } else if (cprevTab === 'pendentes') {
+        noteBanner = `<div class="note" style="font-size:12px;margin-bottom:10px;padding:7px 10px;background:color-mix(in srgb,var(--a) 10%,var(--card));border:1px solid color-mix(in srgb,var(--a) 30%,var(--line));border-radius:8px">Pacientes com status <b>Reagendada</b> sem nova data confirmada nesta semana (<b>${pendingItems.length}</b>). Não entram na contagem até terem nova data definida.</div>`;
+      }
+      toggleHtml = `
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+          <button type="button" class="b ${cprevTab === 'realizadas' ? '' : 's'}" id="kpi_cprev_valid" style="font-size:12px;padding:4px 10px">Compareceram + Agendadas (${validItems.length})</button>
+          <button type="button" class="b ${cprevTab === 'faltaram' ? '' : 's'}" id="kpi_cprev_faltaram" style="font-size:12px;padding:4px 10px">Faltaram (${faltouItems.length} · não contam)</button>
+          <button type="button" class="b ${cprevTab === 'canceladas' ? '' : 's'}" id="kpi_cprev_canceladas" style="font-size:12px;padding:4px 10px">Canceladas (${cancelledItems.length} · não contam)</button>
+          ${pendingItems.length > 0 ? `<button type="button" class="b ${cprevTab === 'pendentes' ? '' : 's'}" id="kpi_cprev_pendentes" style="font-size:12px;padding:4px 10px">Reagendadas sem data (${pendingItems.length} · não contam)</button>` : ''}
+        </div>
+        ${noteBanner}
+      `;
+    }
 
     const rowsHtml = list.length ? `
       <div class="wrap" style="max-height:52vh;overflow:auto">
@@ -4848,8 +5203,8 @@ function openKpiPatientsModal(metricKey) {
       </div>
     ` : '<p class="note" style="padding:12px 0">Nenhum paciente encontrado para esta métrica no filtro atual.</p>';
 
-    const legacyNote = (typeof data.kpiCount === 'number' && !showAllCancelled && data.kpiCount > list.length)
-      ? `<div class="note" style="font-size:12px;margin-bottom:10px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px">O card soma <b>${data.kpiCount}</b> registro(s) no período (incluindo lançamentos manuais de semanas anteriores sem cadastro individual na aba Consultas). Abaixo estão os <b>${list.length}</b> paciente(s) cadastrados individualmente.</div>`
+    const legacyNote = (typeof data.kpiCount === 'number' && !showAllCancelled && !(metricKey === 'cprev' && cprevTab !== 'realizadas') && data.kpiCount > list.length)
+      ? `<div class="note" style="font-size:12px;margin-bottom:10px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px">O card soma <b>${data.kpiCount}</b> registro(s) no período (incluindo lançamentos manuais ou edições diretas nas semanas sem correspondência individual na aba Consultas). Abaixo estão os <b>${list.length}</b> paciente(s) cadastrados individualmente.</div>`
       : '';
 
     modal.innerHTML = `
@@ -4875,6 +5230,10 @@ function openKpiPatientsModal(metricKey) {
     modal.querySelector('#kpi_modal_close')?.addEventListener('click', () => modal.remove());
     modal.querySelector('#kpi_rec_only')?.addEventListener('click', () => { showAllCancelled = false; renderModalContent(); });
     modal.querySelector('#kpi_rec_all')?.addEventListener('click', () => { showAllCancelled = true; renderModalContent(); });
+    modal.querySelector('#kpi_cprev_valid')?.addEventListener('click', () => { cprevTab = 'realizadas'; renderModalContent(); });
+    modal.querySelector('#kpi_cprev_faltaram')?.addEventListener('click', () => { cprevTab = 'faltaram'; renderModalContent(); });
+    modal.querySelector('#kpi_cprev_canceladas')?.addEventListener('click', () => { cprevTab = 'canceladas'; renderModalContent(); });
+    modal.querySelector('#kpi_cprev_pendentes')?.addEventListener('click', () => { cprevTab = 'pendentes'; renderModalContent(); });
     modal.querySelectorAll('[data-kpi-hist]').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-kpi-hist');
@@ -4920,7 +5279,7 @@ function openKpiPatientsModal(metricKey) {
 document.addEventListener('click', e => {
   const kpiCard = e.target.closest('#dash [data-kpi-metric]');
   if (kpiCard) {
-    openKpiPatientsModal(kpiCard.dataset.kpiMetric);
+    openKpiPatientsModal(kpiCard.dataset.kpiMetric, kpiCard.dataset.kpiChartId || '');
     return;
   }
   let changed = false;
@@ -4955,11 +5314,18 @@ $('#wl').addEventListener('click',async e=>{
     const keysList=Object.keys(weeks||{}).sort();
     const idxW=keysList.indexOf(id);
     const {start,end}=getWeekWindow(id,keysList,idxW>=0?idxW:0);
-    const m=computeWeekApptMetrics(id,start,end,Object.values(appts||{}));
-    ['cagend','cprev','creal','ccanc','cfaltou','creag','agend'].forEach(k=>{
+    const allApptsList=Object.values(appts||{});
+    const m=computeWeekApptMetrics(id,start,end,allApptsList);
+    const hasApptsInWin=m.hasData||weekHasScheduleAppts(id,allApptsList,keysList,idxW);
+    const baseApptCprev=id<'2026-11-09'?Math.max(m.cprev,Number(o.creal||0)):m.cprev;
+    const autoCprev=hasApptsInWin?baseApptCprev:Number(o.creal||0);
+    ['cagend','creal','ccanc','cfaltou','creag','agend'].forEach(k=>{
       if(Number(o[k]||0)!==Number(m[k]||0)) nextManual[k]=true;
-      else delete nextManual[k];
+      else nextManual[k]=false;
     });
+    if(Number(o.cprev||0)!==Number(autoCprev||0)) nextManual.cprev='v2';
+    else nextManual.cprev=false;
+    getCprevAliasKeys().forEach(ak=>{ o[ak]=o.cprev; });
     editRow=null;
     weeks[id]={...w0,...o,_manual:nextManual,id};
     try{localStorage.setItem('kommo_weeks_v3',JSON.stringify(weeks));}catch(e){}
@@ -5372,12 +5738,19 @@ window.KommoApp = {
   getGoalChartWeeks,
   getAgendaWeeksData,
   getEffectiveCprev,
+  getCprevAliasKeys,
+  isCprevFieldKey,
   weekTotalConsultas,
   msgs,
   today,
   getSaturdayOfWeek,
   getWeekWindow,
   computeWeekApptMetrics,
+  isApptPrevistaInWeek,
+  isApptCancelledInContactInWeek,
+  isApptFaltouInWeek,
+  isApptCancelledInWeek,
+  isApptPendingInWeek,
   isGoalApplicableToWeek,
   FIELDS,
   ORIG,
