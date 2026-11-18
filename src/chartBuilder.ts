@@ -21,6 +21,7 @@ export interface SeriesItem {
   field: string;
   agg: StudioAgg;
   color: string;
+  dashed?: boolean;
 }
 
 export type StudioFilterOp = 'eq' | 'neq' | 'contains' | 'gte' | 'lte' | 'between';
@@ -118,7 +119,8 @@ function resolveWeekMetricValue(w: any, fieldKey: string, app: any, allAppts: an
     try { return Number(app.ev(customM.expr, [w])) || 0; } catch { return 0; }
   }
 
-  if (fieldKey === 'cprev') {
+  const isCprevAlias = fieldKey === 'cprev' || (app.isCprevFieldKey && app.isCprevFieldKey(fieldKey));
+  if (isCprevAlias) {
     if (w.cprevEffective != null) return Number(w.cprevEffective) || 0;
     if (app.getEffectiveCprev) return Number(app.getEffectiveCprev(w)) || 0;
     return Number(w.cprev) || 0;
@@ -196,8 +198,9 @@ export function computeStudioChartData(c: StudioChartCfg) {
   const app = getApp();
   const ds = c.dataSource || 'semanas';
   const firstGoalSeries = (c.series || []).find(s => s.field && !s.field.startsWith('goal_target_'));
-  const WA: any[] = ds === 'metas' && app.getGoalChartWeeks
-    ? app.getGoalChartWeeks(firstGoalSeries?.field)
+  const isFirstCprev = firstGoalSeries && (firstGoalSeries.field === 'cprev' || (app.isCprevFieldKey && app.isCprevFieldKey(firstGoalSeries.field)));
+  const WA: any[] = (ds === 'metas' || (c.type === 'kpi' && isFirstCprev)) && app.getGoalChartWeeks
+    ? app.getGoalChartWeeks(isFirstCprev ? 'cprev' : firstGoalSeries?.field)
     : (app.W ? app.W() : []);
   const allAppts: any[] = Object.values(app.appts || {});
   const cfg = app.cfg || {};
@@ -598,11 +601,13 @@ export function computeStudioChartData(c: StudioChartCfg) {
     }
 
     const isPct = isBuiltInPct || (s.agg === 'PCT' && !s.field.startsWith('goal_target_'));
+    const dashed = Boolean(s.dashed || s.field.startsWith('goal_target_') || /^meta\b/i.test((s.name && String(s.name).trim()) || ''));
     return {
       n: (s.name && String(s.name).trim()) || s.field || `Série ${idx + 1}`,
       c: s.color || palette[idx % palette.length],
       v: finalValues.map(v => Math.round(v * 100) / 100),
-      isPct
+      isPct,
+      dashed
     };
   });
 
@@ -613,7 +618,9 @@ export function computeStudioChartData(c: StudioChartCfg) {
     meta: {
       weekCount: filteredWeeks.length,
       apptCount: filteredAppts.length,
-      rowCount: matchedRowCount
+      rowCount: matchedRowCount,
+      weeks: filteredWeeks,
+      appts: filteredAppts
     }
   };
 }
@@ -624,7 +631,7 @@ export function renderStudioSvg(c: StudioChartCfg): { html: string } {
   const app = getApp();
   const esc = app.esc || ((s: any) => String(s ?? ''));
   const pf = app.pf || ((v: number) => v.toFixed(1).replace('.', ',') + '%');
-  const { labels, series, categories } = computeStudioChartData(c);
+  const { labels, series, categories, meta } = computeStudioChartData(c);
 
   if (!labels.length || !series.length) {
     return {
@@ -644,11 +651,22 @@ export function renderStudioSvg(c: StudioChartCfg): { html: string } {
     const field0 = String(c.series?.[0]?.field || '');
     let kpiKey = '';
     if (field0 === 'creal' || titleLow.includes('consultas realizadas')) kpiKey = 'creal';
-    else if (field0 === 'cprev' || titleLow.includes('consultas previstas')) kpiKey = 'cprev';
+    else if (field0 === 'cprev' || (app.isCprevFieldKey && app.isCprevFieldKey(field0)) || titleLow.includes('consultas previstas')) kpiKey = 'cprev';
     else if (field0 === 'cagend' || titleLow.includes('consultas agendadas')) kpiKey = 'cagend';
     else if (field0 === 'ccanc' || titleLow.includes('cancelad')) kpiKey = 'canc';
     else if (field0 === 'creag' || titleLow.includes('reagendad')) kpiKey = 'creag';
-    const clickAttrs = kpiKey ? ` data-kpi-metric="${esc(kpiKey)}" style="border-left:4px solid ${s.c};cursor:pointer" title="Clique para ver os pacientes desta métrica"` : ` style="border-left:4px solid ${s.c}"`;
+    if (kpiKey && c.id) {
+      const w = window as any;
+      w._studioKpiContexts = w._studioKpiContexts || {};
+      w._studioKpiContexts[c.id] = {
+        title: c.title,
+        field0,
+        weeks: meta?.weeks || [],
+        appts: meta?.appts || [],
+        kpiCount: totalVal
+      };
+    }
+    const clickAttrs = kpiKey ? ` data-kpi-metric="${esc(kpiKey)}" data-kpi-chart-id="${esc(c.id || '')}" style="border-left:4px solid ${s.c};cursor:pointer" title="Clique para ver os pacientes desta métrica"` : ` style="border-left:4px solid ${s.c}"`;
     const clickHint = kpiKey ? `<small style="color:var(--g);font-weight:600;margin-top:4px">Ver pacientes →</small>` : '';
     return {
       html: `
@@ -662,7 +680,7 @@ export function renderStudioSvg(c: StudioChartCfg): { html: string } {
     };
   }
 
-  const leg = `<div class="lg" role="list" aria-label="Legenda"><b style="color:var(--ink)">Legenda:</b>${series.map(x => `<span role="listitem"><i style="background:${x.c}"></i>${esc(x.n)}</span>`).join('')}</div>`;
+  const leg = `<div class="lg" role="list" aria-label="Legenda"><b style="color:var(--ink)">Legenda:</b>${series.map(x => `<span role="listitem">${x.dashed ? `<i style="background:none;border-top:2.5px dashed ${x.c};height:0;width:15px;border-radius:0;vertical-align:middle"></i>` : `<i style="background:${x.c}"></i>`}${esc(x.n)}</span>`).join('')}</div>`;
 
   if (c.type === 'pie' || c.type === 'donut') {
     const s = series[0];
@@ -886,20 +904,73 @@ export function renderStudioSvg(c: StudioChartCfg): { html: string } {
       });
     });
   } else {
-    series.forEach(s => {
+    const orderedSeries = [
+      ...series.filter(s => s.dashed),
+      ...series.filter(s => !s.dashed)
+    ];
+    const solidSeriesList = orderedSeries.filter(s => !s.dashed);
+    orderedSeries.forEach(s => {
+      const isRef = Boolean(s.dashed);
+      const solidIdx = isRef ? -1 : solidSeriesList.indexOf(s);
+      const isMultiSolid = solidSeriesList.length > 1;
+      const lineW = isRef ? '2' : (isMultiSolid && solidIdx === 0 ? '3.3' : (isMultiSolid && solidIdx > 0 ? '2.1' : '2.6'));
+      const dotR = isRef ? '3.2' : (isMultiSolid && solidIdx === 0 ? '5.4' : (isMultiSolid && solidIdx > 0 ? '3.3' : '4.5'));
       const pts = s.v.map((v, i) => [L + bw * i + bw / 2, y(v || 0)]);
-      if (c.type === 'area' && pts.length) {
+      if (c.type === 'area' && pts.length && !isRef) {
         const areaPath = `M ${pts[0][0]} ${T + ih} L ${pts.map(p => p.join(' ')).join(' L ')} L ${pts[pts.length - 1][0]} ${T + ih} Z`;
         o += `<path d="${areaPath}" fill="${s.c}" opacity="0.18"/>`;
       }
-      o += `<polyline fill="none" stroke="${s.c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
+      o += `<polyline fill="none" stroke="${s.c}" stroke-width="${lineW}" ${isRef ? 'stroke-dasharray="6 4" opacity="0.88"' : ''} stroke-linecap="round" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
       pts.forEach((p, i) => {
         const v = s.v[i] || 0;
         const valStr = s.isPct ? pf(v) : v.toLocaleString('pt-BR');
         const cat = categories[i] || labels[i];
-        o += `<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="${s.c}" stroke="var(--card)" stroke-width="2"
+        o += `<circle cx="${p[0]}" cy="${p[1]}" r="${dotR}" fill="${s.c}" stroke="var(--card)" stroke-width="${isRef ? '1.5' : '1.8'}"
           data-tip-series="${esc(s.n)}" data-tip-color="${s.c}" data-tip-cat="${esc(cat)}" data-tip-val="${valStr}"></circle>`;
-        o += `<text x="${p[0]}" y="${p[1] - 8}" text-anchor="middle" font-weight="600" font-size="9.5px">${valStr}</text>`;
+        o += `<circle cx="${p[0]}" cy="${p[1]}" r="15" fill="transparent"
+          data-tip-series="${esc(s.n)}" data-tip-color="${s.c}" data-tip-cat="${esc(cat)}" data-tip-val="${valStr}"></circle>`;
+      });
+    });
+
+    labels.forEach((_, i) => {
+      const colPts = orderedSeries.map(s => {
+        const isRef = Boolean(s.dashed);
+        const v = s.v[i] || 0;
+        const isFlatRef = isRef && s.v.every(x => x === s.v[0]);
+        return {
+          s,
+          isRef,
+          isFlatRef,
+          cx: L + bw * i + bw / 2,
+          cy: y(v),
+          valStr: s.isPct ? pf(v) : v.toLocaleString('pt-BR')
+        };
+      });
+      const placedLabels: { ly: number; cy: number; valStr: string; isRef: boolean }[] = [];
+      const sortedPts = colPts.slice().sort((a, b) => {
+        if (a.isRef !== b.isRef) return a.isRef ? 1 : -1;
+        return a.cy - b.cy;
+      });
+      sortedPts.forEach(pt => {
+        if (pt.isFlatRef && i > 0 && i < labels.length - 1) {
+          const nearOther = colPts.some(oPt => !oPt.isRef && Math.abs(oPt.cy - pt.cy) < 16);
+          if (nearOther) return;
+        }
+        if (!pt.isRef && placedLabels.some(pl => !pl.isRef && Math.abs(pl.cy - pt.cy) <= 2 && pl.valStr === pt.valStr)) {
+          return;
+        }
+        let ly = pt.cy - 8;
+        if (ly < 11) ly = pt.cy + 15;
+        for (let attempt = 0; attempt < 4; attempt++) {
+          const collision = placedLabels.some(pl => Math.abs(pl.ly - ly) < 12);
+          if (!collision) break;
+          if (attempt === 0) ly = pt.cy + 14;
+          else if (attempt === 1) ly = pt.cy - 17;
+          else ly = pt.cy + 22;
+        }
+        ly = Math.max(10, Math.min(T + ih + 10, ly));
+        placedLabels.push({ ly, cy: pt.cy, valStr: pt.valStr, isRef: pt.isRef });
+        o += `<text x="${pt.cx}" y="${ly}" text-anchor="middle" font-weight="${pt.isRef ? '600' : '700'}" font-size="9.5px" fill="${pt.isRef ? 'var(--mut)' : pt.s.c}" style="paint-order:stroke;stroke:var(--card);stroke-width:3.5px;stroke-linejoin:round">${pt.valStr}</text>`;
       });
     });
   }
@@ -1141,26 +1212,56 @@ export function getStandardChartDefs(): Record<string, StudioChartCfg> {
   const selGoalId = app.selectedGoalChartId;
   const activeGoal = (selGoalId && goals.find((g: any) => g.id === selGoalId)) || goals[0];
   const goalSeries: SeriesItem[] = activeGoal
-    ? [
-        {
-          id: 'g_act',
-          name: activeGoal.label || activeGoal.metric,
-          source: 'semanas',
-          field: activeGoal.metric,
-          agg: activeGoal.unit === 'pct' ? 'PCT' : 'SUM',
-          color: palette[0]
-        },
-        {
-          id: 'g_tgt',
-          name: `Meta (${activeGoal.target}${activeGoal.unit === 'pct' ? '%' : ''})`,
-          source: 'metas',
-          field: 'goal_target_' + activeGoal.id,
-          agg: 'SUM',
-          color: palette[2]
-        }
-      ]
+    ? (activeGoal.metric === 'cprev'
+        ? [
+            {
+              id: 'g_act',
+              name: activeGoal.label || activeGoal.metric,
+              source: 'semanas',
+              field: activeGoal.metric,
+              agg: activeGoal.unit === 'pct' ? 'PCT' : 'SUM',
+              color: palette[1]
+            },
+            {
+              id: 'g_real',
+              name: 'Consultas realizadas (de fato)',
+              source: 'semanas',
+              field: 'creal',
+              agg: 'SUM',
+              color: palette[0]
+            },
+            {
+              id: 'g_tgt',
+              name: `Meta (${activeGoal.target}${activeGoal.unit === 'pct' ? '%' : ''})`,
+              source: 'metas',
+              field: 'goal_target_' + activeGoal.id,
+              agg: 'SUM',
+              color: palette[2],
+              dashed: true
+            }
+          ]
+        : [
+            {
+              id: 'g_act',
+              name: activeGoal.label || activeGoal.metric,
+              source: 'semanas',
+              field: activeGoal.metric,
+              agg: activeGoal.unit === 'pct' ? 'PCT' : 'SUM',
+              color: palette[0]
+            },
+            {
+              id: 'g_tgt',
+              name: `Meta (${activeGoal.target}${activeGoal.unit === 'pct' ? '%' : ''})`,
+              source: 'metas',
+              field: 'goal_target_' + activeGoal.id,
+              agg: 'SUM',
+              color: palette[2],
+              dashed: true
+            }
+          ])
     : [
-        { id: 'g_act', name: 'Consultas previstas da semana', source: 'semanas', field: 'cprev', agg: 'SUM', color: palette[0] }
+        { id: 'g_act', name: 'Consultas previstas da semana', source: 'semanas', field: 'cprev', agg: 'SUM', color: palette[1] },
+        { id: 'g_real', name: 'Consultas realizadas (de fato)', source: 'semanas', field: 'creal', agg: 'SUM', color: palette[0] }
       ];
 
   return {
