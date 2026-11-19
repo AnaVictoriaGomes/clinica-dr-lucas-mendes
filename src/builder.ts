@@ -305,10 +305,10 @@ export function computeChartData(config: CustomChartConfig, ctx: any) {
       if (s.source === 'semanas') {
         if (!b.weeks.length) return 0;
         const vals = b.weeks.map(w => {
-          if (s.field === 'msgs') return (w.fu2 || 0) + (w.fu3 || 0) + (w.fu4 || 0) + (w.fu5 || 0);
+          if (s.field === 'msgs') return (w.fu2 || 0) + (w.fu3 || 0) + (w.fu4 || 0) + (w.fu5 || 0) + (w.fu6 || 0) + (w.fuparados || 0);
           if (s.field === 'tot') return (w.creal || 0) + (w.ccanc || 0) + (w.creag || 0);
           if (s.field === 'rate_resp') {
-            const m = (w.fu2 || 0) + (w.fu3 || 0) + (w.fu4 || 0) + (w.fu5 || 0);
+            const m = (w.fu2 || 0) + (w.fu3 || 0) + (w.fu4 || 0) + (w.fu5 || 0) + (w.fu6 || 0) + (w.fuparados || 0);
             return m > 0 ? pct(w.resp || 0, m) : 0;
           }
           if (s.field === 'rate_conv') {
