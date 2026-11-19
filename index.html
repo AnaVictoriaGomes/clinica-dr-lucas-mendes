@@ -30,6 +30,7 @@ main{max-width:1320px;margin:auto;padding:20px 22px 40px}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:14px}
 .charts{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0;box-shadow:0 1px 2px rgba(16,40,36,.05),0 6px 20px -10px rgba(16,40,36,.12)}
+.card-full{grid-column:1 / -1}
 .kpi{position:relative;overflow:hidden;padding:16px 16px 14px 19px}
 .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--g)}
 .kpi span{display:block;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
@@ -132,6 +133,7 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 .ef-toggle{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;font-size:9.5px;cursor:pointer;color:var(--mut);border-radius:3px}
 .ef-toggle:hover{background:var(--line);color:var(--ink)}
 .ef-children{margin-left:14px;border-left:1px dashed var(--line);padding-left:5px}
+.excel-popover input[type="checkbox"]{min-height:0;padding:0;width:15px;height:15px;accent-color:var(--g);flex-shrink:0;cursor:pointer}
 .excel-footer-controls{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
 
 /* Mini Filtro Exclusivo do Gráfico da Agenda */
@@ -176,6 +178,43 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 .k-radio-card{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;cursor:pointer;transition:all .15s;background:var(--card)}
 .k-radio-card.active-warn{border-color:var(--a);background:color-mix(in srgb,var(--a) 8%,var(--card))}
 .k-radio-card.active-info{border-color:var(--b);background:color-mix(in srgb,var(--b) 8%,var(--card))}
+/* Calendário anual/mensal multi-seleção para Metas */
+.gm-cal-wrap{grid-column:1 / -1;display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.gm-cal-wrap.hide{display:none!important}
+.gm-cal-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.gm-cal-title-block{display:flex;flex-direction:column;gap:2px}
+.gm-cal-title{font-size:13.5px;font-weight:700;color:var(--ink)}
+.gm-cal-summary{font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}
+.gm-cal-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.gm-year-seg{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid var(--line);border-radius:9px;background:var(--bg)}
+.gm-year-btn{border:0;background:transparent;color:var(--mut);font:inherit;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;padding:6px 11px;min-height:34px;border-radius:7px;cursor:pointer;white-space:nowrap;transition:background .15s cubic-bezier(.16,1,.3,1),color .15s}
+.gm-year-btn:hover{color:var(--ink);background:color-mix(in srgb,var(--line) 45%,transparent)}
+.gm-year-btn.active{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.gm-year-step{border:0;background:transparent;color:var(--mut);font:inherit;font-size:14px;font-weight:700;width:34px;height:34px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.gm-year-step:hover{color:var(--ink);background:color-mix(in srgb,var(--line) 50%,transparent)}
+.gm-act-btn{border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:12px;font-weight:600;padding:6px 12px;min-height:36px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:border-color .15s,background .15s,color .15s}
+.gm-act-btn:hover:not(:disabled){border-color:var(--g);color:var(--g)}
+.gm-act-btn:disabled{opacity:.45;cursor:not-allowed}
+.gm-cal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:700px){.gm-cal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:440px){.gm-cal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.gm-month-btn{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:4px;min-height:56px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;text-align:left;cursor:pointer;font-variant-numeric:tabular-nums;transition:transform .12s cubic-bezier(.16,1,.3,1),border-color .15s,background .15s,color .15s}
+.gm-month-btn:hover{border-color:var(--g);background:color-mix(in srgb,var(--g) 7%,var(--bg))}
+.gm-month-btn:active{transform:scale(.98)}
+.gm-month-top{width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.gm-month-name{font-size:13.5px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gm-month-check{font-size:12px;font-weight:700;opacity:0;transition:opacity .12s;flex-shrink:0}
+.gm-month-sub{font-size:11px;color:var(--mut);font-weight:500;white-space:nowrap}
+.gm-month-btn.is-current{border-color:color-mix(in srgb,var(--b) 55%,var(--line))}
+.gm-month-btn.is-current .gm-month-sub{color:var(--b);font-weight:600}
+.gm-month-btn.is-selected{background:var(--g);border-color:var(--g);color:#fff}
+.gm-month-btn.is-selected .gm-month-sub{color:rgba(255,255,255,.86)}
+.gm-month-btn.is-selected .gm-month-check{opacity:1;color:#fff}
+.gm-month-btn.is-selected:hover{filter:brightness(1.06);background:var(--g)}
+.gm-cal-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}
+.gm-sel-list{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.gm-sel-remove{border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:12px;font-weight:600;padding:4px 9px;min-height:28px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:border-color .15s,background .15s,color .15s}
+.gm-sel-remove:hover{border-color:var(--r);background:color-mix(in srgb,var(--r) 10%,var(--bg));color:var(--r)}
 </style>
 </head>
 <body class="locked">
@@ -263,7 +302,7 @@ svg circle[data-tip-series]:hover{filter:brightness(1.25);stroke-width:2.5px}
 <div id="msg"></div>
 
 <script>
-let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana'],['cprev','Consultas previstas da semana']];
+let FIELDS=[['novos','Novos leads'],['antigas','Conversas antigas retomadas'],['ativas','Total de conversas ativas'],['fu2','Contatados no follow-up 2'],['fu3','Contatados no follow-up 3'],['fu4','Contatados no follow-up 4'],['fu5','Contatados no follow-up 5'],['fu6','6º contato (FU sem retorno)'],['fuparados','FU pacientes parados'],['resp','Respostas recebidas no follow-up'],['agend','Agendamentos gerados pelo follow-up'],['semresp','Sem resposta no follow-up (total atual)'],['pensando','Pensando ou pesquisando (total atual)'],['aguard','Aguardando dados de cadastro (total atual)'],['nao','Não vão seguir (total atual)'],['cagend','Consultas agendadas na semana'],['ccanc','Consultas canceladas da semana'],['creag','Consultas reagendadas na semana'],['creal','Consultas realizadas na semana'],['cprev','Consultas previstas da semana']];
 const SEED={"2026-09-23":[321,64,380,0,0,0,0,0,0,326,25,8,5,40,0,0,1],"2026-09-26":[100,2,473,346,0,0,0,20,3,326,33,3,9,13,6,2,5],"2026-10-03":[52,2,513,33,375,0,0,25,6,350,31,0,14,7,4,0,11],"2026-10-10":[27,0,514,14,163,290,0,70,3,397,45,6,26,10,9,1,11]};
 const ORIG={novo:'Novo lead',c2:'2º contato (FU 2)',c3:'3º contato (FU 3)',c4:'4º contato (FU 4)',c5:'5º contato (FU 5)',sem:'Sem retorno no follow-up'};
 const STAT={agendada:'Agendada',realizada:'Compareceu',reagendada:'Reagendou',nao_compareceu:'Faltou',cancelada:'Cancelada'};
@@ -295,6 +334,16 @@ window.goalFilter = window.goalFilter || {
   year: 'all',
   month: 'all',
   search: '',
+  sort: 'asc',
+  isOpen: false
+};
+
+window.monthlyGoalFilter = window.monthlyGoalFilter || {
+  mode: 'all',
+  year: 'all',
+  month: 'all',
+  ymFrom: '',
+  ymTo: '',
   sort: 'asc',
   isOpen: false
 };
@@ -440,6 +489,35 @@ function getWeekWindow(id, keys, i) {
     end = addDays(keys[i + 1], -1);
   }
   return { start, end };
+}
+
+// Regra de divisão semana -> mês: a semana pertence ao mês (YYYY-MM) com maior quantidade de dias na sua janela
+// Ex: 26/09..02/10 (5 dias em Set vs 2 em Out) -> Setembro; 31/10..06/11 (1 dia em Out vs 6 em Nov) -> Novembro
+function getWeekEffectiveYM(weekId, keys, idx) {
+  if (!weekId || !/^\d{4}-\d{2}-\d{2}$/.test(weekId)) return '';
+  const kList = Array.isArray(keys) && keys.length ? keys : Object.keys(weeks || {}).sort();
+  const i = (idx != null && idx >= 0) ? idx : kList.indexOf(weekId);
+  const { start, end } = i >= 0 ? getWeekWindow(weekId, kList, i) : getWeekWindow(weekId, null, -1);
+  const counts = {};
+  let cursor = start;
+  let guard = 0;
+  while (cursor && cursor <= end && guard < 14) {
+    const ym = cursor.slice(0, 7);
+    counts[ym] = (counts[ym] || 0) + 1;
+    if (cursor === end) break;
+    cursor = addDays(cursor, 1);
+    guard++;
+  }
+  let bestYM = weekId.slice(0, 7);
+  let bestCount = -1;
+  Object.keys(counts).sort().forEach(ym => {
+    const c = counts[ym];
+    if (c > bestCount || (c === bestCount && ym > bestYM)) {
+      bestCount = c;
+      bestYM = ym;
+    }
+  });
+  return bestYM;
 }
 
 function getSaturdayOfWeek(isoDate) {
@@ -809,6 +887,358 @@ function getGoalChartWeeks(metricKey) {
   return Array.from(byId.values()).sort((a, b) => a.id.localeCompare(b.id));
 }
 
+/* ===== METAS MENSAIS: JANELAS DE DATA E CONTABILIZAÇÃO MENSAL ===== */
+function addMonthsYM(ym, delta) {
+  const parts = String(ym || today().slice(0, 7)).split('-').map(Number);
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return today().slice(0, 7);
+  const dt = new Date(parts[0], parts[1] - 1 + (delta || 0), 1);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function getLastDayOfMonth(ym) {
+  const parts = String(ym || today().slice(0, 7)).split('-').map(Number);
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return today();
+  const lastDay = new Date(parts[0], parts[1], 0).getDate();
+  return `${parts[0]}-${String(parts[1]).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+}
+
+function formatMonthShort(ym) {
+  const parts = String(ym || '').split('-');
+  if (parts.length !== 2) return ym || '—';
+  const mIdx = parseInt(parts[1], 10) - 1;
+  const mName = (MONTH_NAMES[mIdx] || parts[1]).slice(0, 3);
+  return mName.charAt(0).toUpperCase() + mName.slice(1) + '/' + parts[0].slice(2);
+}
+
+function formatMonthFull(ym) {
+  const parts = String(ym || '').split('-');
+  if (parts.length !== 2) return ym || '—';
+  const mIdx = parseInt(parts[1], 10) - 1;
+  const mName = MONTH_NAMES[mIdx] || parts[1];
+  return mName.charAt(0).toUpperCase() + mName.slice(1) + '/' + parts[0];
+}
+
+function diffDaysInclusive(startIso, endIso) {
+  if (!startIso || !endIso || endIso < startIso) return 0;
+  const s = new Date(startIso + 'T12:00:00');
+  const e = new Date(endIso + 'T12:00:00');
+  return Math.max(0, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
+}
+
+function getGoalTargetMonths(goal) {
+  if (!goal) return [];
+  const set = new Set();
+  if (Array.isArray(goal.targetMonths)) {
+    goal.targetMonths.forEach(ym => {
+      if (ym && /^\d{4}-\d{2}$/.test(ym)) set.add(ym);
+    });
+  }
+  if (goal.targetMonth && /^\d{4}-\d{2}$/.test(goal.targetMonth)) {
+    set.add(goal.targetMonth);
+  }
+  return Array.from(set).sort();
+}
+
+function isMonthlyGoalApplicable(goal, ym) {
+  if (!goal || goal.periodType !== 'monthly') return false;
+  const tgtMonths = getGoalTargetMonths(goal);
+  if (goal.monthScope === 'specific' || (tgtMonths.length > 0 && goal.monthScope !== 'recurrent')) {
+    return tgtMonths.includes(ym);
+  }
+  if (goal.startMonth && ym < goal.startMonth) return false;
+  if (goal.endMonth && ym > goal.endMonth) return false;
+  return true;
+}
+
+function getMonthModeDescription(goal) {
+  if (!goal) return 'Dia 01 ao último dia';
+  const m = goal.monthMode || 'calendar';
+  if (m === 'weeks_in_month') return 'Semanas do mês';
+  if (m === 'custom_cycle') {
+    const sd = Math.min(28, Math.max(1, parseInt(goal.cycleStartDay || '1', 10) || 1));
+    if (sd === 1) return 'Dia 01 ao último dia';
+    const ed = sd - 1;
+    return `Ciclo dia ${String(sd).padStart(2, '0')} a ${String(ed).padStart(2, '0')}`;
+  }
+  return 'Dia 01 ao último dia';
+}
+
+function getMonthGoalWindow(ym, goal, launchedWeeks) {
+  const mode = (goal && goal.monthMode) || 'calendar';
+  if (mode === 'custom_cycle') {
+    const sd = Math.min(28, Math.max(1, parseInt((goal && goal.cycleStartDay) || '1', 10) || 1));
+    if (sd > 1) {
+      const ref = (goal && goal.cycleRef) || 'prev_to_curr';
+      if (ref === 'curr_to_next') {
+        const nextYm = addMonthsYM(ym, 1);
+        return {
+          start: `${ym}-${String(sd).padStart(2, '0')}`,
+          end: `${nextYm}-${String(sd - 1).padStart(2, '0')}`
+        };
+      }
+      const prevYm = addMonthsYM(ym, -1);
+      return {
+        start: `${prevYm}-${String(sd).padStart(2, '0')}`,
+        end: `${ym}-${String(sd - 1).padStart(2, '0')}`
+      };
+    }
+  }
+  if (mode === 'weeks_in_month') {
+    const list = (launchedWeeks || W()).slice().sort((a, b) => a.id.localeCompare(b.id));
+    const keys = list.map(w => w.id);
+    const inM = list.filter(w => getWeekEffectiveYM(w.id, keys) === ym);
+    if (inM.length) {
+      const firstIdx = keys.indexOf(inM[0].id);
+      const lastIdx = keys.indexOf(inM[inM.length - 1].id);
+      const wStart = getWeekWindow(inM[0].id, keys, firstIdx).start;
+      const wEnd = getWeekWindow(inM[inM.length - 1].id, keys, lastIdx).end;
+      return { start: wStart, end: wEnd };
+    }
+  }
+  return {
+    start: ym + '-01',
+    end: getLastDayOfMonth(ym)
+  };
+}
+
+function computeMonthlyPeriodMetrics(ym, goalOrMode, allAppts, baseWeeksWithAppts) {
+  const goal = typeof goalOrMode === 'string' ? { monthMode: goalOrMode } : (goalOrMode || { monthMode: 'calendar' });
+  const mode = goal.monthMode || 'calendar';
+  const apptsList = allAppts || Object.values(appts || {});
+  const launchedOnly = W();
+  const allWeeks = baseWeeksWithAppts || getGoalChartWeeks('cprev');
+  const bounds = getMonthGoalWindow(ym, goal, launchedOnly);
+
+  if (mode === 'weeks_in_month') {
+    const allWeekKeys = allWeeks.map(w => w.id).filter(Boolean).sort();
+    const launchedKeysYM = launchedOnly.map(w => w.id).filter(Boolean).sort();
+    const matchedAll = allWeeks.filter(w => getWeekEffectiveYM(w.id, allWeekKeys) === ym).sort((a, b) => a.id.localeCompare(b.id));
+    const matchedLaunched = launchedOnly.filter(w => getWeekEffectiveYM(w.id, launchedKeysYM) === ym).sort((a, b) => a.id.localeCompare(b.id));
+    const lastW = matchedLaunched[matchedLaunched.length - 1] || matchedAll[matchedAll.length - 1] || {};
+    const sumArr = (arr, fn) => arr.reduce((acc, item) => acc + (typeof fn === 'function' ? Number(fn(item) || 0) : Number(item[fn] || 0)), 0);
+
+    const creal = sumArr(matchedAll, 'creal');
+    const cprev = sumArr(matchedAll, getEffectiveCprev);
+    const cagend = sumArr(matchedAll, 'cagend');
+    const ccanc = sumArr(matchedAll, 'ccanc');
+    const cfaltou = sumArr(matchedAll, 'cfaltou');
+    const creag = sumArr(matchedAll, 'creag');
+    const agend = sumArr(matchedLaunched, 'agend');
+    const novos = sumArr(matchedLaunched, 'novos');
+    const antigas = sumArr(matchedLaunched, 'antigas');
+    const resp = sumArr(matchedLaunched, 'resp');
+    const fu2 = sumArr(matchedLaunched, 'fu2');
+    const fu3 = sumArr(matchedLaunched, 'fu3');
+    const fu4 = sumArr(matchedLaunched, 'fu4');
+    const fu5 = sumArr(matchedLaunched, 'fu5');
+    const fu6 = sumArr(matchedLaunched, 'fu6');
+    const fuparados = sumArr(matchedLaunched, 'fuparados');
+    const msgsTot = fu2 + fu3 + fu4 + fu5 + fu6 + fuparados;
+    const ativasAvg = matchedLaunched.length ? sumArr(matchedLaunched, 'ativas') / matchedLaunched.length : 0;
+    const ativasLast = Number(lastW.ativas || 0);
+    const semrespLast = Number(lastW.semresp || 0);
+    const totConsultas = sumArr(matchedAll, weekTotalConsultas);
+    const matchedKeys = matchedAll.map(w => w.id);
+    const novosAgend = matchedAll.reduce((acc, w, idx) => {
+      const win = getWeekWindow(w.id, matchedKeys, idx);
+      return acc + apptsList.filter(a => {
+        const s = normIso(a.schedOn) || normIso(a.consult);
+        return a.origin === 'novo' && s >= win.start && s <= win.end;
+      }).length;
+    }, 0);
+    const pendingInMonth = Math.max(0, cprev - creal);
+
+    return {
+      ym, bounds, matchedWeeks: matchedAll, matchedLaunched,
+      creal, cprev, cagend, ccanc, cfaltou, creag, agend, novos, antigas, resp,
+      fu2, fu3, fu4, fu5, fu6, fuparados, msgs: msgsTot,
+      ativas: ativasLast, ativasAvg, semresp: semrespLast,
+      tot: totConsultas, novosAgend, pendingInMonth,
+      lastWeek: lastW
+    };
+  }
+
+  // Modo calendário exato (dia 01 ao último dia) ou ciclo personalizado (dia X a dia Y)
+  const apptM = computeWeekApptMetrics(ym, bounds.start, bounds.end, apptsList);
+  const launchedSorted = launchedOnly.slice().sort((a, b) => a.id.localeCompare(b.id));
+  const launchedKeys = launchedSorted.map(w => w.id);
+
+  let wNovos = 0, wAntigas = 0, wResp = 0, wAgend = 0, wFu2 = 0, wFu3 = 0, wFu4 = 0, wFu5 = 0, wFu6 = 0, wFuParados = 0;
+  let wAtivasWeighted = 0, wWeightSum = 0;
+  let histCrealExtra = 0, histCagendExtra = 0, histCcancExtra = 0, histCfaltouExtra = 0, histCreagExtra = 0, histCprevExtra = 0;
+  const overlappingWeeks = [];
+  let hasHistManualWeeks = false;
+
+  launchedSorted.forEach((w, idx) => {
+    const win = getWeekWindow(w.id, launchedKeys, idx);
+    if (win.end < bounds.start || win.start > bounds.end) return;
+    const ovStart = win.start > bounds.start ? win.start : bounds.start;
+    const ovEnd = win.end < bounds.end ? win.end : bounds.end;
+    const ovDays = diffDaysInclusive(ovStart, ovEnd);
+    const totDays = Math.max(1, diffDaysInclusive(win.start, win.end));
+    const frac = ovDays / totDays;
+    overlappingWeeks.push(w);
+
+    wNovos += Number(w.novos || 0) * frac;
+    wAntigas += Number(w.antigas || 0) * frac;
+    wResp += Number(w.resp || 0) * frac;
+    wAgend += Number(w.agend || 0) * frac;
+    wFu2 += Number(w.fu2 || 0) * frac;
+    wFu3 += Number(w.fu3 || 0) * frac;
+    wFu4 += Number(w.fu4 || 0) * frac;
+    wFu5 += Number(w.fu5 || 0) * frac;
+    wFu6 += Number(w.fu6 || 0) * frac;
+    wFuParados += Number(w.fuparados || 0) * frac;
+    wAtivasWeighted += Number(w.ativas || 0) * frac;
+    wWeightSum += frac;
+
+    if (w.id < '2026-11-09') {
+      const subM = computeWeekApptMetrics(w.id + '_ov', ovStart, ovEnd, apptsList);
+      const manCreal = Number(w.creal || 0) * frac;
+      const manCprev = getEffectiveCprev(w) * frac;
+      const manCagend = Number(w.cagend || 0) * frac;
+      const manCcanc = Number(w.ccanc || 0) * frac;
+      const manCfaltou = Number(w.cfaltou || 0) * frac;
+      const manCreag = Number(w.creag || 0) * frac;
+      if (manCreal > subM.creal || manCprev > subM.cprev || manCagend > subM.cagend) {
+        hasHistManualWeeks = true;
+      }
+      histCrealExtra += Math.max(0, manCreal - subM.creal);
+      histCprevExtra += Math.max(0, manCprev - subM.cprev);
+      histCagendExtra += Math.max(0, manCagend - subM.cagend);
+      histCcancExtra += Math.max(0, manCcanc - subM.ccanc);
+      histCfaltouExtra += Math.max(0, manCfaltou - subM.cfaltou);
+      histCreagExtra += Math.max(0, manCreag - subM.creag);
+    }
+  });
+
+  const roundClean = v => Math.round(v * 10) / 10;
+  const creal = hasHistManualWeeks ? Math.round(apptM.creal + histCrealExtra) : apptM.creal;
+  const cprev = hasHistManualWeeks ? Math.round(apptM.cprev + histCprevExtra) : apptM.cprev;
+  const cagend = hasHistManualWeeks ? Math.round(apptM.cagend + histCagendExtra) : apptM.cagend;
+  const ccanc = hasHistManualWeeks ? Math.round(apptM.ccanc + histCcancExtra) : apptM.ccanc;
+  const cfaltou = hasHistManualWeeks ? Math.round(apptM.cfaltou + histCfaltouExtra) : apptM.cfaltou;
+  const creag = hasHistManualWeeks ? Math.round(apptM.creag + histCreagExtra) : apptM.creag;
+  const agend = Math.max(apptM.agend, Math.round(wAgend));
+  const novos = Math.round(wNovos);
+  const antigas = Math.round(wAntigas);
+  const resp = Math.round(wResp);
+  const fu2 = Math.round(wFu2);
+  const fu3 = Math.round(wFu3);
+  const fu4 = Math.round(wFu4);
+  const fu5 = Math.round(wFu5);
+  const fu6 = Math.round(wFu6);
+  const fuparados = Math.round(wFuParados);
+  const msgsTot = fu2 + fu3 + fu4 + fu5 + fu6 + fuparados;
+  const lastW = overlappingWeeks[overlappingWeeks.length - 1] || {};
+  const ativasLast = Number(lastW.ativas || 0);
+  const ativasAvg = wWeightSum > 0 ? wAtivasWeighted / wWeightSum : 0;
+  const semrespLast = Number(lastW.semresp || 0);
+  const totConsultas = Math.max(apptM.ctot, creal + creag + ccanc + cfaltou, cprev);
+  const novosAgend = apptsList.filter(a => {
+    const s = normIso(a.schedOn) || normIso(a.consult);
+    return a.origin === 'novo' && s >= bounds.start && s <= bounds.end;
+  }).length;
+  const pendingInMonth = Math.max(0, cprev - creal);
+
+  return {
+    ym, bounds, matchedWeeks: overlappingWeeks, matchedLaunched: overlappingWeeks,
+    creal, cprev, cagend, ccanc, cfaltou, creag, agend, novos, antigas, resp,
+    fu2, fu3, fu4, fu5, fu6, fuparados, msgs: msgsTot,
+    ativas: ativasLast, ativasAvg, semresp: semrespLast,
+    tot: totConsultas, novosAgend, pendingInMonth,
+    lastWeek: lastW,
+    _exactAppts: apptM,
+    _fracSum: roundClean(wWeightSum)
+  };
+}
+
+function evaluateMonthlyGoalValue(ym, goal, allAppts, baseWeeksWithAppts) {
+  if (!goal) return { value: 0, stats: null };
+  const stats = computeMonthlyPeriodMetrics(ym, goal, allAppts, baseWeeksWithAppts);
+  const mKey = isCprevFieldKey(goal.metric) || isCprevLabel(goal.label) ? 'cprev' : goal.metric;
+  const customM = (cfg.metrics || []).find(cmItem => cmItem.id === mKey || cmItem.title === mKey);
+  if (customM) {
+    try {
+      const val = stats.matchedWeeks.length ? ev(customM.expr, stats.matchedWeeks) : 0;
+      return { value: Number(val) || 0, stats };
+    } catch (e) {
+      return { value: 0, stats };
+    }
+  }
+  if (mKey === 'cprev') return { value: stats.cprev, stats };
+  if (mKey === 'creal') return { value: stats.creal, stats };
+  if (mKey === 'cagend') return { value: stats.cagend, stats };
+  if (mKey === 'ccanc') return { value: stats.ccanc, stats };
+  if (mKey === 'cfaltou') return { value: stats.cfaltou, stats };
+  if (mKey === 'creag') {
+    if (goal.unit === 'pct') return { value: pct(stats.creag, stats.tot), stats };
+    return { value: stats.creag, stats };
+  }
+  if (mKey === 'novos') return { value: stats.novos, stats };
+  if (mKey === 'antigas') return { value: stats.antigas, stats };
+  if (mKey === 'ativas') return { value: stats.ativas, stats };
+  if (mKey === 'semresp') return { value: stats.semresp, stats };
+  if (mKey === 'agend') return { value: stats.agend, stats };
+  if (mKey === 'msgs') return { value: stats.msgs, stats };
+  if (mKey === 'tot') return { value: stats.tot, stats };
+  if (mKey === 'tg') return { value: pct(stats.cagend, stats.ativasAvg || stats.ativas), stats };
+  if (mKey === 'conv') return { value: pct(stats.agend, stats.resp), stats };
+  if (mKey === 'convNovos') return { value: pct(stats.novosAgend, stats.novos), stats };
+  if (mKey === 'resp') {
+    if (goal.unit === 'num') return { value: stats.resp, stats };
+    return { value: pct(stats.resp, stats.msgs), stats };
+  }
+  if (mKey === 'comp') {
+    const t = stats.creal + stats.creag + stats.ccanc + stats.cfaltou;
+    return { value: pct(stats.creal, t), stats };
+  }
+  if (mKey === 'canc') {
+    if (goal.unit === 'num') return { value: stats.ccanc, stats };
+    return { value: pct(stats.ccanc, stats.tot), stats };
+  }
+  // Custom extra field on weeks
+  if (isSn(mKey)) {
+    return { value: Number((stats.lastWeek && stats.lastWeek[mKey]) || 0), stats };
+  }
+  const customFieldSum = stats.matchedWeeks.reduce((acc, w) => acc + Number(w[mKey] || 0), 0);
+  return { value: customFieldSum, stats };
+}
+
+function getAvailableGoalMonths(monthlyGoals) {
+  const ymSet = new Set();
+  const curYM = today().slice(0, 7);
+  ymSet.add(curYM);
+  const launchedWeekKeys = Object.keys(weeks || {}).filter(id => /^\d{4}-\d{2}-\d{2}$/.test(id)).sort();
+  launchedWeekKeys.forEach(id => {
+    const effYM = getWeekEffectiveYM(id, launchedWeekKeys);
+    ymSet.add(effYM || id.slice(0, 7));
+  });
+  Object.values(appts || {}).forEach(a => {
+    [a.consult, a.newDate, a.schedOn].forEach(d => {
+      const iso = normIso(d);
+      if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) ymSet.add(iso.slice(0, 7));
+    });
+  });
+  (monthlyGoals || []).forEach(g => {
+    getGoalTargetMonths(g).forEach(ym => ymSet.add(ym));
+    if (g.startMonth && /^\d{4}-\d{2}$/.test(g.startMonth)) ymSet.add(g.startMonth);
+    if (g.endMonth && /^\d{4}-\d{2}$/.test(g.endMonth)) ymSet.add(g.endMonth);
+  });
+  const sorted = Array.from(ymSet).filter(Boolean).sort();
+  if (sorted.length >= 2) {
+    let cursor = sorted[0];
+    const last = sorted[sorted.length - 1];
+    let guard = 0;
+    while (cursor < last && guard < 120) {
+      cursor = addMonthsYM(cursor, 1);
+      ymSet.add(cursor);
+      guard++;
+    }
+  }
+  return Array.from(ymSet).filter(Boolean).sort();
+}
+
 /* ===== GRÁFICO DA AGENDA VINCULADO DIRETAMENTE À ABA DE CONSULTAS (INDEPENDENTE DA ABA DE SEMANAS) ===== */
 function getAgendaWeeksData() {
   const allAppts = Object.values(appts || {});
@@ -946,6 +1376,7 @@ function getAgendaWeeksData() {
 }
 
 function buildExcelTreeData(weekList, sortOrder, searchQuery) {
+  const ascIds = [...weekList].map(w => w.id).filter(Boolean).sort();
   const list = [...weekList].sort((a, b) => {
     return sortOrder === 'asc' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id);
   });
@@ -956,15 +1387,20 @@ function buildExcelTreeData(weekList, sortOrder, searchQuery) {
   list.forEach(w => {
     const parts = (w.id || '').split('-');
     if (parts.length !== 3) return;
-    const year = parts[0];
-    const monthNum = parseInt(parts[1], 10) - 1;
-    const monthName = MONTH_NAMES[monthNum] || parts[1];
+    const effYM = getWeekEffectiveYM(w.id, ascIds);
+    const effParts = effYM ? effYM.split('-') : [parts[0], parts[1]];
+    const year = effParts[0];
+    const monthNum = parseInt(effParts[1], 10) - 1;
+    const monthName = MONTH_NAMES[monthNum] || effParts[1];
+    const rawMonthName = MONTH_NAMES[parseInt(parts[1], 10) - 1] || '';
     const day = parts[2];
     const fullDateStr = fdf(w.id);
 
     if (query) {
       const match = year.includes(query) ||
+                    parts[0].includes(query) ||
                     monthName.toLowerCase().includes(query) ||
+                    rawMonthName.toLowerCase().includes(query) ||
                     day.includes(query) ||
                     fullDateStr.includes(query);
       if (!match) return;
@@ -992,10 +1428,17 @@ function renderExcelFilterBox(weekList, selectedWeekIds) {
   const allSelected = totalCount > 0 && selectedCount === totalCount;
   const someSelected = selectedCount > 0 && selectedCount < totalCount;
 
+  const curYM = today().slice(0, 7);
+  const nextYM = addMonthsYM(curYM, 1);
+
   let modeLabel = 'Todas as semanas';
   if (mode === 'last4') modeLabel = 'Últimas 4 semanas';
   else if (mode === 'last') modeLabel = 'Última semana lançada';
   else if (mode === 'penultimate') modeLabel = 'Penúltima semana lançada';
+  else if (mode === 'this_month') modeLabel = `Mês atual (${formatMonthShort(curYM)})`;
+  else if (mode === 'next_month') modeLabel = `Próximo mês (${formatMonthShort(nextYM)})`;
+  else if (mode === 'current_and_future_months') modeLabel = 'Mês atual e futuros';
+  else if (mode === 'future_months') modeLabel = 'Apenas meses futuros';
   else if (mode === 'custom') modeLabel = `${selectedCount} semana(s) selecionada(s)`;
 
   let periodRangeText = '';
@@ -1109,6 +1552,10 @@ function renderExcelFilterBox(weekList, selectedWeekIds) {
           <option value="last4" ${mode === 'last4' ? 'selected' : ''}>Últimas 4 semanas</option>
           <option value="last" ${mode === 'last' ? 'selected' : ''}>Última semana lançada</option>
           <option value="penultimate" ${mode === 'penultimate' ? 'selected' : ''}>Penúltima semana lançada</option>
+          <option value="this_month" ${mode === 'this_month' ? 'selected' : ''}>Mês atual (${formatMonthShort(curYM)})</option>
+          <option value="next_month" ${mode === 'next_month' ? 'selected' : ''}>Próximo mês (${formatMonthShort(nextYM)})</option>
+          <option value="current_and_future_months" ${mode === 'current_and_future_months' ? 'selected' : ''}>Mês atual e futuros</option>
+          <option value="future_months" ${mode === 'future_months' ? 'selected' : ''}>Apenas meses futuros</option>
           <option value="custom" ${mode === 'custom' ? 'selected' : ''}>Personalizado (seleção na árvore)</option>
         </select>
 
@@ -1125,7 +1572,7 @@ function renderExcelFilterBox(weekList, selectedWeekIds) {
               <input type="checkbox" id="ef_sel_all" ${allSelected ? 'checked' : ''} ${someSelected ? 'data-indeterminate="1"' : ''} style="width:auto;margin:0">
               <span>(Selecionar Tudo)</span>
             </label>
-            <span class="note" style="font-size:10.5px">(${selectedCount}/${totalCount})</span>
+            <span class="note" id="ef_sel_count_lbl" style="font-size:10.5px">(${selectedCount}/${totalCount})</span>
           </div>
           ${treeHtml}
         </div>
@@ -1157,7 +1604,7 @@ function renderExcelFilterBox(weekList, selectedWeekIds) {
               <span style="font-size:10px;opacity:0.7">${isOpen ? '▲' : '▾'}</span>
             </button>
           </div>
-          <span class="note" style="margin-top:16px;font-size:12.5px">${periodRangeText ? periodRangeText + ' · ' : ''}Mostrando métricas de <b>${selectedCount}</b> semana(s) lançada(s).</span>
+          <span class="note" style="margin-top:16px;font-size:12.5px">${(mode === 'this_month' || mode === 'next_month' || mode === 'current_and_future_months' || mode === 'future_months') ? `Filtro mensal ativo (${modeLabel}) · <b>${selectedCount}</b> semana(s) lançada(s) no intervalo.` : `${periodRangeText ? periodRangeText + ' · ' : ''}Mostrando métricas de <b>${selectedCount}</b> semana(s) lançada(s).`}</span>
         </div>
         <div style="display:flex;gap:6px">
           ${mode !== 'all' ? `<button type="button" class="b s" id="ef_quick_reset" style="font-size:12px;padding:5px 10px">Ver todas</button>` : ''}
@@ -1170,11 +1617,13 @@ function renderExcelFilterBox(weekList, selectedWeekIds) {
 
 function renderAgendaFilterControl(allAgendaData) {
   const f = window.agendaFilter || { mode: 'all', year: 'all', month: 'all', sort: 'asc', isOpen: false };
-  const years = [...new Set(allAgendaData.map(w => (w.id || '').split('-')[0]).filter(Boolean))].sort();
+  const agendaKeys = allAgendaData.map(w => w.id).filter(Boolean).sort();
+  const years = [...new Set(allAgendaData.map(w => (getWeekEffectiveYM(w.id, agendaKeys) || '').split('-')[0]).filter(Boolean))].sort();
   const months = [...new Set(allAgendaData.map(w => {
-    const parts = (w.id || '').split('-');
+    const eff = getWeekEffectiveYM(w.id, agendaKeys);
+    const parts = (eff || '').split('-');
     return parts.length > 1 ? parseInt(parts[1], 10) - 1 : null;
-  }).filter(m => m !== null))].sort((a,b)=>a-b);
+  }).filter(m => m !== null && !isNaN(m)))].sort((a,b)=>a-b);
 
   let label = 'Todas as semanas';
   if (f.mode === 'future') label = 'Apenas futuras';
@@ -1238,11 +1687,13 @@ function renderAgendaFilterControl(allAgendaData) {
 
 function renderGoalFilterControl(allWeeksData, ovChart) {
   const f = window.goalFilter || { mode: 'all', year: 'all', month: 'all', dateFrom: '', dateTo: '', sort: 'asc', isOpen: false };
-  const years = [...new Set(allWeeksData.map(w => (w.id || '').split('-')[0]).filter(Boolean))].sort();
+  const goalKeys = allWeeksData.map(w => w.id).filter(Boolean).sort();
+  const years = [...new Set(allWeeksData.map(w => (getWeekEffectiveYM(w.id, goalKeys) || '').split('-')[0]).filter(Boolean))].sort();
   const months = [...new Set(allWeeksData.map(w => {
-    const parts = (w.id || '').split('-');
+    const eff = getWeekEffectiveYM(w.id, goalKeys);
+    const parts = (eff || '').split('-');
     return parts.length > 1 ? parseInt(parts[1], 10) - 1 : null;
-  }).filter(m => m !== null))].sort((a,b)=>a-b);
+  }).filter(m => m !== null && !isNaN(m)))].sort((a,b)=>a-b);
 
   let label = 'Todas as semanas';
   if (f.dateFrom || f.dateTo) {
@@ -1315,6 +1766,89 @@ function renderGoalFilterControl(allWeeksData, ovChart) {
     <div style="position:relative">
       <button type="button" class="b s" id="goal_btn_toggle_popover" style="font-size:11.5px;padding:4px 9px;display:inline-flex;align-items:center;gap:5px;border-radius:7px;background:var(--bg)">
         <span>📅 Mês/Ano: <b>${esc(label)}</b></span>
+        <span style="font-size:9.5px;opacity:0.7">${f.isOpen ? '▲' : '▾'}</span>
+      </button>
+      ${popoverHtml}
+    </div>
+  `;
+}
+
+function renderMonthlyGoalFilterControl(allMonths) {
+  const f = window.monthlyGoalFilter || { mode: 'all', year: 'all', month: 'all', ymFrom: '', ymTo: '', sort: 'asc', isOpen: false };
+  const years = [...new Set((allMonths || []).map(ym => String(ym).split('-')[0]).filter(Boolean))].sort();
+  const months = [...new Set((allMonths || []).map(ym => {
+    const parts = String(ym).split('-');
+    return parts.length > 1 ? parseInt(parts[1], 10) - 1 : null;
+  }).filter(m => m !== null))].sort((a, b) => a - b);
+
+  let label = 'Todos os meses';
+  if (f.ymFrom || f.ymTo) {
+    label = (f.ymFrom ? formatMonthShort(f.ymFrom) : 'Início') + ' até ' + (f.ymTo ? formatMonthShort(f.ymTo) : 'Futuro');
+  } else if (f.mode === 'current') label = 'Mês atual';
+  else if (f.mode === 'current_and_future') label = 'Mês atual e futuros';
+  else if (f.mode === 'future') label = 'Apenas meses futuros';
+  else if (f.mode === 'past') label = 'Apenas meses passados';
+  else if (f.year !== 'all' || f.month !== 'all') {
+    const yStr = f.year !== 'all' ? f.year : '';
+    const mStr = f.month !== 'all' ? MONTH_NAMES[f.month] : '';
+    label = [mStr, yStr].filter(Boolean).join(' ');
+  }
+
+  let popoverHtml = '';
+  if (f.isOpen) {
+    popoverHtml = `
+      <div class="agenda-popover" id="mgoal_popover" style="min-width:275px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <b style="font-size:12px;color:var(--ink)">📅 Filtro de Metas Mensais</b>
+          <button type="button" class="x" id="mgoal_popover_close" style="font-size:15px;padding:1px 5px">×</button>
+        </div>
+
+        <label class="note" style="display:block;margin-bottom:3px;font-size:11px;font-weight:600">Visualização rápida</label>
+        <select class="excel-quick-select" id="mgoal_sel_mode" style="margin-bottom:8px">
+          <option value="all" ${f.mode==='all'?'selected':''}>Todos os meses (histórico + futuros)</option>
+          <option value="current" ${f.mode==='current'?'selected':''}>Apenas mês atual</option>
+          <option value="current_and_future" ${f.mode==='current_and_future'?'selected':''}>Mês atual e futuros</option>
+          <option value="future" ${f.mode==='future'?'selected':''}>Apenas meses futuros</option>
+          <option value="past" ${f.mode==='past'?'selected':''}>Apenas meses passados</option>
+          <option value="custom" ${f.mode==='custom'?'selected':''}>Filtrar Ano / Mês / Intervalo abaixo</option>
+        </select>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <label style="font-size:11px;color:var(--mut)">Ano
+            <select id="mgoal_sel_year" style="width:100%;font-size:11.5px;padding:4px 6px">
+              <option value="all" ${f.year==='all'?'selected':''}>Todos</option>
+              ${years.map(y => `<option value="${y}" ${f.year===y?'selected':''}>${y}</option>`).join('')}
+            </select>
+          </label>
+          <label style="font-size:11px;color:var(--mut)">Mês
+            <select id="mgoal_sel_month" style="width:100%;font-size:11.5px;padding:4px 6px">
+              <option value="all" ${f.month==='all'?'selected':''}>Todos</option>
+              ${months.map(m => `<option value="${m}" ${String(f.month)===String(m)?'selected':''}>${MONTH_NAMES[m]}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <label style="font-size:11px;color:var(--mut)">Mês inicial
+            <input type="month" id="mgoal_ym_from" value="${esc(f.ymFrom||'')}" style="width:100%;font-size:11px;padding:4px 5px">
+          </label>
+          <label style="font-size:11px;color:var(--mut)">Mês final
+            <input type="month" id="mgoal_ym_to" value="${esc(f.ymTo||'')}" style="width:100%;font-size:11px;padding:4px 5px">
+          </label>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;border-top:1px solid var(--line)">
+          <button type="button" class="b s" id="mgoal_btn_clear" style="font-size:11px;padding:3px 7px">Limpar</button>
+          <button type="button" class="b" id="mgoal_btn_apply" style="font-size:11px;padding:3px 10px">Aplicar</button>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div style="position:relative">
+      <button type="button" class="b s" id="mgoal_btn_toggle_popover" style="font-size:11.5px;padding:4px 9px;display:inline-flex;align-items:center;gap:5px;border-radius:7px;background:var(--bg)">
+        <span>📅 Período: <b>${esc(label)}</b></span>
         <span style="font-size:9.5px;opacity:0.7">${f.isOpen ? '▲' : '▾'}</span>
       </button>
       ${popoverHtml}
@@ -1410,6 +1944,7 @@ async function syncWeekMetricsWithAppts(persist = true) {
 }
 
 const BASEF=FIELDS.slice(),BASE=FIELDS.map(f=>f[1]),ORIG0={...ORIG};
+const LEGACY_WEEK_COLS=['novos','antigas','ativas','fu2','fu3','fu4','fu5','resp','agend','semresp','pensando','aguard','nao','cagend','ccanc','creag','creal'];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const escJs=s=>esc(String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n'));
@@ -1515,7 +2050,7 @@ async function deleteWeek(id) {
   toast('Semana ' + fdf(id) + ' excluída com sucesso!');
 }
 
-const WCOLS=["semana","novos","antigas","ativas","fu2","fu3","fu4","fu5","resp","agend","semresp","pensando","aguard","nao","cagend","ccanc","creag","creal"];
+const WCOLS=["semana","novos","antigas","ativas","fu2","fu3","fu4","fu5","fu6","fuparados","resp","agend","semresp","pensando","aguard","nao","cagend","ccanc","creag","creal","cprev"];
 const ACOLS=["id","paciente","origem","agendada_em","consulta","status","reagendou","nova_data","status_nova_data"];
 
 function stLine(){
@@ -1987,7 +2522,8 @@ const CL=[
   'Resposta e conversão do follow-up',
   'Status dos pacientes (total acumulado em cada semana)',
   'Agenda da semana: realizadas, canceladas e reagendadas',
-  'Funil: leads, respostas e agendamentos'
+  'Funil: leads, respostas e agendamentos',
+  'Acompanhamento de Metas Mensais'
 ];
 
 const GL_MAP = {
@@ -2103,24 +2639,42 @@ function goalsHtml(){
       <table>
         <tr>
           <th>Indicador</th>
-          <th>Semana / Vigência</th>
+          <th>Periodicidade / Vigência</th>
           <th>Meta</th>
           <th>Tipo</th>
           <th style="text-align:right">Ações</th>
         </tr>
         ${gl.map((g)=>{
-          const isSumAll = g.scope === 'sum_all' || g.type === 'sum_all' || g.week === 'sum_all';
-          const isRec = !isSumAll && (g.scope === 'recurrent' || g.type === 'recurring' || g.week === 'all' || g.week === 'recurrent' || !g.week);
-          let wkLbl = isSumAll ? 'Soma de todas as semanas' : (isRec ? 'Individual semanal (todas)' : ('Semana de ' + fdf(g.week)));
-          if (isRec && (g.startWeek || g.endWeek)) {
-            if (g.startWeek && g.endWeek) wkLbl += ` · De ${fdf(g.startWeek)} até ${fdf(g.endWeek)}`;
-            else if (g.startWeek) wkLbl += ` · A partir de ${fdf(g.startWeek)}`;
-            else if (g.endWeek) wkLbl += ` · Até ${fdf(g.endWeek)}`;
+          const isMonthly = g.periodType === 'monthly';
+          let wkLbl = '';
+          if (isMonthly) {
+            const tgtMonths = getGoalTargetMonths(g);
+            const scopeStr = (g.monthScope === 'specific' || (tgtMonths.length > 0 && g.monthScope !== 'recurrent'))
+              ? (tgtMonths.length > 1
+                  ? `${tgtMonths.length} meses (${tgtMonths.map(formatMonthShort).join(', ')})`
+                  : formatMonthFull(tgtMonths[0]))
+              : 'Mensal recorrente (todos)';
+            const modeStr = getMonthModeDescription(g);
+            wkLbl = `🗓️ Mensal · ${scopeStr} · ${modeStr}`;
+            if (g.monthScope !== 'specific' && (g.startMonth || g.endMonth)) {
+              if (g.startMonth && g.endMonth) wkLbl += ` · De ${formatMonthShort(g.startMonth)} até ${formatMonthShort(g.endMonth)}`;
+              else if (g.startMonth) wkLbl += ` · A partir de ${formatMonthShort(g.startMonth)}`;
+              else if (g.endMonth) wkLbl += ` · Até ${formatMonthShort(g.endMonth)}`;
+            }
+          } else {
+            const isSumAll = g.scope === 'sum_all' || g.type === 'sum_all' || g.week === 'sum_all';
+            const isRec = !isSumAll && (g.scope === 'recurrent' || g.type === 'recurring' || g.week === 'all' || g.week === 'recurrent' || !g.week);
+            wkLbl = isSumAll ? 'Soma de todas as semanas' : (isRec ? 'Individual semanal (todas)' : ('Semana de ' + fdf(g.week)));
+            if (isRec && (g.startWeek || g.endWeek)) {
+              if (g.startWeek && g.endWeek) wkLbl += ` · De ${fdf(g.startWeek)} até ${fdf(g.endWeek)}`;
+              else if (g.startWeek) wkLbl += ` · A partir de ${fdf(g.startWeek)}`;
+              else if (g.endWeek) wkLbl += ` · Até ${fdf(g.endWeek)}`;
+            }
           }
           const tgtLbl = (g.dir === 'max' ? '≤ ' : '≥ ') + g.target + (g.unit === 'pct' ? '%' : '');
           return `<tr>
             <td><b>${esc(g.label||g.metric)}</b> ${g.legacy ? '<span class="tag" style="font-size:10px;margin-left:4px">Meta salva anteriormente</span>' : ''}</td>
-            <td><span class="tag">${wkLbl}</span></td>
+            <td><span class="tag">${esc(wkLbl)}</span></td>
             <td><b>${tgtLbl}</b></td>
             <td><span class="note">${g.dir === 'max' ? 'Máximo tolerado' : 'Mínimo desejado'}</span></td>
             <td style="white-space:nowrap;text-align:right">
@@ -2134,22 +2688,36 @@ function goalsHtml(){
     <div class="row" style="margin-top:8px">
       <button class="b s" id="g_clear_all_btn" type="button" style="color:var(--r);font-size:12px">Limpar todas as metas</button>
     </div>
-  ` : '<p class="note" style="margin-top:8px">Nenhuma meta configurada ainda. Adicione metas no formulário abaixo.</p>';
+  ` : '<p class="note" style="margin-top:8px">Nenhuma meta configurada ainda. Adicione metas semanais ou mensais no formulário abaixo.</p>';
+
+  const defaultMonthVal = today().slice(0, 7);
+  const defaultYearVal = parseInt(defaultMonthVal.slice(0, 4), 10) || new Date().getFullYear();
+  if (!window._goalMonthPicker || !Array.isArray(window._goalMonthPicker.selected)) {
+    window._goalMonthPicker = { year: defaultYearVal, selected: [defaultMonthVal] };
+  }
+  const goalCalHtml = renderGoalMonthCalendarHtml();
 
   return `
     <div class="card" style="margin-top:14px">
       <h2>Metas e Objetivos</h2>
-      <p class="note">Adicione metas para qualquer indicador ou campo. Escolha se a meta vale para <b>Todas as semanas</b> (com vigência opcional) ou para uma <b>semana específica</b>. Ao preencher e salvar, uma legenda extra compara <b>Meta x Resultado Atual</b> no painel.</p>
+      <p class="note">Adicione metas <b>semanais</b> ou <b>mensais</b> para qualquer indicador ou campo. Na meta mensal, você pode definir uma meta contínua ou metas individuais por mês (inclusive <b>meses anteriores</b>, mês atual e meses futuros) e acompanhar tudo em conjunto no gráfico <b>Meta × Realizado (% atingido)</b>.</p>
       ${listHtml}
 
-      <div style="margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)">
+      <div id="g_form_box" style="margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)">
         <h3 id="g_form_title" style="margin:0 0 10px;font-size:14px">Adicionar / Editar meta</h3>
         <input type="hidden" id="g_edit_id" value="">
         <div class="f">
           <label>Indicador / Campo
             <select id="g_metric">${mOptsHtml}</select>
           </label>
-          <label>Semana da meta
+          <label>Tipo de meta (Periodicidade)
+            <select id="g_period_type">
+              <option value="weekly">Meta Semanal</option>
+              <option value="monthly">Meta Mensal</option>
+            </select>
+          </label>
+
+          <label id="g_wrap_week">Semana da meta
             <select id="g_week">${allWeeksOpts}</select>
           </label>
           <label id="g_wrap_start">Início da vigência (opcional)
@@ -2164,6 +2732,37 @@ function goalsHtml(){
               ${plainWeeksOpts}
             </select>
           </label>
+
+          <label id="g_wrap_month_mode" class="hide">Contabilização do mês
+            <select id="g_month_mode">
+              <option value="calendar">Do dia 01 ao último dia do mês</option>
+              <option value="weeks_in_month">Pelas semanas lançadas dentro do mês</option>
+              <option value="custom_cycle">Ciclo personalizado (dia fixo a dia fixo)</option>
+            </select>
+          </label>
+          <label id="g_wrap_cycle_day" class="hide">Dia de início do ciclo (1 a 28)
+            <input type="number" min="1" max="28" id="g_cycle_start_day" value="26">
+          </label>
+          <label id="g_wrap_cycle_ref" class="hide">Período do ciclo personalizado
+            <select id="g_cycle_ref">
+              <option value="prev_to_curr">Fecha no mês de referência (ex: 26/ant a 25/atual)</option>
+              <option value="curr_to_next">Inicia no mês de referência (ex: 05/atual a 04/próx)</option>
+            </select>
+          </label>
+          <label id="g_wrap_month_scope" class="hide">Aplicação mensal
+            <select id="g_month_scope">
+              <option value="recurrent">Todos os meses (Meta mensal contínua)</option>
+              <option value="specific">Meses específicos (calendário)</option>
+            </select>
+          </label>
+          <div id="g_wrap_target_month" class="gm-cal-wrap hide">${goalCalHtml}</div>
+          <label id="g_wrap_start_month" class="hide">Início da vigência mensal (opcional)
+            <input type="month" id="g_start_month" value="">
+          </label>
+          <label id="g_wrap_end_month" class="hide">Fim da vigência mensal (opcional)
+            <input type="month" id="g_end_month" value="">
+          </label>
+
           <label>Valor da meta
             <input type="number" step="0.1" id="g_target" placeholder="Ex: 40 ou 15">
           </label>
@@ -2512,7 +3111,7 @@ async function savePreviewAppts(isExplicitUserClick){
 }
 
 /* ---------- Motor de Resumo Dinâmico ---------- */
-const msgs=w=>(w.fu2||0)+(w.fu3||0)+(w.fu4||0)+(w.fu5||0);
+const msgs=w=>(w.fu2||0)+(w.fu3||0)+(w.fu4||0)+(w.fu5||0)+(w.fu6||0)+(w.fuparados||0);
 function sum(arr,f){return arr.reduce((a,w)=>a+(typeof f==='function'?f(w):(w[f]||0)),0)}
 
 function isApptCancelled(a) {
@@ -2540,6 +3139,8 @@ function calculatePeriodMetrics(ws,ap,allWeeks){
   const totalFu3=sum(ws,'fu3');
   const totalFu4=sum(ws,'fu4');
   const totalFu5=sum(ws,'fu5');
+  const totalFu6=sum(ws,'fu6');
+  const totalFuParados=sum(ws,'fuparados');
   const totalMsgs=sum(ws,msgs);
   const totalResp=sum(ws,'resp');
   const totalAgend=sum(ws,'agend');
@@ -2613,7 +3214,7 @@ function calculatePeriodMetrics(ws,ap,allWeeks){
 
   return {
     numWeeks,isMulti,startDate,endDate,
-    totalNovos,totalAntigas,totalAtivasSum,totalFu2,totalFu3,totalFu4,totalFu5,
+    totalNovos,totalAntigas,totalAtivasSum,totalFu2,totalFu3,totalFu4,totalFu5,totalFu6,totalFuParados,
     totalMsgs,totalResp,totalAgend,totalCagend,totalReal,totalCanc,totalReag,totalAgenda,
     ativasFinal,semrespFinal,pensandoFinal,aguardFinal,naoFinal,
     respRate,convRate,realRate,cancRate,reagRate,
@@ -2643,7 +3244,7 @@ function generateDynamicSummary(m){
     <p style="margin:10px 0 4px"><b>B. Indicadores Consolidados</b></p>
     <div style="background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 14px;font-size:13px">
       <div><b>Aquisição:</b> ${m.totalNovos.toLocaleString('pt-BR')} novos leads · ${m.totalAntigas} retomados · ${m.ativasFinal.toLocaleString('pt-BR')} ativas atuais</div>
-      <div><b>Follow-up enviado:</b> ${m.totalMsgs.toLocaleString('pt-BR')} msgs (FU2: ${m.totalFu2} · FU3: ${m.totalFu3} · FU4: ${m.totalFu4} · FU5: ${m.totalFu5})</div>
+      <div><b>Follow-up enviado:</b> ${m.totalMsgs.toLocaleString('pt-BR')} msgs (FU2: ${m.totalFu2} · FU3: ${m.totalFu3} · FU4: ${m.totalFu4} · FU5: ${m.totalFu5}${m.totalFu6?` · 6º contato: ${m.totalFu6}`:''}${m.totalFuParados?` · FU parados: ${m.totalFuParados}`:''})</div>
       <div><b>Conversão FU:</b> ${m.totalResp.toLocaleString('pt-BR')} respostas (<b>${pf(m.respRate)}</b>) ➔ ${m.totalAgend} agendamentos (<b>${pf(m.convRate)}</b>)</div>
       <div><b>Status atual no fim do período:</b> ${m.semrespFinal} sem resposta · ${m.pensandoFinal} pensando · ${m.aguardFinal} aguardando · ${m.naoFinal} descartados</div>
       <div><b>Desfecho da Agenda (${m.totalAgenda}):</b> ${m.totalReal} realizadas (<b>${pf(m.realRate)}</b>) · ${m.totalReag} reagendadas (<b>${pf(m.reagRate)}</b>) · ${m.totalCanc} canceladas (<b>${pf(m.cancRate)}</b>)</div>
@@ -2873,6 +3474,109 @@ function chart(labels, series, mode, isPct, categories){
   `;
 }
 
+function renderMonthlyGoalColumnChart(rows, goalObj, isPct) {
+  const n = (rows && rows.length) || 1;
+  const minColWidth = 96;
+  const L = 42, R = 22, T = 40, B = 26;
+  const contentW = n * minColWidth;
+  const Wd = Math.max(1140, L + R + contentW);
+  const H = 224;
+  const iw = Wd - L - R, ih = H - T - B;
+  const bw = iw / n;
+
+  let mx = Math.max(1, ...rows.flatMap(r => [r.target || 0, r.actual || 0]));
+  mx = NICE(mx);
+  const y = v => T + ih - (v / mx) * ih;
+  let o = '';
+
+  for (let i = 0; i <= 4; i++) {
+    const v = mx * i / 4, yy = y(v);
+    o += `<line x1="${L}" x2="${Wd - R}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-dasharray="${i === 0 ? '' : '3 3'}" opacity="${i === 0 ? 1 : 0.8}"/><text x="${L - 6}" y="${yy + 3.5}" text-anchor="end">${isPct ? Math.round(v) + '%' : Math.round(v)}</text>`;
+  }
+
+  const isMaxGoal = goalObj && goalObj.dir === 'max';
+  const colW = Math.min(44, Math.max(18, (bw * 0.56) / 2));
+  const gap = 5;
+
+  rows.forEach((r, i) => {
+    const cx = L + bw * i + bw / 2;
+    const hasGoal = r.hasGoal !== false && r.target > 0;
+    const tgtVal = hasGoal ? (r.target || 0) : 0;
+    const actVal = r.actual || 0;
+    const pctVal = hasGoal
+      ? (r.pctAchieved != null ? r.pctAchieved : (tgtVal > 0 ? (actVal / tgtVal) * 100 : 0))
+      : null;
+    const pctStr = pctVal != null ? (pctVal.toFixed(1).replace('.', ',') + '%') : 'Sem meta';
+    const ok = hasGoal ? (isMaxGoal ? (actVal <= tgtVal) : (actVal >= tgtVal)) : false;
+    const pctColor = !hasGoal ? 'var(--mut)' : (ok ? 'var(--g)' : (pctVal >= 70 && !isMaxGoal ? 'var(--b)' : 'var(--r)'));
+
+    const xMeta = cx - colW - gap / 2;
+    const xReal = hasGoal ? (cx + gap / 2) : (cx - colW / 2);
+    const hMeta = Math.max(0, (tgtVal / mx) * ih);
+    const hReal = Math.max(0, (actVal / mx) * ih);
+
+    const tgtStr = isPct ? pf(tgtVal) : tgtVal.toLocaleString('pt-BR');
+    const actStr = isPct ? pf(actVal) : actVal.toLocaleString('pt-BR');
+    const diff = actVal - tgtVal;
+    const remNote = !hasGoal
+      ? 'Nenhuma meta mensal estipulada para este mês'
+      : (isMaxGoal
+        ? (ok ? `Dentro do limite (${pctStr})` : `Acima do limite (+${Math.round(diff)})`)
+        : (ok ? `Meta batida! (${pctStr})` : `Falta ${isPct ? pf(Math.max(0, tgtVal - actVal)) : Math.max(0, Math.round(tgtVal - actVal))} · ${pctStr}`));
+
+    if (hasGoal && tgtVal > 0) {
+      o += `<rect x="${xMeta}" y="${y(tgtVal)}" width="${colW}" height="${hMeta}" fill="${css('a')}" rx="3" opacity="0.88"
+            data-tip-series="Meta do mês"
+            data-tip-color="${css('a')}"
+            data-tip-cat="${esc(r.fullCat)}"
+            data-tip-val="${esc(tgtStr)}"
+            data-tip-total="${esc(r.modeDesc)}"
+            data-tip-total-label="Contabilização:"
+            role="graphics-symbol"></rect>`;
+      o += `<text x="${xMeta + colW / 2}" y="${y(tgtVal) - 5}" text-anchor="middle" font-weight="700" font-size="9.5px" fill="${css('a')}">${esc(tgtStr)}</text>`;
+    }
+
+    const barRealColor = !hasGoal ? css('k') : (ok ? css('g') : css('b'));
+    if (actVal > 0) {
+      o += `<rect x="${xReal}" y="${y(actVal)}" width="${colW}" height="${hReal}" fill="${barRealColor}" rx="3"
+            data-tip-series="Realizado no mês"
+            data-tip-color="${barRealColor}"
+            data-tip-cat="${esc(r.fullCat)}"
+            data-tip-val="${esc(actStr)}"
+            data-tip-total="${esc(remNote)}"
+            data-tip-total-label="Status da meta:"
+            role="graphics-symbol"></rect>`;
+      o += `<text x="${xReal + colW / 2}" y="${y(actVal) - 5}" text-anchor="middle" font-weight="700" font-size="9.5px" fill="${barRealColor}">${esc(actStr)}</text>`;
+    } else {
+      o += `<rect x="${xReal}" y="${y(0) - 2}" width="${colW}" height="2" fill="${barRealColor}" rx="1" opacity="0.45"
+            data-tip-series="Realizado no mês"
+            data-tip-color="${barRealColor}"
+            data-tip-cat="${esc(r.fullCat)}"
+            data-tip-val="0"
+            data-tip-total="${esc(remNote)}"
+            data-tip-total-label="Status da meta:"></rect>`;
+      o += `<text x="${xReal + colW / 2}" y="${y(0) - 6}" text-anchor="middle" font-weight="700" font-size="9.5px" fill="var(--mut)">0</text>`;
+    }
+
+    // Porcentagem atingida da meta exibida em cima das colunas
+    const topBarY = Math.min(hasGoal && tgtVal > 0 ? y(tgtVal) : y(0), actVal > 0 ? y(actVal) : y(0));
+    const badgeBottom = Math.max(17, topBarY - 19);
+    const pillW = Math.max(44, pctStr.length * 6.4 + 12);
+    o += `<rect x="${cx - pillW / 2}" y="${badgeBottom - 15}" width="${pillW}" height="15" rx="7.5" fill="${pctColor}" fill-opacity="0.14" stroke="${pctColor}" stroke-width="0.9"/>`;
+    o += `<text x="${cx}" y="${badgeBottom - 4}" text-anchor="middle" font-weight="700" font-size="9.5px" fill="${pctColor}">${esc(pctStr)}</text>`;
+
+    o += `<text x="${cx}" y="${H - 10}" text-anchor="middle" font-weight="700" font-size="11px" fill="var(--ink)">${esc(r.label)}</text>`;
+  });
+
+  return `
+    <div class="chart-scroll-wrap" title="Arraste para os lados para visualizar todos os meses">
+      <div style="min-width:${Wd}px;width:100%">
+        <svg viewBox="0 0 ${Wd} ${H}" role="img" style="width:100%;height:auto;min-height:224px;display:block">${o}</svg>
+      </div>
+    </div>
+  `;
+}
+
 const leg=s=>`<div class="lg" role="list" aria-label="Legenda"><b style="color:var(--ink)">Legenda:</b>${s.map(x=>{const isDashed=Boolean(x.dashed||/^meta\b/i.test(x.n||''));return `<span role="listitem">${isDashed?`<i style="background:none;border-top:2.5px dashed ${x.c};height:0;width:15px;border-radius:0;vertical-align:middle"></i>`:`<i style="background:${x.c}"></i>`}${x.n}</span>`;}).join('')}</div>`;
 const TT={
   'Mensagens de follow-up por tentativa':['Mensagens de follow-up enviadas por tentativa (FU 2 a FU 5)','Cada barra soma as mensagens da semana.'],
@@ -2900,13 +3604,14 @@ function setupChartTooltips(){
     const cat=el.dataset.tipCat||'';
     const val=el.dataset.tipVal||'';
     const total=el.dataset.tipTotal||'';
+    const totalLabel=el.dataset.tipTotalLabel||'Total da semana:';
     if(!series&&!val)return;
 
     tip.innerHTML=`
       <div class="tip-title"><i style="background:${color}"></i><span>${esc(series)}</span></div>
       ${cat?`<div class="tip-cat">${esc(cat)}</div>`:''}
       <div class="tip-val" style="margin-top:2px">Valor exato: <b>${esc(val)}</b></div>
-      ${total?`<div class="tip-total">Total da semana: <b>${esc(total)}</b></div>`:''}
+      ${total?`<div class="tip-total">${esc(totalLabel)} <b>${esc(total)}</b></div>`:''}
     `;
 
     tip.style.display='block';
@@ -2994,15 +3699,36 @@ function dash(){
   const nW=WA.length;
   const launchedWeeks = WA.filter(w => weeks[w.id]);
   const lastLaunched = launchedWeeks.length ? launchedWeeks[launchedWeeks.length - 1] : (nW ? WA[nW - 1] : null);
-  const curSat = getSaturdayOfWeek(today());
-
-  // 1. O filtro do painel deve conter APENAS as semanas lançadas na aba de lançar semanas
+  const allAvailableWeeks = launchedWeeks;
   const allAgendaData = getAgendaWeeksData();
-  const allAvailableWeeks = WA;
-
-  // 2. Determinar semanas selecionadas com base no estado do filtro Excel
-  const filterMode = window.excelFilter.mode || 'all';
+  const curSat = getSaturdayOfWeek(today());
+  const filterMode = (window.excelFilter && window.excelFilter.mode) || 'all';
   let selectedWeekIds = [];
+  const curYM = today().slice(0, 7);
+  const nextYM = addMonthsYM(curYM, 1);
+  let monthFilterRange = null;
+  if (filterMode === 'this_month') {
+    monthFilterRange = { start: curYM + '-01', end: getLastDayOfMonth(curYM), ym: curYM, label: formatMonthFull(curYM) };
+  } else if (filterMode === 'next_month') {
+    monthFilterRange = { start: nextYM + '-01', end: getLastDayOfMonth(nextYM), ym: nextYM, label: formatMonthFull(nextYM) };
+  } else if (filterMode === 'current_and_future_months') {
+    monthFilterRange = { start: curYM + '-01', end: '9999-12-31', ym: null, label: 'Mês atual e futuros' };
+  } else if (filterMode === 'future_months') {
+    monthFilterRange = { start: nextYM + '-01', end: '9999-12-31', ym: null, label: 'Meses futuros' };
+  }
+
+  const allChartWeeksForAppts = getGoalChartWeeks('cprev');
+  const filterWeeksInMonthRange = (list, rng) => {
+    const refIds = list.map(x => x.id).filter(Boolean).sort();
+    const startYM = (rng.start || '').slice(0, 7);
+    const endYM = (rng.end || '').slice(0, 7);
+    return list.filter(w => {
+      const wid = w.id || '';
+      const effYM = getWeekEffectiveYM(wid, refIds);
+      if (rng.ym) return effYM === rng.ym;
+      return effYM >= startYM && effYM <= endYM;
+    });
+  };
 
   if (filterMode === 'all') {
     selectedWeekIds = allAvailableWeeks.map(w => w.id);
@@ -3012,6 +3738,8 @@ function dash(){
     selectedWeekIds = allAvailableWeeks.length ? [allAvailableWeeks[allAvailableWeeks.length - 1].id] : [];
   } else if (filterMode === 'penultimate') {
     selectedWeekIds = allAvailableWeeks.length >= 2 ? [allAvailableWeeks[allAvailableWeeks.length - 2].id] : (allAvailableWeeks.length ? [allAvailableWeeks[0].id] : []);
+  } else if (monthFilterRange) {
+    selectedWeekIds = filterWeeksInMonthRange(allAvailableWeeks, monthFilterRange).map(w => w.id);
   } else if (filterMode === 'custom') {
     if (!Array.isArray(window.excelFilter.selected)) {
       selectedWeekIds = allAvailableWeeks.map(w => w.id);
@@ -3024,26 +3752,30 @@ function dash(){
   let ws = [];
   if (filterMode === 'all') {
     ws = WA;
+  } else if (monthFilterRange) {
+    ws = filterWeeksInMonthRange(WA, monthFilterRange);
+    if (!ws.length) {
+      const fromApptsWeeks = filterWeeksInMonthRange(allChartWeeksForAppts, monthFilterRange);
+      ws = fromApptsWeeks.length ? fromApptsWeeks : [{ id: monthFilterRange.start, novos: 0, antigas: 0, ativas: 0, fu2: 0, fu3: 0, fu4: 0, fu5: 0, fu6: 0, fuparados: 0, resp: 0, agend: 0, semresp: 0, pensando: 0, aguard: 0, nao: 0, cagend: 0, ccanc: 0, creag: 0, creal: 0, cprev: 0, _virtualMonth: true }];
+    }
   } else {
     ws = WA.filter(w => selectedWeekIds.includes(w.id));
   }
 
   const fbar = renderExcelFilterBox(allAvailableWeeks, selectedWeekIds);
 
-  if (!ws.length && !allAgendaData.length) {
+  if (!ws.length && !allAgendaData.length && !monthFilterRange) {
     return fbar + `<div class="card"><h2>Ainda não há dados</h2><p class="note">Vá em “Lançar semana” para registrar a primeira semana ou adicione consultas na aba “Consultas”.</p><button class="b" onclick="go('sem')">Lançar semana</button></div>`;
   }
 
-  if (!ws.length && selectedWeekIds.length === 0) {
+  if (!ws.length && selectedWeekIds.length === 0 && !monthFilterRange) {
     return fbar + `<div class="card"><h2>Nenhuma semana selecionada</h2><p class="note">Marque as semanas que deseja visualizar no filtro de árvore acima.</p></div>`;
   }
 
-  const L=ws.map(w=>fd(w.id));
-  const fullCats=ws.map(w=>'Semana de '+fdf(w.id));
+  const L=ws.map(w=>w._virtualMonth?formatMonthShort(w.id.slice(0,7)):fd(w.id));
+  const fullCats=ws.map(w=>w._virtualMonth?('Mês '+formatMonthFull(w.id.slice(0,7))):('Semana de '+fdf(w.id)));
   const last=[...ws].reverse().find(w=>(w.ativas||0)>0||(w.novos||0)>0)||ws[ws.length-1];
 
-  const tm=sum(ws,msgs),tr=sum(ws,'resp'),ta=sum(ws,'agend'),tl=sum(ws,'novos');
-  const real=sum(ws,'creal'),cag=sum(ws,'cagend'),can=sum(ws,'ccanc'),rea=sum(ws,'creag'),tot=real+rea+can,totWeek=sum(ws,weekTotalConsultas);
   const allApptsWithId = Object.entries(appts).map(([id, a]) => ({ id, ...a }));
   const allLaunchedWeekIds = allAvailableWeeks.map(w => w.id).sort();
   const buildWeekWindows = (targetIds, refKeys) => {
@@ -3054,9 +3786,39 @@ function dash(){
       return { id: wid, start: win.start, end: win.end };
     });
   };
-  const selectedWeekWindows = buildWeekWindows(selectedWeekIds, allLaunchedWeekIds);
-  const allChartWeeksForAppts = getGoalChartWeeks('cprev');
+  const selectedWeekWindows = monthFilterRange
+    ? [{ id: monthFilterRange.start, start: monthFilterRange.start, end: monthFilterRange.end }]
+    : buildWeekWindows(selectedWeekIds, allLaunchedWeekIds);
   const allChartWeekWindows = buildWeekWindows(allChartWeeksForAppts.map(w => w.id), allChartWeeksForAppts.map(w => w.id));
+
+  let tm=sum(ws,msgs),tr=sum(ws,'resp'),ta=sum(ws,'agend'),tl=sum(ws,'novos');
+  let real=sum(ws,'creal'),cag=sum(ws,'cagend'),can=sum(ws,'ccanc'),rea=sum(ws,'creag'),tot=real+rea+can,totWeek=sum(ws,weekTotalConsultas);
+  let monthPeriodStats = null;
+  if (monthFilterRange) {
+    if (monthFilterRange.ym) {
+      monthPeriodStats = computeMonthlyPeriodMetrics(monthFilterRange.ym, { monthMode: 'calendar' }, allApptsWithId, allChartWeeksForAppts);
+      real = monthPeriodStats.creal;
+      cag = monthPeriodStats.cagend;
+      can = monthPeriodStats.ccanc;
+      rea = monthPeriodStats.creag;
+      tot = real + rea + can;
+      totWeek = monthPeriodStats.tot;
+      if (monthPeriodStats.novos || monthPeriodStats.resp || monthPeriodStats.msgs) {
+        tl = monthPeriodStats.novos;
+        tr = monthPeriodStats.resp;
+        ta = monthPeriodStats.agend;
+        tm = monthPeriodStats.msgs;
+      }
+    } else {
+      const rngM = computeWeekApptMetrics('rng', monthFilterRange.start, monthFilterRange.end, allApptsWithId);
+      real = rngM.creal;
+      cag = rngM.cagend;
+      can = rngM.ccanc;
+      rea = rngM.creag;
+      tot = real + rea + can;
+      totWeek = Math.max(rngM.ctot, rngM.cprev, real + rea + can + rngM.cfaltou);
+    }
+  }
 
   const inSelectedWeeks = (isoDate) => {
     if (filterMode === 'all') return true;
@@ -3122,6 +3884,10 @@ function dash(){
     return selectedWeekWindows.some(win => isApptCancelledInContactInWeek(a, win.start, win.end));
   });
 
+  const cprevKpiTotal = monthFilterRange
+    ? (monthPeriodStats ? monthPeriodStats.cprev : prevList.length)
+    : sum(wsForCprev, getEffectiveCprev);
+
   window._dashKpiLists = {
     conv: {
       title: 'Conversão do FU em Agendamento (%)',
@@ -3149,7 +3915,7 @@ function dash(){
       cancelledItems: prevCancelledList,
       pendingItems: prevPendingList,
       cancelledInContact: prevCancInContactList,
-      kpiCount: sum(wsForCprev, getEffectiveCprev)
+      kpiCount: cprevKpiTotal
     },
     creal: {
       title: 'Consultas realizadas',
@@ -3199,17 +3965,31 @@ function dash(){
   const GL = GL_MAP;
   const sw = (ws.length && ws.some(w => w.id === selWeek)) ? selWeek : (last ? last.id : (allAvailableWeeks.length ? allAvailableWeeks[allAvailableWeeks.length - 1].id : ''));
 
-  const isSingleWeek = selectedWeekIds.length === 1;
+  const isSingleWeek = selectedWeekIds.length === 1 && !monthFilterRange;
   const activeSingleWeekId = isSingleWeek ? selectedWeekIds[0] : null;
+  const activeSingleYM = (monthFilterRange && monthFilterRange.ym)
+    ? monthFilterRange.ym
+    : (!isSingleWeek && selectedWeekIds.length >= 2 && (() => {
+        const firstYM = getWeekEffectiveYM(selectedWeekIds[0], allLaunchedWeekIds);
+        return firstYM && selectedWeekIds.every(id => getWeekEffectiveYM(id, allLaunchedWeekIds) === firstYM)
+          ? firstYM
+          : null;
+      })());
+
   const getActiveGoal = (mKey, altKey) => {
     const list = getUnifiedGoalsList();
-    const matchesMetric = g => (g.metric === mKey || g.label === mKey || (altKey && (g.metric === altKey || g.label === altKey)));
+    const matchesMetric = g => (g.metric === mKey || g.label === mKey || (altKey && (g.metric === altKey || g.label === altKey)) || (mKey === 'cprev' && (isCprevFieldKey(g.metric) || isCprevLabel(g.label))));
+    const weeklyList = list.filter(g => g.periodType !== 'monthly');
     if (!isSingleWeek) {
-      return list.find(g => matchesMetric(g) && (g.scope === 'sum_all' || g.type === 'sum_all' || g.week === 'sum_all')) || null;
+      if (activeSingleYM) {
+        const monthlyMatch = list.find(g => g.periodType === 'monthly' && matchesMetric(g) && isMonthlyGoalApplicable(g, activeSingleYM));
+        if (monthlyMatch) return monthlyMatch;
+      }
+      return weeklyList.find(g => matchesMetric(g) && (g.scope === 'sum_all' || g.type === 'sum_all' || g.week === 'sum_all')) || null;
     }
-    const gw = list.find(g => matchesMetric(g) && g.week === activeSingleWeekId && g.scope !== 'sum_all' && g.type !== 'sum_all');
+    const gw = weeklyList.find(g => matchesMetric(g) && g.week === activeSingleWeekId && g.scope !== 'sum_all' && g.type !== 'sum_all');
     if (gw) return gw;
-    return list.find(g => matchesMetric(g) && (g.scope === 'recurrent' || g.type === 'recurring' || (!g.scope && !g.type && (g.week === 'all' || g.week === 'recurrent' || !g.week))) && isGoalApplicableToWeek(g, activeSingleWeekId)) || null;
+    return weeklyList.find(g => matchesMetric(g) && (g.scope === 'recurrent' || g.type === 'recurring' || (!g.scope && !g.type && (g.week === 'all' || g.week === 'recurrent' || !g.week))) && isGoalApplicableToWeek(g, activeSingleWeekId)) || null;
   };
 
   const kp=(l,v,s,mKey,rawLabel)=>{
@@ -3229,7 +4009,9 @@ function dash(){
       const unit = goal.unit === 'pct' ? '%' : '';
       const diffStr = sign + (goal.unit === 'pct' ? diff.toFixed(1).replace('.', ',') : Math.round(diff)) + unit;
       const isSumAll = goal.scope === 'sum_all' || goal.week === 'sum_all';
-      const scopeText = isSumAll ? 'Meta acumulada do período' : ((goal.week && goal.week !== 'all' && goal.week !== 'recurrent') ? ('Semana ' + fdf(goal.week)) : 'Meta semanal individual');
+      const scopeText = goal.periodType === 'monthly'
+        ? (`Meta mensal (${formatMonthShort(activeSingleYM || curYM)})`)
+        : (isSumAll ? 'Meta acumulada do período' : ((goal.week && goal.week !== 'all' && goal.week !== 'recurrent') ? ('Semana ' + fdf(goal.week)) : 'Meta semanal individual'));
 
       goalLegend = `
         <div style="margin-top:6px;padding:6px 9px;border-radius:8px;font-size:11.5px;font-weight:600;background:color-mix(in srgb,${ok ? 'var(--g)' : 'var(--r)'} 12%,var(--card));color:${ok ? 'var(--g)' : 'var(--r)'};border:1px solid color-mix(in srgb,${ok ? 'var(--g)' : 'var(--r)'} 25%,var(--line))">
@@ -3262,18 +4044,27 @@ function dash(){
   const dynamicSummaryHtml=generateDynamicSummary(metrics);
 
   const st=[{n:'Sem resposta',c:css('k'),v:ws.map(w=>w.semresp||0)},{n:'Pensando ou pesquisando',c:css('a'),v:ws.map(w=>w.pensando||0)},{n:'Aguardando cadastro',c:css('g'),v:ws.map(w=>w.aguard||0)},{n:'Não vão seguir',c:css('r'),v:ws.map(w=>w.nao||0)}];
-  const fu=[2,3,4,5].map((k,i)=>({n:'FU '+k,c:css(['b','g','a','p'][i]),v:ws.map(w=>w['fu'+k]||0)}));
+  const fu=[
+    {n:'FU 2',c:css('b'),v:ws.map(w=>w.fu2||0)},
+    {n:'FU 3',c:css('g'),v:ws.map(w=>w.fu3||0)},
+    {n:'FU 4',c:css('a'),v:ws.map(w=>w.fu4||0)},
+    {n:'FU 5',c:css('p'),v:ws.map(w=>w.fu5||0)},
+    ...(ws.some(w=>(w.fu6||0)>0)?[{n:'6º contato (FU sem retorno)',c:css('r'),v:ws.map(w=>w.fu6||0)}]:[]),
+    ...(ws.some(w=>(w.fuparados||0)>0)?[{n:'FU pacientes parados',c:css('k'),v:ws.map(w=>w.fuparados||0)}]:[])
+  ];
 
   /* ===== GRÁFICO AGENDA COM FILTRO PRÓPRIO INDEPENDENTE ===== */
   const af = window.agendaFilter || { mode: 'all', year: 'all', month: 'all', sort: 'asc' };
   let filteredAgenda = allAgendaData;
+  const allAgendaKeys = allAgendaData.map(w => w.id).filter(Boolean).sort();
   if (af.mode === 'future') {
     filteredAgenda = allAgendaData.filter(w => w.id >= curSat || w.id >= today());
   } else if (af.mode === 'past') {
     filteredAgenda = allAgendaData.filter(w => w.id < curSat && w.id < today());
   } else if (af.year !== 'all' || af.month !== 'all') {
     filteredAgenda = allAgendaData.filter(w => {
-      const parts = (w.id || '').split('-');
+      const eff = getWeekEffectiveYM(w.id, allAgendaKeys);
+      const parts = (eff || '').split('-');
       if (parts.length < 2) return false;
       const y = parts[0];
       const m = parseInt(parts[1], 10) - 1;
@@ -3305,11 +4096,11 @@ function dash(){
   const p2=v=>v.toFixed(cfg.dec??2).replace('.',',')+'%',ta2=sum(ws,'ativas');
   const wi=ws.findIndex(w=>w.id===sw),wk=ws[wi]||last,wend=ws[wi+1]?ws[wi+1].id:addDays(sw,7);
   const apw=ap.filter(a=>(normIso(a.schedOn)||'')>=sw&&(normIso(a.schedOn)||'')<wend);
-  const stg=(list,d)=>{const D={novo:d.novos,c2:d.fu2,c3:d.fu3,c4:d.fu4,c5:d.fu5};const rows=Object.keys(ORIG).map(k=>{const n=list.filter(a=>a.origin===k).length,x=D[k];return {k,n,x,r:x?pct(n,x):null}});const m=Math.max(1,...rows.map(e=>e.r||0));
+  const stg=(list,d)=>{const D={novo:d.novos,c2:d.fu2,c3:d.fu3,c4:d.fu4,c5:d.fu5,sem:d.fu6||undefined};const rows=Object.keys(ORIG).map(k=>{const n=list.filter(a=>a.origin===k).length,x=D[k];return {k,n,x,r:x?pct(n,x):null}});const m=Math.max(1,...rows.map(e=>e.r||0));
     return list.length?`<div class="wrap"><table><tr><th>Etapa</th><th>Contatados</th><th>Agendadas</th><th>Taxa</th><th></th></tr>${rows.map(e=>`<tr><td>${esc(ORIG[e.k])}</td><td>${e.x==null?'—':(e.x||0).toLocaleString('pt-BR')}</td><td>${e.n}</td><td><b>${e.r==null?'—':pf(e.r)}</b></td><td style="width:90px"><div style="height:8px;background:var(--line);border-radius:4px"><div style="height:8px;width:${(e.r||0)/m*100}%;background:var(--g);border-radius:4px"></div></div></td></tr>`).join('')}</table></div>`:'<p class="note">Nenhuma consulta registrada neste período.</p>'};
   const stgT=(list,d,at,ca,lb)=>{const row=`<tr style="font-weight:700;border-top:2px solid var(--line)"><td>${lb||'Total (agendadas ÷ ativas)'}</td><td>${at.toLocaleString('pt-BR')}</td><td>${ca}</td><td><b>${p2(pct(ca,at))}</b></td><td></td></tr>`;const h=stg(list,d);return h.includes('</table>')?h.replace('</table>',row+'</table>'):h+`<div class="wrap"><table>${row}</table></div>`};
   const selW=`<label class="note">Semana <select id="selw">${ws.map(w=>`<option value="${w.id}"${w.id===sw?' selected':''}>${fdf(w.id)}</option>`).join('')}</select></label>`;
-  const GER={novos:tl,fu2:sum(ws,'fu2'),fu3:sum(ws,'fu3'),fu4:sum(ws,'fu4'),fu5:sum(ws,'fu5')};
+  const GER={novos:tl,fu2:sum(ws,'fu2'),fu3:sum(ws,'fu3'),fu4:sum(ws,'fu4'),fu5:sum(ws,'fu5'),fu6:sum(ws,'fu6')};
 
   const cm=cfg.metrics||[],cs=(m,targetWs)=>{try{return ev(m.expr,targetWs||ws)}catch(e){return null}};
   const cKpi=cm.filter(m=>m.where==='kpi').map(m=>{
@@ -3358,8 +4149,9 @@ function dash(){
     .map(c => wrapCustomChartCard(c))
     .join('');
 
-  // Gráfico de Acompanhamento de Metas por Semana
-  const allGoalsForChart = getUnifiedGoalsList();
+  // Gráfico de Acompanhamento de Metas por Semana (apenas metas semanais)
+  const allUnifiedGoals = getUnifiedGoalsList();
+  const allGoalsForChart = allUnifiedGoals.filter(g => g.periodType !== 'monthly');
   let goalTrackingHtml = '';
   if (allGoalsForChart.length > 0) {
     const selGoalId = window._selectedGoalChartId && allGoalsForChart.some(g => g.id === window._selectedGoalChartId)
@@ -3370,6 +4162,7 @@ function dash(){
     const isActiveGoalCprev = isCprevFieldKey(activeG.metric) || isCprevLabel(activeG.label);
     const goalWeeksAll = getGoalChartWeeks(isActiveGoalCprev ? 'cprev' : activeG.metric);
 
+    const goalWeeksAllKeys = goalWeeksAll.map(w => w.id).filter(Boolean).sort();
     let filteredGoalWeeks = goalWeeksAll;
     if (gf.mode === 'future') {
       filteredGoalWeeks = goalWeeksAll.filter(w => w.id >= curSat || w.id >= today());
@@ -3377,7 +4170,8 @@ function dash(){
       filteredGoalWeeks = goalWeeksAll.filter(w => w.id < curSat && w.id < today());
     } else if (gf.year !== 'all' || gf.month !== 'all') {
       filteredGoalWeeks = goalWeeksAll.filter(w => {
-        const parts = (w.id || '').split('-');
+        const eff = getWeekEffectiveYM(w.id, goalWeeksAllKeys);
+        const parts = (eff || '').split('-');
         if (parts.length < 2) return false;
         const y = parts[0];
         const m = parseInt(parts[1], 10) - 1;
@@ -3521,15 +4315,246 @@ function dash(){
     }
   }
 
+  // Novo gráfico: Acompanhamento de Metas Mensais (Colunas: Meta vs Realizado + % atingido contínuo em cima das colunas)
+  const allMonthlyGoalsForChart = allUnifiedGoals.filter(g => g.periodType === 'monthly');
+  let monthlyGoalTrackingHtml = '';
+  const hideMonthlyCard = Boolean(cfg.hide && cfg.hide['c:Acompanhamento de Metas Mensais']);
+  if (!hideMonthlyCard) {
+    if (allMonthlyGoalsForChart.length > 0) {
+      const getMGMetricGroup = g => (isCprevFieldKey(g.metric) || isCprevLabel(g.label)) ? 'cprev' : g.metric;
+      const monthlyMetricGroups = [];
+      const seenMetricGroups = new Set();
+      allMonthlyGoalsForChart.forEach(g => {
+        const mKey = getMGMetricGroup(g);
+        if (!seenMetricGroups.has(mKey)) {
+          seenMetricGroups.add(mKey);
+          const groupGoals = allMonthlyGoalsForChart.filter(x => getMGMetricGroup(x) === mKey);
+          const repGoal = groupGoals.find(x => x.monthScope !== 'specific') || groupGoals[0];
+          const distinctTargets = Array.from(new Set(groupGoals.map(x => Number(x.target))));
+          const suffix = groupGoals.length > 1 && distinctTargets.length > 1
+            ? `${groupGoals.length} metas mensais`
+            : `${repGoal.target}${repGoal.unit === 'pct' ? '%' : ''}/mês`;
+          monthlyMetricGroups.push({
+            key: mKey,
+            repGoal,
+            goals: groupGoals,
+            optionLabel: `${repGoal.label || repGoal.metric} (${suffix})`
+          });
+        }
+      });
+
+      let activeGroup = monthlyMetricGroups[0];
+      if (window._selectedMonthlyGoalChartId) {
+        const byKey = monthlyMetricGroups.find(gr => gr.key === window._selectedMonthlyGoalChartId);
+        const byGoalId = monthlyMetricGroups.find(gr => gr.goals.some(g => g.id === window._selectedMonthlyGoalChartId));
+        activeGroup = byKey || byGoalId || monthlyMetricGroups[0];
+      }
+      const activeMG = activeGroup.repGoal;
+      const groupGoals = activeGroup.goals;
+      const mgf = window.monthlyGoalFilter || { mode: 'all', year: 'all', month: 'all', ymFrom: '', ymTo: '', sort: 'asc' };
+      const allAvailMonths = getAvailableGoalMonths(allMonthlyGoalsForChart);
+
+      // Mantém todos os meses em conjunto de forma contínua (independente de metas individuais por mês)
+      let filteredMonths = [...allAvailMonths];
+
+      if (mgf.mode === 'current') filteredMonths = filteredMonths.filter(ym => ym === curYM);
+      else if (mgf.mode === 'current_and_future') filteredMonths = filteredMonths.filter(ym => ym >= curYM);
+      else if (mgf.mode === 'future') filteredMonths = filteredMonths.filter(ym => ym > curYM);
+      else if (mgf.mode === 'past') filteredMonths = filteredMonths.filter(ym => ym < curYM);
+      else if (mgf.year !== 'all' || mgf.month !== 'all') {
+        filteredMonths = filteredMonths.filter(ym => {
+          const parts = ym.split('-');
+          if (mgf.year !== 'all' && parts[0] !== mgf.year) return false;
+          if (mgf.month !== 'all' && String(parseInt(parts[1], 10) - 1) !== String(mgf.month)) return false;
+          return true;
+        });
+      }
+      if (mgf.ymFrom) filteredMonths = filteredMonths.filter(ym => ym >= mgf.ymFrom);
+      if (mgf.ymTo) filteredMonths = filteredMonths.filter(ym => ym <= mgf.ymTo);
+
+      filteredMonths = filteredMonths.slice().sort((a, b) => (mgf.sort === 'desc' ? b.localeCompare(a) : a.localeCompare(b)));
+
+      const isPctMG = activeMG.unit === 'pct';
+      const isMaxMG = activeMG.dir === 'max';
+      const monthRows = filteredMonths.map(ym => {
+        const specificMatches = groupGoals
+          .filter(g => {
+            const tms = getGoalTargetMonths(g);
+            return (g.monthScope === 'specific' || (tms.length > 0 && g.monthScope !== 'recurrent')) && tms.includes(ym);
+          })
+          .sort((a, b) => getGoalTargetMonths(a).length - getGoalTargetMonths(b).length);
+        const matchedGoal = specificMatches[0]
+          || groupGoals.find(g => g.monthScope !== 'specific' && isMonthlyGoalApplicable(g, ym))
+          || null;
+        const evalGoal = matchedGoal || activeMG;
+        const hasGoal = Boolean(matchedGoal);
+        const targetVal = hasGoal ? (Number(matchedGoal.target) || 0) : 0;
+        const res = evaluateMonthlyGoalValue(ym, evalGoal, allApptsWithId, allChartWeeksForAppts);
+        const actualVal = Math.round(res.value * 10) / 10;
+        const pctAchieved = hasGoal
+          ? (targetVal > 0 ? Math.round((actualVal / targetVal) * 1000) / 10 : (actualVal > 0 ? 100 : 0))
+          : null;
+        return {
+          ym,
+          label: formatMonthShort(ym),
+          fullCat: formatMonthFull(ym),
+          hasGoal,
+          target: targetVal,
+          actual: actualVal,
+          pctAchieved,
+          isCurrent: ym === curYM,
+          isFuture: ym > curYM,
+          modeDesc: getMonthModeDescription(evalGoal),
+          stats: res.stats,
+          goalUsed: evalGoal
+        };
+      });
+
+      const mgControls = `
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          ${renderMonthlyGoalFilterControl(allAvailMonths)}
+          <select id="monthly_goal_chart_selector" style="font-size:11.5px;padding:3px 8px;min-height:28px">${monthlyMetricGroups.map(gr => `<option value="${esc(gr.key)}"${gr.key===activeGroup.key?' selected':''}>${esc(gr.optionLabel)}</option>`).join('')}</select>
+        </div>
+      `;
+
+      const goalRowsWithTarget = monthRows.filter(r => r.hasGoal && r.target > 0);
+      const focusRow = goalRowsWithTarget.find(r => r.isCurrent)
+        || monthRows.find(r => r.isCurrent)
+        || goalRowsWithTarget[goalRowsWithTarget.length - 1]
+        || monthRows[monthRows.length - 1]
+        || null;
+
+      let focusStripHtml = '';
+      if (focusRow || goalRowsWithTarget.length > 0) {
+        let focusLineHtml = '';
+        if (focusRow && focusRow.hasGoal) {
+          const okFocus = isMaxMG ? (focusRow.actual <= focusRow.target) : (focusRow.actual >= focusRow.target);
+          const remVal = isMaxMG ? Math.max(0, focusRow.actual - focusRow.target) : Math.max(0, focusRow.target - focusRow.actual);
+          const remLabel = isMaxMG
+            ? (okFocus ? 'Dentro do limite' : 'Excedido')
+            : (okFocus ? 'Meta batida (+' + (isPctMG ? pf(focusRow.actual - focusRow.target) : Math.round(focusRow.actual - focusRow.target)) + ')' : ('Faltam ' + (isPctMG ? pf(remVal) : Math.round(remVal))));
+
+          let paceHint = '';
+          if (!isPctMG && !isMaxMG && focusRow.isCurrent && focusRow.stats && focusRow.stats.bounds) {
+            const todayIso = today();
+            const daysLeft = Math.max(0, diffDaysInclusive(todayIso, focusRow.stats.bounds.end));
+            if (remVal > 0 && daysLeft > 0) {
+              const perDay = (remVal / daysLeft).toFixed(1).replace('.', ',');
+              paceHint = ` · Ritmo p/ bater: <b>${perDay}/dia</b> (${daysLeft} dia(s) restantes)`;
+            }
+            if ((activeMG.metric === 'creal' || activeMG.metric === 'comp') && focusRow.stats.pendingInMonth > 0) {
+              const projTot = focusRow.actual + focusRow.stats.pendingInMonth;
+              const projPct = focusRow.target > 0 ? ((projTot / focusRow.target) * 100).toFixed(1).replace('.', ',') : '100';
+              paceHint += ` · +${focusRow.stats.pendingInMonth} agendada(s) no mês (projeção ${projPct}%)`;
+            }
+          }
+          focusLineHtml = `
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <span><b>${esc(focusRow.fullCat)}</b> (${esc(focusRow.modeDesc)}):</span>
+              <span>Meta: <b>${isPctMG ? pf(focusRow.target) : focusRow.target.toLocaleString('pt-BR')}</b></span>
+              <span>Realizado: <b style="color:${okFocus ? 'var(--g)' : 'var(--b)'}">${isPctMG ? pf(focusRow.actual) : focusRow.actual.toLocaleString('pt-BR')}</b> (<b style="color:${okFocus ? 'var(--g)' : 'var(--b)'}">${focusRow.pctAchieved.toFixed(1).replace('.', ',')}%</b>)</span>
+              <span style="color:${okFocus ? 'var(--g)' : 'var(--r)'};font-weight:700">${esc(remLabel)}</span>
+              ${paceHint ? `<span class="note" style="font-size:11.5px">${paceHint}</span>` : ''}
+            </div>
+          `;
+        } else if (focusRow) {
+          focusLineHtml = `
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <span><b>${esc(focusRow.fullCat)}</b>:</span>
+              <span>Realizado: <b>${isPctMG ? pf(focusRow.actual) : focusRow.actual.toLocaleString('pt-BR')}</b></span>
+              <span class="note">Sem meta definida para este mês</span>
+            </div>
+          `;
+        }
+
+        let contLineHtml = '';
+        if (goalRowsWithTarget.length > 0) {
+          const sumTgt = goalRowsWithTarget.reduce((acc, r) => acc + r.target, 0);
+          const sumAct = goalRowsWithTarget.reduce((acc, r) => acc + r.actual, 0);
+          const avgPct = goalRowsWithTarget.reduce((acc, r) => acc + (r.pctAchieved || 0), 0) / goalRowsWithTarget.length;
+          const contPct = isPctMG
+            ? avgPct
+            : (sumTgt > 0 ? (sumAct / sumTgt) * 100 : 0);
+          const contOk = isMaxMG ? (contPct <= 100) : (contPct >= 100);
+          const perMonthSummary = goalRowsWithTarget.map(r => {
+            const rOk = isMaxMG ? (r.actual <= r.target) : (r.actual >= r.target);
+            const rCol = rOk ? 'var(--g)' : ((r.pctAchieved || 0) >= 70 && !isMaxMG ? 'var(--b)' : 'var(--r)');
+            return `<span>${esc(r.label)}: <b style="color:${rCol}">${(r.pctAchieved || 0).toFixed(1).replace('.', ',')}%</b></span>`;
+          }).join(' · ');
+
+          contLineHtml = `
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;${focusLineHtml ? 'margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);' : ''}font-size:11.5px">
+              <span><b>Progresso contínuo (${goalRowsWithTarget.length} ${goalRowsWithTarget.length === 1 ? 'mês' : 'meses'} com meta):</b></span>
+              ${!isPctMG ? `<span>Total <b>${Math.round(sumAct * 10) / 10}</b> de <b>${Math.round(sumTgt * 10) / 10}</b></span>` : ''}
+              <span style="font-weight:700;color:${contOk ? 'var(--g)' : 'var(--b)'}">${contPct.toFixed(1).replace('.', ',')}% acumulado</span>
+              <span class="note">(${perMonthSummary})</span>
+            </div>
+          `;
+        }
+
+        focusStripHtml = `
+          <div style="margin:4px 0 8px;padding:8px 10px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-size:12px">
+            ${focusLineHtml}
+            ${contLineHtml}
+          </div>
+        `;
+      }
+
+      const distinctGoalTargets = Array.from(new Set(goalRowsWithTarget.map(r => r.target)));
+      const metaLegendLabel = distinctGoalTargets.length === 1
+        ? `Meta do mês (${distinctGoalTargets[0]}${isPctMG ? '%' : ''})`
+        : 'Meta estipulada no mês';
+
+      const mgLegend = `
+        <div class="lg" role="list" aria-label="Legenda">
+          <b style="color:var(--ink)">Legenda:</b>
+          <span role="listitem"><i style="background:var(--a)"></i>${esc(metaLegendLabel)}</span>
+          <span role="listitem"><i style="background:var(--b)"></i>Realizado no mês</span>
+          <span role="listitem"><i style="background:var(--g)"></i>Meta atingida (≥ 100%)</span>
+        </div>
+      `;
+      const mgBody = monthRows.length
+        ? renderMonthlyGoalColumnChart(monthRows, activeMG, isPctMG)
+        : '<p class="note" style="padding:16px 0">Nenhum mês encontrado para este filtro.</p>';
+
+      monthlyGoalTrackingHtml = `
+        <div class="card card-full" style="position:relative">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+            <div>
+              <h2>Acompanhamento de Metas Mensais</h2>
+              <p class="note" style="margin:-6px 0 6px">Todos os meses em conjunto: meta estipulada × realizado e % atingido no topo das colunas (${esc(activeMG.label || activeMG.metric)}).</p>
+            </div>
+            ${mgControls}
+          </div>
+          ${mgLegend}
+          ${focusStripHtml}
+          ${mgBody}
+        </div>
+      `;
+    } else {
+      monthlyGoalTrackingHtml = `
+        <div class="card card-full" style="position:relative">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+            <div>
+              <h2>Acompanhamento de Metas Mensais</h2>
+              <p class="note" style="margin:-4px 0 0">Acompanhe em colunas todos os meses em conjunto: meta estipulada × realizado e % atingido.</p>
+            </div>
+            <button type="button" class="b" style="font-size:12px;padding:6px 12px" onclick="go('cfg');setTimeout(()=>{const pt=document.getElementById('g_period_type');if(pt){pt.value='monthly';pt.dispatchEvent(new Event('change',{bubbles:true}));pt.scrollIntoView({behavior:'smooth',block:'center'});}},60)">➕ Configurar Meta Mensal</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+
   setTimeout(enableChartScrollDragging, 50);
 
   return fbar+`<div class="grid kpis">
-    ${kp('Total de conversas ativas',(last.ativas||0).toLocaleString('pt-BR'),'na semana de '+fd(last.id),'ativas')}
+    ${kp('Total de conversas ativas',(last.ativas||0).toLocaleString('pt-BR'),(last.id && last._virtualMonth ? 'no mês ' + formatMonthShort(last.id.slice(0,7)) : 'na semana de '+fd(last.id)),'ativas')}
     ${kp('Taxa Geral de Agendamento (%)',p2(pct(cag,ta2/ws.length)),cag+' consultas ÷ '+Math.round(ta2/ws.length).toLocaleString('pt-BR')+' ativas médias','tg')}
     ${kp('Conversão do FU em Agendamento (%)',tr?p2(pct(ta,tr)):'—',ta+' agendamentos ÷ '+tr.toLocaleString('pt-BR')+' respostas','conv')}
     ${kp('Conversão de Novos Leads em Agendamento (%)',p2(convNovosLeadsRate),agendDeNovosLeads+' agendadas de novos leads ÷ '+tl.toLocaleString('pt-BR')+' novos leads','convNovos')}
-    ${kp('Novos leads',tl,ws.length+' semanas','novos')}
-    ${kp('Consultas agendadas',cag.toLocaleString('pt-BR'),'no período','cagend')}
+    ${kp('Novos leads',tl,monthFilterRange ? monthFilterRange.label : (ws.length+' semanas'),'novos')}
+    ${kp('Consultas agendadas',cag.toLocaleString('pt-BR'),monthFilterRange ? monthFilterRange.label : 'no período','cagend')}
     ${kp('Mensagens de follow-up',tm.toLocaleString('pt-BR'),'','msgs')}
     ${kp('Taxa de resposta do FU',tm?pf(pct(tr,tm)):'—',tr+' respostas','resp')}
     ${kp('Comparecimento (check-in)',tot?pf(pct(real,tot)):'—',real+' de '+tot+' consultas','comp')}
@@ -3543,6 +4568,7 @@ function dash(){
   </div>
   <div class="ins" id="dynamic_summary">${dynamicSummaryHtml}</div>
   <div class="grid charts">
+    ${monthlyGoalTrackingHtml}
     ${renderStdOrOverride('std_fu', 'Mensagens de follow-up por tentativa', fu, chart(L,fu,'stack',false,fullCats))}
     ${renderStdOrOverride('std_rs', 'Resposta e conversão do follow-up', rs, chart(L,rs,'line',true,fullCats))}
     ${renderStdOrOverride('std_st', 'Status dos pacientes (total acumulado em cada semana)', st, chart(L,st,'stack',false,fullCats))}
@@ -3741,7 +4767,10 @@ async function importRows(rows){
     if(weekDate && hasMetricNumbers){
       const id = weekDate;
       const o = {};
-      BASEF.forEach(([k], i) => {
+      const impCols = (c.length - 1) <= (LEGACY_WEEK_COLS.length + 1)
+        ? (c.length - 1 === LEGACY_WEEK_COLS.length + 1 ? [...LEGACY_WEEK_COLS, 'cprev'] : LEGACY_WEEK_COLS)
+        : BASEF.map(([k]) => k);
+      impCols.forEach((k, i) => {
         const val = c[i + 1];
         const num = String(val || '0').replace(/[\s\u00a0.]/g, '').replace(/,/g, '.');
         o[k] = isNaN(parseFloat(num)) ? 0 : Math.round(parseFloat(num));
@@ -4273,8 +5302,12 @@ function updateIndeterminateInputs(){
 
 function render(){
   const ae=document.activeElement;if(ae&&ae.matches&&ae.matches('[data-id],[data-af="q"]')&&cur==='cons')return;
+  const efTree=document.getElementById('ef_tree_box');
+  const prevEfScroll=efTree?efTree.scrollTop:0;
   $('#dash').innerHTML=dash();
   updateIndeterminateInputs();
+  const newEfTree=document.getElementById('ef_tree_box');
+  if(newEfTree&&prevEfScroll)newEfTree.scrollTop=prevEfScroll;
   if(!editRow)$('#wl').innerHTML=weekList();
   if(!window._wfDirty&&!document.activeElement?.closest?.('#wf'))loadWeek();
   $('#al').innerHTML=apptList();
@@ -4282,8 +5315,12 @@ function render(){
 }
 
 function forceRender(){
+  const efTree=document.getElementById('ef_tree_box');
+  const prevEfScroll=efTree?efTree.scrollTop:0;
   $('#dash').innerHTML=dash();
   updateIndeterminateInputs();
+  const newEfTree=document.getElementById('ef_tree_box');
+  if(newEfTree&&prevEfScroll)newEfTree.scrollTop=prevEfScroll;
   if(!editRow)$('#wl').innerHTML=weekList();
   if(!window._wfDirty&&!document.activeElement?.closest?.('#wf'))loadWeek();
   $('#al').innerHTML=apptList();
@@ -4362,7 +5399,7 @@ $('#wdel').onclick=async function(){
   await deleteWeek(id);
 };
 $('#imp').onclick=()=>importRows($('#paste').value.split(/\r?\n/));
-$('#seed').onclick=async()=>{for(const [id,v] of Object.entries(SEED)){const o={};BASEF.forEach(([k],i)=>o[k]=v[i]??0);await saveDoc('weeks/'+id,{...(weeks[id]||{}),...o})}toast('Semanas carregadas')};
+$('#seed').onclick=async()=>{for(const [id,v] of Object.entries(SEED)){const o={};LEGACY_WEEK_COLS.forEach((k,i)=>o[k]=v[i]??0);await saveDoc('weeks/'+id,{...(weeks[id]||{}),...o})}toast('Semanas carregadas')};
 $('#wl').onclick=e=>{const id=e.target.dataset.e;if(id){e.preventDefault();window._wfDirty=false;$('#wd').value=id;loadWeek();window.scrollTo({top:0,behavior:'smooth'})}};
 
 if($('#cp_c')){
@@ -4566,8 +5603,8 @@ $('#cfg').onclick=async e=>{
   if(id==='f_add'){const n=$('#f_n').value.trim();if(!n)return toast('Informe o nome do campo');await saveCfg({extra:[...(cfg.extra||[]),{k:'x'+Date.now().toString(36),n,snap:$('#f_t').value==='1'}]});renderCfg();return toast('Campo adicionado')}
   if(t.dataset.lx){const k=t.dataset.lx;if(!confirm('Excluir o campo “'+lab(k)+'”? Os números já lançados continuam guardados.'))return;const l={...(cfg.labels||{})};delete l[k];
     const h={...(cfg.hide||{})};delete h['k:'+k];delete h['k:'+lab(k)];
-    const gl=getUnifiedGoalsList().filter(g=>g.metric!==k&&g.label!==k&&g.label!==lab(k)).map(g=>({id:g.id.startsWith('legacy_')?'g'+Math.random().toString(36).slice(2,8):g.id,metric:g.metric,label:g.label,scope:g.scope||(g.week==='sum_all'?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':'week')),week:g.week||'recurrent',startWeek:g.startWeek||'',endWeek:g.endWeek||'',target:g.target,unit:g.unit||'num',dir:g.dir||'min'}));
-    const gm={};gl.forEach(g=>{if((g.scope==='recurrent'||g.week==='all'||!g.week)&&!g.startWeek&&!g.endWeek)gm[g.metric]=g.target;});
+    const gl=getUnifiedGoalsList().filter(g=>g.metric!==k&&g.label!==k&&g.label!==lab(k)).map(g=>({id:g.id.startsWith('legacy_')?'g'+Math.random().toString(36).slice(2,8):g.id,metric:g.metric,label:g.label,periodType:g.periodType||'weekly',scope:g.scope||(g.week==='sum_all'?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':'week')),week:g.week||'recurrent',startWeek:g.startWeek||'',endWeek:g.endWeek||'',monthMode:g.monthMode||'',monthScope:g.monthScope||'',targetMonth:g.targetMonth||'',targetMonths:getGoalTargetMonths(g),startMonth:g.startMonth||'',endMonth:g.endMonth||'',cycleStartDay:g.cycleStartDay||1,cycleRef:g.cycleRef||'prev_to_curr',target:g.target,unit:g.unit||'num',dir:g.dir||'min'}));
+    const gm={};gl.forEach(g=>{if((g.periodType||'weekly')!=='monthly'&&(g.scope==='recurrent'||g.week==='all'||!g.week)&&!g.startWeek&&!g.endWeek)gm[g.metric]=g.target;});
     if((cfg.extra||[]).some(x=>x.k===k))await saveCfg({extra:cfg.extra.filter(x=>x.k!==k),labels:l,hide:h,goalsList:gl,goals:gm});else await saveCfg({removed:[...(cfg.removed||[]),k],labels:l,hide:h,goalsList:gl,goals:gm});renderCfg();return toast('Campo excluído')}
   if(id==='c_or'){await saveCfg({origins:[]});renderCfg();return toast('Origens restauradas')}
   if(id==='c_tr'){await saveCfg({theme:{}});return renderCfg()}
@@ -4579,8 +5616,8 @@ $('#cfg').onclick=async e=>{
       if(!newList.some(x=>x.title===delM.title)){delete h['k:'+delM.title];delete h['c:'+delM.title];}
       delete h['k:'+delM.id];delete h['c:'+delM.id];
     }
-    const newGoalsList=getUnifiedGoalsList().filter(g=>!delM||(g.metric!==delM.id&&g.metric!==delM.title&&g.label!==delM.title)).map(g=>({id:g.id.startsWith('legacy_')?'g'+Math.random().toString(36).slice(2,8):g.id,metric:g.metric,label:g.label,scope:g.scope||(g.week==='sum_all'?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':'week')),week:g.week||'recurrent',startWeek:g.startWeek||'',endWeek:g.endWeek||'',target:g.target,unit:g.unit||'num',dir:g.dir||'min'}));
-    const newGoalsMap={};newGoalsList.forEach(g=>{if((g.scope==='recurrent'||g.week==='all'||!g.week)&&!g.startWeek&&!g.endWeek)newGoalsMap[g.metric]=g.target;});
+    const newGoalsList=getUnifiedGoalsList().filter(g=>!delM||(g.metric!==delM.id&&g.metric!==delM.title&&g.label!==delM.title)).map(g=>({id:g.id.startsWith('legacy_')?'g'+Math.random().toString(36).slice(2,8):g.id,metric:g.metric,label:g.label,periodType:g.periodType||'weekly',scope:g.scope||(g.week==='sum_all'?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':'week')),week:g.week||'recurrent',startWeek:g.startWeek||'',endWeek:g.endWeek||'',monthMode:g.monthMode||'',monthScope:g.monthScope||'',targetMonth:g.targetMonth||'',targetMonths:getGoalTargetMonths(g),startMonth:g.startMonth||'',endMonth:g.endMonth||'',cycleStartDay:g.cycleStartDay||1,cycleRef:g.cycleRef||'prev_to_curr',target:g.target,unit:g.unit||'num',dir:g.dir||'min'}));
+    const newGoalsMap={};newGoalsList.forEach(g=>{if((g.periodType||'weekly')!=='monthly'&&(g.scope==='recurrent'||g.week==='all'||!g.week)&&!g.startWeek&&!g.endWeek)newGoalsMap[g.metric]=g.target;});
     await saveCfg({metrics:newList,hide:h,goalsList:newGoalsList,goals:newGoalsMap});
     return renderCfg();
   }
@@ -4590,9 +5627,77 @@ $('#cfg').onclick=async e=>{
   if(id==='c_ew')return exp('semanas.csv',['Data',...WCOLS.slice(1)],W().map(w=>[fdf(w.id),...WCOLS.slice(1).map(c=>w[c]||0)]));
   if(id==='c_ea')return exp('consultas.csv',['ID','Paciente','Veio de','Agendada em','Consulta','Status','Reagendou?','Nova data','Status nova data'],Object.entries(appts).map(([id,a])=>[id,a.patient,ORIG[a.origin]||a.origin,fdf(a.schedOn),fdf(a.consult),STAT[a.status]||a.status,REG[a.regained||'']||a.regained,fdf(a.newDate),STAT_NEW[a.statusNewDate||'']||a.statusNewDate||'—']));
   
-  // Gerenciador de Metas
+  // Gerenciador de Metas — Calendário anual/mensal multi-seleção
+  const gmYearStepBtn = t.closest('[data-gm-year-step]');
+  if(gmYearStepBtn){
+    const curY = (window._goalMonthPicker && window._goalMonthPicker.year) || new Date().getFullYear();
+    window._goalMonthPicker = {
+      ...(window._goalMonthPicker || { selected: [] }),
+      year: curY + parseInt(gmYearStepBtn.dataset.gmYearStep, 10)
+    };
+    renderGoalMonthCalendar();
+    return;
+  }
+  const gmYearBtn = t.closest('[data-gm-year]');
+  if(gmYearBtn){
+    window._goalMonthPicker = {
+      ...(window._goalMonthPicker || { selected: [] }),
+      year: parseInt(gmYearBtn.dataset.gmYear, 10)
+    };
+    renderGoalMonthCalendar();
+    return;
+  }
+  const gmMonthBtn = t.closest('[data-gm-month]');
+  if(gmMonthBtn){
+    const ym = gmMonthBtn.dataset.gmMonth;
+    const curSel = Array.isArray(window._goalMonthPicker?.selected) ? [...window._goalMonthPicker.selected] : [];
+    const exists = curSel.includes(ym);
+    const nextSel = exists ? curSel.filter(x => x !== ym) : [...curSel, ym].sort();
+    window._goalMonthPicker = {
+      year: (window._goalMonthPicker && window._goalMonthPicker.year) || parseInt(ym.slice(0, 4), 10),
+      selected: nextSel
+    };
+    renderGoalMonthCalendar();
+    return;
+  }
+  const gmRemoveBtn = t.closest('[data-gm-remove]');
+  if(gmRemoveBtn){
+    const ym = gmRemoveBtn.dataset.gmRemove;
+    const curSel = Array.isArray(window._goalMonthPicker?.selected) ? window._goalMonthPicker.selected : [];
+    window._goalMonthPicker = {
+      ...(window._goalMonthPicker || { year: new Date().getFullYear() }),
+      selected: curSel.filter(x => x !== ym)
+    };
+    renderGoalMonthCalendar();
+    return;
+  }
+  const gmActBtn = t.closest('[data-gm-action]');
+  if(gmActBtn){
+    const act = gmActBtn.dataset.gmAction;
+    const curYM = today().slice(0, 7);
+    const curY = parseInt(curYM.slice(0, 4), 10);
+    const viewY = (window._goalMonthPicker && window._goalMonthPicker.year) || curY;
+    const curSel = Array.isArray(window._goalMonthPicker?.selected) ? [...window._goalMonthPicker.selected] : [];
+    if(act === 'current'){
+      const set = new Set(curSel);
+      set.add(curYM);
+      window._goalMonthPicker = { year: curY, selected: Array.from(set).sort() };
+    } else if(act === 'toggle_year'){
+      const yearMonths = Array.from({ length: 12 }, (_, idx) => `${viewY}-${String(idx + 1).padStart(2, '0')}`);
+      const allSelectedInYear = yearMonths.every(ym => curSel.includes(ym));
+      const set = new Set(curSel);
+      if(allSelectedInYear) yearMonths.forEach(ym => set.delete(ym));
+      else yearMonths.forEach(ym => set.add(ym));
+      window._goalMonthPicker = { year: viewY, selected: Array.from(set).sort() };
+    } else if(act === 'clear'){
+      window._goalMonthPicker = { year: viewY, selected: [] };
+    }
+    renderGoalMonthCalendar();
+    return;
+  }
   if(id==='g_clear_all_btn'){
     await saveCfg({goalsList:[],goals:{}});
+    window._goalMonthPicker = { year: parseInt(today().slice(0, 4), 10), selected: [today().slice(0, 7)] };
     renderCfg();
     forceRender();
     return toast('Todas as metas foram excluídas com sucesso!');
@@ -4602,10 +5707,27 @@ $('#cfg').onclick=async e=>{
     const opt=$('#g_metric').selectedOptions[0];
     const customM=(cfg.metrics||[]).find(cm=>cm.id===m||cm.title===m);
     const label=customM?customM.title:(opt?opt.textContent.replace(/\(.*?\)/g,'').trim():m);
+    const periodType=($('#g_period_type')?.value)||'weekly';
     const week=$('#g_week').value;
-    const scope = week === 'sum_all' ? 'sum_all' : ((week === 'all' || week === 'recurrent') ? 'recurrent' : 'week');
-    const startWeek = scope === 'recurrent' ? ($('#g_start_week')?.value || '') : '';
-    const endWeek = scope === 'recurrent' ? ($('#g_end_week')?.value || '') : '';
+    const scope = periodType === 'monthly'
+      ? (($('#g_month_scope')?.value) === 'specific' ? 'month_specific' : 'month_recurrent')
+      : (week === 'sum_all' ? 'sum_all' : ((week === 'all' || week === 'recurrent') ? 'recurrent' : 'week'));
+    const startWeek = periodType === 'weekly' && scope === 'recurrent' ? ($('#g_start_week')?.value || '') : '';
+    const endWeek = periodType === 'weekly' && scope === 'recurrent' ? ($('#g_end_week')?.value || '') : '';
+    const monthMode = periodType === 'monthly' ? ($('#g_month_mode')?.value || 'calendar') : '';
+    const monthScope = periodType === 'monthly' ? ($('#g_month_scope')?.value || 'recurrent') : '';
+    const pickedMonths = periodType === 'monthly' && monthScope === 'specific'
+      ? Array.from(new Set((window._goalMonthPicker?.selected || []).filter(ym => /^\d{4}-\d{2}$/.test(ym)))).sort()
+      : [];
+    if(periodType === 'monthly' && monthScope === 'specific' && pickedMonths.length === 0){
+      return toast('Selecione pelo menos um mês no calendário.');
+    }
+    const targetMonth = pickedMonths.length === 1 ? pickedMonths[0] : '';
+    const targetMonths = pickedMonths;
+    const startMonth = periodType === 'monthly' && monthScope === 'recurrent' ? ($('#g_start_month')?.value || '') : '';
+    const endMonth = periodType === 'monthly' && monthScope === 'recurrent' ? ($('#g_end_month')?.value || '') : '';
+    const cycleStartDay = periodType === 'monthly' && monthMode === 'custom_cycle' ? Math.min(28, Math.max(1, parseInt($('#g_cycle_start_day')?.value || '26', 10) || 26)) : 1;
+    const cycleRef = periodType === 'monthly' && monthMode === 'custom_cycle' ? ($('#g_cycle_ref')?.value || 'prev_to_curr') : 'prev_to_curr';
     const target=parseFloat($('#g_target').value);
     const unit=$('#g_unit').value;
     const dir=$('#g_dir').value;
@@ -4613,44 +5735,80 @@ $('#cfg').onclick=async e=>{
 
     if(isNaN(target))return toast('Informe o valor numérico da meta.');
 
-    let list=getUnifiedGoalsList().map(g=>({
-      id:g.id,
-      metric:g.metric,
-      label:g.label,
-      week:g.week||'recurrent',
-      scope:g.scope||(g.week==='sum_all'?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':'week')),
-      startWeek:g.startWeek||'',
-      endWeek:g.endWeek||'',
-      target:g.target,
-      unit:g.unit||'num',
-      dir:g.dir||'min'
-    }));
+    const serializeGoal = g => ({
+      id: g.id.startsWith('legacy_') ? 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5) : g.id,
+      metric: g.metric,
+      label: g.label,
+      periodType: g.periodType || 'weekly',
+      week: g.week || 'recurrent',
+      scope: g.scope || (g.week === 'sum_all' ? 'sum_all' : ((g.week === 'all' || g.week === 'recurrent' || !g.week) ? 'recurrent' : 'week')),
+      startWeek: g.startWeek || '',
+      endWeek: g.endWeek || '',
+      monthMode: g.monthMode || '',
+      monthScope: g.monthScope || '',
+      targetMonth: g.targetMonth || '',
+      targetMonths: getGoalTargetMonths(g),
+      startMonth: g.startMonth || '',
+      endMonth: g.endMonth || '',
+      cycleStartDay: g.cycleStartDay || 1,
+      cycleRef: g.cycleRef || 'prev_to_curr',
+      target: g.target,
+      unit: g.unit || 'num',
+      dir: g.dir || 'min'
+    });
+
+    let list=getUnifiedGoalsList().map(serializeGoal);
+    const newGoalObj = {
+      id: editId ? (editId.startsWith('legacy_') ? 'g' + Date.now().toString(36) : editId) : 'g' + Date.now().toString(36),
+      metric: m,
+      label,
+      periodType,
+      week: periodType === 'monthly' ? 'monthly' : week,
+      scope,
+      startWeek,
+      endWeek,
+      monthMode,
+      monthScope,
+      targetMonth,
+      targetMonths,
+      startMonth,
+      endMonth,
+      cycleStartDay,
+      cycleRef,
+      target,
+      unit,
+      dir
+    };
     if(editId){
-      list=list.map(g=>g.id===editId?{...g,id:editId.startsWith('legacy_')?'g'+Date.now().toString(36):g.id,metric:m,label,week,scope,startWeek,endWeek,target,unit,dir}:g);
+      list=list.map(g=>g.id===editId?newGoalObj:g);
     }else{
-      const idx=list.findIndex(g=>g.metric===m && g.week===week && g.scope===scope && (g.startWeek||'')===startWeek && (g.endWeek||'')===endWeek);
-      const newG={id:'g'+Date.now().toString(36),metric:m,label,week,scope,startWeek,endWeek,target,unit,dir};
-      if(idx>=0)list[idx]=newG;
-      else list.push(newG);
+      const newMonthsKey = targetMonths.join(',');
+      const idx=list.findIndex(g=>g.metric===m && (g.periodType||'weekly')===periodType && (periodType==='monthly' ? (g.monthScope===monthScope && getGoalTargetMonths(g).join(',')===newMonthsKey && (g.startMonth||'')===startMonth && (g.endMonth||'')===endMonth) : (g.week===week && g.scope===scope && (g.startWeek||'')===startWeek && (g.endWeek||'')===endWeek)));
+      if(idx>=0)list[idx]=newGoalObj;
+      else list.push(newGoalObj);
     }
     const goalsMap={};
-    list.forEach(g=>{if((g.scope==='recurrent'||g.week==='all'||!g.week)&&!g.startWeek&&!g.endWeek)goalsMap[g.metric]=g.target;});
+    list.forEach(g=>{if((g.periodType||'weekly')!=='monthly'&&(g.scope==='recurrent'||g.week==='all'||!g.week)&&!g.startWeek&&!g.endWeek)goalsMap[g.metric]=g.target;});
     $('#g_edit_id').value='';
     $('#g_target').value='';
     if($('#g_start_week'))$('#g_start_week').value='';
     if($('#g_end_week'))$('#g_end_week').value='';
+    window._goalMonthPicker = { year: parseInt(today().slice(0, 4), 10), selected: [today().slice(0, 7)] };
     $('#g_form_title').textContent='Adicionar / Editar meta';
     $('#g_cancel_btn').classList.add('hide');
     await saveCfg({goalsList:list,goals:goalsMap});
     renderCfg();
     forceRender();
-    return toast('Meta salva com sucesso!');
+    return toast(periodType === 'monthly' ? 'Meta mensal salva com sucesso!' : 'Meta salva com sucesso!');
   }
   if(id==='g_cancel_btn'){
     $('#g_edit_id').value='';
     $('#g_target').value='';
     if($('#g_start_week'))$('#g_start_week').value='';
     if($('#g_end_week'))$('#g_end_week').value='';
+    window._goalMonthPicker = { year: parseInt(today().slice(0, 4), 10), selected: [today().slice(0, 7)] };
+    if($('#g_period_type')){$('#g_period_type').value='weekly';$('#g_period_type').dispatchEvent(new Event('change',{bubbles:true}));}
+    renderGoalMonthCalendar();
     $('#g_form_title').textContent='Adicionar / Editar meta';
     $('#g_cancel_btn').classList.add('hide');
     return;
@@ -4660,12 +5818,28 @@ $('#cfg').onclick=async e=>{
     if(g){
       $('#g_edit_id').value=g.id;
       $('#g_metric').value=g.metric;
-      const wVal=(g.scope==='sum_all'||g.week==='sum_all')?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':g.week);
-      $('#g_week').value=wVal;
-      if($('#g_start_week'))$('#g_start_week').value=g.startWeek||'';
-      if($('#g_end_week'))$('#g_end_week').value=g.endWeek||'';
-      if($('#g_wrap_start'))$('#g_wrap_start').classList.toggle('hide',wVal!=='recurrent');
-      if($('#g_wrap_end'))$('#g_wrap_end').classList.toggle('hide',wVal!=='recurrent');
+      const pType = g.periodType === 'monthly' ? 'monthly' : 'weekly';
+      if($('#g_period_type')) $('#g_period_type').value = pType;
+      if(pType === 'monthly'){
+        const tgtMonths = getGoalTargetMonths(g);
+        const curYM = today().slice(0, 7);
+        const initMonths = tgtMonths.length ? tgtMonths : [curYM];
+        const initYear = parseInt(initMonths[0].slice(0, 4), 10) || parseInt(curYM.slice(0, 4), 10);
+        window._goalMonthPicker = { year: initYear, selected: [...initMonths] };
+        if($('#g_month_mode')) $('#g_month_mode').value = g.monthMode || 'calendar';
+        if($('#g_month_scope')) $('#g_month_scope').value = g.monthScope || (tgtMonths.length ? 'specific' : 'recurrent');
+        renderGoalMonthCalendar();
+        if($('#g_start_month')) $('#g_start_month').value = g.startMonth || '';
+        if($('#g_end_month')) $('#g_end_month').value = g.endMonth || '';
+        if($('#g_cycle_start_day')) $('#g_cycle_start_day').value = g.cycleStartDay || 26;
+        if($('#g_cycle_ref')) $('#g_cycle_ref').value = g.cycleRef || 'prev_to_curr';
+      } else {
+        const wVal=(g.scope==='sum_all'||g.week==='sum_all')?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':g.week);
+        $('#g_week').value=wVal;
+        if($('#g_start_week'))$('#g_start_week').value=g.startWeek||'';
+        if($('#g_end_week'))$('#g_end_week').value=g.endWeek||'';
+      }
+      syncGoalFormVisibility();
       $('#g_target').value=g.target;
       $('#g_unit').value=g.unit||'num';
       $('#g_dir').value=g.dir||'min';
@@ -4683,16 +5857,25 @@ $('#cfg').onclick=async e=>{
       id:g.id.startsWith('legacy_')?'g'+Math.random().toString(36).slice(2,8):g.id,
       metric:g.metric,
       label:g.label,
+      periodType:g.periodType||'weekly',
       scope:g.scope||(g.week==='sum_all'?'sum_all':((g.week==='all'||g.week==='recurrent'||!g.week)?'recurrent':'week')),
       week:g.week||'recurrent',
       startWeek:g.startWeek||'',
       endWeek:g.endWeek||'',
+      monthMode:g.monthMode||'',
+      monthScope:g.monthScope||'',
+      targetMonth:g.targetMonth||'',
+      targetMonths:getGoalTargetMonths(g),
+      startMonth:g.startMonth||'',
+      endMonth:g.endMonth||'',
+      cycleStartDay:g.cycleStartDay||1,
+      cycleRef:g.cycleRef||'prev_to_curr',
       target:g.target,
       unit:g.unit||'num',
       dir:g.dir||'min'
     }));
     const goalsMap={};
-    list.forEach(g=>{if((g.scope==='recurrent'||g.week==='all'||!g.week)&&!g.startWeek&&!g.endWeek)goalsMap[g.metric]=g.target;});
+    list.forEach(g=>{if((g.periodType||'weekly')!=='monthly'&&(g.scope==='recurrent'||g.week==='all'||!g.week)&&!g.startWeek&&!g.endWeek)goalsMap[g.metric]=g.target;});
     if(itemToDelete){
       delete goalsMap[itemToDelete.metric];
       delete goalsMap[itemToDelete.label];
@@ -4707,12 +5890,108 @@ $('#cfg').onclick=async e=>{
   }
 };
 
+function renderGoalMonthCalendarHtml(){
+  const curYM = today().slice(0, 7);
+  const curYear = parseInt(curYM.slice(0, 4), 10) || new Date().getFullYear();
+  const state = window._goalMonthPicker || { year: curYear, selected: [curYM] };
+  const viewYear = Number(state.year) || curYear;
+  const selected = Array.from(new Set((state.selected || []).filter(ym => /^\d{4}-\d{2}$/.test(ym)))).sort();
+  const selSet = new Set(selected);
+
+  const yearTabs = [viewYear - 1, viewYear, viewYear + 1];
+  const yearMonths = Array.from({ length: 12 }, (_, idx) => `${viewYear}-${String(idx + 1).padStart(2, '0')}`);
+  const allYearSelected = yearMonths.every(ym => selSet.has(ym));
+
+  const summaryText = selected.length === 0
+    ? 'Nenhum mês selecionado · clique nos meses abaixo'
+    : `${selected.length} ${selected.length === 1 ? 'mês selecionado' : 'meses selecionados'} · ${selected.slice(0, 4).map(formatMonthShort).join(', ')}${selected.length > 4 ? ` +${selected.length - 4}` : ''}`;
+
+  const monthsGridHtml = yearMonths.map((ym, idx) => {
+    const rawName = MONTH_NAMES[idx] || String(idx + 1);
+    const fullName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+    const isSel = selSet.has(ym);
+    const isCur = ym === curYM;
+    const subText = isCur ? `Mês atual · ${viewYear}` : (ym < curYM ? `Anterior · ${viewYear}` : `Futuro · ${viewYear}`);
+    return `
+      <button type="button" class="gm-month-btn${isSel ? ' is-selected' : ''}${isCur ? ' is-current' : ''}" data-gm-month="${ym}" aria-pressed="${isSel ? 'true' : 'false'}">
+        <span class="gm-month-top">
+          <span class="gm-month-name">${esc(fullName)}</span>
+          <span class="gm-month-check" aria-hidden="true">✓</span>
+        </span>
+        <span class="gm-month-sub">${esc(subText)}</span>
+      </button>
+    `;
+  }).join('');
+
+  const footerHtml = selected.length > 0 ? `
+    <div class="gm-cal-foot">
+      <span>Meses incluídos (${selected.length}):</span>
+      <div class="gm-sel-list">
+        ${selected.map(ym => `
+          <button type="button" class="gm-sel-remove" data-gm-remove="${ym}" title="Remover ${esc(formatMonthFull(ym))}">
+            <span>${esc(formatMonthShort(ym))}</span>
+            <span aria-hidden="true">×</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+
+  return `
+    <div class="gm-cal-head">
+      <div class="gm-cal-title-block">
+        <span class="gm-cal-title">Meses específicos da meta</span>
+        <span class="gm-cal-summary">${esc(summaryText)}</span>
+      </div>
+      <div class="gm-cal-nav">
+        <div class="gm-year-seg" role="group" aria-label="Navegar por ano">
+          <button type="button" class="gm-year-step" data-gm-year-step="-1" title="Ano anterior" aria-label="Ano anterior">‹</button>
+          ${yearTabs.map(yr => `<button type="button" class="gm-year-btn${yr === viewYear ? ' active' : ''}" data-gm-year="${yr}">${yr}</button>`).join('')}
+          <button type="button" class="gm-year-step" data-gm-year-step="1" title="Próximo ano" aria-label="Próximo ano">›</button>
+        </div>
+        <button type="button" class="gm-act-btn" data-gm-action="current">Mês atual</button>
+        <button type="button" class="gm-act-btn" data-gm-action="toggle_year">${allYearSelected ? 'Desmarcar ano' : 'Ano todo'}</button>
+        <button type="button" class="gm-act-btn" data-gm-action="clear" ${selected.length === 0 ? 'disabled' : ''}>Limpar</button>
+      </div>
+    </div>
+    <div class="gm-cal-grid" role="group" aria-label="Meses de ${viewYear}">
+      ${monthsGridHtml}
+    </div>
+    ${footerHtml}
+  `;
+}
+
+function renderGoalMonthCalendar(){
+  const wrap = $('#g_wrap_target_month');
+  if(!wrap) return;
+  wrap.innerHTML = renderGoalMonthCalendarHtml();
+}
+
+function syncGoalFormVisibility(){
+  const pType = $('#g_period_type')?.value || 'weekly';
+  const isMonthly = pType === 'monthly';
+  const isRecWeek = ($('#g_week')?.value === 'recurrent' || $('#g_week')?.value === 'all');
+  const mMode = $('#g_month_mode')?.value || 'calendar';
+  const mScope = $('#g_month_scope')?.value || 'recurrent';
+
+  $('#g_wrap_week')?.classList.toggle('hide', isMonthly);
+  $('#g_wrap_start')?.classList.toggle('hide', isMonthly || !isRecWeek);
+  $('#g_wrap_end')?.classList.toggle('hide', isMonthly || !isRecWeek);
+
+  $('#g_wrap_month_mode')?.classList.toggle('hide', !isMonthly);
+  $('#g_wrap_month_scope')?.classList.toggle('hide', !isMonthly);
+  $('#g_wrap_cycle_day')?.classList.toggle('hide', !isMonthly || mMode !== 'custom_cycle');
+  $('#g_wrap_cycle_ref')?.classList.toggle('hide', !isMonthly || mMode !== 'custom_cycle');
+  $('#g_wrap_target_month')?.classList.toggle('hide', !isMonthly || mScope !== 'specific');
+  $('#g_wrap_start_month')?.classList.toggle('hide', !isMonthly || mScope !== 'recurrent');
+  $('#g_wrap_end_month')?.classList.toggle('hide', !isMonthly || mScope !== 'recurrent');
+  if(isMonthly && mScope === 'specific') renderGoalMonthCalendar();
+}
+
 $('#cfg').onchange=e=>{
   const t=e.target;
-  if(t.id==='g_week'){
-    const isRec = t.value === 'recurrent' || t.value === 'all';
-    if($('#g_wrap_start')) $('#g_wrap_start').classList.toggle('hide', !isRec);
-    if($('#g_wrap_end')) $('#g_wrap_end').classList.toggle('hide', !isRec);
+  if(t.id==='g_period_type'||t.id==='g_week'||t.id==='g_month_mode'||t.id==='g_month_scope'){
+    syncGoalFormVisibility();
     return;
   }
   if(t.id==='g_metric'){
@@ -4736,10 +6015,65 @@ function getAllAvailableWeekIds() {
   return W().map(w => w.id).sort();
 }
 
-function ensureExcelSelectedArray() {
+function getExcelSelectedIdsForMode(mode) {
+  const allIds = getAllAvailableWeekIds();
+  const curYM = today().slice(0, 7);
+  const nextYM = addMonthsYM(curYM, 1);
+  if (mode === 'all') return [...allIds];
+  if (mode === 'last4') return allIds.slice(-4);
+  if (mode === 'last') return allIds.slice(-1);
+  if (mode === 'penultimate') return allIds.length >= 2 ? [allIds[allIds.length - 2]] : allIds.slice(-1);
+  if (mode === 'this_month') return allIds.filter(id => getWeekEffectiveYM(id, allIds) === curYM);
+  if (mode === 'next_month') return allIds.filter(id => getWeekEffectiveYM(id, allIds) === nextYM);
+  if (mode === 'current_and_future_months') return allIds.filter(id => getWeekEffectiveYM(id, allIds) >= curYM);
+  if (mode === 'future_months') return allIds.filter(id => getWeekEffectiveYM(id, allIds) >= nextYM);
+  return Array.isArray(window.excelFilter.selected) ? window.excelFilter.selected.filter(id => allIds.includes(id)) : [...allIds];
+}
+
+function ensureExcelSelectedArray(prevMode) {
+  if (prevMode && prevMode !== 'custom') {
+    window.excelFilter.selected = getExcelSelectedIdsForMode(prevMode);
+    return;
+  }
   if (!Array.isArray(window.excelFilter.selected)) {
     window.excelFilter.selected = getAllAvailableWeekIds();
   }
+}
+
+function syncExcelTreeDomCheckboxes() {
+  const allIds = getAllAvailableWeekIds();
+  const selSet = new Set(Array.isArray(window.excelFilter.selected) ? window.excelFilter.selected : allIds);
+  const totalCount = allIds.length;
+  const selectedCount = allIds.filter(id => selSet.has(id)).length;
+
+  const selAllEl = document.getElementById('ef_sel_all');
+  if (selAllEl) {
+    selAllEl.checked = totalCount > 0 && selectedCount === totalCount;
+    selAllEl.indeterminate = selectedCount > 0 && selectedCount < totalCount;
+  }
+  const cntEl = document.getElementById('ef_sel_count_lbl');
+  if (cntEl) cntEl.textContent = `(${selectedCount}/${totalCount})`;
+
+  document.querySelectorAll('#ef_tree_box input[data-ef-type="day"]').forEach(el => {
+    const wid = el.dataset.efId;
+    el.checked = selSet.has(wid);
+  });
+  document.querySelectorAll('#ef_tree_box input[data-ef-type="month"]').forEach(el => {
+    const yr = el.dataset.efYear;
+    const mStr = String(parseInt(el.dataset.efMonth, 10) + 1).padStart(2, '0');
+    const targetYM = `${yr}-${mStr}`;
+    const mIds = allIds.filter(id => getWeekEffectiveYM(id, allIds) === targetYM);
+    const mSel = mIds.filter(id => selSet.has(id)).length;
+    el.checked = mIds.length > 0 && mSel === mIds.length;
+    el.indeterminate = mSel > 0 && mSel < mIds.length;
+  });
+  document.querySelectorAll('#ef_tree_box input[data-ef-type="year"]').forEach(el => {
+    const yr = el.dataset.efYear;
+    const yrIds = allIds.filter(id => (getWeekEffectiveYM(id, allIds) || '').slice(0, 4) === yr);
+    const ySel = yrIds.filter(id => selSet.has(id)).length;
+    el.checked = yrIds.length > 0 && ySel === yrIds.length;
+    el.indeterminate = ySel > 0 && ySel < yrIds.length;
+  });
 }
 
 $('#dash').onclick = async e => {
@@ -4811,6 +6145,30 @@ $('#dash').onclick = async e => {
   if (btnApplyGoal) {
     window._goalFilterExplicit = true;
     window.goalFilter.isOpen = false;
+    forceRender();
+    return;
+  }
+  const btnToggleMGoal = t.closest('#mgoal_btn_toggle_popover');
+  if (btnToggleMGoal) {
+    window.monthlyGoalFilter.isOpen = !window.monthlyGoalFilter.isOpen;
+    forceRender();
+    return;
+  }
+  const btnCloseMGoal = t.closest('#mgoal_popover_close');
+  if (btnCloseMGoal) {
+    window.monthlyGoalFilter.isOpen = false;
+    forceRender();
+    return;
+  }
+  const btnClearMGoal = t.closest('#mgoal_btn_clear');
+  if (btnClearMGoal) {
+    window.monthlyGoalFilter = { mode: 'all', year: 'all', month: 'all', ymFrom: '', ymTo: '', sort: 'asc', isOpen: true };
+    forceRender();
+    return;
+  }
+  const btnApplyMGoal = t.closest('#mgoal_btn_apply');
+  if (btnApplyMGoal) {
+    window.monthlyGoalFilter.isOpen = false;
     forceRender();
     return;
   }
@@ -4944,12 +6302,54 @@ $('#dash').onchange = e => {
     forceRender();
     return;
   }
+  if (t.id === 'monthly_goal_chart_selector') {
+    window._selectedMonthlyGoalChartId = t.value;
+    forceRender();
+    return;
+  }
+  if (t.id === 'mgoal_sel_mode') {
+    window.monthlyGoalFilter.mode = t.value;
+    if (t.value !== 'custom') {
+      window.monthlyGoalFilter.year = 'all';
+      window.monthlyGoalFilter.month = 'all';
+      window.monthlyGoalFilter.ymFrom = '';
+      window.monthlyGoalFilter.ymTo = '';
+    }
+    forceRender();
+    return;
+  }
+  if (t.id === 'mgoal_sel_year') {
+    window.monthlyGoalFilter.mode = 'custom';
+    window.monthlyGoalFilter.year = t.value;
+    forceRender();
+    return;
+  }
+  if (t.id === 'mgoal_sel_month') {
+    window.monthlyGoalFilter.mode = 'custom';
+    window.monthlyGoalFilter.month = t.value;
+    forceRender();
+    return;
+  }
+  if (t.id === 'mgoal_ym_from') {
+    window.monthlyGoalFilter.mode = 'custom';
+    window.monthlyGoalFilter.ymFrom = t.value || '';
+    forceRender();
+    return;
+  }
+  if (t.id === 'mgoal_ym_to') {
+    window.monthlyGoalFilter.mode = 'custom';
+    window.monthlyGoalFilter.ymTo = t.value || '';
+    forceRender();
+    return;
+  }
   if (t.id === 'ef_quick_sel') {
     const val = t.value;
     window.excelFilter.mode = val;
     const allIds = getAllAvailableWeekIds();
     const launched = Object.keys(weeks || {}).sort();
     const sourceList = launched.length ? launched : allIds;
+    const curYM = today().slice(0, 7);
+    const nextYM = addMonthsYM(curYM, 1);
 
     if (val === 'all') {
       window.excelFilter.selected = [...allIds];
@@ -4959,6 +6359,14 @@ $('#dash').onchange = e => {
       window.excelFilter.selected = sourceList.slice(-1);
     } else if (val === 'penultimate') {
       window.excelFilter.selected = sourceList.length >= 2 ? [sourceList[sourceList.length - 2]] : sourceList.slice(-1);
+    } else if (val === 'this_month') {
+      window.excelFilter.selected = allIds.filter(id => getWeekEffectiveYM(id, allIds) === curYM);
+    } else if (val === 'next_month') {
+      window.excelFilter.selected = allIds.filter(id => getWeekEffectiveYM(id, allIds) === nextYM);
+    } else if (val === 'current_and_future_months') {
+      window.excelFilter.selected = allIds.filter(id => getWeekEffectiveYM(id, allIds) >= curYM);
+    } else if (val === 'future_months') {
+      window.excelFilter.selected = allIds.filter(id => getWeekEffectiveYM(id, allIds) >= nextYM);
     }
     forceRender();
     return;
@@ -4972,15 +6380,16 @@ $('#dash').onchange = e => {
     const allIds = getAllAvailableWeekIds();
     window.excelFilter.selected = t.checked ? [...allIds] : [];
     if (window.excelFilter.autoApply !== false) forceRender();
-    else updateIndeterminateInputs();
+    else syncExcelTreeDomCheckboxes();
     return;
   }
   if (t.dataset.efType === 'year') {
+    const prevMode = window.excelFilter.mode;
+    ensureExcelSelectedArray(prevMode);
     window.excelFilter.mode = 'custom';
-    ensureExcelSelectedArray();
     const yr = t.dataset.efYear;
     const allIds = getAllAvailableWeekIds();
-    const yrIds = allIds.filter(id => id.startsWith(yr + '-'));
+    const yrIds = allIds.filter(id => (getWeekEffectiveYM(id, allIds) || '').slice(0, 4) === yr);
     if (t.checked) {
       yrIds.forEach(id => {
         if (!window.excelFilter.selected.includes(id)) window.excelFilter.selected.push(id);
@@ -4989,18 +6398,19 @@ $('#dash').onchange = e => {
       window.excelFilter.selected = window.excelFilter.selected.filter(id => !yrIds.includes(id));
     }
     if (window.excelFilter.autoApply !== false) forceRender();
-    else updateIndeterminateInputs();
+    else syncExcelTreeDomCheckboxes();
     return;
   }
   if (t.dataset.efType === 'month') {
+    const prevMode = window.excelFilter.mode;
+    ensureExcelSelectedArray(prevMode);
     window.excelFilter.mode = 'custom';
-    ensureExcelSelectedArray();
     const yr = t.dataset.efYear;
     const mNum = parseInt(t.dataset.efMonth, 10);
     const mStr = String(mNum + 1).padStart(2, '0');
-    const prefix = `${yr}-${mStr}-`;
+    const targetYM = `${yr}-${mStr}`;
     const allIds = getAllAvailableWeekIds();
-    const mIds = allIds.filter(id => id.startsWith(prefix));
+    const mIds = allIds.filter(id => getWeekEffectiveYM(id, allIds) === targetYM);
     if (t.checked) {
       mIds.forEach(id => {
         if (!window.excelFilter.selected.includes(id)) window.excelFilter.selected.push(id);
@@ -5009,12 +6419,13 @@ $('#dash').onchange = e => {
       window.excelFilter.selected = window.excelFilter.selected.filter(id => !mIds.includes(id));
     }
     if (window.excelFilter.autoApply !== false) forceRender();
-    else updateIndeterminateInputs();
+    else syncExcelTreeDomCheckboxes();
     return;
   }
   if (t.dataset.efType === 'day') {
+    const prevMode = window.excelFilter.mode;
+    ensureExcelSelectedArray(prevMode);
     window.excelFilter.mode = 'custom';
-    ensureExcelSelectedArray();
     const wid = t.dataset.efId;
     if (t.checked) {
       if (!window.excelFilter.selected.includes(wid)) window.excelFilter.selected.push(wid);
@@ -5022,7 +6433,7 @@ $('#dash').onchange = e => {
       window.excelFilter.selected = window.excelFilter.selected.filter(x => x !== wid);
     }
     if (window.excelFilter.autoApply !== false) forceRender();
-    else updateIndeterminateInputs();
+    else syncExcelTreeDomCheckboxes();
     return;
   }
 };
@@ -5298,6 +6709,12 @@ document.addEventListener('click', e => {
   if (window.goalFilter && window.goalFilter.isOpen) {
     if (!e.target.closest('#goal_popover') && !e.target.closest('#goal_btn_toggle_popover')) {
       window.goalFilter.isOpen = false;
+      changed = true;
+    }
+  }
+  if (window.monthlyGoalFilter && window.monthlyGoalFilter.isOpen) {
+    if (!e.target.closest('#mgoal_popover') && !e.target.closest('#mgoal_btn_toggle_popover')) {
+      window.monthlyGoalFilter.isOpen = false;
       changed = true;
     }
   }
@@ -5733,9 +7150,13 @@ window.KommoApp = {
   get excelFilter() { return window.excelFilter; },
   get agendaFilter() { return window.agendaFilter; },
   get goalFilter() { return window.goalFilter; },
+  get monthlyGoalFilter() { return window.monthlyGoalFilter; },
   get selectedGoalChartId() { return window._selectedGoalChartId; },
+  get selectedMonthlyGoalChartId() { return window._selectedMonthlyGoalChartId; },
   W,
   getGoalChartWeeks,
+  isMonthlyGoalApplicable,
+  evaluateMonthlyGoalValue,
   getAgendaWeeksData,
   getEffectiveCprev,
   getCprevAliasKeys,
@@ -5745,6 +7166,7 @@ window.KommoApp = {
   today,
   getSaturdayOfWeek,
   getWeekWindow,
+  getWeekEffectiveYM,
   computeWeekApptMetrics,
   isApptPrevistaInWeek,
   isApptCancelledInContactInWeek,
