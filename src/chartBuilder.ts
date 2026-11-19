@@ -109,7 +109,7 @@ function resolveWeekMetricValue(w: any, fieldKey: string, app: any, allAppts: an
   const cfg = app.cfg || {};
   const pct = app.pct || ((a: number, b: number) => b ? (a / b * 100) : 0);
   const normIso = app.normIso || ((s: string) => s);
-  const msgsFn = app.msgs || ((x: any) => (x.fu2 || 0) + (x.fu3 || 0) + (x.fu4 || 0) + (x.fu5 || 0));
+  const msgsFn = app.msgs || ((x: any) => (x.fu2 || 0) + (x.fu3 || 0) + (x.fu4 || 0) + (x.fu5 || 0) + (x.fu6 || 0) + (x.fuparados || 0));
   const totConsultas = app.weekTotalConsultas
     ? app.weekTotalConsultas(w)
     : Math.max(w.ctot || 0, w.cprev || 0, (w.creal || 0) + (w.creag || 0) + (w.ccanc || 0) + (w.cfaltou || 0));
@@ -216,6 +216,9 @@ export function computeStudioChartData(c: StudioChartCfg) {
   const curSat = app.getSaturdayOfWeek ? app.getSaturdayOfWeek(todayStr) : todayStr;
   const rules: StudioFilterRule[] = Array.isArray(c.filters) ? c.filters : [];
 
+  const waIds = WA.map(w => w.id).filter(Boolean).sort();
+  const getWeekEffYM = (wid: string) => (app.getWeekEffectiveYM ? app.getWeekEffectiveYM(wid, waIds) : String(wid || '').slice(0, 7));
+
   let filteredWeeks = [...WA];
   if (c.periodFilter === 'last4') filteredWeeks = WA.slice(-4);
   else if (c.periodFilter === 'last8') filteredWeeks = WA.slice(-8);
@@ -229,7 +232,7 @@ export function computeStudioChartData(c: StudioChartCfg) {
     filteredWeeks = WA.filter(w => w.id >= curSat || w.id >= todayStr);
   } else if (c.periodFilter && c.periodFilter.startsWith('ym:')) {
     const ym = c.periodFilter.slice(3);
-    filteredWeeks = WA.filter(w => w.id && w.id.startsWith(ym + '-'));
+    filteredWeeks = WA.filter(w => w.id && getWeekEffYM(w.id) === ym);
   }
 
   if (c.dateFrom) {
@@ -254,11 +257,11 @@ export function computeStudioChartData(c: StudioChartCfg) {
         if (ds === 'planilha' && !WEEK_TIME_FIELDS.has(r.field)) continue;
         if (r.field === 'year') {
           if (!r.value) continue;
-          const y = String(w.id || '').slice(0, 4);
+          const y = getWeekEffYM(w.id).slice(0, 4);
           if (!matchScalarRule(y, r.op, r.value)) return false;
         } else if (r.field === 'month') {
           if (!r.value) continue;
-          const mNum = String(parseInt(String(w.id || '').split('-')[1] || '0', 10));
+          const mNum = String(parseInt(getWeekEffYM(w.id).split('-')[1] || '0', 10));
           const targetM = String(parseInt(r.value, 10));
           if (!matchScalarRule(mNum, r.op, targetM)) return false;
         } else if (r.field === 'week_id') {
@@ -338,11 +341,12 @@ export function computeStudioChartData(c: StudioChartCfg) {
   const extraXFields = (c.xAxisSeries || []).filter(f => f && f !== xField);
   const buckets: Record<string, { label: string; fullCat: string; weeks: any[]; appts: any[]; rows: any[] }> = {};
 
-  const getGroupBucket = (iso: string, fallbackPrefix = 'Semana de ') => {
+  const getGroupBucket = (iso: string, fallbackPrefix = 'Semana de ', isWeekId = false) => {
     if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
       return { key: 'sem_data', label: 'Sem data', fullCat: 'Sem data' };
     }
-    const parts = iso.split('-');
+    const effYmParts = isWeekId ? getWeekEffYM(iso).split('-') : null;
+    const parts = effYmParts && effYmParts.length === 2 ? [effYmParts[0], effYmParts[1], iso.split('-')[2]] : iso.split('-');
     const mIdx = parseInt(parts[1], 10) - 1;
     if (c.xAxisGrouping === 'month') {
       return {
@@ -413,7 +417,7 @@ export function computeStudioChartData(c: StudioChartCfg) {
 
   if (ds === 'semanas' || ds === 'metas') {
     filteredWeeks.forEach(w => {
-      const bInfo = getGroupBucket(w.id, 'Semana de ');
+      const bInfo = getGroupBucket(w.id, 'Semana de ', true);
       const extraParts = extraXFields.map(ef => String(w[ef] ?? '—'));
       const fullKey = extraParts.length ? `${bInfo.key}__${extraParts.join('__')}` : bInfo.key;
       const fullLabel = extraParts.length ? `${bInfo.label} · ${extraParts.join(' · ')}` : bInfo.label;
@@ -444,7 +448,7 @@ export function computeStudioChartData(c: StudioChartCfg) {
         return dt >= start && dt <= end;
       });
 
-      const bInfo = getGroupBucket(w.id, 'Semana de ');
+      const bInfo = getGroupBucket(w.id, 'Semana de ', true);
       if (extraXFields.length > 0 && matchedAppts.length > 0) {
         matchedAppts.forEach(a => {
           const extraDims = extraXFields.map(ef => resolveApptField(a, ef));
@@ -1208,7 +1212,8 @@ export function startEditingChart(chartId: string) {
 export function getStandardChartDefs(): Record<string, StudioChartCfg> {
   const palette = getThemeColors();
   const app = getApp();
-  const goals = app.getUnifiedGoalsList ? app.getUnifiedGoalsList() : [];
+  const allGoals = app.getUnifiedGoalsList ? app.getUnifiedGoalsList() : [];
+  const goals = allGoals.filter((g: any) => g.periodType !== 'monthly');
   const selGoalId = app.selectedGoalChartId;
   const activeGoal = (selGoalId && goals.find((g: any) => g.id === selGoalId)) || goals[0];
   const goalSeries: SeriesItem[] = activeGoal
@@ -1728,7 +1733,13 @@ export function renderGraficosTabContent() {
               <option value="penultimate" ${c.periodFilter === 'penultimate' ? 'selected' : ''}>Penúltima semana lançada</option>
               ${(() => {
                 const ymSet = new Set<string>();
-                WA_ALL.forEach(w => { if (w.id && w.id.length >= 7) ymSet.add(w.id.slice(0, 7)); });
+                const waIdsAll = WA_ALL.map(x => x.id).filter(Boolean).sort();
+                WA_ALL.forEach(w => {
+                  if (w.id && w.id.length >= 7) {
+                    const effYm = app.getWeekEffectiveYM ? app.getWeekEffectiveYM(w.id, waIdsAll) : w.id.slice(0, 7);
+                    if (effYm) ymSet.add(effYm);
+                  }
+                });
                 return Array.from(ymSet).sort().reverse().map(ym => {
                   const [y, m] = ym.split('-');
                   const mName = MONTH_NAMES[parseInt(m, 10) - 1] || m;
